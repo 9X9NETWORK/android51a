@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string-array name="servtext">
+		<item>dev.9x9.tv</item>
+		<item>qa.9x9.tv</item>
+		<item>www.9x9.tv</item>
+		<item>dev.5f.tv</item>
+		<item>qa.5f.tv</item>
+		<item>www.5f.tv</item>
+	</string-array>
+	<string-array name="serverdomain">
+		<item>dev.9x9.tv</item>
+		<item>qa.9x9.tv</item>
+		<item>www.9x9.tv</item>
+		<item>dev.5f.tv</item>
+		<item>qa.5f.tv</item>
+		<item>www.5f.tv</item>
+	</string-array>
+
+	<string-array name="languages">
+		<item>English</item>
+		<item>Chinese</item>
+	</string-array>	
+	
+</resources>

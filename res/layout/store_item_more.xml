@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+	<FrameLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+		android:id="@+id/square"
+	    android:padding="4dip"    
+	    android:background="@drawable/store_square_bg">       
+	    <ImageView
+	    	android:id="@+id/squarebg"
+	        android:layout_width="fill_parent" 
+	        android:layout_height="fill_parent"
+	        android:scaleType="fitXY"
+	        android:adjustViewBounds="true"
+	        android:visibility="visible"
+	        />    
+		<FrameLayout
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"
+		    android:layout_marginTop="5dip"
+		    android:layout_marginBottom="5dip"
+		    android:layout_marginLeft="5dip"
+		    android:layout_marginRight="5dip"
+		    android:background="#00000000">     
+			<ProgressBar
+			   	android:layout_width="40dip"
+			   	android:layout_height="40dip"
+			   	style="@android:style/Widget.ProgressBar.Large.Inverse"
+			   	android:layout_gravity="center_vertical|center_horizontal"
+			   	/>         		
+		</FrameLayout>
+	</FrameLayout>
+</LinearLayout>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<FrameLayout
+		android:id="@+id/mask"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"		
+		android:layout_gravity="center"
+		android:background="#A0000000">
+			
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:orientation="vertical"
+			android:background="@drawable/bg_preview_dongle">
+
+    		<TextView
+		        android:id="@+id/message"		        
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:layout_marginTop="20dip"
+				android:padding="3dip"
+				android:gravity="center"
+				android:textSize="14sp"
+				android:textColor="#000000"
+				/>	
+			
+    	<Button 
+    	    android:id="@+id/upgrade"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="left"		
+			android:gravity="left"
+			android:paddingTop="8dip"
+			android:paddingBottom="12dip"
+			android:paddingLeft="20dip"		
+			android:paddingRight="20dip"		
+			android:text="@string/upgrade"
+			android:textSize="20sp"
+			android:textColor="@drawable/donglebtntext"
+			android:background="@drawable/donglebtn"
+			android:visibility="invisible"
+    	    />	
+
+    	</LinearLayout>
+
+	</FrameLayout>
+</FrameLayout>

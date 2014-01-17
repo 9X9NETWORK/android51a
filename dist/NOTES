@@ -1,0 +1,49 @@
+There are ten screens plus the traveling video box. Mockups exist for all but the Help screen, which should not be a problem.
+
+1. Home ***
+2. Playback portrait ***
+3. Playback landscape (derivative of #2)
+4. Guide **
+5. Search results *
+6. Store *
+7. Sign in / Sign up
+8. Settings
+9. Help
+10. Terms of Use / Privacy
+11. Traveling video box
+
+Number of stars indicates complexity of the module.
+
+The Settings page includes two lines at the bottom for Facebook and Twitter. These won't be included, and don't make sense.
+
+Slightly different UI for the on/off switches on the Settings page. Lili is ok with this. Will try to match exact design if time permitting.
+
+No custom scrollbars for this app (such as those visible on the Terms of Use / Privacy screen). But will do them if time permitting.
+
+Support for subepisodes will be in the code but not visible in the UI.
+
+Chromecast will be supported as currently implemented, if that build flag is turned on.
+
+Facebook login will be supported.
+
+The "Share" screen will instead by the default Android share as we presently have. (Dan confirms this)
+
+The Home screen has spots for episode in all channels in the set. Obviously, we will not have all that data at once. So when scrolling, it will have to be loading data at times, and downloading thumbnails.
+
+The Guide screen has "Add New" on the first unoccupied square. I have no idea what would happen if someone taps it, and I can't think of any sensible behavior for it.
+
+I don't know what happens when you tap "Forgot Password?" on the login screen.
+
+I have not taken into account any tablet complications. It is possible this design will work fine on a Nexus 7 tablet, with the exception that the enlarged channel thumbs may be rather fuzzy. 10 inch tablet might be crazy.
+
+SCHEDULE:
+
+Wednesday, Thursday and Friday this week I want to work from home, and not call into the meeting. (This way I wouldn't have to worry about what hours I am sleeping)
+
+Monday, 4th November: first prototype.
+
+For the week of the 4th, I would like to work two days at home, three if needed to meet the deadline.
+
+Friday, 9th November: essentially complete.
+
+Most likely deviation from design: the top bar on the Home screen, a horizontal sliding widget similar to the Foodspotting widget, will be present but might not have the exact behavior we want at first. I'm making this note because I simply don't know how long it will take to do this.

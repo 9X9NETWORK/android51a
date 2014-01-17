@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:visibility="gone">
+    
+    <!-- THIS IS NOT A REAL LAYOUT FILE. THESE ARE JUST HERE TO KEEP THE SYMBOLS RESOLVING. IF AT SOME POINT
+         POI GETS ADDED BACK, LOOK AT v4 AND INTEGRATE THAT INTO THE LAYOUT AS APPROPRIATE! -->
+         
+	<LinearLayout
+		android:id="@+id/poi_h"
+		android:layout_width="wrap_content"
+		android:layout_height="fill_parent"
+		android:layout_gravity="left"
+		android:orientation="horizontal"
+		android:background="#FFFFFF">
+	</LinearLayout>	
+
+	<LinearLayout
+		android:id="@+id/poi_h_message"
+		android:layout_width="wrap_content"
+		android:layout_height="fill_parent"
+		android:layout_gravity="left"
+		android:orientation="horizontal"
+		android:background="#FFFFFF">
+	</LinearLayout>	
+	
+	<LinearLayout
+		android:id="@+id/poi_h_button"
+		android:layout_width="wrap_content"
+		android:layout_height="fill_parent"
+		android:layout_gravity="left"
+		android:orientation="horizontal"
+		android:background="#FFFFFF">
+	</LinearLayout>	
+
+	<LinearLayout
+		android:id="@+id/subepisodetitle"
+		android:layout_width="wrap_content"
+		android:layout_height="fill_parent"
+		android:layout_gravity="left"
+		android:orientation="horizontal"
+		android:background="#FFFFFF">
+	</LinearLayout>	
+						
+					<!-- dottistan is not used, but keep it here because the code needs R.id.dottistan to exist,
+					     in the event the dots return. (This may not even be the right place -->
+					<FrameLayout
+	 					android:id="@+id/dottistan"
+	 					android:layout_width="wrap_content"
+	 					android:layout_height="fill_parent"
+	 					android:layout_gravity="left"
+	 					android:orientation="horizontal"
+	 					android:background="#FFFFFF">
+					</FrameLayout>				
+</LinearLayout>

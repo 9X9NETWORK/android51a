@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+        <LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical">
+	    	<TextView
+			    android:id="@+id/episode_desc"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical|left"
+				android:paddingLeft="10dip"
+				android:paddingRight="10dip"	
+				android:paddingTop="6dip"
+				android:paddingBottom="6dip"								
+				android:textSize="16sp"
+				android:textColor="#C0C0C0"
+				android:gravity="center_vertical|left"
+		    	/>	
+	    </LinearLayout>
+
+</LinearLayout>

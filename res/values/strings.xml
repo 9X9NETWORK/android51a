@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 9x9-->
+    <string name="app_name">9x9.tv</string>
+	<string name="app_icon">@drawable/tt_icon_new</string>         
+    <string name="white_label">portal</string>
+    <string name="mso">9x9</string>
+    <string name="default_region">en</string>    
+    <string name="logo">tvlogo</string>   
+    <string name="splash_background">bgnew</string>
+    <string name="splash_foreground">splash_generic_logo</string>   
+    <string name="splash_slogan">Empowering Cloud TV</string>
+    <string name="signin_logo">tvlogo</string>    
+    <string name="signin_bg">bgnew</string>     
+    <string name="set_banner">banner_crashcourse</string>      	
+	
+    <!-- cts 
+    <string name="app_name">CTS</string>
+    <string name="app_icon">@drawable/cts_icon_new</string>    
+    <string name="white_label">cts</string>     
+    <string name="mso">cts</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">cts_logo</string>
+    <string name="splash_background">splash_cts_bg</string>
+    <string name="splash_foreground">cts_big_splash</string>    
+    <string name="splash_slogan"></string>    
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>           
+    -->
+ 
+    <!-- goodtv -->
+    <!-- 
+    <string name="app_name">GOODTV</string>
+ 	<string name="app_icon">@drawable/goodtv_launch_logo</string>         
+    <string name="white_label">goodtv</string>
+    <string name="mso">goodtv</string>
+    <string name="default_region">zh</string>    
+    <string name="logo">goodtv_on_white</string>   
+    <string name="logo_old">logo_goodtv</string>       
+    <string name="splash_background">bg_open_goodtv</string>
+    <string name="splash_foreground">open_logo_goodtv</string>   
+    <string name="splash_slogan"></string>           
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>        	
+ 	-->
+ 	
+    <!-- ddtv -->
+    <!--
+    <string name="app_name">DDTV</string>
+    <string name="app_icon">@drawable/ddtv_launch_logo</string>    
+    <string name="white_label">ddtv</string>     
+    <string name="mso">ddtv</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_ddtv</string>
+    <string name="splash_background">bg_open_ddtv</string>
+    <string name="splash_foreground">open_logo_ddtv</string>    
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>               
+    -->     
+  
+    <!-- fcu -->
+    <!--
+    <string name="app_name">FCU</string>
+    <string name="app_icon">@drawable/fcu_launch_logo</string>    
+    <string name="white_label">fcu</string>     
+    <string name="mso">fcu</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_fcu</string>
+    <string name="splash_background">bg_open_fcu</string>
+    <string name="splash_foreground">open_logo_fcu</string>    
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">logo_signin_vice</string>                 
+    <string name="signin_bg">splash_vice</string>      
+  	-->
+  	           
+    <!-- Tzu Chi
+    <string name="app_name">Tzu Chi</string>
+	<string name="app_icon">@drawable/tc_icon_new</string>        
+    <string name="white_label>tc</string>
+    <string name="mso">tzuchi</string>
+    <string name="default_region">zh</string>    
+    <string name="logo">tclogo62</string>    
+    <string name="splash_background">splash_tc_bg</string>
+    <string name="splash_foreground">splash_tc_logo</string>
+    <string name="splash_slogan"></string>       
+    <string name="signin_logo">logo_signin_vice</string>    
+    <string name="signin_bg">splash_vice</string>         
+    -->
+         
+    <bool name="uses_chromecast">true</bool>
+    <string name="fb_app_id">361253423962738</string>
+    
+    <string name="guest">Guest</string>
+    <string name="enter_search_terms">Enter search terms</string>
+    <string name="watch_all_updates">Watch All Updates</string>
+    <string name="all_updates">All Updates</string>
+    <string name="following_pile">Following</string>
+    <string name="follow">Follow</string>
+    <string name="unfollow">Unfollow</string>
+    <string name="search_term">Search term</string>
+    <string name="results">results</string>
+    <string name="no_results_found">No results found, please try another term.</string>
+    <string name="back">Back</string>
+    <string name="dont_see">Don’t see this device on your 2nd screen?</string>
+    <string name="dont_see_1">Download the 9x9.tv app from Google Play, install it on your mobile device, and launch it.</string>
+    <string name="dont_see_2">Play a video on your mobile device, and tap the CONNECT TO TV button to watch on the big screen.</string>
+    <string name="close">Close</string>
+    <string name="following_yay">Following!</string>
+    <string name="unfollowing_yay">Unfollowed!</string>
+    <string name="ok">OK</string>
+    <string name="sorry_error">Sorry, an error has occurred.</string>
+    <string name="no_channel_desc">No program description available.</string>
+    <string name="select_youtube_account">Select YouTube account</string>
+    <string name="add_account">Add account</string>
+    <string name="add_account_hint">Once you successfully add an account to this device, select "Sign in with YouTube" again and choose that account to access its subscriptions.</string>
+    <string name="si_sign_in_with_email">Sign in with Email</string>
+    <string name="su_sign_up_with_email">Sign up with Email</string>
+    <string name="pw_hint_email">Email</string>
+    <string name="pw_hint_name">Name</string>    
+    <string name="pw_hint_password">Password</string>
+    <string name="pw_hint_verify">Verify</string>
+    <string name="cancel">Cancel</string>
+    <string name="si_sign_in_button">Sign in</string>
+    <string name="si_sign_up_button">Sign up</string>
+    <string name="su_create_account_button">Create account</string>
+    <string name="pw_six_or_more">Passwords should be 6 or more characters</string>
+    <string name="signed_out_successfully">Signed out successfully</string>
+    <string name="dropdown_sign_out">Sign out</string>
+    <string name="dropdown_sign_in_with_youtube">Sign in with YouTube</string>
+    <string name="dropdown_sign_in_with_email">Sign in with E-Mail</string>
+    <string name="dropdown_sign_up">Sign up</string>
+    <string name="error_email_taken">This E-Mail already has an account.</string>   
+    <string name="connecting">[Connecting...]</string>
+    <string name="lonely_1">You aren\'t following any programs</string>
+    <string name="lonely_2">Follow some programs from one of the other pages, or try searching, and they will show up on this page.</string>
+    <string name="login_successful">Login successful</string>
+    <string name="sign_up_button">Sign up</string>
+    <string name="sign_in_sign_up_botton">Sign in / Sign up</string>
+    <string name="version">Version: </string>    
+    <string name="copyright">Copyright 2012-2013  9x9.tv</string>
+    <string name="visit_for_terms">Visit 9x9.tv for Terms of Use and Privacy Policy</string>
+    <string name="synchronizing">Synchronizing with your YouTube account. This may take a few moments.</string>
+    <string name="tlogin_sign_in_with_youtube">Sign in with YouTube</string>
+    <string name="tlogin_existing_users">Existing Users</string>
+    <string name="tlogin_your_email">Your Email</string>
+    <string name="tlogin_your_9x9_password">Your 9x9 Password</string>
+    <string name="tlogin_login">Login</string>
+    <string name="tlogin_dont_have">Don\'t Have an Account?</string>
+    <string name="tlogin_enter_a_pw">Enter a password</string>
+    <string name="tlogin_retype_pw">Retype the password</string>
+    <string name="tlogin_create_account_button">Create Account</string>
+    <string name="tlogin_pw_no_match">Passwords don\'t match!</string>
+    <string name="tlogin_pw_six">Passwords should be 6 or more characters</string>
+    <string name="tlogin_valid_email">Please supply a valid email!</string>
+    <string name="newest">Newest</string>    
+    <string name="today">Today</string>
+    <string name="no_episodes">No episodes</string>
+    <string name="no_following">No Following</string>
+    <string name="all_channels">All Programs</string>
+    <string name="become_a_tv">Become a TV</string>
+    <string name="following_stack">Following</string>
+    <string name="search_stack">Search</string>
+    <string name="directory_stack">Directory</string>
+    <string name="account_stack">Account</string>
+    <string name="left_sign_in">Sign in</string>
+    <string name="left_sign_out">Sign out</string>   
+    <string name="network_not_ready">The network wasn\'t ready. Please check the network or WiFi and retry when it is available again.</string>
+    <string name="button_retry">Retry</string>
+    <string name="button_quit">Quit</string> 
+    <string name="please_login">Please login</string>
+    <string name="sign_in_tease_1">Watch what\'s on right now by picking a category on the left!</string>
+    <string name="sign_in_tease_2">Follow your favorite programs and watch them later by choosing Following</string>
+    <string name="sign_in_successful">Signed in successfully!</string>    
+    <string name="login_failure">Login failure</string>
+    <string name="create_tease_1">Watch what\'s on right now by picking a category on the left!</string>
+    <string name="create_tease_2">Follow your favorite programs and watch them later by choosing Following</string>
+    <string name="sign_up_successful">Account created successfully!</string>
+    <string name="login_tease_1a">Please sign in to see your Followings.</string>
+    <string name="login_tease_1b">You aren\'t following any programs.</string>    
+    <string name="login_tease_2">Flip &amp; discover interesting video programs and tap on Follow to receive future updates, or to watch them later when you\'re bored.</string>
+    <string name="watch_on_tv">Watch on TV</string>
+    <string name="no_tv_found">No TV found</string>  
+    <string name="not_linked">Your YouTube account isn\'t linked properly. You can correct this by logging onto YouTube.com, then click on \"My Channel\" under your account to set it up.</string>
+    <string name="account_invalid">This account cannot be used for this purpose.</string>    
+    <string name="signed_in">Signed in</string>
+    <string name="following_paginated" formatted="false">Following — page %1 of %2</string>
+    <string name="no_episodes_in_channel">No episodes in this program!</string>
+    <string name="please_login_first">Please login first!</string>
+    <string name="untitled">Untitled</string>
+    <string name="returning_user">Returning user</string>
+    <string name="new_user">New user</string>  
+    <string name="store_not_available">Sorry, the store is not available at this time.</string>
+    <string name="english_in_english">English</string><!-- do not translate --> 
+    <string name="chinese_in_chinese">中文</string><!-- do not translate -->   
+    <string name="save">Save</string>
+    <string name="search">Search</string>
+    <string name="searchcolon">Search:</string>    
+    <string name="settings">Settings</string>
+    <string name="share">Share</string>    
+    <string name="rename_set">Rename Channel</string>        
+    <string name="no_description">No description</string>
+    <string name="displays9">Displays 9 programs with larger images</string>
+    <string name="displays81">Displays 81 programs with smaller images</string>     
+    <string name="chooseregion">Choose the regional content to watch:</string>    
+	<string name="systems">Systems</string>
+	<string name="networkbutton">Network</string>
+	<string name="screenbutton">Screen</string>       
+	<string name="wantupgrade9x9">9x9.tv wants to upgrade your application</string>
+	<string name="wantupgradesys">9x9.tv wants to upgrade your system</string>
+	<string name="upgrade">Upgrade</string>
+	<string name="profile">Profile</string>
+	<string name="region">Region</string>
+	<string name="guide">Guide</string>
+	<string name="accountcolon">Account:</string> 
+	<string name="displaynamecolon">Display Name:</string>
+	<string name="oldpasswordcolon">Old Password:</string>	
+	<string name="changepasswordcolon">Change Password:</string>
+	<string name="verifypasswordcolon">Verify Password:</string>	
+	<string name="oldpassword">Old Password</string>		
+	<string name="changepassword">Change Password</string>	
+	<string name="verifypassword">Verify Password</string>	
+	<string name="guidedisplaycolon">Set Guide display preference:</string>
+	<string name="bycreating">I accept 9x9\'s</string>
+	<string name="privacypolicy">Privacy Policy</string>
+	<string name="and">and</string>
+	<string name="termsofservice">Terms of Service</string>
+	<string name="move_channel">Move Program</string>
+	<string name="us">United States</string>
+	<string name="taiwan">Taiwan</string>	
+	<string name="setcolon">Channel: </string>
+	<string name="channel">Program</string>
+	<string name="episode">Episode</string>	
+	<string name="channel_lc">program</string>
+	<string name="channels_lc">programs</string>	
+	<string name="channelcolon">Program: </string>
+	<string name="episodecolon">Episode: </string>
+	<string name="episodescolon">Episodes: </string>	
+	<string name="personalprofile">Personal Profile</string>
+	<string name="versioncode">Version Code</string>		
+	<string name="square_occupied">This square is already occupied</string>		
+	<string name="no_channel">No program</string>	
+	<string name="move_failure">Move failure!</string>
+	<string name="moved" formatted="false">Program moved from %1 to %2</string>	
+	<string name="categorycolon">Category:</string>
+	<string name="streaming_portal">Back to Home</string>
+	<string name="quit">Quit</string>
+	<string name="retry">Retry</string>
+	<string name="personal_history">Personal History</string>
+	<string name="a_of_b" formatted="false">(%1 of %2)</string>	
+	<string name="store">Store</string>	
+	<string name="requesting_upgrade">Requesting Upgrade</string>
+	<string name="saved">Saved</string>
+	<string name="exit_9x9">Exit %1?</string>
+	<string name="no_channels_here">No programs here</string>
+    <string name="channel_desc_colon">Program Description:</string>    
+   	<string name="no_personal_history">No Personal History available</string>        
+    <string name="mode_3x3">3x3 Mode</string>
+    <string name="mode_9x9">9x9 Mode</string>      
+    <string name="emailcolon">Email:</string>
+    <string name="passwordcolon">Password:</string>
+    <string name="namecolon">Name:</string>     
+    <string name="period">.</string> 
+    <string name="rename_this_set">Rename this channel</string>
+    <string name="current_password_wrong">Current password is wrong</string>
+    <string name="devicecolon">Device:</string> 
+    <string name="modelcolon">Model:</string>       
+    <string name="resolutioncolon">Resolution:</string>     
+    <string name="help">Help</string>
+    <string name="at_first_episode">At first episode. Swipe up or down to change programs.</string>   
+    <string name="at_last_episode">At last episode. Swipe up or down to change programs.</string>       
+    <string name="shared_set">Shared channel</string> 
+    <string name="shared_set_owner" formatted="false">%1\'s channel</string>    
+    <string name="back_to_sign_up">Back to Sign-up</string>    
+    <string name="dont_show">Don\'t show this again</string>    
+    <string name="plz_signin_guide">Please sign in to view your guide.</string>        
+    <string name="now_playing">Now playing</string>
+    <string name="now_playing_dash">Now playing –</string>    
+    <string name="episode_not_found">Episode not found</string>
+    <string name="instructional_video">Instructional video</string>    
+    <string name="home">Home</string>
+    <string name="my_following">My Following</string>    
+    <string name="sign_out">Sign Out</string>
+    <string name="wait">[Wait...]</string>
+    <string name="episode_lc">episode</string>
+    <string name="episodes_lc">episodes</string>       
+    <string name="searched_for_colon">Searched for:</string>
+    <string name="account">Account</string>
+	<string name="newpassword">New Password</string>	
+	<string name="oldpw">Old</string>	   	 
+	<string name="newpw">New</string>	   
+	<string name="verifypw">Verify</string>	 
+	<string name="guide_guest_hint">Get to your favorite programs by following them so you never miss an update. Sign in to start following programs and build your own personal program guide!</string>
+	<string name="terms_of_use">Terms of Use</string> 
+	<string name="by_creating">By creating an account, I accept the terms of service and privacy policy of this app.</string>
+</resources>

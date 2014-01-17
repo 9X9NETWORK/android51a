@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/gridsquare"
+    android:layout_width="50dip"
+    android:layout_height="38dip"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+    
+    <ImageView
+	    android:id="@+id/bgsquare"						    
+		android:layout_width="fill_parent"
+		android:layout_height="38dip"
+		android:layout_gravity="center"		
+		android:adjustViewBounds="true"
+		android:scaleType="fitXY"
+		android:src="@drawable/bg_9x9_highlight"
+		android:visibility="invisible"
+		/>	
+		
+    <!-- was height 22dip, then make 30 it looks very bad -->
+    <ImageView
+	    android:id="@+id/chicon"						    
+		android:layout_width="48dip"
+		android:layout_height="28dip"
+		android:layout_gravity="center"		
+		android:src="@drawable/noimage"
+		android:adjustViewBounds="true"
+		android:scaleType="centerCrop"			
+		/>	
+
+   	<ImageView
+	    android:id="@+id/movecross"						    
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"		
+		android:src="@drawable/icon_move"
+		android:visibility="gone"		
+		/>	
+		
+</FrameLayout>

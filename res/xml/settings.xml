@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  
+  <PreferenceCategory android:title="Settings">
+  	
+  	<CheckBoxPreference
+  		android:key="scrollfix"
+  		android:defaultValue="true"
+  		android:title="Scroll fix"
+  		android:summary="Size video before playing"
+  		/>
+  	
+  	<ListPreference
+  	  	android:key="server"
+  		android:defaultValue="www.9x9.tv"
+  		android:title="Server"
+  		android:entries="@array/servtext"
+  		android:entryValues="@array/serverdomain"
+  		android:summary="Server"
+  		/>
+  		
+  	<EditTextPreference
+        android:key="email"
+        android:title="E-Mail"
+        android:summary="User E-Mail address"
+        android:dialogTitle="User E-Mail address"
+        android:defaultValue="yourname@gmail.com" />
+
+  	<EditTextPreference
+        android:key="password"
+        android:title="Password"
+        android:summary="User Password"
+        android:dialogTitle="User Password"
+        android:defaultValue="swordfish" />
+          			
+  </PreferenceCategory>
+</PreferenceScreen>

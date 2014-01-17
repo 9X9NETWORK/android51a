@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	
+	<tv.tv9x9.player.TrapezoidView
+	    android:id="@+id/thumbnail"						    
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="40dip"
+		android:layout_marginRight="40dip"
+		android:layout_marginTop="40dip"
+		android:layout_marginBottom="40dip"
+		android:layout_gravity="bottom|center_horizontal"			
+		android:adjustViewBounds="true"
+		android:scaleType="fitXY"
+		android:src="@drawable/unavailable"
+		/>	
+  		
+ </FrameLayout>

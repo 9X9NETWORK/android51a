@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top|center_horizontal"
+    android:gravity="top|center_horizontal">
+
+	<LinearLayout
+		android:id="@+id/container"	    
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_marginLeft="15dip"
+	    android:layout_marginRight="15dip"
+	    android:layout_marginTop="10dip"
+	    android:layout_marginBottom="10dip"  
+	    android:padding="6dip"
+	    android:layout_gravity="top|center_horizontal"
+	    android:gravity="top|center_horizontal"
+	    android:orientation="vertical"
+	    android:background="@drawable/grayround">
+	    	
+		<TableLayout
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top|center_horizontal">
+		 
+		  	<TableRow
+				android:layout_width="fill_parent"
+			    android:layout_height="wrap_content">	
+				<include android:id="@+id/c1" layout="@layout/grid_square" android:layout_weight="1" />
+				<include android:id="@+id/c2" layout="@layout/grid_square" android:layout_weight="1" />
+				<include android:id="@+id/c3" layout="@layout/grid_square" android:layout_weight="1" />						
+			</TableRow>
+	
+		  	<TableRow
+				android:layout_width="fill_parent"
+			    android:layout_height="wrap_content">	
+				<include android:id="@+id/c4" layout="@layout/grid_square" android:layout_weight="1" />
+				<include android:id="@+id/c5" layout="@layout/grid_square" android:layout_weight="1" />
+				<include android:id="@+id/c6" layout="@layout/grid_square" android:layout_weight="1" />						
+			</TableRow>
+	
+		  	<TableRow
+				android:layout_width="fill_parent"
+			    android:layout_height="wrap_content">	
+				<include android:id="@+id/c7" layout="@layout/grid_square" android:layout_weight="1" />
+				<include android:id="@+id/c8" layout="@layout/grid_square" android:layout_weight="1" />
+				<include android:id="@+id/c9" layout="@layout/grid_square" android:layout_weight="1" />						
+			</TableRow>				
+		  					       
+		</TableLayout>
+				
+	</LinearLayout>
+</FrameLayout>

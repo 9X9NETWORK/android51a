@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 9x9 -->
+   	<string name="app_name">9x9.tv</string>
+	<string name="app_icon">@drawable/tt_icon_new</string>       	
+    <string name="white_label">portal</string>
+    <string name="mso">9x9</string>
+    <string name="default_region">en</string>
+    <string name="logo">tvlogo</string>
+    <string name="splash_background">bgnew</string>
+    <string name="splash_foreground">splash_generic_logo</string>        
+    <string name="splash_slogan">Empowering Cloud TV</string>     
+    <string name="signin_logo">tvlogo</string>    
+    <string name="signin_bg">bgnew</string>      
+    <string name="set_banner">banner_crashcourse</string>      	  
+    
+    <!-- string name="app_name">華視</string --><!-- cts original -->
+    <!-- cts festival-->  
+    <!--   
+    <string name="app_name">微電影節 – 華視</string>
+    <string name="app_icon">@drawable/cts_icon_new</string>
+    <string name="white_label">cts</string>
+    <string name="mso">cts</string>    
+    <string name="default_region">zh</string>    
+    <string name="logo">cts_logo</string>  
+    <string name="splash_background">splash_cts_bg</string>
+    <string name="splash_foreground">cts_big_splash</string>    
+    <string name="splash_slogan"></string>            
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>              
+    -->
+
+    <!-- goodtv -->
+    <!-- 
+    <string name="app_name">Good TV</string>
+    <string name="app_icon">@drawable/goodtv_launch_logo</string>    
+    <string name="white_label">goodtv</string>     
+    <string name="mso">goodtv</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">goodtv_on_white</string>   
+    <string name="logo_old">logo_goodtv</string>     
+    <string name="splash_background">bg_open_goodtv</string>
+    <string name="splash_foreground">open_logo_goodtv</string>    
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>                   
+    -->
+    
+    <!-- ddtv -->
+    <!--     
+    <string name="app_name">丁丁電視</string>
+    <string name="app_icon">@drawable/ddtv_launch_logo</string>    
+    <string name="white_label">ddtv</string>     
+    <string name="mso">ddtv</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_ddtv</string>
+    <string name="splash_background">bg_open_ddtv</string>
+    <string name="splash_foreground">open_logo_ddtv</string>    
+    <string name="splash_slogan"></string>      
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>           
+    -->
+            
+    <!-- fcu -->
+    <!--     
+    <string name="app_name">逢甲影音</string>
+    <string name="app_icon">@drawable/fcu_launch_logo</string>    
+    <string name="white_label">fcu</string>     
+    <string name="mso">fcu</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_fcu</string>
+    <string name="splash_background">bg_open_fcu</string>
+    <string name="splash_foreground">open_logo_fcu</string>    
+    <string name="splash_slogan"></string>      
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>           
+    -->
+            
+    <!-- Tzu Chi
+    <string name="app_name">慈濟</string>
+	<string name="app_icon">@drawable/tc_icon_new</string>    
+    <string name="white_label">tc</string>
+    <string name="mso">tzuchi</string>    
+    <string name="default_region">zh</string>    
+    <string name="logo">tclogo62</string>       
+    <string name="splash_background">splash_tc_bg</string>
+    <string name="splash_foreground">splash_tc_logo</string>  
+    <string name="splash_slogan"></string>              
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>           
+	-->
+   
+    <bool name="uses_chromecast">false</bool>
+    <string name="fb_app_id">361253423962738</string>
+    
+    <string name="guest">訪客</string>
+    <string name="enter_search_terms">輸入想找的內容</string>
+    <string name="watch_all_updates">觀看最新更新</string>
+    <string name="all_updates">全部最新更新</string>
+    <string name="following_pile">我的最愛</string>
+    <string name="follow">訂閱</string>
+    <string name="unfollow">取消訂閱</string>
+    <string name="search_term">搜尋</string>
+    <string name="results">筆結果</string>
+    <string name="no_results_found">搜尋無結果, 請輸入其他的內容.</string>
+    <string name="back">返回</string>
+    <string name="dont_see">如果您的手機平板, 尚未顯示這台電視, 您可試試：</string>
+    <string name="dont_see_1">使用您的手機平板, 造訪Google商店, 下載更新版App, 安裝後開啟之。</string>
+    <string name="dont_see_2">在您的手機平板, 開啟App並播放任何節目, 再按下 [連線到電視] 鈕。</string>
+    <string name="close">關閉</string>
+    <string name="following_yay">訂閱中</string>
+    <string name="unfollowing_yay">取消訂閱</string>
+    <string name="ok">好</string>
+    <string name="sorry_error">抱歉, 暫時發生錯誤.</string>   
+    <string name="no_channel_desc">暫時無節目簡介.</string>
+    <string name="select_youtube_account">選擇您要登入的 YouTube 帳號</string>
+    <string name="add_account">新增您的 YouTube 帳</string>
+    <string name="add_account_hint">在您成功新增 YouTube 帳號後, 請選擇 [使用 YouTube 帳號登入], 並以您新增的帳號來登入之。</string>
+    <string name="si_sign_in_with_email">使用您的 email 登入</string>
+    <string name="su_sign_up_with_email">使用您的 email 註冊</string>
+    <string name="pw_hint_email">電子郵件</string>
+    <string name="pw_hint_name">名稱</string>        
+    <string name="pw_hint_password">密碼</string>
+    <string name="pw_hint_verify">再次輸入密碼</string>
+    <string name="cancel">取消</string>
+    <string name="si_sign_in_button">登入</string>
+    <string name="si_sign_up_button">註冊</string>    
+    <string name="su_create_account_button">建立帳號</string>
+    <string name="pw_six_or_more">請輸入至少六個字元作為密碼</string>
+    <string name="signed_out_successfully">您已成功登出</string>
+    <string name="dropdown_sign_out">登出</string>
+    <string name="dropdown_sign_in_with_youtube">使用 YouTube 帳號登入</string>
+    <string name="dropdown_sign_in_with_email">使用您的 e-mail 登入</string>
+    <string name="dropdown_sign_up">註冊新帳號</string>
+    <string name="error_email_taken">此 e-mail 已被註冊過</string>
+    <string name="connecting">[ 連線中... ]</string>
+    <string name="lonely_1">您並未訂閱任何節目</string>
+    <string name="lonely_2">您可從其他頁面或搜尋找到並訂閱更多節目</string>
+    <string name="login_successful">登入成功</string>
+    <string name="sign_up_button">註冊</string>
+    <string name="sign_in_sign_up_botton">登入 / 註冊</string>
+    <string name="version">版本： </string>    
+    <string name="copyright">Copyright 2012-2013  9x9.tv</string>
+    <string name="visit_for_terms">請參閱使用條款與隱私權政策</string>
+    <string name="synchronizing">同步您的YouTube帳號，此將花一些時間。</string>
+    <string name="tlogin_sign_in_with_youtube">使用 YouTube 帳號登入</string>
+    <string name="tlogin_existing_users">帳號已存在</string>
+    <string name="tlogin_your_email">您的 Email</string>
+    <string name="tlogin_your_9x9_password">您的 9x9 密碼</string>
+    <string name="tlogin_login">登入</string>
+    <string name="tlogin_dont_have">沒有帳號?</string>
+    <string name="tlogin_enter_a_pw">請輸入密碼</string>
+    <string name="tlogin_retype_pw">重新輸入密碼</string>
+    <string name="tlogin_create_account_button">建立帳號</string>
+    <string name="tlogin_pw_no_match">密碼錯誤</string>
+    <string name="tlogin_pw_six">密碼至少需6碼或超過6碼</string>
+    <string name="tlogin_valid_email">請提供一個有效email!</string>
+    <string name="newest">最新的</string>    
+    <string name="today">今日</string>
+    <string name="no_episodes">沒有劇集</string>
+    <string name="no_following">沒有訂閱</string>
+    <string name="all_channels">所有節目</string>
+    <string name="become_a_tv">切換成TV模式</string>
+    <string name="following_stack">我的最愛</string>
+    <string name="search_stack">搜尋</string>
+    <string name="directory_stack">目錄</string>
+    <string name="account_stack">帳號</string>
+    <string name="left_sign_in">登入</string>
+    <string name="left_sign_out">登出</string>   
+    <string name="network_not_ready">網路出現問題，請確認您的網路或WiFi設定後再重試。</string>
+    <string name="button_retry">重試</string>
+    <string name="button_quit">停止</string> 
+    <string name="please_login">請登入</string>
+    <string name="sign_in_tease_1">請點選左側目錄選單立即觀看節目</string>
+    <string name="sign_in_tease_2">點擊\'訂閱\'即可訂閱及觀看您喜愛的節目</string>
+    <string name="sign_in_successful">登入成功!</string>    
+    <string name="login_failure">登入失敗</string>
+    <string name="create_tease_1">請點選右側目錄選單觀看上線節目!</string>
+    <string name="create_tease_2">點擊\'訂閱\'即可訂閱及觀看您喜愛的節目</string>
+    <string name="sign_up_successful">創建帳號成功!</string>
+    <string name="login_tease_1a">請先登入才能觀看您的訂閱節目</string>
+    <string name="login_tease_1b">您未訂閱任何節目</string>    
+    <string name="login_tease_2">一秒換一秒看的方式來瀏覽有趣的影片與節目，按下訂閱即可湲湲不絕收到更新的內容</string>
+    <string name="watch_on_tv">在電視上觀看</string>
+    <string name="no_tv_found">沒有發現任何電視</string> 
+    <string name="not_linked">您的YouTube 帳號無法成功連線. 請到YouTube.com, 在"我的節目"創建新的節目, 才能使用此功能。</string>
+    <string name="account_invalid">此帳號無法登入 YouTube.</string>  
+    <string name="signed_in">登入</string>
+    <string name="following_paginated" formatted="false">您的訂閱項目 – 第 %1 頁, 共 %2頁</string>
+    <string name="no_episodes_in_channel">這個節目沒有劇集!</string>
+    <string name="please_login_first">請先登入!</string>
+    <string name="untitled">未命名</string>  
+   	<string name="returning_user">登入</string> 
+   	<string name="new_user">註冊</string> 
+    <string name="store_not_available">很抱歉，節目商店暫時無法提供服務</string>  
+    <string name="english_in_english">English</string><!-- do not translate --> 
+    <string name="chinese_in_chinese">中文</string><!-- do not translate -->     
+    <string name="save">儲存</string>
+    <string name="search">搜尋</string>
+    <string name="searchcolon">搜尋：</string>    
+    <string name="settings">設定</string>    
+    <string name="share">分享</string>   
+    <string name="rename_set">變更節目家族名稱</string>
+    <string name="no_description">沒有提供描述</string>   
+    <string name="displays9">大圖示，一次顯示9個節目。</string>
+    <string name="displays81">小圖示，一次顯示81個節目。</string>    
+    <string name="chooseregion">請選擇觀看地區內容</string>
+	<string name="systems">系統設定</string>
+	<string name="networkbutton">網路</string>
+	<string name="screenbutton">螢幕</string>     
+	<string name="wantupgrade9x9">9x9.tv 將升級您的應用程式</string>
+	<string name="wantupgradesys">9x9.tv 將升級您的系統</string>
+	<string name="upgrade">升級</string>
+	<string name="profile">個人資料</string>
+	<string name="region">地區</string>
+	<string name="guide">節目表</string>
+	<string name="accountcolon">帳號：</string>
+	<string name="displaynamecolon">使用者名稱：</string>
+	<string name="oldpasswordcolon">目前的密碼：</string>		
+	<string name="changepasswordcolon">新密碼：</string>
+	<string name="verifypasswordcolon">重新輸入新密碼：</string>
+	<string name="oldpassword">目前的密碼</string>		
+	<string name="changepassword">新密碼</string>	
+	<string name="verifypassword">重新輸入新密碼</string>		
+	<string name="guidedisplaycolon">設定個人節目表模式：</string>
+	<string name="bycreating">我接受9x9.tv的</string>
+	<string name="privacypolicy">隱私政策</string>
+	<string name="and">和</string>
+	<string name="termsofservice">服務條款</string>	
+	<string name="move_channel">移動節目</string>	
+	<string name="us">美國</string>
+	<string name="taiwan">台灣</string>	
+	<string name="setcolon">頻道：</string>
+	<string name="channel">節目</string>
+	<string name="episode">劇集</string>
+	<string name="channel_lc">個節目</string>
+	<string name="channels_lc">個節目</string>			
+	<string name="channelcolon">節目：</string>
+	<string name="episodecolon">劇集：</string>
+	<string name="episodescolon">劇集：</string>	
+	<string name="personalprofile">個人資料</string>	
+	<string name="versioncode">版本編號</string>
+	<string name="square_occupied">此格已被使用</string>	
+	<string name="no_channel">沒有節目</string>	
+	<string name="move_failure">移動失敗！</string>	
+	<string name="moved" formatted="false">節目已從%1 搬至 %2</string>	
+	<string name="categorycolon">目錄：</string>
+	<string name="streaming_portal">返回首頁</string>	
+	<string name="quit">中止</string>
+	<string name="retry">重試</string>
+	<string name="personal_history">瀏覽記錄</string>
+	<string name="a_of_b" formatted="false">(%1 / %2)</string>		
+	<string name="store">節目商店</string>
+	<string name="requesting_upgrade">請求升級</string>	
+	<string name="saved">已儲存</string>	
+	<string name="exit_9x9">退出%1？</string>	
+	<string name="no_channels_here">沒有節目</string>
+    <string name="channel_desc_colon">節目描述：</string>     	
+    <string name="no_personal_history">沒有個人觀看記錄</string>     
+    <string name="mode_3x3">3x3 模式</string>
+    <string name="mode_9x9">9x9 模式</string>      
+    <string name="emailcolon">電子郵件：</string>
+    <string name="passwordcolon">密碼：</string>
+    <string name="namecolon">名稱：</string>          
+    <string name="period">。</string>     
+    <string name="rename_this_set">變更頻道名稱</string>    
+    <string name="current_password_wrong">密碼錯誤</string>    
+    <string name="devicecolon">設備：</string>     
+    <string name="modelcolon">型號：</string>       
+    <string name="resolutioncolon">分辨率：</string>          
+    <string name="help">說明</string>    
+    <string name="at_first_episode">這是第一個劇集，用手指向上/向下滑動到上一個/下一個節目。</string>
+    <string name="at_last_episode">這是最後一個劇集，用手指向上/向下滑動到上一個/下一個節目。</string>         
+    <string name="shared_set">Shared set</string>     
+    <string name="shared_set_owner" formatted="false">%1 的頻道</string>       
+    <string name="back_to_sign_up">返回到註冊</string>
+    <string name="dont_show">不再顯示</string>       
+    <string name="plz_signin_guide">請先登入才能觀看您的節目表</string>    
+    <string name="now_playing">現在播放</string>   
+    <string name="now_playing_dash">現在播放 –</string>
+    <string name="episode_not_found">找不到劇集</string>    
+    <string name="instructional_video">使用說明視頻</string>    
+    <string name="home">Home</string>
+    <string name="my_following">My Following</string>        
+    <string name="sign_out">Sign Out</string>     
+    <string name="wait">[Wait...]</string>     
+    <string name="episode_lc">episode</string>
+    <string name="episodes_lc">episodes</string>             
+    <string name="searched_for_colon">Searched for:</string>    
+    <string name="account">Account</string>
+	<string name="newpassword">New Password</string>	
+	<string name="oldpw">Old</string>	   	 
+	<string name="newpw">New</string>	
+	<string name="verifypw">Verify</string>
+	<string name="guide_guest_hint">Get to your favorite programs by following them so you never miss an update. Sign in to start following programs and build your own personal program guide!</string>
+	<string name="terms_of_use">Terms of Use</string> 			
+	<string name="by_creating">By creating an account, I accept the terms of service and privacy policy of this app.</string>	  		
+</resources>
