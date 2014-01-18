@@ -387,7 +387,7 @@ public class ytchannel
 					catch (Exception ex)
 						{ Log.i ("vtest", "JSON: no media$thumbnail"); };
 					if (media_thumbnails != null)
-						thumb_container = media_thumbnails.getJSONObject (1);
+						thumb_container = media_thumbnails.getJSONObject (2);
 					thumb = (thumb_container != null) ? thumb_container.getString ("url") : "";
 					
 				 	JSONObject timestamp_container = media_group.getJSONObject ("yt$uploaded");

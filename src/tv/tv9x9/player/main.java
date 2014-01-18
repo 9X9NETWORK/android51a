@@ -43,12 +43,14 @@ import android.view.ViewGroup;
 import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.ViewManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -278,6 +280,22 @@ public class main extends VideoBaseActivity
 			layout5.width = pixels_30;
 			vPlaybackFollow.setLayoutParams (layout5);
 			}
+		
+		/* this is a ListView */
+		View vSearchListPhone = findViewById (R.id.search_list_phone);
+		vSearchListPhone.setVisibility (is_tablet() ? View.GONE : View.VISIBLE);
+		
+		/* this is a GridView */
+		View vSearchListTablet = findViewById (R.id.search_list_tablet);
+		vSearchListTablet.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
+		
+		/* this is a ListView */
+		View vStoreListPhone = findViewById (R.id.store_list_phone);
+		vStoreListPhone.setVisibility (is_tablet() ? View.GONE : View.VISIBLE);
+		
+		/* this is a GridView */
+		View vStoreListTablet = findViewById (R.id.store_list_tablet);
+		vStoreListTablet.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 		}
 	
 	public void onVideoActivityFlingUp()
@@ -360,17 +378,36 @@ public class main extends VideoBaseActivity
 		String signin_logo = getResources().getString (R.string.signin_logo);
 		if (signin_logo != null)
 			{
-			ImageView vSigninLogo = (ImageView) findViewById (R.id.signin_logo);
 			int logo_id = getResources().getIdentifier (signin_logo, "drawable", getPackageName());
+			
+			ImageView vSigninLogo = (ImageView) findViewById (R.id.signin_logo);
 			vSigninLogo.setImageResource (logo_id);
+			
+			ImageView vTermsLogo = (ImageView) findViewById (R.id.terms_logo);
+			vTermsLogo.setImageResource (logo_id);
 			}
 		
 		String signin_bg = getResources().getString (R.string.signin_bg);
 		if (signin_bg != null)
 			{
-			View vSigninLayer = findViewById (R.id.signinlayer);
 			int bg = getResources().getIdentifier (signin_bg, "drawable", getPackageName());
+			
+			View vSigninLayer = findViewById (R.id.signinlayer);
 			vSigninLayer.setBackgroundResource (bg);
+
+			View vTermsLayer = findViewById (R.id.termslayer);
+			vTermsLayer.setBackgroundResource (bg);
+			}
+		
+		boolean uses_chromecast = getResources().getBoolean (R.bool.uses_chromecast);
+		
+		View vMediaRouteButton = findViewById (R.id.media_route_button);
+		// if (vMediaRouteButton != null)
+		// 	vMediaRouteButton.setVisibility (uses_chromecast ? View.VISIBLE : View.GONE);
+		
+		if (!uses_chromecast)
+			{
+			((ViewManager) vMediaRouteButton.getParent()).removeView (vMediaRouteButton);
 			}
 		}
 
@@ -1414,7 +1451,10 @@ public class main extends VideoBaseActivity
 		{
 		disable_video_layer();
 		
-		layer_before_signin = current_layer;
+		/* terms layer can only be started from signin, so ignore it */
+		if (current_layer != toplayer.TERMS)
+			layer_before_signin = current_layer;
+		
 		set_layer (toplayer.SIGNIN);		
 		
 		setup_signin_buttons();
@@ -1757,6 +1797,10 @@ public class main extends VideoBaseActivity
 			}
 		
 		terms_tab();
+		
+		/* sometimes the terms layer background is not redrawing! force it here */
+		View vTermsLayer = findViewById (R.id.termslayer);
+		vTermsLayer.postInvalidate();
 		}
 
 	public void setup_terms_buttons()
@@ -5377,7 +5421,7 @@ public class main extends VideoBaseActivity
 		if (!store_initialized)
 			{
 			store_initialized = true;
-			ListView vStore = (ListView) findViewById (R.id.store_list);
+			AbsListView vStore = (AbsListView) findViewById (is_tablet() ? R.id.store_list_tablet : R.id.store_list_phone);
 			store_adapter = new StoreAdapter (this, category_channels);
 			vStore.setAdapter (store_adapter);
 			}
@@ -5781,7 +5825,7 @@ public class main extends VideoBaseActivity
 			log ("store getView: " + position);
 			
 			if (convertView == null)
-				rv = (LinearLayout) View.inflate (main.this, R.layout.store_item, null);				
+				rv = (LinearLayout) View.inflate (main.this, is_tablet() ? R.layout.store_item_tablet : R.layout.store_item, null);				
 			else
 				rv = (LinearLayout) convertView;
 						
@@ -5902,7 +5946,11 @@ public class main extends VideoBaseActivity
 						ImageView vFollow = (ImageView) rv.findViewById (R.id.follow);
 						
 						if (vFollow != null)
-							vFollow.setImageResource (config.is_subscribed (channel_id) ? R.drawable.icon_unfollow_press : R.drawable.icon_follow_black);
+							{
+							int follow_icon = is_tablet() ? R.drawable.icon_follow : R.drawable.icon_follow_black;
+							int unfollow_icon = is_tablet() ? R.drawable.icon_unfollow : R.drawable.icon_unfollow_press;
+							vFollow.setImageResource (config.is_subscribed (channel_id) ? unfollow_icon : follow_icon);
+							}
 						
 						if (vFollow != null)
 							vFollow.setOnClickListener (new OnClickListener()
@@ -6125,8 +6173,8 @@ public class main extends VideoBaseActivity
 		if (!search_initialized)
 			{
 			search_initialized = true;
-			ListView vSearch = (ListView) findViewById (R.id.search_list);
 			search_adapter = new StoreAdapter (this, search_channels);
+			AbsListView vSearch = (AbsListView) findViewById (is_tablet() ? R.id.search_list_tablet : R.id.search_list_phone);
 			vSearch.setAdapter (search_adapter);
 			}
 		}
@@ -6247,8 +6295,7 @@ public class main extends VideoBaseActivity
 	
 	public void redraw_search_list()
 		{
-		ListView vSearch = (ListView) findViewById (R.id.search_list);
-		
+		AbsListView vSearch = (AbsListView) findViewById (is_tablet() ? R.id.search_list_tablet : R.id.search_list_phone);			
 		vSearch.setOnItemClickListener (new OnItemClickListener()
 			{
 			public void onItemClick (AdapterView <?> parent, View v, int position, long id)
@@ -6260,7 +6307,7 @@ public class main extends VideoBaseActivity
 					launch_player (channel_id, search_channels);
 					}
 				}
-			});	
+			});
 		}
 	
 	public void prepare_search_screen (String term)

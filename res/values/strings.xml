@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9-->
+    <!-- 
     <string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>         
     <string name="white_label">portal</string>
@@ -12,8 +13,25 @@
     <string name="splash_slogan">Empowering Cloud TV</string>
     <string name="signin_logo">tvlogo</string>    
     <string name="signin_bg">bgnew</string>     
-    <string name="set_banner">banner_crashcourse</string>      	
+    <string name="set_banner">banner_crashcourse</string>   
+	<string name="fb_app_id">361253423962738</string>       	
+	-->
 	
+    <!-- crash course -->
+    <string name="app_name">Crash Course on FLIPr</string>
+    <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
+    <string name="white_label">crashcourse</string>     
+    <string name="mso">crashcourse</string>
+    <string name="default_region">en</string>               
+    <string name="logo">crash_course_cyan</string>
+    <string name="splash_background">bg_open_crashcourse</string>
+    <string name="splash_foreground">open_logo_crashcourse</string>    
+    <string name="splash_slogan"></string>    
+    <string name="signin_logo">logo_crashcourse</string>        
+    <string name="signin_bg">bg_open_crashcourse</string>  
+    <string name="set_banner">banner_crashcourse</string>      	
+    <string name="fb_app_id">1414438248794640</string>    
+ 
     <!-- cts 
     <string name="app_name">CTS</string>
     <string name="app_icon">@drawable/cts_icon_new</string>    
@@ -26,6 +44,7 @@
     <string name="splash_slogan"></string>    
     <string name="signin_logo">logo_signin_vice</string>        
     <string name="signin_bg">splash_vice</string>           
+	<string name="fb_app_id">361253423962738</string>       
     -->
  
     <!-- goodtv -->
@@ -42,6 +61,7 @@
     <string name="splash_slogan"></string>           
     <string name="signin_logo">logo_signin_vice</string>        
     <string name="signin_bg">splash_vice</string>        	
+ 	<string name="fb_app_id">361253423962738</string>       
  	-->
  	
     <!-- ddtv -->
@@ -56,7 +76,8 @@
     <string name="splash_foreground">open_logo_ddtv</string>    
     <string name="splash_slogan"></string>
     <string name="signin_logo">logo_signin_vice</string>        
-    <string name="signin_bg">splash_vice</string>               
+    <string name="signin_bg">splash_vice</string>
+	<string name="fb_app_id">361253423962738</string>                          
     -->     
   
     <!-- fcu -->
@@ -72,6 +93,7 @@
     <string name="splash_slogan"></string>
     <string name="signin_logo">logo_signin_vice</string>                 
     <string name="signin_bg">splash_vice</string>      
+	<string name="fb_app_id">361253423962738</string>           
   	-->
   	           
     <!-- Tzu Chi
@@ -86,10 +108,10 @@
     <string name="splash_slogan"></string>       
     <string name="signin_logo">logo_signin_vice</string>    
     <string name="signin_bg">splash_vice</string>         
+	<string name="fb_app_id">361253423962738</string>           
     -->
          
-    <bool name="uses_chromecast">true</bool>
-    <string name="fb_app_id">361253423962738</string>
+    <bool name="uses_chromecast">false</bool>
     
     <string name="guest">Guest</string>
     <string name="enter_search_terms">Enter search terms</string>

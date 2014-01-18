@@ -216,7 +216,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	static int pixels_200 = 200;
 	
 	public VideoFragment videoFragment = null;
-	
+
 	public void log (String text)
 		{
 		Log.i ("vtest", "[" + identity + "] " + text);
@@ -245,6 +245,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentById (R.id.video_fragment_container);
 	    videoFragment.set_context (this);
 	
+	    videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentById (R.id.video_fragment_container);
+	    
 		if (mBound)
 			{
 			started = 3;
