@@ -349,11 +349,15 @@ public class main extends VideoBaseActivity
 	public void onVideoActivityFlingLeft()
 		{
 		perform_fling_left();
+		if (playback_episode_adapter != null)
+			playback_episode_adapter.notifyDataSetChanged();
 		}
 
 	public void onVideoActivityFlingRight()
 		{
 		previous_episode();
+		if (playback_episode_adapter != null)
+			playback_episode_adapter.notifyDataSetChanged();
 		}
 
 	@Override
@@ -1166,10 +1170,12 @@ public class main extends VideoBaseActivity
 		if (vLandscapeChannel != null)
 			vLandscapeChannel.setText (channel_name);
 		
+		/*
 		TextView vEpisodeName = (TextView) findViewById (R.id.eptitle);
 		if (vEpisodeName != null)
 			vEpisodeName.setText (episode_name != null && !episode_name.equals ("") ? episode_name : "[no episode name]");
-
+		*/
+		
 		TextView vLandscapeEpisode = (TextView) findViewById (R.id.landscape_episode_name);
 		if (vLandscapeEpisode != null)
 			vLandscapeEpisode.setText (episode_name != null && !episode_name.equals ("") ? episode_name : "[no episode name]");
