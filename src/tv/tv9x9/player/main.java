@@ -3364,9 +3364,12 @@ public class main extends VideoBaseActivity
 			int gray = Color.rgb (0xC0, 0xC0, 0xC0);
 			int orange = Color.rgb (0xFF, 0x99, 0x00);
 			int black = Color.rgb (0x00, 0x00, 0x00);
+			int white = Color.rgb (0xFF, 0xFF, 0xFF);
 			
 			View vBorder = row.findViewById (R.id.border);
-			vBorder.setBackgroundColor (position == current_episode_index - 1 ? orange : black);
+			vBorder.setBackgroundColor (position == current_episode_index - 1 ? white : black);
+			
+			vPic.setImageAlpha (position == current_episode_index -1 ? 0xFF : 0xA0);
 			
 			// vEptitle.setTextColor ((position + 1 == current_episode_index) ? orange : gray);
 			
@@ -6434,7 +6437,6 @@ public class main extends VideoBaseActivity
 				public void success (String[] lines)
 					{
 					toast_by_resource (R.string.saved);
-					finish();
 					}
 				public void failure (int code, String errtext)
 					{
