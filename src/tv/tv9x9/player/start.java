@@ -1,5 +1,6 @@
 package tv.tv9x9.player;
 
+import com.flurry.android.FlurryAgent;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 import tv.tv9x9.player.switchboard.LocalBinder;
@@ -118,12 +119,14 @@ public class start extends Activity
 		super.onStart();
 		Intent intent = new Intent (this, switchboard.class);
 		bindService (intent, mConnection, Context.BIND_AUTO_CREATE);
+		FlurryAgent.onStartSession (this, "648QZK9W54HCPMBHGZ4M");
 		}
 
 	@Override
 	protected void onStop ()
 		{
 		super.onStop();
+		FlurryAgent.onEndSession (this);
 		}
 
 	@Override

@@ -228,7 +228,41 @@
 			android:text="@string/help"					
 			android:paddingLeft="3sp"
 			/>										    
-	</LinearLayout>		
+	</LinearLayout>				
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="2dip"
+	    android:layout_marginLeft="8dip"
+	    android:layout_marginRight="8dip"			    
+	    android:background="#808080"
+	    android:orientation="horizontal"
+	    android:visibility="gone"
+	    />		    
+    <LinearLayout
+        android:id="@+id/menu_apps"	        
+	    android:layout_width="match_parent"
+	    android:layout_height="60dip"
+	    android:orientation="horizontal">
+		<ImageView					    	    
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"	
+			android:layout_marginLeft="12dip"
+			android:layout_marginRight="6dip"
+			android:layout_gravity="center"
+			android:src="@drawable/icon_signout"						
+			/>		   		
+		<TextView     
+			android:layout_width="wrap_content"
+			android:layout_height="fill_parent"
+			android:layout_gravity="top"
+			android:gravity="center"
+			android:textSize="22sp"
+			android:textColor="#000000"
+			android:text="@string/suggested_tv_apps"					
+			android:paddingLeft="3sp"				
+			/>											    
+	</LinearLayout>					   
+    	
     <LinearLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="2dip"
@@ -261,7 +295,7 @@
 			android:text="@string/sign_out"					
 			android:paddingLeft="3sp"				
 			/>											    
-	</LinearLayout>				    
+	</LinearLayout>					   
     <LinearLayout	       
         android:id="@+id/menu_signout_divider"	              
 	    android:layout_width="match_parent"

@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/appslayer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical"
+    android:visibility="gone">		 
+		
+	<include android:id="@+id/apps_top_bar" layout="@layout/top_bar" />
+	    
+    <LinearLayout           
+		android:layout_width="fill_parent" 
+		android:layout_height="2dip"
+		android:layout_gravity="bottom"
+		android:gravity="center"				
+		android:background="#000000"
+		android:orientation="horizontal"
+		/>	
+   	<TextView
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"  
+        android:layout_gravity="center"	        
+        android:gravity="center"	            
+        android:paddingLeft="25dip"
+        android:paddingRight="25dip"     
+        android:paddingTop="6dip"   
+        android:paddingBottom="6dip"           
+        android:textSize="28sp"
+        android:textColor="#000000"
+		android:singleLine="true"
+		android:ellipsize="end"		
+		android:text="@string/get_suggested_tv_apps"	        
+        />	  		
+    <LinearLayout           
+		android:layout_width="fill_parent" 
+		android:layout_height="2dip"
+		android:layout_gravity="bottom"
+		android:gravity="center"				
+		android:background="#000000"
+		android:orientation="horizontal"
+		/>	
+	
+    <FrameLayout           
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent">    	
+	   	<ListView
+			android:id="@+id/apps_list"
+			android:layout_width="fill_parent" 
+			android:layout_height="fill_parent"
+			android:layout_marginLeft="10dip"
+			android:layout_marginRight="10dip"
+			android:layout_marginTop="10dip"
+			android:layout_gravity="top|center_horizontal"
+			android:gravity="top|center_horizontal"				
+			android:drawSelectorOnTop="false"
+			android:cacheColorHint="@android:color/transparent"
+			android:dividerHeight="0dp"
+			android:divider="@null"
+			/>	 		  	
+	</FrameLayout>						
+</LinearLayout>

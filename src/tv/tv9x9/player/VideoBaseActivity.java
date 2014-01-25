@@ -3,8 +3,10 @@ package tv.tv9x9.player;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
@@ -12,6 +14,7 @@ import java.util.regex.Pattern;
 
 import tv.tv9x9.player.switchboard.LocalBinder;
 
+import com.flurry.android.FlurryAgent;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
@@ -280,6 +283,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		log ("VideoActivity onStart");
 		Intent intent = new Intent (this, switchboard.class);
 		bindService (intent, mConnection, Context.BIND_AUTO_CREATE);
+		FlurryAgent.onStartSession (this, "648QZK9W54HCPMBHGZ4M");
+		FlurryAgent.setLogEnabled (true);
+		FlurryAgent.setLogLevel (Log.DEBUG);
 		google_cast_start();
 		}
 	
@@ -294,6 +300,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			mBound = false;
 			}
 		google_cast_stop();
+		FlurryAgent.onEndSession (this);
 		}
 	
 	@Override
@@ -409,6 +416,18 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{
 			/* nothing */
 			}
+		}
+	
+	public void flurry_log (String event)
+		{
+		FlurryAgent.logEvent (event);
+		}
+	
+	public void flurry_log (String event, String k1, String v1)
+		{
+		Map <String, String> params = new HashMap <String, String>();		
+        params.put (k1, v1); 
+        FlurryAgent.logEvent (event, params);
 		}
 	
 	/* override this */
@@ -3151,6 +3170,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     private MediaRouter.Callback gcast_media_router_callback = null;
     
     private MediaRouteButton gcast_media_route_button = null;
+    private MediaRouteButton gcast_media_route_button_main = null;
     
 	public void google_cast_create()
 		{
@@ -3160,10 +3180,14 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         
         gcast_media_route_selector = MediaRouteHelper.buildMediaRouteSelector (MediaRouteHelper.CATEGORY_CAST, APP_NAME, null);
         
-        gcast_media_route_button = (MediaRouteButton) findViewById (R.id.media_route_button);
-        
+        gcast_media_route_button = (MediaRouteButton) findViewById (R.id.media_route_button);        
         if (gcast_media_route_button != null)
         	gcast_media_route_button.setRouteSelector (gcast_media_route_selector);
+        
+        // gcast_media_route_button_main = (MediaRouteButton) findViewById (R.id.media_route_button_main);        
+        // if (gcast_media_route_button_main != null)
+        //	gcast_media_route_button_main.setRouteSelector (gcast_media_route_selector);
+        
         // gcast_media_route_button.setDialogFactory(mDialogFactory);
         
         MediaRouteHelper.registerMinimalMediaRouteProvider (gcast_context, this);

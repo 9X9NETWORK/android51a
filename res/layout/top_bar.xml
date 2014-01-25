@@ -95,7 +95,30 @@
 					android:src="@drawable/search_cancel"										
 					/>			    
 			</LinearLayout>   			
-		</FrameLayout>	
+		</FrameLayout>
+		
+		<!-- setting this style on MediaRoutebutton requires API level 16! -->	
+		<!-- android.support.v7.app.MediaRouteButton
+		    android:id="@+id/media_route_button_main"
+			android:mediaRouteTypes="user"			    
+		    android:layout_width="wrap_content"
+		    android:layout_height="fill_parent"
+		    android:layout_gravity="right|center_vertical"
+		    android:gravity="right|center_vertical"		    
+		    android:visibility="visible"
+		    android:style="@android:style/Widget.Holo.Light.MediaRouteButton"
+		    /-->
+		    <!-- android.support.v7.app.MediaRouteButton
+			    android:id="@+id/media_route_button_main"
+				android:mediaRouteTypes="user"			    
+			    android:layout_width="wrap_content"
+			    android:layout_height="fill_parent"
+			    android:layout_gravity="right|center_vertical"
+			    android:gravity="right|center_vertical"		    
+			    android:visibility="visible"
+			    android:externalRouteEnabledDrawable="@drawable/ic_media_route_holo_light"
+			    /-->
+		   
 		<ImageView
 		    android:id="@+id/searchbutton"						    
 			android:layout_width="wrap_content"

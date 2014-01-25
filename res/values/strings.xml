@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 9x9-->
-    <!-- 
+    <!-- 9x9--> 
     <string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>         
     <string name="white_label">portal</string>
@@ -14,14 +13,13 @@
     <string name="signin_logo">tvlogo</string>    
     <string name="signin_bg">bgnew</string>     
     <string name="set_banner">banner_crashcourse</string>   
-	<string name="fb_app_id">361253423962738</string>       	
-	-->
-	
-    <!-- crash course -->
+	<string name="fb_app_id">361253423962738</string>
+	  
+    <!-- crash course
     <string name="app_name">Crash Course on FLIPr</string>
     <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
     <string name="white_label">crashcourse</string>     
-    <string name="mso">crashcourse</string>
+    <string name="mso">9x9</string>
     <string name="default_region">en</string>               
     <string name="logo">crash_course_cyan</string>
     <string name="splash_background">bg_open_crashcourse</string>
@@ -31,7 +29,8 @@
     <string name="signin_bg">bg_open_crashcourse</string>  
     <string name="set_banner">banner_crashcourse</string>      	
     <string name="fb_app_id">1414438248794640</string>    
- 
+    -->
+    
     <!-- cts 
     <string name="app_name">CTS</string>
     <string name="app_icon">@drawable/cts_icon_new</string>    
@@ -111,7 +110,7 @@
 	<string name="fb_app_id">361253423962738</string>           
     -->
          
-    <bool name="uses_chromecast">false</bool>
+    <bool name="uses_chromecast">true</bool>
     
     <string name="guest">Guest</string>
     <string name="enter_search_terms">Enter search terms</string>
@@ -315,4 +314,7 @@
 	<string name="guide_guest_hint">Get to your favorite programs by following them so you never miss an update. Sign in to start following programs and build your own personal program guide!</string>
 	<string name="terms_of_use">Terms of Use</string> 
 	<string name="by_creating">By creating an account, I accept the terms of service and privacy policy of this app.</string>
+	<string name="suggested_tv_apps">Suggested TV Apps</string>
+	<string name="get_suggested_tv_apps">Get Suggested TV Apps Now!</string>	
+	<string name="download">Download</string>
 </resources>

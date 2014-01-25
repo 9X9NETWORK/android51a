@@ -12,8 +12,6 @@
 	    android:layout_height="match_parent">
 	
 	    <include layout="@layout/home_layer" android:id="@+id/home_layer" />
-
-	    <!-- include layout="@layout/home_tablet" android:id="@+id/home_tablet" / -->
 	    	    	        	    
 	    <include layout="@layout/signin_layer" />
 	   
@@ -25,12 +23,12 @@
 
 		<include layout="@layout/search_layer" />
 
+		<include layout="@layout/apps_layer" />
+				
 		<include layout="@layout/settings_layer" />
 									    	    	    	    		
 	</FrameLayout>
 	
-	<!-- one of these will be removed -->
-	<!-- include layout="@layout/video_layer_old" android:id="@+id/video_layer "/ -->
-	<!-- include layout="@layout/video_layer_new" android:id="@+id/video_layer "/ -->
+	<!-- either video_layer_old or video_layer_new gets added here -->
 		
 </FrameLayout>

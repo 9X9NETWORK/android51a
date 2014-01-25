@@ -1,5 +1,7 @@
 package tv.tv9x9.player;
 
+/* flurry key: 648QZK9W54HCPMBHGZ4M */
+
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -10,6 +12,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import tv.tv9x9.player.HorizontalListView.OnScrollListener;
 import tv.tv9x9.player.metadata.Comment;
@@ -26,6 +31,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -87,7 +93,7 @@ public class main extends VideoBaseActivity
 		identity = "main";
 		}
 	
-	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS };
+	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS };
 	
 	toplayer current_layer = toplayer.HOME;
 	toplayer layer_before_signin = toplayer.HOME;
@@ -198,7 +204,7 @@ public class main extends VideoBaseActivity
 	    		if (menu_is_extended())
 	    			toggle_menu();
 	    		else if (channel_overlay_visible)
-	    			toggle_channel_overlay (current_home_page);
+	    			toggle_channel_overlay (home_slider.current_home_page);
 	    		else
 	    			exit_stage_left();
 	    		}
@@ -215,7 +221,7 @@ public class main extends VideoBaseActivity
 	    		slide_away_terms();
 	    		}
 	    	else if (current_layer == toplayer.SIGNIN || current_layer == toplayer.GUIDE
-	    				|| current_layer == toplayer.SEARCH || current_layer == toplayer.SETTINGS)
+	    				|| current_layer == toplayer.SEARCH || current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS)
 	    		toggle_menu();
 	    	return true;
 	    	}
@@ -348,16 +354,30 @@ public class main extends VideoBaseActivity
 
 	public void onVideoActivityFlingLeft()
 		{
-		perform_fling_left();
-		if (playback_episode_adapter != null)
-			playback_episode_adapter.notifyDataSetChanged();
+		if (current_layer == toplayer.PLAYBACK)
+			{
+			perform_fling_left();
+			if (playback_episode_adapter != null)
+				{
+				playback_episode_adapter.notifyDataSetChanged();
+				HorizontalListView vEpisodes = (HorizontalListView) findViewById (R.id.playback_episodes);			
+				vEpisodes.scrollTo (where_am_i() * (pixels_200 + pixels_20));
+				}
+			}
 		}
 
 	public void onVideoActivityFlingRight()
 		{
-		previous_episode();
-		if (playback_episode_adapter != null)
-			playback_episode_adapter.notifyDataSetChanged();
+		if (current_layer == toplayer.PLAYBACK)
+			{
+			previous_episode();
+			if (playback_episode_adapter != null)
+				{
+				playback_episode_adapter.notifyDataSetChanged();
+				HorizontalListView vEpisodes = (HorizontalListView) findViewById (R.id.playback_episodes);			
+				vEpisodes.scrollTo (where_am_i() * (pixels_200 + pixels_20));
+				}
+			}
 		}
 
 	@Override
@@ -371,7 +391,7 @@ public class main extends VideoBaseActivity
 	
 	public void home_configure_white_label()
 		{
-		int top_bars[] = { R.id.home_top_bar, R.id.guide_top_bar, R.id.store_top_bar, R.id.search_top_bar };
+		int top_bars[] = { R.id.home_top_bar, R.id.guide_top_bar, R.id.store_top_bar, R.id.search_top_bar, R.id.apps_top_bar };
 		
 		for (int top_bar: top_bars)
 			{
@@ -550,6 +570,7 @@ public class main extends VideoBaseActivity
 	public void toggle_menu()
 		{
 		toggle_menu (null);
+		flurry_log ("menu");
 		}
 	
 	public void toggle_menu	(final Callback cb)
@@ -635,7 +656,7 @@ public class main extends VideoBaseActivity
 		        	{
 		        	log ("click on: signin button");
 		        	toggle_menu();
-		        	enable_signin_layer();
+		        	enable_signin_layer (null);
 		        	}
 				});	
 		
@@ -690,7 +711,17 @@ public class main extends VideoBaseActivity
 		        	if (config.usertoken != null)
 		        		enable_settings_layer();
 		        	else
-		        		enable_signin_layer();
+		        		{
+		        		enable_signin_layer (new Runnable()
+		        			{
+			        		@Override
+			        		public void run()
+				        		{
+			        			if (config.usertoken != null)
+			        				enable_settings_layer();	
+				        		}
+		        			});
+		        		}
 		        	}
 				});
 		
@@ -705,6 +736,19 @@ public class main extends VideoBaseActivity
 		        	}
 				});		
 		
+		View vApps = findViewById (R.id.menu_apps);
+		if (vApps != null)
+			vApps.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: menu apps");
+		        	toggle_menu();
+		        	enable_apps_layer();
+		        	}
+				});	
+		
 		View vSignout = findViewById (R.id.menu_signout);
 		if (vSignout != null)
 			vSignout.setOnClickListener (new OnClickListener()
@@ -713,10 +757,7 @@ public class main extends VideoBaseActivity
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: menu signout");
-		        	if (config != null && config.email.equals ("[via Facebook]"))
-		        		facebook_logout();
-		        	else
-		        		signout();
+		        	signout_from_app_or_facebook();
 		        	}
 				});			
 		
@@ -749,6 +790,14 @@ public class main extends VideoBaseActivity
 			}
 		}
 
+	public void signout_from_app_or_facebook()
+		{
+    	if (config != null && config.email.equals ("[via Facebook]"))
+    		facebook_logout();
+    	else
+    		signout();
+		}
+	
 	@Override
 	public void onVideoActivitySignout()
 		{
@@ -980,17 +1029,9 @@ public class main extends VideoBaseActivity
 			}
   		}
 	
-	public void next_channel()
+	public int where_am_i()
 		{
-		String next_id = next_channel_id();
-		log ("previous channel id: " + next_id);		
-		change_channel (next_id);	
-		}
-
-	private int next_channel_index()
-		{		
 		int you_are_here = 0;
-		
 		for (int i = 0; i < arena.length; i++)
 			{
 			String a = arena [i];
@@ -1001,7 +1042,19 @@ public class main extends VideoBaseActivity
 				break;
 				}
 			}
-		
+		return you_are_here;
+		}
+	
+	public void next_channel()
+		{
+		String next_id = next_channel_id();
+		log ("previous channel id: " + next_id);		
+		change_channel (next_id);	
+		}
+
+	private int next_channel_index()
+		{		
+		int you_are_here = where_am_i();
 		return (you_are_here + 1 >= arena.length) ? 1 : you_are_here + 1;
 		}
 	
@@ -1022,19 +1075,7 @@ public class main extends VideoBaseActivity
 	
 	private int previous_channel_index()
 		{
-		int you_are_here = 0;
-		
-		for (int i = 1; i < arena.length; i++)
-			{
-			String a = arena [i];
-			log ("ARENA: " + a);
-			if (player_real_channel.equals (a))
-				{
-				you_are_here = i;
-				break;
-				}
-			}
-		
+		int you_are_here = where_am_i();
 		return (you_are_here <= 1) ? arena.length - 1 : you_are_here - 1;
 		}
 	
@@ -1342,8 +1383,15 @@ public class main extends VideoBaseActivity
 			}
 		else
 			{
-			/* this can't actually happen */
-			toast_by_resource (R.string.please_login_first);
+			enable_signin_layer (new Runnable()
+				{
+				@Override
+				public void run()
+					{
+					if (config.usertoken != null)
+						subscribe (real_channel);
+					}
+				});
 			}
 		}
 		
@@ -1402,11 +1450,8 @@ public class main extends VideoBaseActivity
 			}
 		else if (current_layer == toplayer.HOME)
 			{
-			if (current_swap_object != null)
-				{
-				if (current_swap_object.channel_adapter != null)
-					current_swap_object.channel_adapter.notifyDataSetChanged();
-				}
+			if (home_slider != null)
+				home_slider.refresh();
 			}
 		else if (current_layer == toplayer.PLAYBACK)
 			{
@@ -1448,22 +1493,25 @@ public class main extends VideoBaseActivity
 		View signin_layer = findViewById (R.id.signinlayer);
 		signin_layer.setVisibility (layer == toplayer.SIGNIN ? View.VISIBLE : View.GONE);
 		
+		View apps_layer = findViewById (R.id.appslayer);
+		apps_layer.setVisibility (layer == toplayer.APPS ? View.VISIBLE : View.GONE);
+		
 		current_layer = layer;
 		}
 	
 	/*** SIGNIN ************************************************************************************************/
 	
-	public void enable_signin_layer()
+	public void enable_signin_layer (Runnable callback)
 		{
 		disable_video_layer();
 		
 		/* terms layer can only be started from signin, so ignore it */
-		if (current_layer != toplayer.TERMS)
+		if (current_layer != toplayer.TERMS && current_layer != toplayer.SIGNIN)
 			layer_before_signin = current_layer;
 		
 		set_layer (toplayer.SIGNIN);		
 		
-		setup_signin_buttons();
+		setup_signin_buttons (callback);
 		
 		if (is_phone())
 			{
@@ -1477,7 +1525,7 @@ public class main extends VideoBaseActivity
 			}
 		}
 
-	public void setup_signin_buttons()
+	public void setup_signin_buttons (final Runnable callback)
 		{
 		int editables[] = { R.id.sign_in_email_container,
 							R.id.sign_in_password_container, 
@@ -1517,6 +1565,8 @@ public class main extends VideoBaseActivity
 						public void run()
 							{
 							activate_layer (layer_before_signin);
+							if (callback != null)
+								callback.run();
 							}		        	
 			        	});
 		        	}
@@ -1530,7 +1580,7 @@ public class main extends VideoBaseActivity
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: signin");
-		        	proceed_with_signin();
+		        	proceed_with_signin (callback);
 		        	}
 				});
 		
@@ -1542,7 +1592,7 @@ public class main extends VideoBaseActivity
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: signup");
-		        	proceed_with_signup();
+		        	proceed_with_signup (callback);
 		        	}
 				});
 		
@@ -1621,7 +1671,7 @@ public class main extends VideoBaseActivity
 		vSignUpTab.setBackgroundResource (is_sign_in ? R.drawable.gossamerrightoff : R.drawable.gossamerright);		
 		}
 	
-	public void proceed_with_signin()
+	public void proceed_with_signin (final Runnable callback)
 		{
 		TextView emailView = (TextView) findViewById (R.id.sign_in_email);
 		final String email = emailView.getText().toString();
@@ -1664,6 +1714,8 @@ public class main extends VideoBaseActivity
 					public void run()
 						{
 						activate_layer (layer_before_signin);
+						if (callback != null)
+							callback.run();
 						}		        	
 		        	});
 				}
@@ -1680,7 +1732,7 @@ public class main extends VideoBaseActivity
 			};
 		}
 	
-	public void proceed_with_signup()
+	public void proceed_with_signup (final Runnable callback)
 		{
 		TextView emailView = (TextView) findViewById (R.id.sign_up_email);
 		final String email = emailView.getText().toString();
@@ -1733,6 +1785,8 @@ public class main extends VideoBaseActivity
 					public void run()
 						{
 						activate_layer (layer_before_signin);
+						if (callback != null)
+							callback.run();
 						}		        	
 		        	});				
 				}
@@ -1877,7 +1931,7 @@ public class main extends VideoBaseActivity
 	    	{
 	    	public void run()
 	    		{
-	    		enable_signin_layer();
+	    		enable_signin_layer (null);
 	    		toggle_menu();
 	    		}
 	    	});
@@ -2091,13 +2145,20 @@ public class main extends VideoBaseActivity
 					process_login_data ("[via Facebook]", lines);
 					alert ("Logged in via Facebook: " + user.getName());					
 					query_following (null);
-					toggle_menu();
+		        	toggle_menu (new Callback()
+			        	{
+						@Override
+						public void run()
+							{
+							activate_layer (layer_before_signin);
+							}		        	
+			        	});
 					}
 				public void failure (int code, String errtext)
 					{
 					// String txt_failure = getResources().getString (R.string.login_failure);
 					// alert (txt_failure + ": " + errtext);
-					alert ("FB LOGIN FAILURE");
+					alert ("FACEBOOK LOGIN FAILURE!");
 					}
 				};
 	    	}
@@ -2179,6 +2240,239 @@ public class main extends VideoBaseActivity
 		request.executeAsync();
 		}
 
+	/*** APPS **************************************************************************************************/
+	
+	public void enable_apps_layer()
+		{
+		disable_video_layer();
+		set_layer (toplayer.APPS);
+		setup_apps_buttons();
+		init_apps();
+		}
+	
+	public void setup_apps_buttons()
+		{
+		View vHomeTopBar = findViewById (R.id.apps_top_bar);
+		
+		View vMenu = vHomeTopBar.findViewById (R.id.menubutton);
+		if (vMenu != null)
+			vMenu.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: apps menu button");
+		        	toggle_menu();
+		        	}
+				});	
+		
+		View vSearch = vHomeTopBar.findViewById (R.id.searchbutton);
+		if (vSearch != null)
+			vSearch.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: apps search button");
+		        	enable_search_apparatus (R.id.apps_top_bar);
+		        	}
+				});	
+		}
+
+	public class app
+		{
+		String title;
+		String description;
+		String icon_url;
+		String market_url;
+		String basename;
+		}
+	
+	app apps[] = null;
+    AppsAdapter apps_adapter = null;
+    
+	public void init_apps()
+		{
+		if (apps == null)
+			{
+			new playerAPI (in_main_thread, config, "relatedApps?os=android&sphere=" + config.region)
+				{
+				public void success (String[] lines)
+					{
+					int section = 0, count = 0;
+					for (int i = 0; i < lines.length; i++)
+						{
+						if (lines[i].equals ("--"))
+							section++;
+						else if (section == 1)
+							count++;
+						}
+								
+					app new_apps[] = new app [count];
+					section = 0;
+					count = 0;
+					
+					Pattern pattern = Pattern.compile ("id=([^&]*)\\&", Pattern.CASE_INSENSITIVE);
+					
+					for (int i = 0; i < lines.length; i++)
+						{
+						if (lines[i].equals ("--"))
+							section++;
+						else if (section == 1)
+							{
+							app a = new app();
+							String fields[] = lines[i].split ("\t");
+							a.title = fields[0];
+							a.description = fields[1];
+							a.icon_url = fields[2];
+							a.market_url = fields[3];
+							/* market://details?id=tv.ddtv.player9x9tv&hl=en */
+							Matcher m = pattern.matcher (fields[3]);
+							if (m.find())
+								a.basename = m.group (1); 
+							new_apps [count++] = a;
+							}
+						}
+					apps = new_apps;
+					
+					ListView vAppsList = (ListView) findViewById (R.id.apps_list);
+					apps_adapter = new AppsAdapter (main.this, apps);
+					vAppsList.setAdapter (apps_adapter);
+					
+					vAppsList.setOnItemClickListener (new OnItemClickListener()
+						{
+						public void onItemClick (AdapterView parent, View v, int position, long id)
+							{
+							if (position < apps.length)
+								{
+								log ("app list click: " + position);
+								launch_suggested_app (apps [position].market_url);
+								}
+							}
+						});
+					
+					download_app_thumbs();
+					}
+				public void failure (int code, String errtext)
+					{
+					}
+				};
+			}
+		else
+			{
+			if (apps_adapter != null)
+				apps_adapter.notifyDataSetChanged();
+			}
+		}
+	
+	public void download_app_thumbs()
+		{			
+		Runnable apps_thumberino = new Runnable()
+			{
+			public void run()
+				{
+				if (apps_adapter != null)
+					apps_adapter.notifyDataSetChanged();
+				}
+			};
+
+		Stack <String> filenames = new Stack <String> ();
+		Stack <String> urls = new Stack <String> ();
+
+		for (app a: apps)
+			{
+			filenames.push (a.basename);
+			urls.push (a.icon_url);
+			}
+		
+		thumbnail.download_list_of_images (main.this, config, "apps", filenames, urls, in_main_thread, apps_thumberino);
+		}
+	
+	public void launch_suggested_app (String url)
+		{
+		Intent intent = new Intent (Intent.ACTION_VIEW, Uri.parse (url));
+		startActivity (intent);
+		}
+	
+	public class AppsAdapter extends BaseAdapter
+		{
+		private Context context;
+		private app apps[] = null;
+		
+		public AppsAdapter (Context c, app apps[])
+			{
+			context = c;
+			this.apps = apps;
+			}
+
+		@Override
+		public int getCount()
+			{			
+			return apps == null ? 0 : apps.length;
+			}
+		
+		@Override
+		public Object getItem (int position)
+			{
+			return position;
+			}
+	
+		@Override
+		public long getItemId (int position)
+			{
+			return position;
+			}
+		
+		@Override
+		public View getView (final int position, View convertView, ViewGroup parent)
+			{
+			LinearLayout rv = null;
+					
+			log ("apps getView: " + position);
+			
+			if (convertView == null)
+				rv = (LinearLayout) View.inflate (main.this, R.layout.app_item, null);				
+			else
+				rv = (LinearLayout) convertView;
+						
+			if (rv == null)
+				{
+				log ("getView: [position " + position + "] rv is null!");
+				return null;
+				}
+			
+			TextView vTitle = (TextView) rv.findViewById (R.id.title);
+			if (vTitle != null)
+				vTitle.setText (apps [position].title);
+			
+			TextView vDesc = (TextView) rv.findViewById (R.id.desc);
+			if (vDesc != null)
+				vDesc.setText (apps [position].description);
+
+			boolean icon_found = false;
+			
+			ImageView vIcon = (ImageView) rv.findViewById (R.id.icon); 	
+			if (vIcon != null)
+				{
+				String filename = getFilesDir() + "/" + config.api_server + "/apps/" + apps [position].basename + ".png";
+				
+				File f = new File (filename);
+				if (f.exists ())
+					{
+					log ("exists: " +filename);
+					Bitmap bitmap = BitmapFactory.decodeFile (filename);
+					if (bitmap != null)
+						{
+						icon_found = true;
+						vIcon.setImageBitmap (bitmap);
+						}
+					}
+				}
+			
+			return rv;
+			}	
+		}	
+
 	/*** HOME **************************************************************************************************/
 
 	LineItemAdapter channel_overlay_adapter = null;
@@ -2218,14 +2512,14 @@ public class main extends VideoBaseActivity
 			}
 		};
 
-	FrameLayout current_home_page = null;
-	Swaphome current_swap_object = null;
-		
 	/* this is implemented using the base class! */
 		
     public class HomeSlider extends PagerAdapter
     	{
     	boolean first_time = true;
+    	
+    	Swaphome current_swap_object = null;
+    	FrameLayout current_home_page = null;
     	
         @Override
         public int getCount()
@@ -2240,7 +2534,7 @@ public class main extends VideoBaseActivity
 			}
 		
 		@Override
-		public Object instantiateItem (ViewGroup container, int position)
+		public Object instantiateItem (final ViewGroup container, final int position)
 			{
 			log ("[PAGER] instantiate: " + position);
 			
@@ -2279,10 +2573,30 @@ public class main extends VideoBaseActivity
 			
 			TextView vLeft = (TextView) sh.home_page.findViewById (R.id.left_set_title);
 			vLeft.setText (position == 0 ? "" : portal_stack_names [position-1]);
-
+			vLeft.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: left title");
+		        	if (position > 0)
+		        		((StoppableViewPager) container).setCurrentItem (position - 1);
+		        	}
+				});	
+			
 			TextView vRight = (TextView) sh.home_page.findViewById (R.id.right_set_title);
 			vRight.setText (position == portal_stack_ids.length - 1 ? "" : portal_stack_names [position+1]);
-			
+			vRight.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: right title");
+		        	if (position < portal_stack_ids.length - 1)
+		        		((StoppableViewPager) container).setCurrentItem (position + 1);
+		        	}
+				});	
+		
 			View vModeThumbs = sh.home_page.findViewById (R.id.mode_thumbs);
 			if (vModeThumbs != null)
 				vModeThumbs.setOnClickListener (new OnClickListener()
@@ -2309,7 +2623,37 @@ public class main extends VideoBaseActivity
 			        	}
 					});				
 			
-			query_pile (portal_stack_ids [position], new Callback()
+			load_data (sh);
+								
+			return sh;
+			}
+		
+		@Override
+		public void destroyItem (ViewGroup container, int position, Object object)
+			{
+			log ("[PAGER] destroy: " + position);
+			Swaphome sh = (Swaphome) object;
+			((StoppableViewPager) container).removeView (sh.home_page);
+			}
+		
+		@Override
+		public void setPrimaryItem (ViewGroup container, int position, Object object)
+			{
+			log ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% primary 3x3: " + position);
+			diminish_side_titles (current_home_page, true);
+			current_swap_object = (Swaphome) object;
+			current_home_page = ((Swaphome) object).home_page;
+			diminish_side_titles (current_home_page, false);
+			}
+		
+		public void reload_data()
+			{	
+			load_data (current_swap_object);
+			}
+		
+		public void load_data (final Swaphome sh)
+			{
+			query_pile (portal_stack_ids [sh.set], new Callback()
 				{
 				public void run_string (String id)
 					{
@@ -2343,30 +2687,17 @@ public class main extends VideoBaseActivity
 					thumbnail.stack_thumbs (main.this, config, sh.arena, in_main_thread, channel_thumberino);
 					}
 				});
-								
-			return sh;
 			}
 		
-		@Override
-		public void destroyItem (ViewGroup container, int position, Object object)
+		public void refresh()
 			{
-			log ("[PAGER] destroy: " + position);
-			Swaphome sh = (Swaphome) object;
-			((StoppableViewPager) container).removeView (sh.home_page);
+			if (current_swap_object != null)
+				{
+				if (current_swap_object.channel_adapter != null)
+					current_swap_object.channel_adapter.notifyDataSetChanged();
+				}
 			}
-		
-		@Override
-		public void setPrimaryItem (ViewGroup container, int position, Object object)
-			{
-			log ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% primary 3x3: " + position);
-			diminish_side_titles (current_home_page, true);
-			current_swap_object = (Swaphome) object;
-			current_home_page = ((Swaphome) object).home_page;
-			diminish_side_titles (current_home_page, false);
-			}
-    	}
-
-    
+    	}   
     
 	public void setup_channel_overlay (final View parent)
 		{
@@ -2441,7 +2772,8 @@ public class main extends VideoBaseActivity
 		{
 		vc_cache = new Hashtable < String, String[] > ();
 		config.init_pools();
-		populate_home();
+		/* was: populate_home(); */
+		home_slider.reload_data();
 		}
 	
 	/* ------------------------------------ frontpage ------------------------------------ */
@@ -2561,8 +2893,6 @@ public class main extends VideoBaseActivity
 			String fields[] = line.split ("\t");
 			if (section == 0 && fields.length >= 2)
 				{
-				if (fields[1].equals ("Nordstrome"))
-					fields[1] = "Nordstrom";
 				portal_stack_ids [stack_count] = fields [0];
 				portal_stack_names [stack_count] = fields [1];
 				if (fields.length >= 4)
@@ -2574,7 +2904,6 @@ public class main extends VideoBaseActivity
 				}
 			}
 	
-		// init_home();
 		enable_home_layer();
 		}	
 	 
@@ -4718,7 +5047,7 @@ public class main extends VideoBaseActivity
 		        		{
 		        		public void run()
 		        			{
-			        		enable_signin_layer();
+			        		enable_signin_layer (null);
 			        		toggle_menu();
 		        			}
 		        		});		        	
@@ -6230,8 +6559,23 @@ public class main extends VideoBaseActivity
 	
 	public void perform_search (final String term)
 		{
-		String encoded_term = util.encodeURIComponent (term);
+		if (term.startsWith ("server="))
+			{
+			String fields[] = term.split ("=");
+			if (fields.length >= 2)
+				{
+				signout_from_app_or_facebook();
+				config.api_server = fields[1] + ".9x9.tv";
+				log ("switching API server to: " + fields[1]);
+				String filedata = "api-server\t" + config.api_server + "\n" + "region\t" + config.region + "\n";
+                futil.write_file (main.this, "config", filedata);
+				alert_then_exit ("Please restart the app, to use API server " + config.api_server);
+				return;
+				}
+			}
 		
+		String encoded_term = util.encodeURIComponent (term);
+	
 		if (encoded_term == null)
 			return;
 
@@ -6458,14 +6802,20 @@ public class main extends VideoBaseActivity
 	public void onActionDown()
 		{
 		if (current_layer == toplayer.HOME)
-			diminish_side_titles (current_home_page, true);
+			{
+			if (home_slider != null)
+				diminish_side_titles (home_slider.current_home_page, true);
+			}
 		}
 	
 	@Override
 	public void onActionUp()
 		{
 		if (current_layer == toplayer.HOME)
-			diminish_side_titles (current_home_page, false);
+			{
+			if (home_slider != null)
+				diminish_side_titles (home_slider.current_home_page, false);
+			}
 		}
 	
 	public void diminish_side_titles (View parent, boolean hide)

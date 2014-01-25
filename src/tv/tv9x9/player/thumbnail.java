@@ -760,4 +760,72 @@ public class thumbnail
 		else
 			Log.i ("vtest", "++ titlecard existed: " + filename);
 		}
+	
+	public static void download_list_of_images
+			(final Context ctx, final metadata config, final String dir, final Stack <String> filenames, final Stack <String> urls,
+					final Handler in_main_thread, final Runnable update)
+		{
+		Thread t = new Thread ()
+			{
+			public void run ()
+				{		
+				if (!make_app_dir (ctx, config, dir)) return;
+				
+				while (!filenames.empty())
+					{
+					String filename = filenames.pop();
+					String url = urls.pop();
+					String full_filename = ctx.getFilesDir() + "/" + config.api_server + "/" + dir + "/" + filename + ".png";
+					download_image (ctx, full_filename, url);
+					in_main_thread.post (update);
+					}			
+				}
+			};
+			
+		t.start();
+		}
+	
+	public static void download_image (Context ctx, String filename, String url)
+		{
+		File f = new File (filename);
+		if (f.exists() && f.length() == 0)
+			{
+			Log.i ("vtest", "Image was zero bytes: " + filename);
+			f.delete();
+			}
+		if (!f.exists ())
+			{
+			Log.i ("vtest", "IMAGE DOWNLOAD: " + url);
+		
+			Bitmap bmp = getImageBitmap (url);
+		
+			if (bmp == null)
+				{
+				Log.i ("vtest", "++ unable to download image");
+				try
+					{
+					FileOutputStream out = new FileOutputStream (filename);
+					out.close();
+					}
+				catch (Exception ex)
+					{
+					}
+				return;
+				}
+			
+			try
+				{
+				FileOutputStream out = new FileOutputStream (filename);
+				bmp.compress (Bitmap.CompressFormat.PNG, 100, out);				
+				out.close();
+				Log.i ("vtest", "++ image saved as: " + filename);
+				}
+			catch (Exception e)
+				{
+				e.printStackTrace ();
+				}
+			}
+		else
+			Log.i ("vtest", "++ image exists: " + filename);
+		}	
 	}

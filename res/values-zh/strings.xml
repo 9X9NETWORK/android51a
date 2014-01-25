@@ -316,5 +316,8 @@
 	<string name="verifypw">Verify</string>
 	<string name="guide_guest_hint">Get to your favorite programs by following them so you never miss an update. Sign in to start following programs and build your own personal program guide!</string>
 	<string name="terms_of_use">Terms of Use</string> 			
-	<string name="by_creating">By creating an account, I accept the terms of service and privacy policy of this app.</string>	  		
+	<string name="by_creating">By creating an account, I accept the terms of service and privacy policy of this app.</string>	 
+	<string name="suggested_tv_apps">Suggested TV Apps</string>	 	
+	<string name="get_suggested_tv_apps">Get Suggested TV Apps Now!</string>		
+	<string name="download">Download</string>	
 </resources>
