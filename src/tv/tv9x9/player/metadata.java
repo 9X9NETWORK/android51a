@@ -9,11 +9,7 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-	
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-import android.annotation.SuppressLint;
-import android.os.Handler;
 import android.util.Log;
 
 public class metadata
@@ -68,8 +64,6 @@ public class metadata
 	
 	/* title captions in the 9x9 grid, one above each 3x3 set */
 	String[] set_titles = null;
-	
-	GoogleAnalyticsTracker tracker = null;
 	
 	Hashtable  <Integer, Hashtable <String, String>>   channelgrid;
 	Hashtable  <String,  Hashtable <String, String>>   channel_pool;

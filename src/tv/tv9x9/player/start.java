@@ -1,7 +1,6 @@
 package tv.tv9x9.player;
 
 import com.flurry.android.FlurryAgent;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 import tv.tv9x9.player.switchboard.LocalBinder;
 
@@ -9,6 +8,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
@@ -38,8 +38,6 @@ public class start extends Activity
 	switchboard mService;
 
 	private metadata config = null;
-
-	GoogleAnalyticsTracker tracker = null;
 	
 	boolean tablet = false;
 	
@@ -90,9 +88,6 @@ public class start extends Activity
 			    finish();
 		    	}
 			});
-		
-		tracker = GoogleAnalyticsTracker.getInstance();
-		tracker.setDebug (true);
 		
 		// android.intent.action.VIEW
 		
@@ -401,8 +396,6 @@ public class start extends Activity
 		config.usertoken = null;
 		config.username = null;
 		
-		config.tracker = tracker;
-		
 		config.white_label = getResources().getString (R.string.white_label);
 		config.mso = getResources().getString (R.string.mso);
 		config.region = getResources().getString (R.string.default_region);		
@@ -419,21 +412,6 @@ public class start extends Activity
 		
 		read_config_file();
 		
-		if (config.tracker != null)
-			{
-			Log.i ("vtest", "starting Google Analytics");
-			// config.tracker.startNewSession ("UA-37212670-1", 30, this);
-			// config.tracker.startNewSession ("UA-37212670-1", this);
-			// config.tracker.startNewSession ("UA-21595932-3", this); web
-			// config.tracker.startNewSession ("UA-37214861-1", this); iOS
-			// config.tracker.startNewSession ("UA-37212670-2", this);
-			config.tracker.startNewSession ("UA-21595932-1", this);
-			
-			config.tracker.setCustomVar (1,  "x",  "y", 2);
-			config.tracker.trackPageView ("/" + config.api_server + "/start");
-			config.tracker.dispatch();
-			}
-
 		/* if the brandInfo takes over 3 seconds, display a spinner */
 		in_main_thread.postDelayed (new Runnable()
 			{
@@ -455,7 +433,7 @@ public class start extends Activity
 			public void failure (int code, String errtext)
 				{				
 				Log.i ("vtest", "brandInfo error: " + errtext);
-				delayed_launch();
+				alert_then_exit ("Server error! Please try again later.");
 				}
 			};
 		}
@@ -539,6 +517,24 @@ public class start extends Activity
 		builder.create().show();
 		}
 
+	public void alert_then_exit (String text)
+		{
+		log ("ALERT: " + text);
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder (start.this);
+	
+		builder.setMessage (text);
+		builder.setNeutralButton ("OK", new DialogInterface.OnClickListener()
+			{
+			@Override
+			public void onClick (DialogInterface arg0, int arg1)
+				{
+				finish();
+				}
+			});
+		
+		builder.create().show();
+		}
 	public void toast (String text)
 		{
 	 	Toast.makeText (getBaseContext (), text, Toast.LENGTH_SHORT).show();

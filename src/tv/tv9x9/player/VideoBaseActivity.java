@@ -14,7 +14,14 @@ import java.util.regex.Pattern;
 
 import tv.tv9x9.player.switchboard.LocalBinder;
 
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.Fields;
+import com.google.analytics.tracking.android.GoogleAnalytics;
+import com.google.analytics.tracking.android.Logger.LogLevel;
+import com.google.analytics.tracking.android.MapBuilder;
+import com.google.analytics.tracking.android.Tracker;
 import com.flurry.android.FlurryAgent;
+
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
@@ -59,7 +66,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewManager;
 import android.view.Window;
 import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
@@ -113,9 +119,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	int current_episode_index = 1;
 	
 	String youtube_url = null;
-	
-	// public YouTubePlayerView playerView;
-	// public YouTubePlayer yt_player = null;
 
 	public boolean fullscreen = false;
 	
@@ -189,6 +192,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	public enum flipdir { FORWARD, REVERSE };
 	
 	flipdir flip_direction = flipdir.FORWARD;
+	
+	String cumulative_channel_id = null;
+	String cumulative_episode_id = null;
+	long cumulative_episode_time = 0;
+	long cumulative_channel_time = 0;
 	
 	/* dm.density shortcut */
 	float density = 1f;
@@ -286,7 +294,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		FlurryAgent.onStartSession (this, "648QZK9W54HCPMBHGZ4M");
 		FlurryAgent.setLogEnabled (true);
 		FlurryAgent.setLogLevel (Log.DEBUG);
-		google_cast_start();
+		EasyTracker.getInstance (this).activityStart (this);
+		google_cast_start();		
 		}
 	
 	@Override
@@ -301,6 +310,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		google_cast_stop();
 		FlurryAgent.onEndSession (this);
+		EasyTracker.getInstance (this).activityStop (this);
+		analytics ("onStop");
 		}
 	
 	@Override
@@ -428,6 +439,41 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		Map <String, String> params = new HashMap <String, String>();		
         params.put (k1, v1); 
         FlurryAgent.logEvent (event, params);
+		}
+	
+	String most_recent_screen = null;
+	
+	Tracker get_tracker()
+		{
+		GoogleAnalytics ga = GoogleAnalytics.getInstance (this);
+		// VERBOSE | INFO | DEBUG | WARNING
+		ga.getLogger().setLogLevel(LogLevel.VERBOSE);
+		// String tracking_id = getString (R.string.ga_trackingId);
+		String tracking_id = "UA-21595932-1";
+		// Tracker tr = EasyTracker.getInstance (this);
+		return ga.getTracker (tracking_id);		
+		}
+	
+	public void track_screen (String screen)
+		{
+		if (!screen.equals ("menu"))
+			most_recent_screen = screen; 
+		Tracker tr = get_tracker();
+		tr.set (Fields.SCREEN_NAME, screen);
+		Map <String, String> m = MapBuilder.createAppView().build();
+		tr.send (m);		
+		}
+	
+	public void track_event (String category, String action, String label, long value)
+		{		
+		Map <String, String> m = MapBuilder.createEvent (category, action, label, value).build();
+		get_tracker().send (m);
+		}
+	
+	public void track_current_screen()
+		{
+		if (most_recent_screen != null)
+			track_screen (most_recent_screen);
 		}
 	
 	/* override this */
@@ -1314,6 +1360,52 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		/* override this */
 		}
 	
+	public void analytics (String why)
+		{
+		log ("++ analytics enter (" + cumulative_channel_id + ", " + cumulative_episode_id + ")");
+		
+		String episode_id = null;
+		
+		boolean channel_changed = player_real_channel != null && !player_real_channel.equals (cumulative_channel_id);
+		
+		if (program_line != null && program_line.length >= current_episode_index)
+			episode_id = program_line [current_episode_index - 1];
+		
+		if (cumulative_episode_id != null)
+			{
+			if (channel_changed || (episode_id != null && !episode_id.equals (cumulative_episode_id)))
+				{
+				cumulative_channel_time += cumulative_episode_time;
+				submit_episode_analytics (why);
+				cumulative_episode_id = episode_id;
+				}
+			}
+		else
+			cumulative_episode_id = episode_id;
+		
+		if (cumulative_channel_id != null)
+			{
+			if (player_real_channel != null && !player_real_channel.equals (cumulative_channel_id))			
+				submit_channel_analytics (why);
+			}
+		else
+			cumulative_channel_id = player_real_channel;
+		
+		if (cumulative_episode_id == null)
+			{
+			log ("cumulative episode id is null!");
+			if (program_line != null)
+				log ("program_line.length: " + program_line.length);
+			else
+				log ("program_line is null");
+			log ("current_episode_index: " + current_episode_index);			
+			}
+		
+		log ("++ analytics exit (" + cumulative_channel_id + ", " + cumulative_episode_id + ")");
+		
+		videoFragment.reset_time_played();
+		}
+	
 	public void start_playing()
 		{
 		log ("start playing");
@@ -1351,7 +1443,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void try_to_play_episode (int episode)
 		{
-		log ("try to play episode: " + episode);
+		log ("try to play episode: " + episode);		
 		
 		video_has_started = false;
 		playing_begin_titlecard = playing_end_titlecard = false;
@@ -1371,6 +1463,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{
 			current_episode_index = episode;
 	
+			/* probably onStopped() has not been called yet, but we want analytics now */			
+			videoFragment.add_to_time_played();
+			analytics ("play");
+			
 			subepisodes_this_episode = 0;
 			current_subepisode = 0;
 			
@@ -2806,8 +2902,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (most_recent_track != null)
 			{
 			log ("track unpause");
-			config.tracker.trackPageView (most_recent_track);
-			config.tracker.dispatch();
+			// trackPageView (most_recent_track);
+			// config.tracker.dispatch();
 			}
 		else
 			log ("track unpause: was not tracking");
@@ -2820,14 +2916,46 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			log ("track eof");
 			/* this will only be submitted if the tracking has already occurred -- should stop races */
 			String preamble = "/" + config.mso + ".9x9.tv";
-			// config.tracker.trackPageView (preamble + "/" + "eof");
-			config.tracker.trackPageView ("eof");
-			config.tracker.dispatch();
+			//// config.tracker.trackPageView (preamble + "/" + "eof");
+			// config.tracker.trackPageView ("eof");
+			// config.tracker.dispatch();
 			}
 		else
 			log ("track eof: was not tracking");
 		}
 			
+	public void submit_episode_analytics (String why)
+		{
+		int duration = (int) (cumulative_episode_time / 1000);
+		
+		log ("submitting episode analytics (" + cumulative_channel_id + ", " 
+				+ cumulative_episode_id + "), duration: " + duration + ", reason: " + why);
+
+		String channel_name = config.pool_meta (cumulative_channel_id, "name");
+		String episode_name = config.program_meta (cumulative_episode_id, "name");			
+		
+		if (duration >= 6)
+			track_event ("p" + cumulative_channel_id + "/" + "e" + cumulative_episode_id, "epWatched", channel_name + "/" + episode_name, duration);	
+		
+		cumulative_episode_id = null;
+		cumulative_episode_time = 0;
+		}
+	
+	public void submit_channel_analytics (String why)
+		{
+		int duration = (int) (cumulative_channel_time / 1000);
+		
+		log ("submitting channel analytics (" + cumulative_channel_id + "), duration: " + duration + ", reason: " + why);
+		
+		String channel_name = config.pool_meta (cumulative_channel_id, "name");		
+		
+		if (duration >= 6)
+			track_event ("p" + cumulative_channel_id, "pgWatched", channel_name, duration);
+		
+		cumulative_channel_id = player_real_channel;
+		cumulative_channel_time = 0;
+		}
+	
 	public void submit_pdr()
 		{
 		if (config != null && program_line != null)
@@ -2872,48 +3000,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 							}
 						
 						String nature = config.pool_meta (current_channel, "nature");
+						String channel_name = config.pool_meta (current_channel, "name");
+						String episode_name = config.program_meta(current_episode, "name");
 						
-						if (identity.equals ("popup") || identity.equals ("popuptv"))
-							{
-							/* do not report to GA when in store popup */
-							}
-						else if (config.tracker != null)
-							{
-							String preamble = "/" + config.api_server;
-							if (config.api_server.equals ("www.9x9.tv"))
-								{
-								if (config.mso != null && !config.mso.equals ("") && !config.mso.equals ("9x9"))
-									preamble = "/" + config.mso + ".9x9.tv";
-								}
-							
-							String track_url_1 = preamble + "/view/ch" + current_channel;
-							config.tracker.trackPageView (track_url_1);
-							
-							if (nature.equals ("3") || nature.equals ("4"))
-								{
-								String track_url_2 = preamble + "/view/ch" + current_channel + "/yt" + current_episode;
-								most_recent_track = track_url_2;
-								config.tracker.trackPageView (track_url_2);
-								}
-							else
-								{
-								String track_url_3 = preamble + "/view/ch" + current_channel + "/" + current_episode;
-								most_recent_track = track_url_3;
-								config.tracker.trackPageView (track_url_3);
-								
-								if (current_subepisode != 0)
-									{	
-									String url = config.program_meta (current_episode, "sub-" + current_subepisode + "-url");
-									String video_id = video_id_of (url);
-									String track_url_4 = preamble + "/view/ch" + current_channel + "/" + current_episode + "/ep" + video_id;
-									most_recent_track = track_url_4;
-									config.tracker.trackPageView (track_url_4);
-									}
-								}								
-							config.tracker.dispatch();
-							}
-						else
-							log ("no GA tracker");
+						track_event ("p" + current_channel + "/" + "e" + current_episode, "epWatched", channel_name + "/" + episode_name, 0);							
 						
 						if (config.usertoken != null)
 							{
@@ -3008,12 +3098,15 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			i.setType ("text/plain");
 			i.putExtra (Intent.EXTRA_SUBJECT, "Shared to you from 9x9.tv");
 			String mso = config.mso != null ? config.mso : "9x9";
-			String server = mso + ".9x9.tv";
+			String server = config.api_server;
+			if (config.api_server.equals ("www.9x9.tv"))
+				server = (mso.equals ("9x9") ? "www" : mso) + ".9x9.tv";			
 			String url =  "http://" + server + "/view?ch=" + channel_id + "&mso=" + mso;
 			if (episode_id != null)
 				 url = "http://" + server + "/view?ch=" + channel_id + "&ep=" + episode_id + "&mso=" + mso;
 			i.putExtra (Intent.EXTRA_TEXT, url);
 			startActivity (Intent.createChooser (i, "Share this 9x9.tv episode"));
+			track_event ("share", "share", "share", 0);
 			}
 		}	
 	
@@ -3234,7 +3327,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     private void onRouteSelected (RouteInfo route)
     	{
         log ("onRouteSelected: " + route.getName());
-        MediaRouteHelper.requestCastDeviceForRoute(route);
+        MediaRouteHelper.requestCastDeviceForRoute (route);
     	}
 
     private void onRouteUnselected (RouteInfo route)
@@ -3276,6 +3369,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
             // gcast_message_stream.play_video_id (videoFragment.current_video_id());
             
             chromecasted = true;
+            
+            track_event ("cast", "cast", "cast", 0);
         	}
 
         @Override
@@ -3302,6 +3397,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
             	}
             
             chromecasted = false;
+            track_event ("uncast", "uncast", "uncast", 0);
             
             /* where we left off, sorta */
 			try_to_play_episode (current_episode_index);
@@ -3445,6 +3541,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 
     public static final class VideoFragment extends YouTubePlayerSupportFragment implements OnInitializedListener
 		{
+    	boolean paused = false;
+    	
 		private YouTubePlayer player = null;
 		private String videoId;
 	
@@ -3467,6 +3565,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			log ("onCreate");
 			final String devkey = "AI39si5HrNx2gxiCnGFlICK4Bz0YPYzGDBdJHfZQnf-fClL2i7H_A6Fxz6arDBriAMmnUayBoxs963QLxfo-5dLCO9PCX-DTrA";
 			initialize (devkey, this);
+			reset_time_played();
 			}
 	
 		@Override
@@ -3489,6 +3588,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		public boolean ready()
 			{
 			return player != null;
+			}
+		
+		public boolean is_paused()
+			{
+			return paused;
 			}
 		
 		public void setVideoId (String videoId)
@@ -3573,13 +3677,27 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			set_playback_event_listener();
 			set_state_change_listener();
 			}
+				
+		long video_time_counter = 0L;
+		
+		public void add_to_time_played()
+			{
+			long now = System.currentTimeMillis();
+			ctx.cumulative_episode_time += (now - video_time_counter);
+			video_time_counter = now;	
+			}
+		
+		public void reset_time_played()
+			{
+			video_time_counter = System.currentTimeMillis();
+			}
 		
 		public void set_playback_event_listener()
 			{
 			try
 				{
 				player.setPlaybackEventListener (new YouTubePlayer.PlaybackEventListener()
-					{
+					{				
 					@Override
 					public void onBuffering (boolean isBuffering)
 						{
@@ -3593,6 +3711,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					public void onPaused()
 						{
 						log ("video event: onPaused");
+						paused = true;
+						
 						ctx.in_main_thread.post (new Runnable()
 							{
 							public void run()
@@ -3604,12 +3724,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 						// in_main_thread.post (go_halfscreen);
 						ctx.mService.relay_post ("REPORT PAUSED");
 						ctx.submit_track_eof();
+						
+						add_to_time_played();					
 						}
 			
 					@Override
 					public void onPlaying()
 						{
 						log ("video event: onPlaying");
+						paused = false;
+						
 						ctx.set_video_visibility (View.VISIBLE);
 						ctx.set_video_alpha (255);
 						// ImageView knob = (ImageView) findViewById (R.id.knob);
@@ -3636,6 +3760,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 								}
 							});
 						ctx.submit_track_unpause();
+						
+						reset_time_played();
 						}
 			
 					@Override
@@ -3649,6 +3775,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					public void onStopped()
 						{
 						log ("video event: onStopped");
+						
+						add_to_time_played();	
+						
 						log ("pending_restart is: " + ctx.pending_restart);
 						ctx.reset_progress_bar();
 						// video_cutoff_time = -1;
@@ -3734,6 +3863,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					public void onError (ErrorReason reason)
 						{
 						log ("[video state] onError: " + reason.toString());
+		
+						/* maybe this error is in the middle of a video */
+						add_to_time_played();
 						
 						/* not displaying errors is idiotic -- requested by PMs */
 						if (1 == 2)
@@ -3780,7 +3912,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 						}
 			
 					@Override
-					public void onLoaded(String arg0)
+					public void onLoaded (String arg0)
 						{		
 						log ("[video state] onLoaded");
 						}
@@ -3796,6 +3928,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					public void onVideoEnded()
 						{
 						log ("[video state] onVideoEnded");
+						add_to_time_played();
 						}
 			
 					@Override
@@ -3806,6 +3939,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 						ctx.set_video_visibility (View.VISIBLE);
 						ctx.onVideoActivityVideoStarted (player);
 						ctx.setup_progress_bar();
+						reset_time_played();
 						}
 					});
 				}

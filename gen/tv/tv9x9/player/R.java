@@ -975,6 +975,14 @@ containing a value of this type.
         public static final int abc_config_allowActionMenuItemTextWithIcon=0x7f080004;
         public static final int abc_config_showMenuShortcutsWhenKeyboardPresent=0x7f080003;
         public static final int abc_split_action_bar_is_narrow=0x7f080002;
+        /** Replace placeholder ID with your tracking ID
+ string name="ga_trackingId">UA-21595932-1</string
+Enable automatic activity tracking
+         */
+        public static final int ga_autoActivityTracking=0x7f080006;
+        /** Enable automatic exception tracking
+         */
+        public static final int ga_reportUncaughtExceptions=0x7f080007;
         /**  crash course
     <string name="app_name">Crash Course on FLIPr</string>
     <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
@@ -1142,7 +1150,7 @@ containing a value of this type.
 	<string name="fb_app_id">361253423962738</string>           
 	
          */
-        public static final int uses_chromecast=0x7f080006;
+        public static final int uses_chromecast=0x7f080008;
     }
     public static final class color {
         public static final int abc_search_url_text_holo=0x7f09000a;

@@ -194,7 +194,13 @@ public class main extends VideoBaseActivity
 	    	log ("key BACK (layer " + current_layer.toString() + ")");
 	    	if (current_layer == toplayer.PLAYBACK)
 	    		{
-    			pause_video();
+	    		/* this is messy. Can't use onPaused because that will probably occur after analytics */
+	    		if (!videoFragment.is_paused())
+	    			videoFragment.add_to_time_played();
+    			pause_video();    		
+    			player_real_channel = "?UNDEFINED";    			
+    			analytics ("back");
+    			player_real_channel = null;
     			enable_home_layer();
 	    		}
 	    	else if (current_layer == toplayer.HOME)
@@ -570,7 +576,7 @@ public class main extends VideoBaseActivity
 	public void toggle_menu()
 		{
 		toggle_menu (null);
-		flurry_log ("menu");
+		track_screen ("menu");
 		}
 	
 	public void toggle_menu	(final Callback cb)
@@ -587,6 +593,11 @@ public class main extends VideoBaseActivity
         /* when from_margin is 0, the column is extended */
         final int from_margin = layout.leftMargin;
         final int to_margin = (layout.leftMargin == 0) ? left_column_width() : 0;    		
+        
+        if (from_margin != 0)
+    		track_screen ("menu");
+        else
+        	track_current_screen();
         
 		Animation a = new Animation()
 			{
@@ -792,10 +803,13 @@ public class main extends VideoBaseActivity
 
 	public void signout_from_app_or_facebook()
 		{
-    	if (config != null && config.email.equals ("[via Facebook]"))
-    		facebook_logout();
-    	else
-    		signout();
+		if (config != null)
+			{
+			if (config.email != null && config.email.equals ("[via Facebook]"))
+				facebook_logout();
+			else
+				signout();
+			}
 		}
 	
 	@Override
@@ -1371,6 +1385,7 @@ public class main extends VideoBaseActivity
 						String youtube_username = config.pool_meta (real_channel, "extra");
 						ytchannel.subscribe_on_youtube (config, youtube_username);
 						config.subscriptions_altered = config.grid_update_required = true;
+						track_event ("function", "follow", "follow", 0);
 						update_layer_after_subscribe (real_channel);
 						}
 					public void failure (int code, String errtext)
@@ -1413,6 +1428,7 @@ public class main extends VideoBaseActivity
 						String youtube_username = config.pool_meta (real_channel, "extra");
 						ytchannel.delete_on_youtube (config, youtube_username);
 						config.subscriptions_altered = config.grid_update_required = true;
+						track_event ("function", "follow", "follow", 0);
 						update_layer_after_subscribe (real_channel);
 						}
 					public void failure (int code, String errtext)
@@ -1523,6 +1539,8 @@ public class main extends VideoBaseActivity
 			layout.bottomMargin = pixels_30;
 			vGossamer.setLayoutParams (layout);
 			}
+		
+		track_screen ("signIn");
 		}
 
 	public void setup_signin_buttons (final Runnable callback)
@@ -1708,6 +1726,7 @@ public class main extends VideoBaseActivity
 				process_login_data (email, lines);
 				toast_by_resource (R.string.signed_in);
 				query_following (null);
+				track_event ("signIn", "signInWithEmail", "signInWithEmail", 0);
 	        	toggle_menu (new Callback()
 		        	{
 					@Override
@@ -1779,6 +1798,7 @@ public class main extends VideoBaseActivity
 				config.email = email;
 				process_login_data (email, lines);
 				toast_by_resource (R.string.sign_up_successful);
+				track_event ("signUp", "signUpWithEmail", "signUpWithEmail", 0);
 	        	toggle_menu (new Callback()
 		        	{
 					@Override
@@ -1822,7 +1842,11 @@ public class main extends VideoBaseActivity
 			}
 		
 		if (email == null && signed_in_with_facebook)
+			{
+			if (current_layer == toplayer.SIGNIN)
+				track_event ("signIn", "signInWithFB", "signInWithFB", 0);
 			email = config.email = "[via Facebook]";
+			}
 		else if (email != null)
 			config.email = email;
 		
@@ -2248,6 +2272,7 @@ public class main extends VideoBaseActivity
 		set_layer (toplayer.APPS);
 		setup_apps_buttons();
 		init_apps();
+		track_screen ("appDirectory");
 		}
 	
 	public void setup_apps_buttons()
@@ -2346,7 +2371,7 @@ public class main extends VideoBaseActivity
 							if (position < apps.length)
 								{
 								log ("app list click: " + position);
-								launch_suggested_app (apps [position].market_url);
+								launch_suggested_app (apps [position].title, apps [position].market_url);
 								}
 							}
 						});
@@ -2388,10 +2413,11 @@ public class main extends VideoBaseActivity
 		thumbnail.download_list_of_images (main.this, config, "apps", filenames, urls, in_main_thread, apps_thumberino);
 		}
 	
-	public void launch_suggested_app (String url)
+	public void launch_suggested_app (String name, String url)
 		{
 		Intent intent = new Intent (Intent.ACTION_VIEW, Uri.parse (url));
 		startActivity (intent);
+		track_event ("install", "toDownload-others", name, 0);
 		}
 	
 	public class AppsAdapter extends BaseAdapter
@@ -2494,6 +2520,8 @@ public class main extends VideoBaseActivity
 	        vHomePager = (StoppableViewPager) home_layer().findViewById (R.id.homepager);
 	        vHomePager.setAdapter (home_slider);
 			}
+		
+		track_screen ("home");
 		}
 
 	
@@ -3179,13 +3207,15 @@ public class main extends VideoBaseActivity
 				/* episode2 id only occurs in thumb mode */
 				cached_layout_type = (row.findViewById (R.id.episode2) != null) ? R.layout.channel_tablet : R.layout.channel_mini;
 				}
-			
+
+			/*
 			if (wanted_layout_type == R.layout.channel)
 				log ("layout type: R.layout.channel");
 			else if (wanted_layout_type == R.layout.channel_tablet)
 				log ("layout type: R.layout.channel_tablet");
 			else if (wanted_layout_type == R.layout.channel_mini)
 				log ("layout type: R.layout.channel_mini");
+			*/
 			
 			if (true || row == null || wanted_layout_type != cached_layout_type)
 				{
@@ -3524,7 +3554,7 @@ public class main extends VideoBaseActivity
 			{
 			if (episode_id != null)
 				{
-				log ("********************** FILL IN EPISODE THUMB res(" + resource_id + ") episode(" + episode_id + ")");
+				// log ("********************** FILL IN EPISODE THUMB res(" + resource_id + ") episode(" + episode_id + ")"); // noisy
 				String filename = main.this.getFilesDir() + "/" + config.episode_in_cache (episode_id);
 				
 				File f = new File (filename);
@@ -3627,7 +3657,7 @@ public class main extends VideoBaseActivity
 				@Override
 				public void run()
 					{
-					log ("horiz update thumbs: " + channel_id);
+					// log ("horiz update thumbs: " + channel_id);
 					EpisodeAdapter horiz_adapter = (EpisodeAdapter) horiz.getAdapter();
 					horiz_adapter.notifyDataSetChanged();
 					}
@@ -3686,7 +3716,7 @@ public class main extends VideoBaseActivity
 	    		row = inflater.inflate (R.layout.episode, null);
 	    		}
 			
-	    	log ("horiz " + channel_id + " getView: " + position);
+	    	// log ("horiz " + channel_id + " getView: " + position); // noisy
 	    	
 			TextView vEptitle = (TextView) row.findViewById (R.id.eptitle);
 			ImageView vPic = (ImageView) row.findViewById (R.id.pic);
@@ -4942,6 +4972,7 @@ public class main extends VideoBaseActivity
 		set_layer (toplayer.GUIDE);		
 		setup_guide_buttons();
 		init_3x3_grid();
+		track_screen ("guide");
 		}
 	
 	public void setup_guide_buttons()
@@ -5752,6 +5783,8 @@ public class main extends VideoBaseActivity
 			layout.rightMargin = pixels_40;
 			vCategoryLayer.setLayoutParams (layout);
 			}	
+		
+		track_screen ("store");
 		}	
 	
 	public void store_init()
@@ -6573,6 +6606,12 @@ public class main extends VideoBaseActivity
 				return;
 				}
 			}
+		
+		
+		
+		
+		
+		
 		
 		String encoded_term = util.encodeURIComponent (term);
 	
