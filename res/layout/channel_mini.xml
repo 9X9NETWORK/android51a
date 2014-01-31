@@ -34,7 +34,8 @@
 				android:layout_height="50dip"
 				android:layout_gravity="center"		
 				android:gravity="center"	
-				android:src="@drawable/icon_playlist"								
+				android:src="@drawable/icon_playlist"	
+				android:visibility="gone"							
 				/>			    
 			<ProgressBar
 		  	 	android:id="@+id/progress"

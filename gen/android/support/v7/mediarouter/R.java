@@ -249,23 +249,23 @@ public final class R {
 		public static final int abc_textfield_searchview_holo_light = 0x7f020054;
 		public static final int abc_textfield_searchview_right_holo_dark = 0x7f020055;
 		public static final int abc_textfield_searchview_right_holo_light = 0x7f020056;
-		public static final int mr_ic_audio_vol = 0x7f02019a;
-		public static final int mr_ic_media_route_connecting_holo_dark = 0x7f02019b;
-		public static final int mr_ic_media_route_connecting_holo_light = 0x7f02019c;
-		public static final int mr_ic_media_route_disabled_holo_dark = 0x7f02019d;
-		public static final int mr_ic_media_route_disabled_holo_light = 0x7f02019e;
-		public static final int mr_ic_media_route_holo_dark = 0x7f02019f;
-		public static final int mr_ic_media_route_holo_light = 0x7f0201a0;
-		public static final int mr_ic_media_route_off_holo_dark = 0x7f0201a1;
-		public static final int mr_ic_media_route_off_holo_light = 0x7f0201a2;
-		public static final int mr_ic_media_route_on_0_holo_dark = 0x7f0201a3;
-		public static final int mr_ic_media_route_on_0_holo_light = 0x7f0201a4;
-		public static final int mr_ic_media_route_on_1_holo_dark = 0x7f0201a5;
-		public static final int mr_ic_media_route_on_1_holo_light = 0x7f0201a6;
-		public static final int mr_ic_media_route_on_2_holo_dark = 0x7f0201a7;
-		public static final int mr_ic_media_route_on_2_holo_light = 0x7f0201a8;
-		public static final int mr_ic_media_route_on_holo_dark = 0x7f0201a9;
-		public static final int mr_ic_media_route_on_holo_light = 0x7f0201aa;
+		public static final int mr_ic_audio_vol = 0x7f02019e;
+		public static final int mr_ic_media_route_connecting_holo_dark = 0x7f02019f;
+		public static final int mr_ic_media_route_connecting_holo_light = 0x7f0201a0;
+		public static final int mr_ic_media_route_disabled_holo_dark = 0x7f0201a1;
+		public static final int mr_ic_media_route_disabled_holo_light = 0x7f0201a2;
+		public static final int mr_ic_media_route_holo_dark = 0x7f0201a3;
+		public static final int mr_ic_media_route_holo_light = 0x7f0201a4;
+		public static final int mr_ic_media_route_off_holo_dark = 0x7f0201a5;
+		public static final int mr_ic_media_route_off_holo_light = 0x7f0201a6;
+		public static final int mr_ic_media_route_on_0_holo_dark = 0x7f0201a7;
+		public static final int mr_ic_media_route_on_0_holo_light = 0x7f0201a8;
+		public static final int mr_ic_media_route_on_1_holo_dark = 0x7f0201a9;
+		public static final int mr_ic_media_route_on_1_holo_light = 0x7f0201aa;
+		public static final int mr_ic_media_route_on_2_holo_dark = 0x7f0201ab;
+		public static final int mr_ic_media_route_on_2_holo_light = 0x7f0201ac;
+		public static final int mr_ic_media_route_on_holo_dark = 0x7f0201ad;
+		public static final int mr_ic_media_route_on_holo_light = 0x7f0201ae;
 	}
 	public static final class id {
 		public static final int action_bar = 0x7f07001e;
@@ -299,11 +299,11 @@ public final class R {
 		public static final int image = 0x7f070029;
 		public static final int listMode = 0x7f070001;
 		public static final int list_item = 0x7f07002b;
-		public static final int media_route_control_frame = 0x7f0700bf;
-		public static final int media_route_disconnect_button = 0x7f0700c0;
-		public static final int media_route_list = 0x7f0700bc;
-		public static final int media_route_volume_layout = 0x7f0700bd;
-		public static final int media_route_volume_slider = 0x7f0700be;
+		public static final int media_route_control_frame = 0x7f0700c0;
+		public static final int media_route_disconnect_button = 0x7f0700c1;
+		public static final int media_route_list = 0x7f0700bd;
+		public static final int media_route_volume_layout = 0x7f0700be;
+		public static final int media_route_volume_slider = 0x7f0700bf;
 		public static final int middle = 0x7f070012;
 		public static final int never = 0x7f070009;
 		public static final int none = 0x7f070010;
@@ -364,7 +364,7 @@ public final class R {
 		public static final int mr_media_route_chooser_dialog = 0x7f03003a;
 		public static final int mr_media_route_controller_dialog = 0x7f03003b;
 		public static final int mr_media_route_list_item = 0x7f03003c;
-		public static final int support_simple_spinner_dropdown_item = 0x7f03004f;
+		public static final int support_simple_spinner_dropdown_item = 0x7f030051;
 	}
 	public static final class string {
 		public static final int abc_action_bar_home_description = 0x7f060005;

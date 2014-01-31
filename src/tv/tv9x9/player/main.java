@@ -226,8 +226,22 @@ public class main extends VideoBaseActivity
 	    		{
 	    		slide_away_terms();
 	    		}
-	    	else if (current_layer == toplayer.SIGNIN || current_layer == toplayer.GUIDE
-	    				|| current_layer == toplayer.SEARCH || current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS)
+	    	else if (current_layer == toplayer.SIGNIN)
+	    		{
+	    		if (!is_phone())
+		    		{
+		    		View vSigning = findViewById (R.id.signin_or_signup);
+		    		if (vSigning.getVisibility() == View.VISIBLE)
+		    			{
+		    			signin_choices();
+		    			return true;
+		    			}
+		    		}
+	    		toggle_menu();
+	    		zero_signin_data();
+	    		}
+	    	else if (current_layer == toplayer.GUIDE || current_layer == toplayer.SEARCH 
+	    				|| current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS)
 	    		toggle_menu();
 	    	return true;
 	    	}
@@ -237,7 +251,7 @@ public class main extends VideoBaseActivity
 	public void adjust_layout_for_screen_size()
 		{
 		if (is_phone())
-			{
+			{			
 			View vTopControls = findViewById (R.id.top_controls);
 			LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vTopControls.getLayoutParams();
 			layout.height = pixels_50;
@@ -292,6 +306,11 @@ public class main extends VideoBaseActivity
 			layout5.width = pixels_30;
 			vPlaybackFollow.setLayoutParams (layout5);
 			}
+		
+		/* remove the phone/tablet sublayer which we won't use */
+		View vNotNeededSigninLayer = findViewById (is_phone() ? R.id.signinlayer_tablet : R.id.signinlayer_phone);
+		if (vNotNeededSigninLayer != null)
+			((ViewManager) vNotNeededSigninLayer.getParent()).removeView (vNotNeededSigninLayer);
 		
 		/* this is a ListView */
 		View vSearchListPhone = findViewById (R.id.search_list_phone);
@@ -810,12 +829,14 @@ public class main extends VideoBaseActivity
 			else
 				signout();
 			}
+		zero_signin_data();
 		}
 	
 	@Override
 	public void onVideoActivitySignout()
 		{
 		setup_menu_buttons();
+		zero_signin_data();
 		}
 	
 	@Override
@@ -1529,20 +1550,41 @@ public class main extends VideoBaseActivity
 		
 		setup_signin_buttons (callback);
 		
+		View vGossamer = findViewById (R.id.gossamer);
+		LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vGossamer.getLayoutParams();
+		
+		layout.topMargin = pixels_30;
+		layout.bottomMargin = pixels_30;
+		
 		if (is_phone())
 			{
-			View vGossamer = findViewById (R.id.gossamer);
-			LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vGossamer.getLayoutParams();
 			layout.leftMargin = pixels_30;
 			layout.rightMargin = pixels_30;
-			layout.topMargin = pixels_30;
-			layout.bottomMargin = pixels_30;
-			vGossamer.setLayoutParams (layout);
 			}
+		else
+			{
+			layout.leftMargin = (int) (screen_width * 0.2);
+			layout.rightMargin = (int) (screen_width * 0.2);
+			}
+		
+		vGossamer.setLayoutParams (layout);
+		
+		signin_choices();
 		
 		track_screen ("signIn");
 		}
 
+	public void signin_choices()
+		{
+		if (!is_phone())
+			{
+			View vSigninChoices = findViewById (R.id.signin_choices);
+			vSigninChoices.setVisibility (View.VISIBLE);
+			View vSigninOrSignup = findViewById (R.id.signin_or_signup);
+			vSigninOrSignup.setVisibility (View.INVISIBLE);
+			}
+		}
+	
 	public void setup_signin_buttons (final Runnable callback)
 		{
 		int editables[] = { R.id.sign_in_email_container,
@@ -1582,6 +1624,7 @@ public class main extends VideoBaseActivity
 						@Override
 						public void run()
 							{
+							zero_signin_data();
 							activate_layer (layer_before_signin);
 							if (callback != null)
 								callback.run();
@@ -1650,6 +1693,61 @@ public class main extends VideoBaseActivity
 		        	}
 				});
 		
+		if (!is_phone())
+			{
+			View vSignInChoice = findViewById (R.id.sign_in_choice);
+			if (vSignInChoice != null)
+				vSignInChoice.setOnClickListener (new OnClickListener()
+					{
+			        @Override
+			        public void onClick (View v)
+			        	{
+			        	log ("click on: signin choice");
+			        	sign_in_tab();
+			        	}
+					});
+			
+			View vSignUpChoice = findViewById (R.id.sign_up_choice);
+			if (vSignUpChoice != null)
+				vSignUpChoice.setOnClickListener (new OnClickListener()
+					{
+			        @Override
+			        public void onClick (View v)
+			        	{
+			        	log ("click on: signup choice");
+			        	sign_up_tab();
+			        	}
+					});
+			
+			View vCancel = findViewById (R.id.signin_signup_cancel);
+			if (vCancel != null)
+				vCancel.setOnClickListener (new OnClickListener()
+					{
+			        @Override
+			        public void onClick (View v)
+			        	{
+			        	log ("click on: signin cancel");
+			        	signin_choices();
+			        	}
+					});
+			
+			View vSigninSignup = findViewById (R.id.signin_signup_button);
+			if (vSigninSignup != null)
+				vSigninSignup.setOnClickListener (new OnClickListener()
+					{
+			        @Override
+			        public void onClick (View v)
+			        	{
+			        	log ("click on: signin/signup");
+			        	View vSignUpContent = findViewById (R.id.sign_up_content);
+			        	if (vSignUpContent.getVisibility() == View.VISIBLE) 
+			        		proceed_with_signup (callback);
+			        	else
+			        		proceed_with_signin (callback);
+			        	}
+					});			
+			}
+		
 		View vSigninLayer = findViewById (R.id.signinlayer);
 		if (vSigninLayer != null)
 			vSigninLayer.setOnClickListener (new OnClickListener()
@@ -1676,29 +1774,59 @@ public class main extends VideoBaseActivity
 	
 	public void adjust_signin_tabs (boolean is_sign_in)
 		{
+		if (is_tablet())
+			{
+			View vSigninChoices = findViewById (R.id.signin_choices);
+			vSigninChoices.setVisibility (View.INVISIBLE);
+			View vSigninOrSignup = findViewById (R.id.signin_or_signup);
+			vSigninOrSignup.setVisibility (View.VISIBLE);
+			}
+		
 		View vSignInContent = findViewById (R.id.sign_in_content);
 		View vSignUpContent = findViewById (R.id.sign_up_content);	
 		
-		vSignInContent.setVisibility (is_sign_in ? View.VISIBLE : View.GONE);
-		vSignUpContent.setVisibility (is_sign_in ? View.GONE : View.VISIBLE);
+		vSignInContent.setVisibility (is_sign_in ? View.VISIBLE : View.INVISIBLE);
+		vSignUpContent.setVisibility (is_sign_in ? View.INVISIBLE : View.VISIBLE);
 		
 		View vSignInTab = findViewById (R.id.sign_in_tab);
 		View vSignUpTab = findViewById (R.id.sign_up_tab);
 		
-		vSignInTab.setBackgroundResource (is_sign_in ? R.drawable.gossamerleft : R.drawable.gossamerleftoff);
-		vSignUpTab.setBackgroundResource (is_sign_in ? R.drawable.gossamerrightoff : R.drawable.gossamerright);		
+		if (is_tablet())
+			{		
+			vSignInTab.setBackgroundResource (is_sign_in ? R.drawable.leftwhiteblack : R.drawable.leftwhiteborder);
+			vSignUpTab.setBackgroundResource (is_sign_in ? R.drawable.rightwhiteborder : R.drawable.rightwhiteblack);
+			TextView vSignInTabText = (TextView) findViewById (R.id.sign_in_tab_text);
+			TextView vSignUpTabText = (TextView) findViewById (R.id.sign_up_tab_text);
+			vSignInTabText.setTextColor (is_sign_in ? Color.WHITE : Color.BLACK);
+			vSignUpTabText.setTextColor (is_sign_in ? Color.BLACK : Color.WHITE);			
+			}
+		else
+			{
+			vSignInTab.setBackgroundResource (is_sign_in ? R.drawable.gossamerleft : R.drawable.gossamerleftoff);
+			vSignUpTab.setBackgroundResource (is_sign_in ? R.drawable.gossamerrightoff : R.drawable.gossamerright);
+			}
+		}
+	
+	public void zero_signin_data()
+		{
+		int editables[] = { R.id.sign_in_email, R.id.sign_in_password, R.id.sign_up_name, R.id.sign_up_password, R.id.sign_up_verify };
+		for (int editable: editables)
+			{
+			EditText v = (EditText) findViewById (editable);
+			v.setText ("");
+			}
 		}
 	
 	public void proceed_with_signin (final Runnable callback)
 		{
-		TextView emailView = (TextView) findViewById (R.id.sign_in_email);
+		EditText emailView = (EditText) findViewById (R.id.sign_in_email);
 		final String email = emailView.getText().toString();
 	
 		/* use any view to turn off soft keyboard */
 		InputMethodManager imm = (InputMethodManager) getSystemService (Context.INPUT_METHOD_SERVICE);
 	    imm.hideSoftInputFromWindow (emailView.getApplicationWindowToken(), 0);
 	    
-		TextView passwordView = (TextView) findViewById (R.id.sign_in_password);
+		EditText passwordView = (EditText) findViewById (R.id.sign_in_password);
 		String password = passwordView.getText().toString();
 		
 		password = util.encodeURIComponent (password);
@@ -1732,6 +1860,7 @@ public class main extends VideoBaseActivity
 					@Override
 					public void run()
 						{
+						zero_signin_data();
 						activate_layer (layer_before_signin);
 						if (callback != null)
 							callback.run();
@@ -1804,6 +1933,7 @@ public class main extends VideoBaseActivity
 					@Override
 					public void run()
 						{
+						zero_signin_data();
 						activate_layer (layer_before_signin);
 						if (callback != null)
 							callback.run();
@@ -1885,6 +2015,11 @@ public class main extends VideoBaseActivity
 		/* sometimes the terms layer background is not redrawing! force it here */
 		View vTermsLayer = findViewById (R.id.termslayer);
 		vTermsLayer.postInvalidate();
+		
+		/* and even then that doesn't always work! Also the only purpose a "postInvalidateDelayed" method
+		   can possibly have is as workarounds for Android layout bugs exactly like this */		
+		for (int i: new int[] { 500, 1000, 5000 })
+			vTermsLayer.postInvalidateDelayed (i);;
 		}
 
 	public void setup_terms_buttons()
@@ -2590,6 +2725,9 @@ public class main extends VideoBaseActivity
 				vChannelList.setLayoutParams (layout);
 				}
 			
+			if (is_tablet() && sh.channel_adapter != null)
+				set_mini_mode_thumbs (sh.channel_adapter.mini_mode, sh.home_page);
+			
 			diminish_side_titles (home_page, true);
 			
 			home_page.setTag (R.id.container, position);			
@@ -2598,6 +2736,10 @@ public class main extends VideoBaseActivity
 			
 			TextView vTitle = (TextView) sh.home_page.findViewById (R.id.primary_set_title);
 			vTitle.setText (portal_stack_names [position]);
+			
+			TextView vBannerSetTitle = (TextView) sh.home_page.findViewById (R.id.banner_set_title);
+			if (vBannerSetTitle != null)
+				vBannerSetTitle.setText (portal_stack_names [position]);
 			
 			TextView vLeft = (TextView) sh.home_page.findViewById (R.id.left_set_title);
 			vLeft.setText (position == 0 ? "" : portal_stack_names [position-1]);
@@ -2635,6 +2777,7 @@ public class main extends VideoBaseActivity
 			        	log ("click on: thumb mode");
 			        	sh.channel_adapter.mini_mode = false;
 			        	sh.channel_adapter.notifyDataSetChanged();
+			        	set_mini_mode_thumbs (sh.channel_adapter.mini_mode, sh.home_page);
 			        	}
 					});	
 			
@@ -2648,6 +2791,7 @@ public class main extends VideoBaseActivity
 			        	log ("click on: list mode");
 			        	sh.channel_adapter.mini_mode = true;
 			        	sh.channel_adapter.notifyDataSetChanged();
+			        	set_mini_mode_thumbs (sh.channel_adapter.mini_mode, sh.home_page);
 			        	}
 					});				
 			
@@ -2672,6 +2816,19 @@ public class main extends VideoBaseActivity
 			current_swap_object = (Swaphome) object;
 			current_home_page = ((Swaphome) object).home_page;
 			diminish_side_titles (current_home_page, false);
+			}
+
+		public void set_mini_mode_thumbs (boolean mini_mode, View v)
+			{
+			if (is_tablet())
+				{
+				ImageView vModeThumbs = (ImageView) v.findViewById (R.id.mode_thumbs);
+				if (vModeThumbs != null)
+					vModeThumbs.setImageResource (mini_mode ? R.drawable.icon_thumb : R.drawable.icon_thumb_on);
+				ImageView vModeList = (ImageView) v.findViewById (R.id.mode_list);
+				if (vModeList != null)
+					vModeList.setImageResource (mini_mode ? R.drawable.icon_list_on : R.drawable.icon_list);
+				}
 			}
 		
 		public void reload_data()
@@ -2702,6 +2859,7 @@ public class main extends VideoBaseActivity
 			    		LayoutInflater inflater = main.this.getLayoutInflater();
 			    		View shim = inflater.inflate (R.layout.footer_shim, null);
 			    		sh.vChannels.addFooterView (shim);
+			    		set_mini_mode_thumbs (sh.channel_adapter.mini_mode, sh.home_page);
 						}
 					
 					Runnable channel_thumberino = new Runnable()

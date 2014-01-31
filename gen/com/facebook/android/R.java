@@ -298,7 +298,7 @@ public final class R {
 		public static final int com_facebook_list_section_header_background = 0x7f0200e3;
 		public static final int com_facebook_loginbutton_silver = 0x7f0200e4;
 		public static final int com_facebook_logo = 0x7f0200e5;
-		public static final int com_facebook_picker_default_separator_color = 0x7f020240;
+		public static final int com_facebook_picker_default_separator_color = 0x7f020246;
 		public static final int com_facebook_picker_item_background = 0x7f0200e6;
 		public static final int com_facebook_picker_list_focused = 0x7f0200e7;
 		public static final int com_facebook_picker_list_longpressed = 0x7f0200e8;
@@ -442,7 +442,7 @@ public final class R {
 		public static final int com_facebook_placepickerfragment_list_row = 0x7f030028;
 		public static final int com_facebook_search_bar_layout = 0x7f030029;
 		public static final int com_facebook_usersettingsfragment = 0x7f03002a;
-		public static final int support_simple_spinner_dropdown_item = 0x7f03004f;
+		public static final int support_simple_spinner_dropdown_item = 0x7f030051;
 	}
 	public static final class string {
 		public static final int abc_action_bar_home_description = 0x7f060005;
