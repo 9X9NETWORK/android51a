@@ -452,11 +452,11 @@
 			    android:orientation="horizontal">				    
 			    <Button     
 			        android:id="@+id/signin_signup_cancel"
-					android:layout_width="wrap_content"
+					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:layout_gravity="bottom|center_horizontal"
-					android:textSize="22sp"
+					android:textSize="20sp"
 					android:textColor="#000000"
 					android:text="@string/cancel"
 					android:background="#00000000"
@@ -469,11 +469,11 @@
 				    />						    					
 			    <Button     
 			        android:id="@+id/signin_signup_button"
-					android:layout_width="wrap_content"
+					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"					
 					android:layout_gravity="bottom|center_horizontal"
-					android:textSize="22sp"
+					android:textSize="20sp"
 					android:textColor="#000000"
 					android:text="@string/si_sign_up_button"
 					android:background="#00000000"					
