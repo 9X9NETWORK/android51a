@@ -1676,7 +1676,7 @@ public class main extends VideoBaseActivity
 		        @Override
 		        public void onClick (View v)
 		        	{
-		        	log ("click on: signin tab");
+		        	log ("click on: signup tab");
 		        	sign_up_tab();
 		        	}
 				});
@@ -1785,8 +1785,10 @@ public class main extends VideoBaseActivity
 		View vSignInContent = findViewById (R.id.sign_in_content);
 		View vSignUpContent = findViewById (R.id.sign_up_content);	
 		
-		vSignInContent.setVisibility (is_sign_in ? View.VISIBLE : View.INVISIBLE);
-		vSignUpContent.setVisibility (is_sign_in ? View.INVISIBLE : View.VISIBLE);
+		int not_visible = is_tablet() ? View.INVISIBLE : View.GONE;
+		
+		vSignInContent.setVisibility (is_sign_in ? View.VISIBLE : not_visible);
+		vSignUpContent.setVisibility (is_sign_in ? not_visible : View.VISIBLE);
 		
 		View vSignInTab = findViewById (R.id.sign_in_tab);
 		View vSignUpTab = findViewById (R.id.sign_up_tab);
