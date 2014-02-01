@@ -1807,6 +1807,15 @@ public class main extends VideoBaseActivity
 			vSignInTab.setBackgroundResource (is_sign_in ? R.drawable.gossamerleft : R.drawable.gossamerleftoff);
 			vSignUpTab.setBackgroundResource (is_sign_in ? R.drawable.gossamerrightoff : R.drawable.gossamerright);
 			}
+	    
+		if (is_tablet())
+			{
+			String txt_sign_in = getResources().getString (R.string.si_sign_in_button); 
+			String txt_sign_up = getResources().getString (R.string.si_sign_up_button);
+					
+			TextView vSignText = (TextView) findViewById (R.id.signin_signup_button);
+			vSignText.setText (is_sign_in ? txt_sign_in : txt_sign_up);
+			}
 		}
 	
 	public void zero_signin_data()
@@ -2493,6 +2502,7 @@ public class main extends VideoBaseActivity
 							if (m.find())
 								a.basename = m.group (1); 
 							new_apps [count++] = a;
+							log ("app: " + a.market_url);
 							}
 						}
 					apps = new_apps;
@@ -2571,6 +2581,7 @@ public class main extends VideoBaseActivity
 		@Override
 		public int getCount()
 			{			
+			log ("getcount: " + apps.length);
 			return apps == null ? 0 : apps.length;
 			}
 		
