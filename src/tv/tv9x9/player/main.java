@@ -93,7 +93,8 @@ public class main extends VideoBaseActivity
 		identity = "main";
 		}
 	
-	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS };
+	/* note, SIGNOUT, HELP, CATEGORY_ITEM and APP_ITEM are not real layers, but menu items */
+	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, HELP, CATEGORY_ITEM, APP_ITEM };
 	
 	toplayer current_layer = toplayer.HOME;
 	toplayer layer_before_signin = toplayer.HOME;
@@ -104,8 +105,8 @@ public class main extends VideoBaseActivity
 	public void onCreate (Bundle savedInstanceState)
 		{
 		super.onCreate (savedInstanceState);
-		home_configure_white_label();
 		adjust_layout_for_screen_size();
+		home_configure_white_label();
 		onVideoActivityLayout();
 		setup_home_buttons();
 		fezbuk1 (savedInstanceState);
@@ -600,6 +601,8 @@ public class main extends VideoBaseActivity
 	
 	public void toggle_menu	(final Callback cb)
 		{	
+		redraw_menu();
+		
 		/* set the width of the menu */
 		final LinearLayout vMenu = (LinearLayout) findViewById (R.id.menu_layer);		
         FrameLayout.LayoutParams menu_layout = (FrameLayout.LayoutParams) vMenu.getLayoutParams();		
@@ -675,6 +678,351 @@ public class main extends VideoBaseActivity
 	    return (int) (screen_width * percent);
 		}
 	
+	public class menuitem
+		{
+		toplayer type;
+		String title;
+		String id;
+		int unselected_drawable;
+		int selected_drawable;
+		app app_item;
+		menuitem (toplayer type, int title_resource, int unselected_drawable, int selected_drawable)
+			{
+			this.type = type;
+			this.title = getResources().getString (title_resource);
+			this.unselected_drawable = unselected_drawable;
+			this.selected_drawable = selected_drawable;
+			this.app_item = null;
+			}
+		menuitem (app app_item)
+			{
+			this.type = toplayer.APP_ITEM;
+			this.title = app_item.title;
+			this.unselected_drawable = 0;
+			this.selected_drawable = 0;
+			this.app_item = app_item;
+			}
+		menuitem (toplayer type, String id, String title)
+			{
+			this.type = type;
+			this.title = title;
+			this.unselected_drawable = 0;
+			this.selected_drawable = 0;
+			this.app_item = null;
+			this.id = id;
+			}		
+		}	
+	
+	public boolean apps_expanded = false;
+	public boolean categories_expanded = false;
+	
+	public boolean initialized_app_menu = false;
+	public boolean initialized_category_menu = false;
+	
+	public void redraw_menu()
+		{
+		if (!initialized_app_menu)
+			{
+			initialized_app_menu = true;
+			init_apps();
+			}
+		
+		if (category_list == null && !initialized_app_menu)
+			{
+			initialized_category_menu = true;
+			top_categories();
+			}
+		
+		boolean is_facebook = config.email != null && config.email.equals ("[via Facebook]");
+		
+		Stack <menuitem> items = new Stack <menuitem> ();
+
+		items.push (new menuitem (toplayer.HOME, R.string.home, R.drawable.icon_home, R.drawable.icon_home_press));
+		items.push (new menuitem (toplayer.GUIDE, R.string.my_following, R.drawable.icon_follow_black, R.drawable.icon_follow_press));
+		items.push (new menuitem (toplayer.STORE, R.string.store, R.drawable.icon_store, R.drawable.icon_store_press));
+	
+		if (current_layer == toplayer.STORE && category_list != null)
+			{				
+			for (String category_id: category_list)
+				{
+				String name = category_names.get (category_id);
+				if (name != null)
+					items.push (new menuitem (toplayer.CATEGORY_ITEM, category_id, name));
+				}
+			}
+		
+		if (!is_facebook)
+			items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
+		
+		/* no help screen has been provided yet */
+		// items.push (new menuitem (toplayer.HELP, R.string.help, R.drawable.icon_help, R.drawable.icon_help));
+		
+		items.push (new menuitem (toplayer.APPS, R.string.suggested_tv_apps, R.drawable.icon_apps, R.drawable.icon_apps_press));
+		
+		if (apps_expanded && recommended_apps != null)
+			{			
+			for (app a: recommended_apps)
+				items.push (new menuitem (a));
+			}
+		
+		if (config.usertoken != null)
+			items.push (new menuitem (toplayer.SIGNOUT, R.string.sign_out, R.drawable.icon_signout, R.drawable.icon_signout));
+		
+		int count = items.size();
+		
+		menuitem item_list[] = new menuitem [count];
+		
+		while (items.size() > 0)
+			{
+			menuitem item = items.pop();
+			item_list [--count] = item;	
+			}
+
+		if (menu_adapter == null)
+			{
+			menu_adapter = new MenuAdapter (main.this, item_list);
+			ListView vMenuList = (ListView) findViewById (R.id.menu_list);
+			vMenuList.setAdapter (menu_adapter);
+			vMenuList.setOnItemClickListener (new OnItemClickListener()
+				{
+				public void onItemClick (AdapterView parent, View v, int position, long id)
+					{
+					menu_click (menu_adapter.get_item (position));
+					}
+				});
+			}
+		else
+			menu_adapter.set_content (item_list);
+		}
+	
+	public void menu_click (menuitem item)
+		{
+		switch (item.type)
+			{
+			case HOME:
+	        	log ("click on: menu home");
+	        	toggle_menu();
+	        	enable_home_layer();
+	        	break;
+	        	
+			case GUIDE:
+	        	log ("click on: menu guide");
+	        	toggle_menu();
+	        	enable_guide_layer();
+	        	break;
+	        	
+			case STORE:
+	        	log ("click on: menu store");
+	        	toggle_menu();
+	        	enable_store_layer();
+	        	break;
+
+			case CATEGORY_ITEM:
+				log ("click on: menu category item: " + item.title);
+				for (int i = 0; i < category_list.length; i++)
+					if (category_list [i].equals (item.id))
+						{
+						load_category (i, 0);
+						toggle_menu();
+						}
+				break;
+				
+			case SETTINGS:
+	        	log ("click on: menu settings");		        	
+	        	toggle_menu();
+	        	if (config.usertoken != null)
+	        		enable_settings_layer();
+	        	else
+	        		{
+	        		enable_signin_layer (new Runnable()
+	        			{
+		        		@Override
+		        		public void run()
+			        		{
+		        			if (config.usertoken != null)
+		        				enable_settings_layer();	
+			        		}
+	        			});
+	        		}
+	        	break;
+	        	
+			case HELP:
+				log ("click on: menu help");
+				break;
+				
+			case APPS:
+	        	log ("click on: menu apps");
+	        	apps_expanded = !apps_expanded;
+	        	redraw_menu();
+	        	break;
+	        	
+			case APP_ITEM:
+				log ("click on: menu app item: " + item.app_item.title);
+				launch_suggested_app (item.app_item.title, item.app_item.market_url);
+				break;
+				
+			case SIGNOUT:
+	        	log ("click on: menu signout");
+	        	signout_from_app_or_facebook();
+	        	break;
+			}
+		}
+	
+    MenuAdapter menu_adapter = null;
+    
+	public class MenuAdapter extends BaseAdapter
+		{
+		private Context context;
+		private menuitem menu[] = null;
+		
+		public MenuAdapter (Context c, menuitem menu[])
+			{
+			this.context = c;
+			this.menu = menu;
+			}
+	
+		public void set_content (menuitem menu[])
+			{
+			this.menu = menu;
+			notifyDataSetChanged();
+			}
+		
+		@Override
+		public int getCount()
+			{			
+			return menu == null ? 0 : menu.length;
+			}
+		
+		@Override
+		public Object getItem (int position)
+			{
+			return position;
+			}
+	
+		public menuitem get_item (int position)
+			{
+			return menu [position];
+			}
+		
+		@Override
+		public long getItemId (int position)
+			{
+			return position;
+			}
+		
+		@Override
+		public View getView (final int position, View convertView, ViewGroup parent)
+			{
+			LinearLayout rv = null;
+					
+			log ("apps getView: " + position);
+			
+			if (convertView == null)
+				rv = (LinearLayout) View.inflate (main.this, R.layout.menu_item, null);				
+			else
+				rv = (LinearLayout) convertView;
+						
+			if (rv == null)
+				{
+				log ("getView: [position " + position + "] rv is null!");
+				return null;
+				}
+			
+			TextView vTitle = (TextView) rv.findViewById (R.id.title);
+			if (vTitle != null)
+				vTitle.setText (menu [position].title);
+			
+			int icon = current_layer == menu [position].type ? menu [position].selected_drawable : menu [position].unselected_drawable;
+			
+			ImageView vIcon = (ImageView) rv.findViewById (R.id.icon);
+			if (vIcon != null)
+				{
+				vIcon.setVisibility (icon == 0 ? View.INVISIBLE : View.VISIBLE);
+				vIcon.setImageResource (icon);
+				}
+			
+			View vDownload = rv.findViewById (R.id.download);
+			if (vDownload != null)
+				vDownload.setVisibility (menu [position].type == toplayer.APP_ITEM ? View.VISIBLE : View.GONE);
+			
+			boolean app_icon_found = false;
+			
+			ImageView vAppIcon = (ImageView) rv.findViewById (R.id.app_icon); 	
+			if (vAppIcon != null)
+				{
+				if (menu [position].type == toplayer.APP_ITEM )
+					{
+					String filename = getFilesDir() + "/" + config.api_server + "/apps/" + menu [position].app_item.basename + ".png";
+					
+					File f = new File (filename);
+					if (f.exists ())
+						{
+						log ("exists: " + filename);
+						Bitmap bitmap = BitmapFactory.decodeFile (filename);
+						if (bitmap != null)
+							{
+							app_icon_found = true;
+							vAppIcon.setImageBitmap (bitmap);
+							}
+						}
+					}
+				vAppIcon.setVisibility (menu [position].type == toplayer.APP_ITEM ? View.VISIBLE : View.GONE);
+				}			
+			
+			
+			TextView vCount = (TextView) rv.findViewById (R.id.count);
+			if (vCount != null)
+				{
+				vCount.setVisibility (menu [position].type == toplayer.APPS ? View.VISIBLE : View.GONE);
+				if (menu [position].type == toplayer.APPS)
+					{
+					vCount.setText (apps == null ? "0" : ("" + apps.length));
+					vCount.setOnClickListener (new OnClickListener()
+						{
+				        @Override
+				        public void onClick (View v)
+				        	{
+				        	toggle_menu();
+				        	enable_apps_layer();
+				        	}
+						});		
+					}
+				}
+		
+			if (menu [position].type == toplayer.CATEGORY_ITEM && current_category_index >= 0)
+				{
+				String current_category_id = category_list [current_category_index];
+				if (menu [position].id.equals (current_category_id))
+					{
+					vTitle.setTextColor (Color.WHITE);
+					rv.setBackgroundColor (Color.argb (0xFF, 0x77, 0x77, 0x77));
+					vAppIcon.setImageResource (R.drawable.icon_category);
+					vAppIcon.setVisibility (View.VISIBLE);
+					}
+				else
+					{
+					vTitle.setTextColor (Color.BLACK);
+					rv.setBackgroundColor (Color.argb (0x00, 0x00, 0x00, 0x00));
+					vAppIcon.setVisibility (View.INVISIBLE);
+					}
+
+				}
+			else if (current_layer == menu [position].type)
+				{
+				vTitle.setTextColor (Color.argb (0xFF, 0x77, 0x77, 0x77));
+				rv.setBackgroundColor (Color.WHITE);
+				}
+			else
+				{
+				vTitle.setTextColor (Color.BLACK);
+				rv.setBackgroundColor (Color.argb (0x00, 0x00, 0x00, 0x00));
+				}
+				
+				
+			return rv;
+			}	
+		}	
+
 	public void setup_menu_buttons()
 		{
 		View vSignin = findViewById (R.id.signin_button);
@@ -689,108 +1037,7 @@ public class main extends VideoBaseActivity
 		        	enable_signin_layer (null);
 		        	}
 				});	
-		
-		View vHome = findViewById (R.id.menu_home);
-		if (vHome != null)
-			vHome.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: menu home");
-		        	toggle_menu();
-		        	enable_home_layer();
-		        	}
-				});	
-
-		View vGuide = findViewById (R.id.menu_guide);
-		if (vGuide != null)
-			vGuide.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: menu guide");
-		        	toggle_menu();
-		        	enable_guide_layer();
-		        	}
-				});	
-
-		View vStore = findViewById (R.id.menu_store);
-		if (vStore != null)
-			vStore.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: menu store");
-		        	toggle_menu();
-		        	enable_store_layer();
-		        	}
-				});	
-		
-		View vSettings = findViewById (R.id.menu_settings);
-		if (vSettings != null)
-			vSettings.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: menu settings");		        	
-		        	toggle_menu();
-		        	if (config.usertoken != null)
-		        		enable_settings_layer();
-		        	else
-		        		{
-		        		enable_signin_layer (new Runnable()
-		        			{
-			        		@Override
-			        		public void run()
-				        		{
-			        			if (config.usertoken != null)
-			        				enable_settings_layer();	
-				        		}
-		        			});
-		        		}
-		        	}
-				});
-		
-		View vHelp = findViewById (R.id.menu_help);
-		if (vHelp != null)
-			vHelp.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: menu help");
-		        	}
-				});		
-		
-		View vApps = findViewById (R.id.menu_apps);
-		if (vApps != null)
-			vApps.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: menu apps");
-		        	toggle_menu();
-		        	enable_apps_layer();
-		        	}
-				});	
-		
-		View vSignout = findViewById (R.id.menu_signout);
-		if (vSignout != null)
-			vSignout.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: menu signout");
-		        	signout_from_app_or_facebook();
-		        	}
-				});			
-		
+				
 		/* username adjustments */
 		
 		vSignin.setVisibility (config.usertoken == null ? View.VISIBLE : View.GONE);		
@@ -798,17 +1045,17 @@ public class main extends VideoBaseActivity
 		View vIdentity = findViewById (R.id.identity);
 		vIdentity.setVisibility (config.usertoken == null ? View.GONE : View.VISIBLE);
 
-		View vSettingsDivider = findViewById (R.id.menu_settings_divider);
-		View vSignoutDivider = findViewById (R.id.menu_signout_divider);
+		// View vSettingsDivider = findViewById (R.id.menu_settings_divider);
+		// View vSignoutDivider = findViewById (R.id.menu_signout_divider);
 		
 		/* presently nothing in settings is changeable by Facebook users */
 		boolean is_facebook = config.email != null && config.email.equals ("[via Facebook]");
 		
-		vSettings.setVisibility (is_facebook ? View.GONE : View.VISIBLE);
-		vSettingsDivider.setVisibility (is_facebook ? View.GONE : View.VISIBLE);
+		// vSettings.setVisibility (is_facebook ? View.GONE : View.VISIBLE);
+		// vSettingsDivider.setVisibility (is_facebook ? View.GONE : View.VISIBLE);
 		
-		vSignout.setVisibility (config.usertoken == null ? View.GONE : View.VISIBLE);
-		vSignoutDivider.setVisibility (config.usertoken == null ? View.GONE : View.VISIBLE);
+		// vSignout.setVisibility (config.usertoken == null ? View.GONE : View.VISIBLE);
+		// vSignoutDivider.setVisibility (config.usertoken == null ? View.GONE : View.VISIBLE);
 		
 		if (config.usertoken != null)
 			{
@@ -1534,6 +1781,8 @@ public class main extends VideoBaseActivity
 		apps_layer.setVisibility (layer == toplayer.APPS ? View.VISIBLE : View.GONE);
 		
 		current_layer = layer;
+		
+		redraw_menu();
 		}
 	
 	/*** SIGNIN ************************************************************************************************/
@@ -2460,6 +2709,8 @@ public class main extends VideoBaseActivity
 		}
 	
 	app apps[] = null;
+	app recommended_apps[] = null;
+	
     AppsAdapter apps_adapter = null;
     
 	public void init_apps()
@@ -2470,18 +2721,23 @@ public class main extends VideoBaseActivity
 				{
 				public void success (String[] lines)
 					{
-					int section = 0, count = 0;
+					int section = 0, count0 = 0, count1 = 0;
 					for (int i = 0; i < lines.length; i++)
 						{
 						if (lines[i].equals ("--"))
 							section++;
+						else if (section == 0)
+							count0++;
 						else if (section == 1)
-							count++;
+							count1++;
 						}
-								
-					app new_apps[] = new app [count];
+							
+					app new_recommended_apps[] = new app [count0];
+					app new_apps[] = new app [count1];
+
 					section = 0;
-					count = 0;
+					count0 = 0;
+					count1 = 0;
 					
 					Pattern pattern = Pattern.compile ("id=([^&]*)\\&", Pattern.CASE_INSENSITIVE);
 					
@@ -2489,7 +2745,7 @@ public class main extends VideoBaseActivity
 						{
 						if (lines[i].equals ("--"))
 							section++;
-						else if (section == 1)
+						else if (section == 0 || section == 1)
 							{
 							app a = new app();
 							String fields[] = lines[i].split ("\t");
@@ -2500,12 +2756,20 @@ public class main extends VideoBaseActivity
 							/* market://details?id=tv.ddtv.player9x9tv&hl=en */
 							Matcher m = pattern.matcher (fields[3]);
 							if (m.find())
-								a.basename = m.group (1); 
-							new_apps [count++] = a;
+								a.basename = m.group (1);
+							if (section == 0)
+								new_recommended_apps [count0++] = a;
+							if (section == 1)
+								new_apps [count1++] = a;
 							log ("app: " + a.market_url);
 							}
 						}
+					
+					recommended_apps = new_recommended_apps;
 					apps = new_apps;
+		
+					if (menu_adapter != null)
+						redraw_menu();
 					
 					ListView vAppsList = (ListView) findViewById (R.id.apps_list);
 					apps_adapter = new AppsAdapter (main.this, apps);
@@ -2545,6 +2809,8 @@ public class main extends VideoBaseActivity
 				{
 				if (apps_adapter != null)
 					apps_adapter.notifyDataSetChanged();
+				if (menu_adapter != null && apps_expanded)
+					menu_adapter.notifyDataSetChanged();
 				}
 			};
 
@@ -2970,8 +3236,6 @@ public class main extends VideoBaseActivity
 	public void refresh_home()
 		{
 		vc_cache = new Hashtable < String, String[] > ();
-		config.init_pools();
-		/* was: populate_home(); */
 		home_slider.reload_data();
 		}
 	
@@ -6152,9 +6416,11 @@ public class main extends VideoBaseActivity
 						}
 					}
 				});					
+				
+		redraw_menu();
 		
 		/* load the first category */
-		load_category (0, 0);
+		load_category (0, 0);		
 		}
 
 	public void load_category (final int index, final int starting)
