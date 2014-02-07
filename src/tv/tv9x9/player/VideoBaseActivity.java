@@ -94,6 +94,7 @@ import org.json.JSONObject;
 
 public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer.OnFullscreenListener, MediaRouteAdapter
 	{
+	/* APP_NAME no longer used, it is now kept in config.chromecast-id */
 	// String APP_NAME = "7b53e536-a36e-4ac0-9d51-2250458805da";
 	String APP_NAME = "5ecf7ff9-2144-46ce-acc9-6d606831e2dc_1";
 	// String APP_NAME = "5ecf7ff9-2144-46ce-acc9-6d606831e2dc";
@@ -280,8 +281,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			    finish();
 		    	}
 			});
-		
-		google_cast_create();
 		}
 	
 	@Override
@@ -295,7 +294,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		FlurryAgent.setLogEnabled (true);
 		FlurryAgent.setLogLevel (Log.DEBUG);
 		EasyTracker.getInstance (this).activityStart (this);
-		google_cast_start();		
+		if (gcast_created)
+			google_cast_start();
+		else
+			gcast_start_pending = true;
 		}
 	
 	@Override
@@ -449,7 +451,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		// VERBOSE | INFO | DEBUG | WARNING
 		ga.getLogger().setLogLevel(LogLevel.VERBOSE);
 		// String tracking_id = getString (R.string.ga_trackingId);
-		String tracking_id = "UA-21595932-1";
+		// String tracking_id = "UA-21595932-1";
+		String tracking_id = config.google_analytics;
 		// Tracker tr = EasyTracker.getInstance (this);
 		return ga.getTracker (tracking_id);		
 		}
@@ -1340,6 +1343,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (started == 3)
 			{
 			config = mService.get_metadata (identity);
+			google_cast_create();
 			if (videoFragment.ready())
 				{
 				onVideoActivityReady();
@@ -3265,13 +3269,18 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     private MediaRouteButton gcast_media_route_button = null;
     private MediaRouteButton gcast_media_route_button_main = null;
     
+    public boolean gcast_created = false;
+    public boolean gcast_start_pending = false;
+    
 	public void google_cast_create()
 		{
         gcast_session_listener = new SessionListener();
         gcast_message_stream = new tvStream();
         gcast_context = new CastContext (getApplicationContext());
         
-        gcast_media_route_selector = MediaRouteHelper.buildMediaRouteSelector (MediaRouteHelper.CATEGORY_CAST, APP_NAME, null);
+        log ("chromecast app name: " + config.chromecast_app_name);
+        
+        gcast_media_route_selector = MediaRouteHelper.buildMediaRouteSelector (MediaRouteHelper.CATEGORY_CAST, config.chromecast_app_name, null);
         
         gcast_media_route_button = (MediaRouteButton) findViewById (R.id.media_route_button);        
         if (gcast_media_route_button != null)
@@ -3287,6 +3296,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         gcast_media_router = MediaRouter.getInstance (getApplicationContext());
 
         gcast_media_router_callback = new MediaRouterCallback();
+                
+        gcast_created = true;        
+        if (gcast_start_pending)
+        	{
+        	gcast_start_pending = false;
+        	google_cast_start();
+        	}
 		}
 	
 	public void google_cast_start()
@@ -3472,7 +3488,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 
             try {
             	log ("start session");
-                gcast_application_session.startSession (APP_NAME);
+                gcast_application_session.startSession (config.chromecast_app_name);
             	}
             catch (IOException e)
             	{

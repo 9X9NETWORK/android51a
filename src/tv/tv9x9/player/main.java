@@ -193,6 +193,18 @@ public class main extends VideoBaseActivity
 	    		}
 	    	
 	    	log ("key BACK (layer " + current_layer.toString() + ")");
+	    	
+	    	if (is_tablet())
+	    		{
+	    		View vSettings = findViewById (R.id.settingslayer_tablet);
+	    		if (vSettings.getVisibility() == View.VISIBLE)
+	    			{
+	    			log ("disable settings overlay");
+	    			vSettings.setVisibility (View.GONE);
+	    			return true;
+	    			}
+	    		}
+	    	
 	    	if (current_layer == toplayer.PLAYBACK)
 	    		{
 	    		/* this is messy. Can't use onPaused because that will probably occur after analytics */
@@ -312,6 +324,11 @@ public class main extends VideoBaseActivity
 		View vNotNeededSigninLayer = findViewById (is_phone() ? R.id.signinlayer_tablet : R.id.signinlayer_phone);
 		if (vNotNeededSigninLayer != null)
 			((ViewManager) vNotNeededSigninLayer.getParent()).removeView (vNotNeededSigninLayer);
+		
+		/* remove the phone/tablet sublayer which we won't use */
+		View vNotNeededSettingsLayer = findViewById (is_phone() ? R.id.settingslayer_tablet : R.id.settingslayer_phone);
+		if (vNotNeededSettingsLayer != null)
+			((ViewManager) vNotNeededSettingsLayer.getParent()).removeView (vNotNeededSettingsLayer);
 		
 		/* this is a ListView */
 		View vSearchListPhone = findViewById (R.id.search_list_phone);
@@ -713,7 +730,7 @@ public class main extends VideoBaseActivity
 			}		
 		}	
 	
-	public boolean apps_expanded = false;
+	public boolean apps_expanded = true;
 	public boolean categories_expanded = false;
 	
 	public boolean initialized_app_menu = false;
@@ -852,8 +869,8 @@ public class main extends VideoBaseActivity
 				
 			case APPS:
 	        	log ("click on: menu apps");
-	        	apps_expanded = !apps_expanded;
-	        	redraw_menu();
+	        	toggle_menu();
+	        	enable_apps_layer();
 	        	break;
 	        	
 			case APP_ITEM:
@@ -974,19 +991,8 @@ public class main extends VideoBaseActivity
 			if (vCount != null)
 				{
 				vCount.setVisibility (menu [position].type == toplayer.APPS ? View.VISIBLE : View.GONE);
-				if (menu [position].type == toplayer.APPS)
-					{
-					vCount.setText (apps == null ? "0" : ("" + apps.length));
-					vCount.setOnClickListener (new OnClickListener()
-						{
-				        @Override
-				        public void onClick (View v)
-				        	{
-				        	toggle_menu();
-				        	enable_apps_layer();
-				        	}
-						});		
-					}
+				if (menu [position].type == toplayer.APPS)					
+					vCount.setText (apps == null ? "0" : ("" + apps.length));							
 				}
 		
 			if (menu [position].type == toplayer.CATEGORY_ITEM && current_category_index >= 0)
@@ -1005,7 +1011,6 @@ public class main extends VideoBaseActivity
 					rv.setBackgroundColor (Color.argb (0x00, 0x00, 0x00, 0x00));
 					vAppIcon.setVisibility (View.INVISIBLE);
 					}
-
 				}
 			else if (current_layer == menu [position].type)
 				{
@@ -1756,6 +1761,14 @@ public class main extends VideoBaseActivity
 		{
 		log ("set layer: " + layer.toString());
 		
+		if (is_tablet() && layer == toplayer.SETTINGS)
+			{
+			/* this is an overlay not a true layer! */
+			View settings_layer = findViewById (R.id.settingslayer_tablet);
+			settings_layer.setVisibility (View.VISIBLE);
+			return;
+			}
+		
 		View home_layer = home_layer();
 		home_layer.setVisibility (layer == toplayer.HOME ? View.VISIBLE : View.GONE);
 
@@ -1768,7 +1781,7 @@ public class main extends VideoBaseActivity
 		View search_layer = findViewById (R.id.searchlayer);
 		search_layer.setVisibility (layer == toplayer.SEARCH ? View.VISIBLE : View.GONE);	
 		
-		View settings_layer = findViewById (R.id.settingslayer);
+		View settings_layer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
 		settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
 		
 		View terms_layer = findViewById (R.id.termslayer);
@@ -1779,7 +1792,7 @@ public class main extends VideoBaseActivity
 		
 		View apps_layer = findViewById (R.id.appslayer);
 		apps_layer.setVisibility (layer == toplayer.APPS ? View.VISIBLE : View.GONE);
-		
+
 		current_layer = layer;
 		
 		redraw_menu();
@@ -2899,7 +2912,6 @@ public class main extends VideoBaseActivity
 				File f = new File (filename);
 				if (f.exists ())
 					{
-					log ("exists: " +filename);
 					Bitmap bitmap = BitmapFactory.decodeFile (filename);
 					if (bitmap != null)
 						{
@@ -5464,10 +5476,10 @@ public class main extends VideoBaseActivity
 		if (is_phone())
 			{
 			TextView vGuideTitle = (TextView) findViewById (R.id.guide_title);
-			vGuideTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 26);
+			vGuideTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 20);
 			
 			TextView vGuideMeta = (TextView) findViewById (R.id.guide_meta);
-			vGuideMeta.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
+			vGuideMeta.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 			}
 		
 		View vGuideAsGuest = findViewById (R.id.guide_as_guest);
@@ -7180,13 +7192,18 @@ public class main extends VideoBaseActivity
 		}
 	
 	public void setup_settings_buttons()
-		{		
-		View vTopBar = findViewById (R.id.settings_top_bar_resizable);
-		LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vTopBar.getLayoutParams();
-		layout.height = is_phone() ? pixels_100 : pixels_160;
-		vTopBar.setLayoutParams (layout);
+		{
+		final View vLayer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
 		
-		View vCancel = findViewById (R.id.settings_cancel);
+		if (!is_tablet())
+			{
+			View vTopBar = vLayer.findViewById (R.id.settings_top_bar_resizable);
+			LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vTopBar.getLayoutParams();
+			layout.height = is_phone() ? pixels_60 : pixels_160;
+			vTopBar.setLayoutParams (layout);		
+			}
+		
+		View vCancel = vLayer.findViewById (R.id.settings_cancel);
 		if (vCancel != null)
 			vCancel.setOnClickListener (new OnClickListener()
 				{
@@ -7194,11 +7211,14 @@ public class main extends VideoBaseActivity
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: settings cancel button");
-		        	toggle_menu();
+		        	if (is_tablet())
+		        		vLayer.setVisibility (View.GONE);
+		        	else
+		        		toggle_menu();
 		        	}
 				});	
 
-		View vSave = findViewById (R.id.settings_save);
+		View vSave = vLayer.findViewById (R.id.settings_save);
 		if (vSave != null)
 			vSave.setOnClickListener (new OnClickListener()
 				{
@@ -7209,15 +7229,15 @@ public class main extends VideoBaseActivity
 		        	save_settings();
 		        	}
 				});
-		
-		View vSettingsLayer = findViewById (R.id.settingslayer);
-		if (vSettingsLayer != null)
-			vSettingsLayer.setOnClickListener (new OnClickListener()
+				
+		if (vLayer != null)
+			vLayer.setOnClickListener (new OnClickListener()
 				{
 		        @Override
 		        public void onClick (View v)
 		        	{
 		        	/* eat this */
+		        	log ("bonk");
 		        	}
 				});		
 		}

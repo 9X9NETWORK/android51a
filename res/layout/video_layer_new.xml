@@ -527,14 +527,27 @@
 					  	    android:id="@+id/num_comments"			        
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
+							android:layout_weight="1"							
+							android:layout_gravity="top|left"
 							android:textSize="24sp"
 							android:textColor="#FFFFFF"
 							android:paddingLeft="10dip"
-							android:gravity="top"
+							android:gravity="top|left"
 							android:singleLine="true"	
 							android:ellipsize="end"	
 							android:text="0"							
 					    	/>
+						<ImageView
+					    	android:id="@+id/comments_arrow"
+					        android:layout_width="20dip" 
+					        android:layout_height="15dip"
+					        android:layout_marginRight="12dip"
+					        android:layout_gravity="right|center_vertical"
+					        android:gravity="right|center_vertical"
+					        android:adjustViewBounds="true"
+					        android:scaleType="fitXY"
+					        android:src="@drawable/icon_arrow_down"
+					        />						    
 					</LinearLayout>
 					<LinearLayout
 					    android:layout_width="match_parent"

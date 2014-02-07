@@ -422,7 +422,7 @@ public class start extends Activity
 				}
 			}, 3300);
 			
-		new playerAPI (in_main_thread, config, "brandInfo")
+		new playerAPI (in_main_thread, config, "brandInfo?os=android")
 			{
 			public void success (String[] chlines)
 				{
@@ -482,6 +482,12 @@ public class start extends Activity
 					config.mso_preferred_lang_code = fields[1];				
 				if (fields[0].equals ("video"))
 					config.tutorial_video = fields[1];
+				if (fields[0].equals ("ga"))
+					config.google_analytics = fields[1];
+				if (fields[0].equals ("facebook-clientid"))
+					config.facebook_app_id = fields[1];
+				if (fields[0].equals ("chromecast-id"))
+					config.chromecast_app_name = fields[1];
 				}
 			}
 		}
