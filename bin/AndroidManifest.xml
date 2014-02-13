@@ -7,8 +7,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="66"
-      android:versionName="5.0.0.66">
+      android:versionCode="67"
+      android:versionName="5.0.0.67">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -120,127 +120,13 @@
 		</receiver>
 
 		<!-- android:screenOrientation="portrait" -->
-        <activity android:name="tv.tv9x9.player.main" android:configChanges="keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustPan" android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="tv.tv9x9.player.tvcast" android:configChanges="keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustPan" android:screenOrientation="landscape">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        
-		<!-- android:screenOrientation="portrait" -->
-		
-        <activity android:name="tv.tv9x9.player.playback" android:configChanges="keyboardHidden|orientation" android:windowSoftInputMode="stateAlwaysHidden">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        
-        <activity android:name="tv.tv9x9.player.simple" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        
-        <activity android:name="tv.tv9x9.player.tv" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="tv.tv9x9.player.tv2" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        
-        <activity android:name="tv.tv9x9.player.tv3" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="tv.tv9x9.player.tv4" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
+        <activity android:name="tv.tv9x9.player.main" android:configChanges="keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustPan" android:screenOrientation="portrait" android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
                 
-        <activity android:name="tv.tv9x9.player.tv6" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-                                                
-         <activity android:name="tv.tv9x9.player.portal" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-         <activity android:name="tv.tv9x9.player.portola" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation|locale">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="tv.tv9x9.player.tvportal" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-                
-        <activity android:name="tv.tv9x9.player.store" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="tv.tv9x9.player.guide" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
- 
-        <activity android:name="tv.tv9x9.player.dongle3x3" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
- 
-         <activity android:name="tv.tv9x9.player.tvstore" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-                                    
-        <activity android:name="tv.tv9x9.player.tvgrid" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        
         <!-- This did not seem to work:
         <activity android:name="tv.tv9x9.player.Message9x9Manager" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
              <receiver android:name=".Message9x9Manager">
@@ -258,23 +144,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <activity android:name="tv.tv9x9.player.popuptv" android:theme="@style/Theme.Transparent" 
-        			android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         
-        <activity android:name="tv.tv9x9.player.tutorial" android:theme="@style/Theme.Transparent" 
-        			android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <activity android:name="tv.tv9x9.player.popupalert" android:theme="@style/Theme.Transparent" 
         			android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
             <intent-filter>
@@ -289,57 +159,9 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity>
-        
-        <activity android:name="tv.tv9x9.player.signinpopup" android:theme="@style/Theme.Transparent" 
-        			android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="tv.tv9x9.player.signinpopuptv" android:theme="@style/Theme.Transparent" 
-        			android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-   
-        <activity android:name="tv.tv9x9.player.help" android:theme="@style/Theme.Transparent" 
-        			android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+        </activity>       
                 
-        <activity android:name="tv.tv9x9.player.settingspopup" android:theme="@style/Theme.Transparent" 
-        			android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="tv.tv9x9.player.settingspopuptv" android:theme="@style/Theme.Transparent" 
-        			android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-               
-        <activity android:name="tv.tv9x9.player.renameset" android:theme="@style/Theme.Transparent" 
-        			android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-               
-        <activity android:name="tv.tv9x9.player.rctest" android:theme="@style/Theme.Transparent" 
+         <activity android:name="tv.tv9x9.player.rctest" android:theme="@style/Theme.Transparent" 
         			android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -348,27 +170,6 @@
         </activity>                 
         
         <activity android:name="tv.tv9x9.player.shear" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-                               
-        <activity android:name="tv.tv9x9.player.settings">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="tv.tv9x9.player.categories" android:theme="@style/Theme.Transparent">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        
-         <activity android:name="tv.tv9x9.player.channels" android:theme="@style/Theme.Transparent">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

@@ -447,30 +447,55 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	Tracker get_tracker()
 		{
-		GoogleAnalytics ga = GoogleAnalytics.getInstance (this);
-		// VERBOSE | INFO | DEBUG | WARNING
-		ga.getLogger().setLogLevel(LogLevel.VERBOSE);
-		// String tracking_id = getString (R.string.ga_trackingId);
-		// String tracking_id = "UA-21595932-1";
-		String tracking_id = config.google_analytics;
-		// Tracker tr = EasyTracker.getInstance (this);
-		return ga.getTracker (tracking_id);		
+		if (config != null)
+			{
+			GoogleAnalytics ga = GoogleAnalytics.getInstance (this);
+			// VERBOSE | INFO | DEBUG | WARNING
+			ga.getLogger().setLogLevel(LogLevel.VERBOSE);
+			// String tracking_id = getString (R.string.ga_trackingId);
+			// String tracking_id = "UA-21595932-1";
+			String tracking_id = config.google_analytics;
+			// Tracker tr = EasyTracker.getInstance (this);
+			if (tracking_id != null)
+				return ga.getTracker (tracking_id);
+			else
+				return null;
+			}
+		else
+			return null;
 		}
 	
 	public void track_screen (String screen)
-		{
+		{	
+		if (most_recent_screen != null && most_recent_screen.equals (screen))
+			return;
+		
 		if (!screen.equals ("menu"))
-			most_recent_screen = screen; 
+			most_recent_screen = screen;
+		
 		Tracker tr = get_tracker();
-		tr.set (Fields.SCREEN_NAME, screen);
-		Map <String, String> m = MapBuilder.createAppView().build();
-		tr.send (m);		
+		if (tr != null)
+			{
+			tr.set (Fields.SCREEN_NAME, screen);
+			Map <String, String> m = MapBuilder.createAppView().build();
+			tr.send (m);
+			}
 		}
 	
+	String most_recent_event;
+	
 	public void track_event (String category, String action, String label, long value)
-		{		
+		{
+		String smashed_event = category + "." + action + "." + label + value;
+		
+		if (most_recent_event != null && most_recent_event.equals (smashed_event))
+			return;		
+		most_recent_event = smashed_event;
+		
 		Map <String, String> m = MapBuilder.createEvent (category, action, label, value).build();
-		get_tracker().send (m);
+		Tracker tr = get_tracker();
+		if (tr != null)
+			tr.send (m);
 		}
 	
 	public void track_current_screen()
@@ -3313,7 +3338,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	public void google_cast_stop()
 		{
         end_session();
-        gcast_media_router.removeCallback (gcast_media_router_callback);
+        if (gcast_media_router != null && gcast_media_router_callback != null)
+        	gcast_media_router.removeCallback (gcast_media_router_callback);
 		}
 	
 	public void google_cast_destroy()

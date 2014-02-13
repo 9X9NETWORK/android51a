@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
@@ -73,6 +74,8 @@ import android.widget.TableRow;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+
+// import com.google.android.gms.gcm;
 
 import com.facebook.*;
 import com.facebook.Session.StatusCallback;
@@ -2784,7 +2787,7 @@ public class main extends VideoBaseActivity
 					if (menu_adapter != null)
 						redraw_menu();
 					
-					ListView vAppsList = (ListView) findViewById (R.id.apps_list);
+					AbsListView vAppsList = (AbsListView) findViewById (is_tablet() ? R.id.apps_list_tablet : R.id.apps_list_phone);				
 					apps_adapter = new AppsAdapter (main.this, apps);
 					vAppsList.setAdapter (apps_adapter);
 					
@@ -2920,6 +2923,9 @@ public class main extends VideoBaseActivity
 						}
 					}
 				}
+			
+			View vBottomBar = rv.findViewById (R.id.bottom_bar);
+			vBottomBar.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 			
 			return rv;
 			}	
@@ -7181,6 +7187,23 @@ public class main extends VideoBaseActivity
 	
 	public void redraw_settings()
 		{
+		TextView vVersion = (TextView) findViewById (R.id.version);
+		if (vVersion != null)
+			{
+			String version_code = "[unknown]";			
+			try
+				{
+				PackageInfo pInfo = getPackageManager().getPackageInfo (getPackageName(), 0);
+				version_code = pInfo.versionName;
+				}
+			catch (Exception ex)
+				{
+				ex.printStackTrace();
+				}			
+			String txt_version = getResources().getString (R.string.version);
+			vVersion.setText (txt_version + ": " + version_code);
+			}
+		
 		TextView vNameReadonly = (TextView) findViewById (R.id.settings_name_readonly);
 		vNameReadonly.setText (config.username);
 

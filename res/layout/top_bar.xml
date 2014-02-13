@@ -97,6 +97,16 @@
 			</LinearLayout>   			
 		</FrameLayout>
 		
+			<android.support.v7.app.MediaRouteButton
+			    android:id="@+id/media_route_button_main"
+				android:mediaRouteTypes="user"			    
+			    android:layout_width="wrap_content"
+			    android:layout_height="fill_parent"
+			    android:layout_gravity="right|center_vertical"
+			    android:gravity="right|center_vertical"		    
+			    android:visibility="visible"
+			    android:actionButtonStyle="@style/Theme.MediaRouter"
+			    />
 		<!-- setting this style on MediaRoutebutton requires API level 16! -->	
 		<!-- android.support.v7.app.MediaRouteButton
 		    android:id="@+id/media_route_button_main"

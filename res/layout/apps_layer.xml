@@ -44,7 +44,7 @@
 		android:layout_width="fill_parent" 
 		android:layout_height="fill_parent">    	
 	   	<ListView
-			android:id="@+id/apps_list"
+			android:id="@+id/apps_list_phone"
 			android:layout_width="fill_parent" 
 			android:layout_height="fill_parent"
 			android:layout_marginLeft="10dip"
@@ -56,6 +56,19 @@
 			android:cacheColorHint="@android:color/transparent"
 			android:dividerHeight="0dp"
 			android:divider="@null"
-			/>	 		  	
+			/>	 
+	   	<GridView
+			android:id="@+id/apps_list_tablet"
+			android:layout_width="fill_parent" 
+			android:layout_height="fill_parent"
+			android:layout_marginLeft="10dip"
+			android:layout_marginRight="10dip"
+			android:layout_marginTop="10dip"
+			android:layout_gravity="top|center_horizontal"
+			android:gravity="top|center_horizontal"				
+			android:drawSelectorOnTop="false"
+			android:cacheColorHint="@android:color/transparent"
+			android:numColumns="2"
+			/>	 					  	
 	</FrameLayout>						
 </LinearLayout>
