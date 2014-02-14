@@ -1589,7 +1589,8 @@ public class main extends VideoBaseActivity
 	public void update_metadata_mini (String episode_id)
 		{
 		String episode_name = config.program_meta (episode_id, "name");
-		TextView vEpisodeName = (TextView) findViewById (R.id.eptitle);
+		String episode_desc = config.program_meta (episode_id, "desc");
+		TextView vEpisodeName = (TextView) findViewById (R.id.episode_title);
 		if (vEpisodeName != null)
 			vEpisodeName.setText (episode_name != null && !episode_name.equals ("") ? episode_name : "[no episode name]");
 		String timestamp = config.program_meta (episode_id, "timestamp");
@@ -1597,6 +1598,25 @@ public class main extends VideoBaseActivity
 		TextView vAgo = (TextView) findViewById (R.id.episode_age);
 		if (vAgo != null)
 			vAgo.setText (ago);
+		TextView vDesc = (TextView) findViewById (R.id.playback_episode_description);
+		if (vDesc != null)
+			vDesc.setText (episode_desc);
+		
+		
+		if (program_line != null)
+			{
+			for (int i = 0; i < program_line.length; i++)
+				{
+				String potential_episode_id = program_line [i];
+				if (episode_id.equals (potential_episode_id))
+					{
+					current_episode_index = i + 1;
+					break;
+					}
+				}
+			if (playback_episode_adapter != null)
+				playback_episode_adapter.notifyDataSetChanged();
+			}
 		}
 	
 	public void toggle_extended_comments_view()
@@ -3680,7 +3700,7 @@ public class main extends VideoBaseActivity
 			
 			TextView vTitle = (TextView) row.findViewById (R.id.title);
 			if (vTitle != null)
-				vTitle.setText (name != null ? name : "?");
+				vTitle.setText (name != null ? name : ("Channel " + channel_id));
 
 			ImageView vChannelIcon = (ImageView) row.findViewById (R.id.channel_icon);
 			View vProgress = row.findViewById (R.id.progress);

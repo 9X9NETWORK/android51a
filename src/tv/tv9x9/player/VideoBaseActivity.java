@@ -28,6 +28,8 @@ import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.google.android.youtube.player.YouTubePlayer.OnInitializedListener;
 import com.google.android.youtube.player.YouTubePlayer.Provider;
 import com.google.android.youtube.player.YouTubePlayer.ErrorReason;
+
+/*
 import com.google.cast.ApplicationChannel;
 import com.google.cast.ApplicationMetadata;
 import com.google.cast.ApplicationSession;
@@ -37,6 +39,19 @@ import com.google.cast.MediaRouteAdapter;
 import com.google.cast.MediaRouteHelper;
 import com.google.cast.MediaRouteStateChangeListener;
 import com.google.cast.SessionError;
+*/
+
+import com.google.android.gms.cast.ApplicationMetadata;
+import com.google.android.gms.cast.Cast;
+import com.google.android.gms.cast.Cast.ApplicationConnectionResult;
+import com.google.android.gms.cast.Cast.MessageReceivedCallback;
+import com.google.android.gms.cast.CastDevice;
+import com.google.android.gms.cast.CastMediaControlIntent;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.common.GooglePlayServicesClient;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -92,7 +107,7 @@ import org.json.JSONObject;
 
 /* black screen video: wfaeWDpiX84 */
 
-public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer.OnFullscreenListener, MediaRouteAdapter
+public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer.OnFullscreenListener
 	{
 	/* APP_NAME no longer used, it is now kept in config.chromecast-id */
 	// String APP_NAME = "7b53e536-a36e-4ac0-9d51-2250458805da";
@@ -317,6 +332,14 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		}
 	
 	@Override
+	public void onPause()
+		{
+		super.onPause();
+		log ("onPause");
+		gcast_pause();
+		}
+	
+	@Override
 	public void onResume()
 		{
 		super.onResume();
@@ -327,6 +350,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				restore_location();
 			}
 		launch_in_progress = false;
+		gcast_resume();
 		}
 		
 	@Override
@@ -1112,7 +1136,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (chromecasted)
 			{
 			chromecast_stream_status = "pause";
-			gcast_message_stream.pause();
+			chromecast_send_simple ("pause");
 			}
 		else
 			videoFragment.pause();
@@ -1124,7 +1148,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (chromecasted)
 			{
 			chromecast_stream_status = "play";
-			gcast_message_stream.resume();
+			chromecast_send_simple ("resume");
 			}
 		else
 			videoFragment.play();
@@ -2711,13 +2735,15 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				    			if (videoFragment.is_playing())
 					    			{
 					    			int duration = videoFragment.get_duration();
-					    			videoFragment.seek ((int) (duration * percent));
+					    			int seekpos = (int) (duration * percent);
+					    			videoFragment.seek (seekpos);
 					    			}
 				    			}
 				    		catch (Exception ex)
 				    			{
 				    			ex.printStackTrace();
 				    			}
+			    			chromecast_seek_percent (percent);
 				    		}
 				    	else
 				    		drop_knob_in_subepisode (percent);
@@ -3280,25 +3306,44 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	/* GoogleCast Section */
 	
-	SessionListener gcast_session_listener = null;
+	// SessionListener gcast_session_listener = null;
 	
-    private ApplicationSession gcast_application_session = null;
-    private CastMessageStream gcast_message_stream = null;
+    // private ApplicationSession gcast_application_session = null;
+    // private CastMessageStream gcast_message_stream = null;
 
-    private CastContext gcast_context = null;
-    private CastDevice gcast_selected_device = null;
+    // private CastContext gcast_context = null;
     private MediaRouter gcast_media_router = null;
     private MediaRouteSelector gcast_media_route_selector = null;
     private MediaRouter.Callback gcast_media_router_callback = null;
+    private CastDevice gcast_selected_device = null;
+    private Cast.Listener gcast_listener;
+    private boolean gcast_application_started;
+    private boolean gcast_waiting_for_reconnect;
+    private Cast9x9Channel gcast_channel;
+    private GoogleApiClient gcast_api_client;
+    private ConnectionCallbacks gcast_connection_callbacks;
+    private ConnectionFailedListener gcast_connection_failed_listener;
     
-    private MediaRouteButton gcast_media_route_button = null;
-    private MediaRouteButton gcast_media_route_button_main = null;
+    // private MediaRouteButton gcast_media_route_button = null;
+    // private MediaRouteButton gcast_media_route_button_main = null;
     
     public boolean gcast_created = false;
     public boolean gcast_start_pending = false;
     
 	public void google_cast_create()
 		{
+        log ("CCX create");
+        
+        gcast_media_router = MediaRouter.getInstance (getApplicationContext());
+        gcast_media_route_selector = new MediaRouteSelector.Builder().addControlCategory
+        		(CastMediaControlIntent.categoryForCast (config.chromecast_app_name)).build();
+        gcast_media_router_callback = new MyMediaRouterCallback();
+        
+        MediaRouteButton gcast_media_route_button = (MediaRouteButton) findViewById (R.id.media_route_button);        
+        if (gcast_media_route_button != null)
+        	gcast_media_route_button.setRouteSelector (gcast_media_route_selector);
+        
+		/*
         gcast_session_listener = new SessionListener();
         gcast_message_stream = new tvStream();
         gcast_context = new CastContext (getApplicationContext());
@@ -3322,6 +3367,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 
         gcast_media_router_callback = new MediaRouterCallback();
                 
+
+        */
+        
         gcast_created = true;        
         if (gcast_start_pending)
         	{
@@ -3332,122 +3380,347 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void google_cast_start()
 		{
+		log ("CCX start");
         gcast_media_router.addCallback (gcast_media_route_selector, gcast_media_router_callback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
 		}
 	
 	public void google_cast_stop()
 		{
-        end_session();
-        if (gcast_media_router != null && gcast_media_router_callback != null)
-        	gcast_media_router.removeCallback (gcast_media_router_callback);
 		}
 	
+	public void gcast_pause()
+		{
+		if (gcast_media_router != null)
+			{
+			log ("CCX removing media router callback");
+			gcast_media_router.removeCallback (gcast_media_router_callback);
+			}
+		}
+	
+	public void gcast_resume()
+		{
+		if (gcast_media_router != null && gcast_media_route_selector != null && gcast_media_router_callback != null)
+			{
+			log ("CCX adding media router callback");
+			gcast_media_router.addCallback (gcast_media_route_selector, gcast_media_router_callback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+			}
+		}		
+
 	public void google_cast_destroy()
 		{
-		MediaRouteHelper.unregisterMediaRouteProvider (gcast_context);
-        gcast_context.dispose();
-        gcast_context = null;
+        teardown();
 		}
 	
-	@Override
-	public void onDeviceAvailable (CastDevice device, String routeId, MediaRouteStateChangeListener listener)	
-		{
-        log ("onDeviceAvailable: " + device + " (route " + routeId + ")");
-        setSelectedDevice (device);
-		}
-
-	@Override
-	public void onSetVolume (double arg0)
-		{
-		}
-
-	@Override
-	public void onUpdateVolume (double arg0)
-		{
-		}
-	
-    private void onRouteSelected (RouteInfo route)
+    private class MyMediaRouterCallback extends MediaRouter.Callback
     	{
-        log ("onRouteSelected: " + route.getName());
-        MediaRouteHelper.requestCastDeviceForRoute (route);
+        @Override
+        public void onRouteSelected (MediaRouter router, RouteInfo info)
+        	{
+            log ("CCX onRouteSelected");
+            gcast_selected_device = CastDevice.getFromBundle (info.getExtras());
+            gcast_launch_receiver();
+        	}
+        
+        @Override
+        public void onRouteUnselected (MediaRouter router, RouteInfo info)
+        	{
+            log ("CCX onRouteUnselected: info=" + info);
+            teardown();
+            gcast_selected_device = null;
+        	}
     	}
 
-    private void onRouteUnselected (RouteInfo route)
+    private void gcast_launch_receiver()
     	{
-        log ("onRouteUnselected: " + route.getName());
-        setSelectedDevice (null);
+        try
+        	{
+            gcast_listener = new Cast.Listener()
+            	{
+                @Override
+                public void onApplicationDisconnected (int errorCode)
+                	{
+                    log ("CCX application has stopped");
+                    teardown();
+                	}
+            	};
+            	
+            // Connect to Google Play services
+            gcast_connection_callbacks = new ConnectionCallbacks();
+            gcast_connection_failed_listener = new ConnectionFailedListener();
+            Cast.CastOptions.Builder api_options_builder = Cast.CastOptions.builder (gcast_selected_device, gcast_listener);
+            gcast_api_client = new GoogleApiClient.Builder (this)
+                    .addApi (Cast.API, api_options_builder.build())
+                    .addConnectionCallbacks (gcast_connection_callbacks)
+                    .addOnConnectionFailedListener (gcast_connection_failed_listener)
+                    .build();
+
+            gcast_api_client.connect();
+        	}
+        catch (Exception ex)
+        	{
+            log ("CCX failed gcast_launch_receiver");
+            ex.printStackTrace();
+        	}
     	}
+
+    class Cast9x9Channel implements MessageReceivedCallback
+    	{
+        public String getNamespace()
+        	{
+            return "urn:x-cast:tv.9x9.cast";
+        	}
+
+        @Override
+        public void onMessageReceived (CastDevice castDevice, String namespace, String message)
+        	{
+            log ("CCX Chromecast Raw onMessageReceived: " + message);
+            if (message.startsWith ("{"))
+	            {
+	            try
+	            	{
+					JSONObject json = new JSONObject (message);
+					chromecast_message_received  (json);
+	            	}
+	            catch (JSONException ex)
+	            	{
+					ex.printStackTrace();
+	            	}
+	        	}
+            else
+            	log ("CCX does not seem to be a JSON message");
+        	}
+    	}
+
+    private void teardown()
+    	{
+        if (gcast_api_client != null)
+        	{
+            if (gcast_application_started)
+            	{
+                try
+                	{
+                    Cast.CastApi.stopApplication (gcast_api_client);
+                    if (gcast_channel != null)
+                    	{
+                        Cast.CastApi.removeMessageReceivedCallbacks (gcast_api_client, gcast_channel.getNamespace());
+                        gcast_channel = null;
+                    	}
+                	}
+                catch (IOException ex)
+                	{
+                    log ("Exception while removing channel");
+                    ex.printStackTrace();
+                	}
+                gcast_application_started = false;
+            	}
+            
+            if (gcast_api_client.isConnected())
+                gcast_api_client.disconnect();
+            
+            gcast_api_client = null;
+        	}
+        
+        gcast_selected_device = null;
+        gcast_waiting_for_reconnect = false;
+    	}
+    
+    private class ConnectionFailedListener implements GoogleApiClient.OnConnectionFailedListener
+    	{
+        @Override
+        public void onConnectionFailed (ConnectionResult result)
+        	{
+            log ("onConnectionFailed");	
+            teardown();
+        	}
+    	}
+    
+
+    
+    
+    
+    private class ConnectionCallbacks implements GoogleApiClient.ConnectionCallbacks
+    	{
+    	@Override
+    	public void onConnected (Bundle connectionHint)
+    		{
+    		log ("CCX onConnected");
+
+    		if (gcast_api_client == null)
+    			{
+    			log ("CCX: we were disconnected, gcast_api_client is null");
+    			return;
+    			}
+
+    		if (!gcast_api_client.isConnected())
+    			{
+    			log ("CCX: gcast_api_client says it is not connected");
+    			return;
+    			}
+    		
+    		try
+    			{
+		        if (gcast_waiting_for_reconnect)
+		        	{
+		        	gcast_waiting_for_reconnect = false;
+		
+		            if ((connectionHint != null) && connectionHint.getBoolean (Cast.EXTRA_APP_NO_LONGER_RUNNING))
+		            	{
+		            	log ("CCX receiver app is no longer running");
+		                teardown();
+		            	}
+		            else
+		            	{
+		                // Re-create the custom message channel
+		                try
+		                	{
+		                    Cast.CastApi.setMessageReceivedCallbacks (gcast_api_client, gcast_channel.getNamespace(), gcast_channel);
+		                    log ("CCX setMessageReceivedCallbacks successful");
+		                	}
+		                catch (IOException ex)
+		                	{
+		                    log ("CCX exception while creating channel");
+		                    ex.printStackTrace();
+		                	}
+		            	}
+		        	}
+		        else
+			        	{
+			            // Launch the receiver app
+			            Cast.CastApi
+			                    .launchApplication(gcast_api_client, config.chromecast_app_name, false)
+			                    .setResultCallback(
+			                            new ResultCallback<Cast.ApplicationConnectionResult>() {
+			                                @Override
+			                                public void onResult(
+			                                        ApplicationConnectionResult result) {
+			                                    Status status = result.getStatus();
+			                                    log ("CCX ApplicationConnectionResultCallback.onResult: statusCode" + status.getStatusCode());
+			                                    if (status.isSuccess())
+			                                    	{
+			                                        ApplicationMetadata applicationMetadata = result
+			                                                .getApplicationMetadata();
+			                                        String sessionId = result
+			                                                .getSessionId();
+			                                        String applicationStatus = result
+			                                                .getApplicationStatus();
+			                                        boolean wasLaunched = result
+			                                                .getWasLaunched();
+			                                        log ("CCX application name: "
+			                                                        + applicationMetadata
+			                                                                .getName()
+			                                                        + ", status: "
+			                                                        + applicationStatus
+			                                                        + ", sessionId: "
+			                                                        + sessionId
+			                                                        + ", wasLaunched: "
+			                                                        + wasLaunched);
+			                                        gcast_application_started = true;
+			
+			                                        // Create the custom message
+			                                        // channel
+			                                        gcast_channel = new Cast9x9Channel();
+			                                        try
+			                                        	{
+			                                            Cast.CastApi
+			                                                    .setMessageReceivedCallbacks(
+			                                                            gcast_api_client,
+			                                                            gcast_channel
+			                                                                    .getNamespace(),
+			                                                            gcast_channel);
+			                                        	}
+			                                        catch (IOException ex)
+			                                        	{
+			                                            log ("CCX exception while creating channel");
+			                                            ex.printStackTrace();
+			                                        	}
+			
+			                                        gcast_connected();
+			                                    } else {
+			                                        log ("CCX application could not launch");
+			                                        teardown();
+			                                    }
+			                                }
+			                            });
+			        }
+			    } 
+			    catch (Exception ex)
+			    	{
+			        log ("CCX failed to launch application");
+			        ex.printStackTrace();
+			    	}
+    		}
+
+	@Override
+	public void onConnectionSuspended(int cause)
+		{
+	    log ("CCX onConnectionSuspended");
+	    gcast_waiting_for_reconnect = true;
+		}
+    }
+
+    
+    private void gcast_connected()
+    	{
+    	log ("CCX connected!");
+    	
+        /* don't let device sleep */
+        getWindow().addFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+        ft.hide (videoFragment);  
+        ft.commit();  
+        
+        /* pause_video(); */
+        videoFragment.pause();
+        
+        sendMessage ("hello hello!");
+        
+        // gcast_message_stream.join ("MyName");
+        chromecast_current_episode();
+        // gcast_message_stream.play_video_id (videoFragment.current_video_id());
+        
+        chromecasted = true;
+        
+        track_event ("cast", "cast", "cast", 0);
+    	}
+    
+    private void sendMessage(String message)
+    	{
+    	log ("SEND MESSAGE: " + message);
+        if (gcast_api_client != null && gcast_channel != null)
+        	{
+            try
+            	{
+                Cast.CastApi.sendMessage (gcast_api_client, gcast_channel.getNamespace(), message)
+                        .setResultCallback (new ResultCallback<Status>()
+                        		{
+                            	@Override
+                            	public void onResult(Status result)
+                            		{
+                            		if (!result.isSuccess())
+	                                    log ("Sending message failed");                            }
+                        });
+            	} 
+            catch (Exception ex)
+            	{
+                log ("Exception while sending message");
+                ex.printStackTrace();
+            	}
+        	}
+        else
+        	{
+        	log ("CCX: not sent");
+        	if (gcast_api_client == null)
+        		log ("CCX: gcast_api_client is null");
+        	if (gcast_channel == null)
+        		log ("CCX: gcast_channel is null");
+        	}
+    	}            
 
     boolean chromecasted = false;
     
-    private class SessionListener implements ApplicationSession.Listener
-    	{
-        @Override
-        public void onSessionStarted (ApplicationMetadata appMetadata)
-        	{
-            log ("SessionListener.onStarted");
-            
-            /* don't let device sleep */
-            getWindow().addFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-            ft.hide (videoFragment);  
-            ft.commit();  
-            
-            /* pause_video(); */
-            videoFragment.pause();
-            
-            
-            // mInfoView.setText(R.string.waiting_for_player_assignment);
-            ApplicationChannel channel = gcast_application_session.getChannel();
-            if (channel == null)
-            	{
-                log ("onStarted: channel is null");
-                return;
-            	}
-            channel.attachMessageStream (gcast_message_stream);
-            gcast_message_stream.join ("MyName");
-            chromecast_current_episode();
-            // gcast_message_stream.play_video_id (videoFragment.current_video_id());
-            
-            chromecasted = true;
-            
-            track_event ("cast", "cast", "cast", 0);
-        	}
-
-        @Override
-        public void onSessionStartFailed (SessionError error)
-        	{
-            log ("SessionListener.onStartFailed: " + error);
-        	}
-
-        @Override
-        public void onSessionEnded (SessionError error)
-        	{
-            log ("SessionListener.onEnded: " + error);
-            getWindow().clearFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                        
-            try
-            	{
-            	FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-            	ft.show (videoFragment);  
-            	ft.commit();  
-            	}
-            catch (Exception ex)
-            	{
-            	ex.printStackTrace();
-            	}
-            
-            chromecasted = false;
-            track_event ("uncast", "uncast", "uncast", 0);
-            
-            /* where we left off, sorta */
-			try_to_play_episode (current_episode_index);
-			
-			video_play();
-        	}
-    	}	
-        
+         
+    /*
     private class tvStream extends CastMessageStream
     	{
     	boolean is_playing = false;
@@ -3485,7 +3758,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			update_metadata_mini (episode);
 	    	}	    
         }
+    */
     
+    /*
     private class MediaRouterCallback extends MediaRouter.Callback
     	{
         @Override
@@ -3502,72 +3777,53 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
             VideoBaseActivity.this.onRouteUnselected (route);
         	}
     	}    
-    
-    private void setSelectedDevice(CastDevice device)
-    	{
-        gcast_selected_device = device;
-
-        if (gcast_selected_device != null)
-        	{
-            gcast_application_session = new ApplicationSession (gcast_context, gcast_selected_device);
-            gcast_application_session.setListener (gcast_session_listener);
-
-            try {
-            	log ("start session");
-                gcast_application_session.startSession (config.chromecast_app_name);
-            	}
-            catch (IOException e)
-            	{
-                log ("Failed to open a session: " + e);
-            	}
-        	}
-        else
-        	{
-            end_session();
-        	}
-    	}    
-    
-    private void end_session()
-    	{
-    	log ("end session");
-        if ((gcast_application_session != null) && (gcast_application_session.hasStarted()))
-        	{
-            try
-            	{
-                if (gcast_application_session.hasChannel())
-                	{
-                    // mGameMessageStream.leave();
-                	}
-                gcast_application_session.endSession();
-            	}
-            catch (IOException e)
-            	{
-                log ("Failed to end the session: " + e);
-            	}
-            catch (IllegalStateException e)
-            	{
-                log ("Unable to end session: " + e);
-            	}
-            finally
-            	{
-                gcast_application_session = null;
-            	}
-        	}
-        else
-        	log ("end_session: No session active");
-    	}    
+    */
 
     public void chromecast (String channel_id, String episode_id)
     	{
-    	if (gcast_application_session != null)
-    		gcast_message_stream.play (config, channel_id, episode_id, arena);
-    	else
+    	// if (gcast_application_session != null)
+    	// gcast_message_stream.play (config, channel_id, episode_id, arena);
+    	// else
     		{
     		/* display the JSON only */
-    		CastMessageStream.assemble_play_command_json (config, channel_id, episode_id, arena);
+    		/* CastMessageStream.assemble_play_command_json (config, channel_id, episode_id, arena); */
     		}
+    		
+    	JSONObject json = assemble_play_command_json (channel_id, episode_id, arena);
+    	try { sendMessage (json.toString()); } catch (Exception ex) { ex.printStackTrace(); }
     	}
     
+    public void chromecast_seek_percent (float percent)
+    	{
+    	if (chromecast_is_playing && chromecast_duration > 0 && percent >= 0)
+	    	{
+	    	try
+	    		{
+				JSONObject payload = new JSONObject();
+			    JSONObject data = new JSONObject();
+			    
+			    int pos = (int) (chromecast_duration * percent);
+				data.put ("time", pos);
+				
+		    	payload.put ("data", data);
+		    	payload.put ("type", "seek");
+		    	
+		    	sendMessage (payload.toString());
+	    		}
+	    	catch (Exception ex)
+	    		{
+	    		ex.printStackTrace();
+	    		}
+	    	}
+    	else
+    		{
+    		log ("CCX: chromecast not playing, won't seek");
+    		log ("chromecast duration: " + chromecast_duration);
+    		log ("percent: " + percent);
+    		log ("chromecast is playing: " + chromecast_is_playing);
+    		}
+    	}
+    		
     public void chromecast_current_episode()
     	{
     	if (current_episode_index <= program_line.length)
@@ -3576,6 +3832,147 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     		chromecast (player_real_channel, episode_id);
     		}
     	}
+    
+    public boolean chromecast_is_playing = false;
+    
+    public String current_chromecast_episode = null;
+    public String current_chromecast_channel = null;
+    
+    public int chromecast_position;
+    public int chromecast_duration;
+    
+    public void chromecast_message_received (JSONObject message)
+    	{
+        try {
+            log ("onMessageReceived: " + message);
+            if (message.has ("event"))
+            	{
+                String event = message.getString ("event");
+                if (event.equals ("progress"))
+                	{
+                	JSONObject data = message.getJSONObject ("data");
+                	String state = data.getString ("state");
+                	if (state.equals ("playing"))
+                		onChromecastPausePlay (true);
+                	else if (state.equals ("paused"))
+                		onChromecastPausePlay (false);
+                	String position = data.getString ("position");
+                	position = position.replaceAll ("\\.\\d+$", "");
+                	String duration = data.getString ("duration");
+                	duration = duration.replaceAll ("\\.\\d+$", "");
+                	int position_int = position.equals ("null") ? 0 : Integer.parseInt (position);
+                	int duration_int = duration.equals ("null") ? 0 : Integer.parseInt (duration);
+                	String episode = data.getString ("episode");
+                	String channel = data.getString ("channel");
+                	onChromecastPosition (channel, episode, position_int, duration_int);
+                	
+                	if (current_chromecast_episode == null || !current_chromecast_episode.equals (episode))
+                		{
+                		current_chromecast_episode = episode;
+                		onChromecastEpisodeChanged (channel, episode);
+                		}
+                	}
+                else if (event.equals ("senderConnected"))
+                	{
+                	log ("Sender connected!");
+                	}
+                }
+        	}
+        catch (Exception ex)
+        	{
+        	ex.printStackTrace();
+        	}
+    	}
+    
+    public void onChromecastPausePlay (boolean is_playing)    
+    	{    	
+		chromecast_is_playing = is_playing;
+		ImageView vPausePlay = (ImageView) findViewById (R.id.pause_or_play);
+		if (vPausePlay != null)
+			vPausePlay.setImageResource (is_playing ? R.drawable.pause_tablet : R.drawable.play_tablet);	
+    	}
+    
+    public void onChromecastPosition (String channel, String episode, int position, int duration)    
+    	{    	
+		chromecast_position = position;
+		chromecast_duration = duration;
+		float pct = (float) position / (float) duration;
+		onVideoActivityProgress (chromecast_is_playing, position, duration, pct);
+    	}
+    
+    public void onChromecastEpisodeChanged (String channel, String episode)
+    	{    	
+    	log ("CCX: chromecast episode changed to: " + episode);
+    	update_metadata_mini (episode);
+    	}
+    
+    public void chromecast_send_simple (String command)
+    	{
+    	JSONObject payload = new JSONObject();
+    	try { payload.put ("type", command); } catch (Exception ex) { ex.printStackTrace(); }
+    	try { sendMessage (payload.toString()); } catch (Exception ex) { ex.printStackTrace(); }
+    	}
+    
+    public JSONObject assemble_play_command_json (String channel_id, String episode_id, String arena[])
+	    {
+		JSONObject payload = new JSONObject();
+	    JSONObject data = new JSONObject();
+	    JSONArray channel_arena = new JSONArray();
+	    JSONObject mso = new JSONObject();
+	    try
+	    	{
+	        if (arena != null)
+	        	{
+		        for (String arena_channel_id: arena)
+		        	{
+		        	if (arena_channel_id != null && !channel_id.equals (""))
+	    	        	{
+	    	        	String name = config.pool_meta (arena_channel_id, "name");
+	    	        	String desc = config.pool_meta (arena_channel_id, "desc");
+	    	        	String thumb = config.pool_meta (arena_channel_id, "thumb");
+	    	        	String nature = config.pool_meta (arena_channel_id, "nature");
+	    	        	String extra = config.pool_meta (arena_channel_id, "extra");
+	    	        	
+	    	        	JSONObject channel_structure = new JSONObject();
+	    	        	
+	    	        	channel_structure.put ("youtubeId", extra);
+	    	        	channel_structure.put ("contentType", nature);
+	    	        	int program_count = config.programs_in_real_channel (arena_channel_id);
+	    	        	if (program_count > 0)
+	    	        		channel_structure.put ("programCount", program_count);		    	        	
+	    	        	channel_structure.put ("thumb", thumb);		    	        	
+	    	        	channel_structure.put ("description", desc);
+	    	        	channel_structure.put ("name", name);
+	    	        	channel_structure.put ("id", arena_channel_id);
+	    	        	
+	    	        	channel_arena.put (channel_structure);
+	    	        	}
+		        	}
+		        data.put ("channelArena", channel_arena);
+	        	}
+	        else
+	        	Log.i ("vtest", "json: no channel arena");
+	        
+	        mso.put ("name", config.mso);
+	        mso.put ("title", config.mso_title != null ? config.mso_title : config.app_name);
+	        mso.put ("supported-region", config.supported_region);
+	        mso.put ("region",  config.region);
+	        mso.put ("preferredLangCode",  config.mso_preferred_lang_code);
+	        	        
+			data.put ("channelId", channel_id);
+			data.put ("episodeId", episode_id);
+			data.put ("mso", mso);
+	    	payload.put ("data", data);
+	    	payload.put ("type", "play");
+	        Log.i ("vtest", "JSON: " + payload.toString());    	        
+	    	}
+	    catch (Exception ex)
+	    	{
+	    	ex.printStackTrace();
+	    	}
+	    
+	    return payload;
+		}
     
     /************************************************************************/
     
