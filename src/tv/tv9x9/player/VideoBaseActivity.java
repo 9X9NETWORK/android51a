@@ -2492,15 +2492,18 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void remember_location()
 		{
-		restore_video_location = true;
-		restore_video_position = videoFragment.get_offset();
-		restore_video_current_episode_index = current_episode_index;
-		restore_video_current_subepisode = current_subepisode;
-		log ("VIDEO remember location: " + restore_video_position);
-		pause_video();
-	
-		restore_video_visibility = get_video_visibility();
-		set_video_visibility (View.INVISIBLE);
+		if (!chromecasted)
+			{
+			restore_video_location = true;
+			restore_video_position = videoFragment.get_offset();
+			restore_video_current_episode_index = current_episode_index;
+			restore_video_current_subepisode = current_subepisode;
+			log ("VIDEO remember location: " + restore_video_position);
+			pause_video();
+		
+			restore_video_visibility = get_video_visibility();
+			set_video_visibility (View.INVISIBLE);
+			}
 		}
 		
 	public void restore_location()
@@ -3324,9 +3327,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     private ConnectionCallbacks gcast_connection_callbacks;
     private ConnectionFailedListener gcast_connection_failed_listener;
     
-    // private MediaRouteButton gcast_media_route_button = null;
-    // private MediaRouteButton gcast_media_route_button_main = null;
-    
     public boolean gcast_created = false;
     public boolean gcast_start_pending = false;
     
@@ -3342,6 +3342,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         MediaRouteButton gcast_media_route_button = (MediaRouteButton) findViewById (R.id.media_route_button);        
         if (gcast_media_route_button != null)
         	gcast_media_route_button.setRouteSelector (gcast_media_route_selector);
+        
+        MediaRouteButton gcast_media_route_button_main = (MediaRouteButton) findViewById (R.id.media_route_button_main);        
+        if (gcast_media_route_button_main != null)
+        	gcast_media_route_button_main.setRouteSelector (gcast_media_route_selector);
         
 		/*
         gcast_session_listener = new SessionListener();
@@ -3442,6 +3446,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
                     log ("CCX application has stopped");
                     teardown();
                 	}
+                
+                @Override
+                public void onVolumeChanged()
+                	{
+                	log ("CCX volume changed");
+                	}
             	};
             	
             // Connect to Google Play services
@@ -3520,8 +3530,23 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
             gcast_api_client = null;
         	}
         
+        try
+        	{
+        	gcast_media_router.selectRoute (null);
+        	}
+        catch (Exception ex)
+        	{
+        	log ("teardown: error trying to selectRoute(null)");
+        	ex.printStackTrace();
+        	}        
+        
         gcast_selected_device = null;
         gcast_waiting_for_reconnect = false;
+        
+        pending_seek = false;
+        pending_seek_count = 0;
+        
+        chromecasted = false;
     	}
     
     private class ConnectionFailedListener implements GoogleApiClient.OnConnectionFailedListener
@@ -3684,7 +3709,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         track_event ("cast", "cast", "cast", 0);
     	}
     
-    private void sendMessage(String message)
+    private void sendMessage (String message)
     	{
     	log ("SEND MESSAGE: " + message);
         if (gcast_api_client != null && gcast_channel != null)
@@ -3790,8 +3815,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     		}
     		
     	JSONObject json = assemble_play_command_json (channel_id, episode_id, arena);
+    	pending_seek = false;
     	try { sendMessage (json.toString()); } catch (Exception ex) { ex.printStackTrace(); }
+    	setup_progress_bar();
     	}
+    
+    boolean pending_seek = false;
+    int pending_seek_count = 0;
     
     public void chromecast_seek_percent (float percent)
     	{
@@ -3799,6 +3829,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    	{
 	    	try
 	    		{
+	    		pending_seek = true;
+	    		pending_seek_count = chromecast_seek_count;
+	    		
 				JSONObject payload = new JSONObject();
 			    JSONObject data = new JSONObject();
 			    
@@ -3826,11 +3859,14 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     		
     public void chromecast_current_episode()
     	{
-    	if (current_episode_index <= program_line.length)
-    		{
-    		String episode_id = program_line [current_episode_index - 1];
-    		chromecast (player_real_channel, episode_id);
-    		}
+    	if (program_line != null && program_line.length > 0)
+	    	{
+	    	if (current_episode_index <= program_line.length)
+	    		{
+	    		String episode_id = program_line [current_episode_index - 1];
+	    		chromecast (player_real_channel, episode_id);
+	    		}
+	    	}
     	}
     
     public boolean chromecast_is_playing = false;
@@ -3840,6 +3876,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     
     public int chromecast_position;
     public int chromecast_duration;
+    
+    public int chromecast_seek_count = 0;
     
     public void chromecast_message_received (JSONObject message)
     	{
@@ -3856,6 +3894,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
                 		onChromecastPausePlay (true);
                 	else if (state.equals ("paused"))
                 		onChromecastPausePlay (false);
+                	
+                	try
+	            		{
+	            		chromecast_seek_count = data.getInt ("seekCount");
+	            		log ("seekCount: " + chromecast_seek_count);
+	            		}
+	            	catch (Exception ex)
+	            		{                		
+	            		}
+                	
                 	String position = data.getString ("position");
                 	position = position.replaceAll ("\\.\\d+$", "");
                 	String duration = data.getString ("duration");
@@ -3870,7 +3918,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
                 		{
                 		current_chromecast_episode = episode;
                 		onChromecastEpisodeChanged (channel, episode);
-                		}
+                		}                
                 	}
                 else if (event.equals ("senderConnected"))
                 	{
@@ -3897,12 +3945,20 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		chromecast_position = position;
 		chromecast_duration = duration;
 		float pct = (float) position / (float) duration;
-		onVideoActivityProgress (chromecast_is_playing, position, duration, pct);
+		
+		log ("pending_seek: " + pending_seek + ", pending_seek_count: " + pending_seek_count + ", chromecast_seek_count: " + chromecast_seek_count);
+		
+		if (chromecast_seek_count > pending_seek_count)
+			pending_seek = false;
+		
+		if (!pending_seek)
+			onVideoActivityProgress (chromecast_is_playing, position, duration, pct);
     	}
     
     public void onChromecastEpisodeChanged (String channel, String episode)
     	{    	
     	log ("CCX: chromecast episode changed to: " + episode);
+    	pending_seek = false;
     	update_metadata_mini (episode);
     	}
     

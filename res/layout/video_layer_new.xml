@@ -74,7 +74,7 @@
 			    android:layout_gravity="right|center_vertical"
 			    android:gravity="right|center_vertical"		    
 			    android:visibility="visible"
-			    android:actionButtonStyle="@style/Theme.MediaRouter.Light"
+			    android:theme="@style/Theme.MediaRouter.Teltel"
 			    />
 			<!-- android:actionButtonStyle="@android:style/Theme.MediaRouter.Light" -->
 			
