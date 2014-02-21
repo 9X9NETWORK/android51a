@@ -317,4 +317,5 @@
 	<string name="suggested_tv_apps">Suggested TV Apps</string>
 	<string name="get_suggested_tv_apps">Get Suggested TV Apps Now!</string>	
 	<string name="download">Download</string>
+	<string name="on_chromecast">Video is playing on Chromecast</string>
 </resources>

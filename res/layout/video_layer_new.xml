@@ -200,6 +200,26 @@
 						/>									    
 				</FrameLayout>			    					
 			</LinearLayout>				
+			<FrameLayout
+			    android:id="@+id/chromecast_window"
+			    android:layout_width="match_parent"
+			    android:layout_height="120dip"
+			    android:layout_gravity="center"
+			    android:gravity="center"
+			    android:background="#00000000"
+			    android:visibility="gone">
+				<TextView
+			        android:id="@+id/chromecast_message"		        
+					android:layout_width="wrap_content"
+					android:layout_height="fill_parent"
+					android:layout_gravity="center"
+					android:gravity="center"
+					android:textSize="22sp"
+					android:textColor="#FFFFFF"
+					android:paddingLeft="3sp"
+					android:text="@string/on_chromecast"
+					/>	
+			</FrameLayout>
 	      	<fragment
 			    class="tv.tv9x9.player.VideoBaseActivity$VideoFragment"
 			    android:id="@+id/video_fragment_container"

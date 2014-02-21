@@ -210,10 +210,17 @@ public class main extends VideoBaseActivity
 	    	
 	    	if (current_layer == toplayer.PLAYBACK)
 	    		{
-	    		/* this is messy. Can't use onPaused because that will probably occur after analytics */
-	    		if (!videoFragment.is_paused())
-	    			videoFragment.add_to_time_played();
-    			pause_video();    		
+	    		if (chromecasted)
+	    			{
+	    			chromecast_send_simple ("stop");
+	    			}
+	    		else
+		    		{
+		    		/* this is messy. Can't use onPaused because that will probably occur after analytics */
+		    		if (!videoFragment.is_paused())
+		    			videoFragment.add_to_time_played();
+	    			pause_video();
+		    		}
     			player_real_channel = "?UNDEFINED";    			
     			analytics ("back");
     			player_real_channel = null;
@@ -261,6 +268,15 @@ public class main extends VideoBaseActivity
 	    		toggle_menu();
 	    	return true;
 	    	}
+	    else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+	    	{
+	    	chromecast_volume_down();
+	    	}
+	    else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+	    	{	
+	    	chromecast_volume_up();
+	    	}
+	    
 	    return false;
 		}
 
@@ -4665,7 +4681,11 @@ public class main extends VideoBaseActivity
 			}
     	else
     		{
-    		pause_video();
+    		if (chromecasted)
+    			chromecast_send_simple ("stop");
+    		else
+    			pause_video();
+			analytics ("back");
     		enable_home_layer();
     		}	
 		}
@@ -5222,16 +5242,14 @@ public class main extends VideoBaseActivity
 	        	}
 			});	
 		vContainer.setOnTouchListener (new OnTouchListener()
-		{
-
+			{
 			@Override
 			public boolean onTouch(View arg0, MotionEvent arg1)
 				{
 				log ("CONSUMED TOUCH");
 				return true;
-				}
-		
-		});
+				}		
+			});
 		
 		vVideoLayer.setOnClickListener (null); 
 		vVideoLayer.setClickable (false);
