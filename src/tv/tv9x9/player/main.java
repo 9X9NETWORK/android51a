@@ -5138,9 +5138,12 @@ public class main extends VideoBaseActivity
 		{
 		if (!video_is_minimized)
 			{
+			log ("disable video layer");
 			View video_layer = video_layer();
 			video_layer.setVisibility (View.GONE);
 			}
+		else
+			log ("disable video layer: ignored, video is minimized");
 		}
 	
 	int minimized_height = 0;
@@ -5164,15 +5167,18 @@ public class main extends VideoBaseActivity
 		View vTitlecard = findViewById (R.id.titlecard);
 		View yt_wrapper = (SpecialFrameLayout) findViewById (R.id.ytwrapper2);	
 		View vTopControls = findViewById (R.id.top_controls);
+		View vChromecast = findViewById (R.id.chromecast_window);
 		
 		FrameLayout.LayoutParams video_layout = (FrameLayout.LayoutParams) vVideoLayer.getLayoutParams();			
 		LinearLayout.LayoutParams wrapper_layout = (LinearLayout.LayoutParams) yt_wrapper.getLayoutParams();
 		SpecialFrameLayout.LayoutParams container_layout = (SpecialFrameLayout.LayoutParams) vContainer.getLayoutParams();
+		FrameLayout.LayoutParams backing_layout = (FrameLayout.LayoutParams) vBacking.getLayoutParams();
+		FrameLayout.LayoutParams chromecast_layout = (FrameLayout.LayoutParams) vChromecast.getLayoutParams();
 		
 		vPlaybackBody.setVisibility (View.GONE);
-		vBacking.setVisibility (View.GONE);
+		vBacking.setVisibility (chromecasted ? View.VISIBLE : View.GONE);
 		vTitlecard.setVisibility (View.GONE);
-		vControls.setVisibility (View.GONE);
+		vControls.setVisibility (chromecasted ? View.VISIBLE : View.GONE);
 		if (vTopControls != null)
 			vTopControls.setVisibility (View.GONE);
 				
@@ -5231,6 +5237,17 @@ public class main extends VideoBaseActivity
 		video_layout.gravity = Gravity.BOTTOM | Gravity.RIGHT;
 		vVideoLayer.setLayoutParams (video_layout);
 		
+		chromecast_layout.width = minimized_width;
+		chromecast_layout.height = minimized_height;
+		chromecast_layout.rightMargin = pixels_60;		
+		chromecast_layout.gravity = Gravity.BOTTOM | Gravity.RIGHT;		
+		vChromecast.setLayoutParams (chromecast_layout);
+		
+		backing_layout.width = minimized_width;
+		backing_layout.height = minimized_height;
+		backing_layout.rightMargin = pixels_60;
+		backing_layout.gravity = Gravity.BOTTOM | Gravity.RIGHT;				
+		vBacking.setLayoutParams (backing_layout);
 		
 		vContainer.setOnClickListener (new OnClickListener()
 			{
@@ -5281,6 +5298,11 @@ public class main extends VideoBaseActivity
 		
 		unlaunch_player();
 		vVideoLayer.postInvalidate();
+		
+		if (chromecasted)
+			{
+			log ("minimize, chromecasted");
+			}
 		}
 	
 	public void video_normal()
@@ -5298,10 +5320,13 @@ public class main extends VideoBaseActivity
 		View vTitlecard = findViewById (R.id.titlecard);
 		View yt_wrapper = (SpecialFrameLayout) findViewById (R.id.ytwrapper2);	
 		View vTopControls = findViewById (R.id.top_controls);
+		View vChromecast = findViewById (R.id.chromecast_window);
 		
 		FrameLayout.LayoutParams video_layout = (FrameLayout.LayoutParams) vVideoLayer.getLayoutParams();			
 		LinearLayout.LayoutParams wrapper_layout = (LinearLayout.LayoutParams) yt_wrapper.getLayoutParams();
 		SpecialFrameLayout.LayoutParams container_layout = (SpecialFrameLayout.LayoutParams) vContainer.getLayoutParams();
+		FrameLayout.LayoutParams backing_layout = (FrameLayout.LayoutParams) vBacking.getLayoutParams();
+		FrameLayout.LayoutParams chromecast_layout = (FrameLayout.LayoutParams) vChromecast.getLayoutParams();
 		
 		vPlaybackBody.setVisibility (View.VISIBLE);
 		vBacking.setVisibility (View.VISIBLE);
@@ -5343,6 +5368,18 @@ public class main extends VideoBaseActivity
 		container_layout.gravity = Gravity.CENTER;
 		
 		vContainer.setLayoutParams (container_layout);
+		
+		chromecast_layout.width = MATCH_PARENT;
+		chromecast_layout.height = (int) (screen_width / 1.77);
+		chromecast_layout.rightMargin = 0;		
+		chromecast_layout.gravity = Gravity.CENTER;		
+		vChromecast.setLayoutParams (chromecast_layout);
+		
+		backing_layout.width = MATCH_PARENT;
+		backing_layout.height = (int) (screen_width / 1.77);
+		backing_layout.rightMargin = 0;
+		backing_layout.gravity = Gravity.CENTER;				
+		vBacking.setLayoutParams (backing_layout);
 		
     	expand_video();
 		vVideoLayer.postInvalidate();

@@ -1191,6 +1191,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		video_play_pending = true;
 		load_channel_then (channel_id, play_inner, Integer.toString (position), null);
 		}	
+
+	public void play_nth (String channel_id, int position, int start_msec)
+		{
+		player_real_channel = channel_id;
+		video_play_pending = true;
+		load_channel_then (channel_id, play_inner, Integer.toString (position), new Integer (start_msec));
+		}
 	
 	final Callback play_inner = new Callback()
 		{
@@ -1198,9 +1205,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		public void run_string_and_object (String arg1, Object arg2)
 			{
 			int position = Integer.parseInt (arg1);
+			int start_msec = arg2 == null ? 0 : (Integer) arg2;
 			log ("play_inner");
 			program_line = config.program_line_by_id (player_real_channel);
-			try_to_play_episode (position);
+			try_to_play_episode (position, start_msec);
 			String episode = program_line != null && program_line.length >= position ? program_line [position-1] : null;
 			onVideoActivityRefreshMetadata (player_real_channel, episode);
 			}
@@ -1496,6 +1504,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void try_to_play_episode (int episode)
 		{
+		try_to_play_episode (episode, 0);
+		}
+	
+	public void try_to_play_episode (int episode, int start_msec)
+		{
 		log ("try to play episode: " + episode);		
 		
 		video_has_started = false;
@@ -1525,7 +1538,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			
 			String episode_id = program_line [episode - 1];
 			
-			chromecast (player_real_channel, episode_id);
+			chromecast (player_real_channel, episode_id, 0);
 
 			if (chromecasted)				
 				{
@@ -1544,10 +1557,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					{
 					String url = config.best_url (episode_id);		
 					log ("episode \"" + episode_id + "\" has no subepisodes, url is: " + url);
-					play_youtube_url (url, 0, -1);
+					play_youtube_url (url, start_msec, -1);
 					}
 				else
 					{
+					/* ignore start_msec problem here, since subepisodes seem to be on their way out */
 					log ("play first subepisode of: " + episode_id + " (of " + subepisodes_this_episode + ")");
 					play_current_subepisode();
 					}
@@ -2218,47 +2232,50 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
    		{  
         public void run()
         	{  
-            if (videoFragment.is_playing())
-            	{
-            	in_main_thread.post (update_progress_bar);
-            	int offset = 0;
-            	int duration = 0;
-            	try
+        	if (videoFragment != null)
+	        	{
+	            if (videoFragment.is_playing())
 	            	{
-		        	offset = videoFragment.get_offset();
-		        	duration = videoFragment.get_duration();
-	            	}
-            	catch (Exception ex)
-	            	{	
-	            	}
-            	mService.relay_post ("REPORT TICK " + offset + " " + duration);
-            	if (video_cutoff_time >= 0)
-            		{
-            		if (offset > 0 && offset > video_cutoff_time)
-            			{            			
-            			log ("++ VIDEO HAS REACHED CUTOFF TIME AT " + video_cutoff_time);
-            			video_cutoff_time = -1;
-            			in_main_thread.post (runnable_next_episode);
-            			}
-            		}
-            	if (video_next_trigger >= 0 && !dragging_my_knob)
-            		{
-            		/* do not POI trigger if the progress bar is being dragged, since it disappears the bar */
-            		if (offset > 0 && offset > video_next_trigger)
+	            	in_main_thread.post (update_progress_bar);
+	            	int offset = 0;
+	            	int duration = 0;
+	            	try
+		            	{
+			        	offset = videoFragment.get_offset();
+			        	duration = videoFragment.get_duration();
+		            	}
+	            	catch (Exception ex)
+		            	{	
+		            	}
+	            	mService.relay_post ("REPORT TICK " + offset + " " + duration);
+	            	if (video_cutoff_time >= 0)
 	            		{
-	        			log ("++ VIDEO HAS REACHED POI TRIGGER AT " + video_next_trigger);
-	        			in_main_thread.post (trigger_poi);
+	            		if (offset > 0 && offset > video_cutoff_time)
+	            			{            			
+	            			log ("++ VIDEO HAS REACHED CUTOFF TIME AT " + video_cutoff_time);
+	            			video_cutoff_time = -1;
+	            			in_main_thread.post (runnable_next_episode);
+	            			}
 	            		}
-            		}
-            	if (video_release_trigger >= 0)
-            		{
-            		if (offset > 0 && offset > video_release_trigger)
+	            	if (video_next_trigger >= 0 && !dragging_my_knob)
 	            		{
-	        			log ("remove OSD for POI");
-	        			in_main_thread.post (remove_poi);
+	            		/* do not POI trigger if the progress bar is being dragged, since it disappears the bar */
+	            		if (offset > 0 && offset > video_next_trigger)
+		            		{
+		        			log ("++ VIDEO HAS REACHED POI TRIGGER AT " + video_next_trigger);
+		        			in_main_thread.post (trigger_poi);
+		            		}
 	            		}
-            		}
-            	}
+	            	if (video_release_trigger >= 0)
+	            		{
+	            		if (offset > 0 && offset > video_release_trigger)
+		            		{
+		        			log ("remove OSD for POI");
+		        			in_main_thread.post (remove_poi);
+		            		}
+	            		}
+	            	}
+	        	}
         	}
    		}
 
@@ -3528,7 +3545,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
                         gcast_channel = null;
                     	}
                 	}
-                catch (IOException ex)
+                catch (Exception ex)
                 	{
                     log ("Exception while removing channel");
                     ex.printStackTrace();
@@ -3536,8 +3553,15 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
                 gcast_application_started = false;
             	}
             
-            if (gcast_api_client.isConnected())
-                gcast_api_client.disconnect();
+            try
+	            {
+	            if (gcast_api_client.isConnected())
+	                gcast_api_client.disconnect();
+	            }
+            catch (Exception ex)
+	            {
+	            ex.printStackTrace();
+	            }
             
             gcast_api_client = null;
         	}       
@@ -3555,11 +3579,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         View vChromecastWindow = findViewById (R.id.chromecast_window);
         vChromecastWindow.setVisibility	(View.GONE);
         
+        show_video_fragment();
+        
         if (player_real_channel != null && program_line != null && current_episode_index <= program_line.length)
         	{
-        	log ("resuming episode");
-        	play_nth (player_real_channel, current_episode_index);
-        	}
+        	log ("**** resuming episode, position: " + chromecast_position);
+        	play_nth (player_real_channel, current_episode_index, chromecast_position);
+        	}        
     	}
     
     public void chromecast_volume_up()
@@ -3731,9 +3757,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         /* don't let device sleep */
         getWindow().addFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-        ft.hide (videoFragment);  
-        ft.commit();  
+        int offset = player_real_channel == null ? 0 : videoFragment.get_offset();
+        
+        hide_video_fragment();
         
         View vChromecastWindow = findViewById (R.id.chromecast_window);
         vChromecastWindow.setVisibility	(View.VISIBLE);
@@ -3748,13 +3774,39 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         sendMessage ("hello hello!");
         
         // gcast_message_stream.join ("MyName");
-        chromecast_current_episode();
+        chromecast_current_episode (offset);
         // gcast_message_stream.play_video_id (videoFragment.current_video_id());
         
         chromecasted = true;
         chromecast_volume = 100;
         
         track_event ("cast", "cast", "cast", 0);
+    	}
+
+    public void hide_video_fragment()
+    	{
+    	if (videoFragment != null)
+	    	{
+    		if (!videoFragment.isHidden())
+	    		{
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.hide (videoFragment);  
+		        ft.commit();
+	    		}
+	    	}
+    	}
+    
+    public void show_video_fragment()
+    	{
+    	if (videoFragment != null)
+	    	{
+			if (videoFragment.isHidden())
+	    		{
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.show (videoFragment);  
+		        ft.commit();
+	    		}
+	    	}
     	}
     
     private void sendMessage (String message)
@@ -3852,7 +3904,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     	}    
     */
 
-    public void chromecast (String channel_id, String episode_id)
+    public void chromecast (String channel_id, String episode_id, int offset)
     	{
     	// if (gcast_application_session != null)
     	// gcast_message_stream.play (config, channel_id, episode_id, arena);
@@ -3862,7 +3914,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     		/* CastMessageStream.assemble_play_command_json (config, channel_id, episode_id, arena); */
     		}
     		
-    	JSONObject json = assemble_play_command_json (channel_id, episode_id, arena);
+    	JSONObject json = assemble_play_command_json (channel_id, episode_id, offset, arena);
     	pending_seek = false;
     	try { sendMessage (json.toString()); } catch (Exception ex) { ex.printStackTrace(); }
     	setup_progress_bar();
@@ -3905,16 +3957,18 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     		}
     	}
     		
-    public void chromecast_current_episode()
+    public void chromecast_current_episode (int starting)
     	{
     	if (program_line != null && program_line.length > 0)
 	    	{
 	    	if (current_episode_index <= program_line.length)
 	    		{
 	    		String episode_id = program_line [current_episode_index - 1];
-	    		chromecast (player_real_channel, episode_id);
+	    		chromecast (player_real_channel, episode_id, starting);
 	    		}
 	    	}
+    	/* if the attempt fails, try to resume at this point */
+    	chromecast_position = starting;
     	}
     
     public boolean chromecast_is_playing = false;
@@ -4005,6 +4059,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			onVideoActivityProgress (chromecast_is_playing, position, duration, pct);
 		
 		set_knob_visibility (true);
+		
+		/* this will only hide it if it is somehow not already hidden */
+		hide_video_fragment();
     	}
     
     public void onChromecastEpisodeChanged (String channel, String episode)
@@ -4033,7 +4090,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		try { sendMessage (payload.toString()); } catch (Exception ex) { ex.printStackTrace(); }
 		}
     
-    public JSONObject assemble_play_command_json (String channel_id, String episode_id, String arena[])
+    public JSONObject assemble_play_command_json (String channel_id, String episode_id, int offset, String arena[])
 	    {
 		JSONObject payload = new JSONObject();
 	    JSONObject data = new JSONObject();
@@ -4081,10 +4138,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	        	        
 			data.put ("channelId", channel_id);
 			data.put ("episodeId", episode_id);
+			data.put ("startSeconds", offset);
+			
 			data.put ("mso", mso);
 	    	payload.put ("data", data);
 	    	payload.put ("type", "play");
-	        Log.i ("vtest", "JSON: " + payload.toString());    	        
+	        // Log.i ("vtest", "JSON: " + payload.toString());    	        
 	    	}
 	    catch (Exception ex)
 	    	{
@@ -4220,7 +4279,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		public int get_duration()
 			{
 			int duration = 0;
-			try { duration = player.getDurationMillis(); } catch (Exception ex) {};
+			if (player != null)
+				try { duration = player.getDurationMillis(); } catch (Exception ex) {};
 			return duration;
 			}
 		
@@ -4232,13 +4292,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		public boolean is_playing()
 			{
-			return player != null && player.isPlaying();
+			boolean is_playing = true;
+			if (player != null)
+				try { is_playing = player.isPlaying(); } catch (Exception ex) {};
+			return is_playing;
 			}
 		
 		public void set_full_screen (boolean flag)
 			{
 			if (player != null)
-				player.setFullscreen (flag);
+				try { player.setFullscreen (flag); } catch (Exception ex) {};
 			}
 		
 		public void set_listeners()

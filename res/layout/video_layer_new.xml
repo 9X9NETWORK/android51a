@@ -214,8 +214,8 @@
 					android:layout_height="fill_parent"
 					android:layout_gravity="center"
 					android:gravity="center"
-					android:textSize="22sp"
-					android:textColor="#FFFFFF"
+					android:textSize="16sp"
+					android:textColor="#999999"
 					android:paddingLeft="3sp"
 					android:text="@string/on_chromecast"
 					/>	
