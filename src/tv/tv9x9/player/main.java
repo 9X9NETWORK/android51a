@@ -5423,9 +5423,16 @@ public class main extends VideoBaseActivity
 		    	if (current_layer != toplayer.PLAYBACK)
 		    		{
 		    		log ("video disappear");
-					pause_video();
-			    	video_normal();
-		    		disable_video_layer();
+		    		if (chromecasted)
+			    		{
+		    			chromecast_send_simple ("stop");
+			    		}
+		    		else
+		    			{
+						pause_video();
+			    		}
+				    video_normal();
+			    	disable_video_layer();		    		
 		    		}
 		    	else
 		    		{
@@ -5470,14 +5477,28 @@ public class main extends VideoBaseActivity
 	@Override
 	public boolean onVideoHorizontal (int deltaX)
 		{
-		View vContainer = findViewById (R.id.video_fragment_container);	
+		View vContainer = findViewById (R.id.video_fragment_container);
+		View vBacking = findViewById (R.id.backing_controls);
+		View vChromecast = findViewById (R.id.chromecast_window);
+				
+
+		
 		int max_drag = screen_width - pixels_60 - minimized_width;
 		
 		if (deltaX >= 0 && deltaX < max_drag)
 			{
-			SpecialFrameLayout.LayoutParams container_layout = (SpecialFrameLayout.LayoutParams) vContainer.getLayoutParams();			
+			SpecialFrameLayout.LayoutParams container_layout = (SpecialFrameLayout.LayoutParams) vContainer.getLayoutParams();	
+			FrameLayout.LayoutParams backing_layout = (FrameLayout.LayoutParams) vBacking.getLayoutParams();
+			FrameLayout.LayoutParams chromecast_layout = (FrameLayout.LayoutParams) vChromecast.getLayoutParams();
+			
 			container_layout.rightMargin = pixels_60 + deltaX;			
 			vContainer.setLayoutParams (container_layout);
+			
+			backing_layout.rightMargin = pixels_60 + deltaX;
+			vBacking.setLayoutParams (backing_layout);
+			
+			chromecast_layout.rightMargin = pixels_60 + deltaX;
+			vChromecast.setLayoutParams (chromecast_layout);
 			
 			float percent = (float) deltaX / (float) max_drag;
 			float new_alpha = 1.0f - (percent / 1.0f);

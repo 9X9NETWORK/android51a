@@ -81,6 +81,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.view.Window;
 import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
@@ -3364,15 +3365,31 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         log ("CCX create");
         
         gcast_media_router = MediaRouter.getInstance (getApplicationContext());
-        gcast_media_route_selector = new MediaRouteSelector.Builder().addControlCategory
-        		(CastMediaControlIntent.categoryForCast (config.chromecast_app_name)).build();
+        
+        MediaRouteButton gcast_media_route_button = (MediaRouteButton) findViewById (R.id.media_route_button);  
+        MediaRouteButton gcast_media_route_button_main = (MediaRouteButton) findViewById (R.id.media_route_button_main);   
+        
+        try
+        	{
+        	gcast_media_route_selector = new MediaRouteSelector.Builder().addControlCategory
+        			(CastMediaControlIntent.categoryForCast (config.chromecast_app_name)).build();
+        	}
+        catch (Exception ex)
+        	{
+        	alert ("There is an error with Chromecast");
+        	ex.printStackTrace();
+        	if (gcast_media_route_button != null)
+    			((ViewManager) gcast_media_route_button.getParent()).removeView (gcast_media_route_button);
+        	if (gcast_media_route_button_main != null)
+    			((ViewManager) gcast_media_route_button_main.getParent()).removeView (gcast_media_route_button_main);        	
+        	return;
+        	}
+        
         gcast_media_router_callback = new MyMediaRouterCallback();
         
-        MediaRouteButton gcast_media_route_button = (MediaRouteButton) findViewById (R.id.media_route_button);        
         if (gcast_media_route_button != null)
         	gcast_media_route_button.setRouteSelector (gcast_media_route_selector);
-        
-        MediaRouteButton gcast_media_route_button_main = (MediaRouteButton) findViewById (R.id.media_route_button_main);        
+     
         if (gcast_media_route_button_main != null)
         	gcast_media_route_button_main.setRouteSelector (gcast_media_route_selector);
         
