@@ -4,9 +4,12 @@
 <!-- package="tw.com.cts.player" -->
 <!-- package="tw.edu.fcu.player9x9tv" -->
 <!-- package="tv.goodtv.player9x9tv" -->
+<!-- package="us.crashcourse.player9x9tv" -->
+<!-- package="us.networka.player9x9tv" -->
+<!-- package="us.collegehumor.player9x9tv" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.tv9x9.player"
+      package="us.networka.player9x9tv"
       android:versionCode="71"
       android:versionName="5.0.0.71">
           
@@ -42,7 +45,7 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!--	
+			<!--
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -60,6 +63,34 @@
 			</intent-filter>
 			-->
 					
+			<!-- for College Humor -->
+			<!--
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-collegehumor" />        	       					   					
+			</intent-filter>	
+			-->
+								
+			<!-- for Network_A -->
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-networka" />        	       					   					
+			</intent-filter>	
+								
+			<!-- for Crash Course -->
+			<!--
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-crashcourse" />        	       					   					
+			</intent-filter>	
+			-->
+								
 			<!-- for CTS -->
 			<!--
 			<intent-filter>
