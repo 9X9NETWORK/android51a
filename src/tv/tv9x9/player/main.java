@@ -5178,7 +5178,7 @@ public class main extends VideoBaseActivity
 		vPlaybackBody.setVisibility (View.GONE);
 		vBacking.setVisibility (chromecasted ? View.VISIBLE : View.GONE);
 		vTitlecard.setVisibility (View.GONE);
-		vControls.setVisibility (chromecasted ? View.VISIBLE : View.GONE);
+		vControls.setVisibility (View.GONE);
 		if (vTopControls != null)
 			vTopControls.setVisibility (View.GONE);
 				
@@ -5239,13 +5239,15 @@ public class main extends VideoBaseActivity
 		
 		chromecast_layout.width = minimized_width;
 		chromecast_layout.height = minimized_height;
-		chromecast_layout.rightMargin = pixels_60;		
+		chromecast_layout.rightMargin = pixels_60;
+		chromecast_layout.bottomMargin = pixels_60;
 		chromecast_layout.gravity = Gravity.BOTTOM | Gravity.RIGHT;		
 		vChromecast.setLayoutParams (chromecast_layout);
 		
 		backing_layout.width = minimized_width;
 		backing_layout.height = minimized_height;
 		backing_layout.rightMargin = pixels_60;
+		backing_layout.bottomMargin = pixels_60;
 		backing_layout.gravity = Gravity.BOTTOM | Gravity.RIGHT;				
 		vBacking.setLayoutParams (backing_layout);
 		
@@ -5372,12 +5374,14 @@ public class main extends VideoBaseActivity
 		chromecast_layout.width = MATCH_PARENT;
 		chromecast_layout.height = (int) (screen_width / 1.77);
 		chromecast_layout.rightMargin = 0;		
+		chromecast_layout.bottomMargin = 0;
 		chromecast_layout.gravity = Gravity.CENTER;		
 		vChromecast.setLayoutParams (chromecast_layout);
 		
 		backing_layout.width = MATCH_PARENT;
 		backing_layout.height = (int) (screen_width / 1.77);
 		backing_layout.rightMargin = 0;
+		backing_layout.bottomMargin = 0;
 		backing_layout.gravity = Gravity.CENTER;				
 		vBacking.setLayoutParams (backing_layout);
 		
