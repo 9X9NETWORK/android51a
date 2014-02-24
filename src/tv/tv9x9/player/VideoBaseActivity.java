@@ -3286,7 +3286,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void gcast_pause()
 		{
-		if (gcast_media_router != null)
+		if (gcast_media_router != null && gcast_media_router_callback != null)
 			{
 			log ("CCX removing media router callback");
 			gcast_media_router.removeCallback (gcast_media_router_callback);
