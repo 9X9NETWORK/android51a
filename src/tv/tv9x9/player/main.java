@@ -61,7 +61,6 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -82,6 +81,8 @@ import com.facebook.Session.StatusCallback;
 import com.facebook.android.Util;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.*;
+
+import com.flurry.android.FlurryAgent;
 
 public class main extends VideoBaseActivity
 	{
@@ -104,6 +105,8 @@ public class main extends VideoBaseActivity
 	
 	String current_home_stack = null;
 	
+	Bundle fezbuk_bundle = null;
+	
 	@Override
 	public void onCreate (Bundle savedInstanceState)
 		{
@@ -112,13 +115,25 @@ public class main extends VideoBaseActivity
 		home_configure_white_label();
 		onVideoActivityLayout();
 		setup_home_buttons();
-		fezbuk1 (savedInstanceState);
+		
+		/* ugly hack because we need to call fezbuk1 in ready() not onCreate() */
+		fezbuk_bundle = savedInstanceState;
 		}
 
 	@Override
-	protected void onStop()
+	public void onStart()
+		{
+		super.onStart();
+		if (flurry_id_sent)
+			FlurryAgent.onStartSession (this, config.flurry_id);
+		}
+	
+	@Override
+	public void onStop()
 		{
 		super.onStop();
+		if (flurry_id_sent)
+			FlurryAgent.onEndSession (this);
 		}
 		
 	@Override
@@ -127,36 +142,30 @@ public class main extends VideoBaseActivity
 		super.onResume();
 		if (uiHelper != null)
 			uiHelper.onResume();
-		try
-			{
-			String fb_app_id = getResources().getString (R.string.fb_app_id);
-			com.facebook.AppEventsLogger.activateApp (this, fb_app_id);
-			}
-		catch (Exception ex)
-			{
-			ex.printStackTrace();
-			}
 		}
 	
     @Override
     public void onPause()
     	{
         super.onPause();
-        uiHelper.onPause();
+        if (uiHelper != null)
+        	uiHelper.onPause();
     	}
     
     @Override
     public void onDestroy()
     	{
         super.onDestroy();
-        uiHelper.onDestroy();
+        if (uiHelper != null)
+        	uiHelper.onDestroy();
     	}    
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     	{
         super.onActivityResult (requestCode, resultCode, data);
-        uiHelper.onActivityResult (requestCode, resultCode, data);
+        if (uiHelper != null)
+        	uiHelper.onActivityResult (requestCode, resultCode, data);
     	}
 	
 	@Override
@@ -210,21 +219,7 @@ public class main extends VideoBaseActivity
 	    	
 	    	if (current_layer == toplayer.PLAYBACK)
 	    		{
-	    		if (chromecasted)
-	    			{
-	    			chromecast_send_simple ("stop");
-	    			}
-	    		else
-		    		{
-		    		/* this is messy. Can't use onPaused because that will probably occur after analytics */
-		    		if (!videoFragment.is_paused())
-		    			videoFragment.add_to_time_played();
-	    			pause_video();
-		    		}
-    			player_real_channel = "?UNDEFINED";    			
-    			analytics ("back");
-    			player_real_channel = null;
-    			enable_home_layer();
+	    		player_full_stop();
 	    		}
 	    	else if (current_layer == toplayer.HOME)
 	    		{
@@ -366,6 +361,26 @@ public class main extends VideoBaseActivity
 		vStoreListTablet.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 		}
 	
+	public void player_full_stop()
+		{
+		if (chromecasted)
+			{
+			chromecast_send_simple ("stop");
+			}
+		else
+			{
+			/* this is messy. Can't use onPaused because that will probably occur after analytics */
+			if (!videoFragment.is_paused())
+				videoFragment.add_to_time_played();
+			pause_video();
+			}
+		player_real_channel = "?UNDEFINED";    			
+		analytics ("back");
+		player_real_channel = null;
+		
+		enable_home_layer();
+		}
+	
 	public void onVideoActivityFlingUp()
 		{
 		if (current_layer == toplayer.PLAYBACK)
@@ -442,13 +457,32 @@ public class main extends VideoBaseActivity
 			}
 		}
 
+	boolean flurry_id_sent = false;
+	
 	@Override
 	public void onVideoActivityReady()
 		{
+		/* normally this is sent in onStart(), but config might not be available then */
+		FlurryAgent.onStartSession (this, config.flurry_id);
+		flurry_id_sent = true;
+		
 		resume_as_logged_in_user();
 		// attach_relay();
 		setup_home_buttons();
 		populate_home();
+		
+		fezbuk1 (fezbuk_bundle);
+		fezbuk_bundle = null;
+		
+		try
+			{
+			if (config.facebook_app_id != null)
+				com.facebook.AppEventsLogger.activateApp (this, config.facebook_app_id);
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			}
 		}
 	
 	public void home_configure_white_label()
@@ -486,14 +520,13 @@ public class main extends VideoBaseActivity
 			}
 		
 		boolean uses_chromecast = getResources().getBoolean (R.bool.uses_chromecast);
-		
-		View vMediaRouteButton = findViewById (R.id.media_route_button);
-		// if (vMediaRouteButton != null)
-		// 	vMediaRouteButton.setVisibility (uses_chromecast ? View.VISIBLE : View.GONE);
-		
+
 		if (!uses_chromecast)
 			{
-			((ViewManager) vMediaRouteButton.getParent()).removeView (vMediaRouteButton);
+			log ("this app is configured to not use chromecast");
+			View vMediaRouteButton = findViewById (R.id.media_route_button);
+			if (vMediaRouteButton != null)
+				((ViewManager) vMediaRouteButton.getParent()).removeView (vMediaRouteButton);
 			}
 		}
 
@@ -556,10 +589,47 @@ public class main extends VideoBaseActivity
 	public void activate_layer (toplayer layer)
 		{
     	make_layer_visible (layer);
-    	if (menu_is_extended())
-    		toggle_menu();
+
+    	close_menu();
+    	
     	if (layer == toplayer.GUIDE)
     		enable_guide_layer();
+    	else
+    		track_layer (layer);
+		}
+	
+	public void track_layer (toplayer layer)
+		{
+		switch (layer)
+			{
+			case HOME:
+				track_screen ("home");
+				break;
+				
+			case GUIDE:
+				track_screen ("guide");
+				break;
+				
+			case STORE:
+				track_screen ("store");
+				break;
+				
+			case SETTINGS:
+				track_screen ("settings");
+				break;
+			
+			case APPS:
+				track_screen ("appDirectory");
+				break;
+				
+			case HELP:
+				track_screen ("help");
+				break;
+				
+			case SIGNIN:
+				track_screen ("signIn");
+				break;
+			}
 		}
 	
 	public void make_layer_visible (toplayer layer)
@@ -589,7 +659,7 @@ public class main extends VideoBaseActivity
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: home menu button");
-		        	toggle_menu();
+		        	toggle_menu (true);
 		        	}
 				});	
 		
@@ -631,11 +701,21 @@ public class main extends VideoBaseActivity
 	
 	public void toggle_menu()
 		{
-		toggle_menu (null);
+		toggle_menu (false, null);
 		track_screen ("menu");
 		}
 	
+	public void toggle_menu (boolean track)
+		{
+		toggle_menu (track, null);
+		}
+	
 	public void toggle_menu	(final Callback cb)
+		{
+		toggle_menu (false, cb);
+		}
+	
+	public void toggle_menu	(boolean track, final Callback cb)
 		{	
 		redraw_menu();
 		
@@ -652,10 +732,13 @@ public class main extends VideoBaseActivity
         final int from_margin = layout.leftMargin;
         final int to_margin = (layout.leftMargin == 0) ? left_column_width() : 0;    		
         
-        if (from_margin != 0)
-    		track_screen ("menu");
-        else
-        	track_current_screen();
+        if (track)
+	        {
+	        if (from_margin != 0)
+	        	track_current_screen();
+	        else
+	    		track_screen ("menu");
+	        }
         
 		Animation a = new Animation()
 			{
@@ -831,25 +914,31 @@ public class main extends VideoBaseActivity
 			menu_adapter.set_content (item_list);
 		}
 	
+	public void close_menu()
+		{
+		if (menu_is_extended())
+			toggle_menu (false);
+		}
+	
 	public void menu_click (menuitem item)
 		{
 		switch (item.type)
 			{
 			case HOME:
 	        	log ("click on: menu home");
-	        	toggle_menu();
+	        	close_menu();
 	        	enable_home_layer();
 	        	break;
 	        	
 			case GUIDE:
 	        	log ("click on: menu guide");
-	        	toggle_menu();
-	        	enable_guide_layer();
+	        	close_menu();
+	        	enable_guide_layer();	        	
 	        	break;
 	        	
 			case STORE:
 	        	log ("click on: menu store");
-	        	toggle_menu();
+	        	close_menu();
 	        	enable_store_layer();
 	        	break;
 
@@ -859,13 +948,14 @@ public class main extends VideoBaseActivity
 					if (category_list [i].equals (item.id))
 						{
 						load_category (i, 0);
-						toggle_menu();
+						close_menu();
+						track_layer (toplayer.STORE);
 						}
 				break;
 				
 			case SETTINGS:
 	        	log ("click on: menu settings");		        	
-	        	toggle_menu();
+	        	close_menu();
 	        	if (config.usertoken != null)
 	        		enable_settings_layer();
 	        	else
@@ -888,7 +978,7 @@ public class main extends VideoBaseActivity
 				
 			case APPS:
 	        	log ("click on: menu apps");
-	        	toggle_menu();
+	        	close_menu();
 	        	enable_apps_layer();
 	        	break;
 	        	
@@ -1068,18 +1158,6 @@ public class main extends VideoBaseActivity
 		
 		View vIdentity = findViewById (R.id.identity);
 		vIdentity.setVisibility (config.usertoken == null ? View.GONE : View.VISIBLE);
-
-		// View vSettingsDivider = findViewById (R.id.menu_settings_divider);
-		// View vSignoutDivider = findViewById (R.id.menu_signout_divider);
-		
-		/* presently nothing in settings is changeable by Facebook users */
-		boolean is_facebook = config.email != null && config.email.equals ("[via Facebook]");
-		
-		// vSettings.setVisibility (is_facebook ? View.GONE : View.VISIBLE);
-		// vSettingsDivider.setVisibility (is_facebook ? View.GONE : View.VISIBLE);
-		
-		// vSignout.setVisibility (config.usertoken == null ? View.GONE : View.VISIBLE);
-		// vSignoutDivider.setVisibility (config.usertoken == null ? View.GONE : View.VISIBLE);
 		
 		if (config.usertoken != null)
 			{
@@ -1106,6 +1184,7 @@ public class main extends VideoBaseActivity
 	@Override
 	public void onVideoActivitySignout()
 		{
+		redraw_menu();
 		setup_menu_buttons();
 		zero_signin_data();
 		}
@@ -1740,7 +1819,7 @@ public class main extends VideoBaseActivity
 						String youtube_username = config.pool_meta (real_channel, "extra");
 						ytchannel.delete_on_youtube (config, youtube_username);
 						config.subscriptions_altered = config.grid_update_required = true;
-						track_event ("function", "follow", "follow", 0);
+						track_event ("function", "unfollow", "unfollow", 0);
 						update_layer_after_subscribe (real_channel);
 						}
 					public void failure (int code, String errtext)
@@ -1872,7 +1951,7 @@ public class main extends VideoBaseActivity
 		
 		signin_choices();
 		
-		track_screen ("signIn");
+		track_layer (toplayer.SIGNIN);
 		}
 
 	public void signin_choices()
@@ -2531,10 +2610,13 @@ public class main extends VideoBaseActivity
     
 	public void fezbuk1 (Bundle savedInstanceState)
 		{
-		session = new Session.Builder(this).setApplicationId("361253423962738").build();
-		
-        uiHelper = new UiLifecycleHelper (this, fb_callback);
-        uiHelper.onCreate (savedInstanceState);
+		if (config.facebook_app_id != null)
+			{
+			session = new Session.Builder (this).setApplicationId (config.facebook_app_id).build();
+	        uiHelper = new UiLifecycleHelper (this, fb_callback);
+	        if (uiHelper != null)
+	        	uiHelper.onCreate (savedInstanceState);
+			}
 		}
 	
 	public void fezbuk2()
@@ -2719,7 +2801,7 @@ public class main extends VideoBaseActivity
 		set_layer (toplayer.APPS);
 		setup_apps_buttons();
 		init_apps();
-		track_screen ("appDirectory");
+		track_layer (toplayer.APPS);
 		}
 	
 	public void setup_apps_buttons()
@@ -2989,7 +3071,7 @@ public class main extends VideoBaseActivity
 	        vHomePager.setAdapter (home_slider);
 			}
 		
-		track_screen ("home");
+		track_layer (toplayer.HOME);		
 		}
 
 	
@@ -4680,14 +4762,7 @@ public class main extends VideoBaseActivity
 			onVideoActivityLayout();
 			}
     	else
-    		{
-    		if (chromecasted)
-    			chromecast_send_simple ("stop");
-    		else
-    			pause_video();
-			analytics ("back");
-    		enable_home_layer();
-    		}	
+    		player_full_stop();	
 		}
 	
 	public void setup_playback_buttons()
@@ -5525,7 +5600,7 @@ public class main extends VideoBaseActivity
 		set_layer (toplayer.GUIDE);		
 		setup_guide_buttons();
 		init_3x3_grid();
-		track_screen ("guide");
+		track_layer (toplayer.GUIDE);
 		}
 	
 	public void setup_guide_buttons()
@@ -6337,7 +6412,7 @@ public class main extends VideoBaseActivity
 			vCategoryLayer.setLayoutParams (layout);
 			}	
 		
-		track_screen ("store");
+		track_layer (toplayer.STORE);
 		}	
 	
 	public void store_init()

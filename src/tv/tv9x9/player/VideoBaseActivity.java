@@ -306,9 +306,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		log ("VideoActivity onStart");
 		Intent intent = new Intent (this, switchboard.class);
 		bindService (intent, mConnection, Context.BIND_AUTO_CREATE);
-		FlurryAgent.onStartSession (this, "648QZK9W54HCPMBHGZ4M");
-		FlurryAgent.setLogEnabled (true);
-		FlurryAgent.setLogLevel (Log.DEBUG);
 		EasyTracker.getInstance (this).activityStart (this);
 		if (gcast_created)
 			google_cast_start();
@@ -458,17 +455,22 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void flurry_log (String event)
 		{
-		FlurryAgent.logEvent (event);
+		if (event != null)
+			FlurryAgent.logEvent (event);
 		}
 	
 	public void flurry_log (String event, String k1, String v1)
 		{
-		Map <String, String> params = new HashMap <String, String>();		
-        params.put (k1, v1); 
-        FlurryAgent.logEvent (event, params);
+		if (event != null)
+			{
+			Map <String, String> params = new HashMap <String, String>();		
+	        params.put (k1, v1); 
+	        FlurryAgent.logEvent (event, params);
+			}
 		}
 	
 	String most_recent_screen = null;
+	String most_recent_screen_or_menu = null;
 	
 	Tracker get_tracker()
 		{
@@ -492,18 +494,28 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void track_screen (String screen)
 		{	
-		if (most_recent_screen != null && most_recent_screen.equals (screen))
-			return;
-		
-		if (!screen.equals ("menu"))
-			most_recent_screen = screen;
-		
-		Tracker tr = get_tracker();
-		if (tr != null)
+		if (screen != null)
 			{
-			tr.set (Fields.SCREEN_NAME, screen);
-			Map <String, String> m = MapBuilder.createAppView().build();
-			tr.send (m);
+			// if (most_recent_screen != null && most_recent_screen.equals (screen))
+			//	return;
+		
+			if (most_recent_screen_or_menu != null && most_recent_screen_or_menu.equals (screen))
+				return;
+			
+			most_recent_screen_or_menu = screen;
+			if (!screen.equals ("menu"))
+				most_recent_screen = screen;
+			
+			Tracker tr = get_tracker();
+			if (tr != null)
+				{
+				log ("[analytics] track screen: " + screen);
+				tr.set (Fields.SCREEN_NAME, screen);
+				Map <String, String> m = MapBuilder.createAppView().build();
+				tr.send (m);
+				}
+			else
+				log ("track_screen(" + screen + "): not tracking");
 			}
 		}
 	
@@ -520,12 +532,17 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		Map <String, String> m = MapBuilder.createEvent (category, action, label, value).build();
 		Tracker tr = get_tracker();
 		if (tr != null)
+			{
+			log ("[analytics] track event: " + smashed_event);
 			tr.send (m);
+			}
+		else
+			log ("track_event(" + action + "): not tracking");
 		}
 	
 	public void track_current_screen()
 		{
-		if (most_recent_screen != null)
+		if (most_recent_screen != null && !most_recent_screen.equals ("menu"))
 			track_screen (most_recent_screen);
 		}
 	
@@ -1247,6 +1264,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (started == 3)
 			{
 			config = mService.get_metadata (identity);
+			
+			FlurryAgent.onStartSession (this, "648QZK9W54HCPMBHGZ4M");
+			// FlurryAgent.onStartSession (this, config.flurry_id);
+			FlurryAgent.setLogEnabled (true);
+			FlurryAgent.setLogLevel (Log.DEBUG);
+			
 			google_cast_create();
 			if (videoFragment.ready())
 				{
@@ -2831,18 +2854,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	/* "most_recent_track" will be submitted to the tracker when unpausing a video */
 	String most_recent_track = null;
 	
-	public void submit_track_unpause()
-		{
-		if (most_recent_track != null)
-			{
-			log ("track unpause");
-			// trackPageView (most_recent_track);
-			// config.tracker.dispatch();
-			}
-		else
-			log ("track unpause: was not tracking");
-		}
-	
 	public void submit_track_eof()
 		{
 		if (most_recent_track != null)
@@ -3033,11 +3044,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			i.putExtra (Intent.EXTRA_SUBJECT, "Shared to you from 9x9.tv");
 			String mso = config.mso != null ? config.mso : "9x9";
 			String server = config.api_server;
-			if (config.api_server.equals ("www.9x9.tv"))
-				server = (mso.equals ("9x9") ? "www" : mso) + ".9x9.tv";			
-			String url =  "http://" + server + "/view?ch=" + channel_id + "&mso=" + mso;
+			if (config.api_server.equals ("api.flipr.tv"))
+				server = mso + ".flipr.tv";
+			String url = "http://" + server + "/view/p" + channel_id;
 			if (episode_id != null)
-				 url = "http://" + server + "/view?ch=" + channel_id + "&ep=" + episode_id + "&mso=" + mso;
+				 url = url + "/e" + episode_id;
 			i.putExtra (Intent.EXTRA_TEXT, url);
 			startActivity (Intent.createChooser (i, "Share this 9x9.tv episode"));
 			track_event ("share", "share", "share", 0);
@@ -3277,7 +3288,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	public void google_cast_start()
 		{
 		log ("CCX start");
-        gcast_media_router.addCallback (gcast_media_route_selector, gcast_media_router_callback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+		if (gcast_media_route_selector != null && gcast_media_router_callback != null)
+			gcast_media_router.addCallback (gcast_media_route_selector, gcast_media_router_callback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
 		}
 	
 	public void google_cast_stop()
@@ -3427,6 +3439,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	            }
             
             gcast_api_client = null;
+            
+            track_event ("uncast", "uncast", "uncast", 0);
         	}       
         
         gcast_selected_device = null;
@@ -3648,15 +3662,22 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 
     public void hide_video_fragment()
     	{
-    	if (videoFragment != null)
+    	try
 	    	{
-    		if (!videoFragment.isHidden())
-	    		{
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.hide (videoFragment);  
-		        ft.commit();
-	    		}
+	    	if (videoFragment != null)
+		    	{
+	    		if (!videoFragment.isHidden())
+		    		{
+			        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+			        ft.hide (videoFragment);  
+			        ft.commit();
+		    		}
+		    	}
 	    	}
+    	catch (Exception ex)
+    		{
+    		ex.printStackTrace();
+    		}
     	}
     
     public void show_video_fragment()
@@ -4254,7 +4275,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 								ctx.onVideoActivityPauseOrPlay (false);
 								}
 							});
-						ctx.submit_track_unpause();
+						// ctx.submit_track_unpause();
 						
 						reset_time_played();
 						}

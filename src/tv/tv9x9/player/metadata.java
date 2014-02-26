@@ -22,11 +22,12 @@ public class metadata
 	public String mso_title = null;
 	public String mso_preferred_lang_code = null;
 	
-	public String api_server = "www.9x9.tv";
+	public String api_server = "api.flipr.tv";
 	public String relay_server = "relay-dev.9x9.tv";
 	public int relay_port = 909;
 	public String google_analytics = null;
 	public String facebook_app_id = null;
+	public String flurry_id = null;
 	
 	/* chromecast: 5ecf7ff9-2144-46ce-acc9-6d606831e2dc_1 */
 	public String chromecast_app_name = null;

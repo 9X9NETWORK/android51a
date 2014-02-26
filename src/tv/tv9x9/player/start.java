@@ -1,7 +1,5 @@
 package tv.tv9x9.player;
 
-import com.flurry.android.FlurryAgent;
-
 import tv.tv9x9.player.switchboard.LocalBinder;
 
 import android.app.Activity;
@@ -114,14 +112,13 @@ public class start extends Activity
 		super.onStart();
 		Intent intent = new Intent (this, switchboard.class);
 		bindService (intent, mConnection, Context.BIND_AUTO_CREATE);
-		FlurryAgent.onStartSession (this, "648QZK9W54HCPMBHGZ4M");
+		/* no Flurry here, since we can't get an id yet */
 		}
 
 	@Override
 	protected void onStop ()
 		{
 		super.onStop();
-		FlurryAgent.onEndSession (this);
 		}
 
 	@Override
@@ -384,13 +381,15 @@ public class start extends Activity
 		{
 		config = mService.get_metadata ("start");
 		
-		if (URI_for_launch != null && URI_for_launch.getHost() != null)
+		if (URI_for_launch != null)
 			{
-			if (URI_for_launch.getHost().equals ("beagle.9x9.tv"))
-				{
-				config.api_server = "beagle.9x9.tv";
-				log ("API server set to: " + config.api_server);
-				}
+			String host = URI_for_launch.getHost();
+			if (host != null)
+				if (host.equals ("beagle.9x9.tv") || host.equals ("beagle.flipr.tv"))
+					{
+					config.api_server = host;
+					log ("API server set to: " + config.api_server);
+					}
 			}
 		
 		config.usertoken = null;
@@ -400,12 +399,6 @@ public class start extends Activity
 		config.mso = getResources().getString (R.string.mso);
 		config.region = getResources().getString (R.string.default_region);		
 		config.app_name = getResources().getString (R.string.app_name);
-		
-		if (config.white_label.contains ("portal"))
-			{
-			/* unless overridden by configuration file */
-			config.api_server = "www.9x9.tv";
-			}
 		
 		Log.i ("vtest", "white label: " + config.white_label);
 		Log.i ("vtest", "mso: " + config.mso);
@@ -476,18 +469,20 @@ public class start extends Activity
 				{
 				if (fields[0].equals ("supported-region"))
 					config.supported_region = fields[1];
-				if (fields[0].equals ("title"))
+				else if (fields[0].equals ("title"))
 					config.mso_title = fields[1];
-				if (fields[0].equals ("preferredLangCode"))
+				else if (fields[0].equals ("preferredLangCode"))
 					config.mso_preferred_lang_code = fields[1];				
-				if (fields[0].equals ("video"))
+				else if (fields[0].equals ("video"))
 					config.tutorial_video = fields[1];
-				if (fields[0].equals ("ga"))
+				else if (fields[0].equals ("ga"))
 					config.google_analytics = fields[1];
-				if (fields[0].equals ("facebook-clientid"))
+				else if (fields[0].equals ("facebook-clientid"))
 					config.facebook_app_id = fields[1];
-				if (fields[0].equals ("chromecast-id"))
+				else if (fields[0].equals ("chromecast-id"))
 					config.chromecast_app_name = fields[1];
+				else if (fields[0].equals ("flurry"))
+					config.flurry_id = fields[1];				
 				}
 			}
 		}

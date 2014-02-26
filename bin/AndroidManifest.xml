@@ -7,8 +7,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="71"
-      android:versionName="5.0.0.71">
+      android:versionCode="72"
+      android:versionName="5.0.0.72">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -24,6 +24,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
                    
     <!-- change to false to allow Google TV -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="true" />
