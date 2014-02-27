@@ -3682,14 +3682,21 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     
     public void show_video_fragment()
     	{
-    	if (videoFragment != null)
+		try
+			{
+	    	if (videoFragment != null)
+		    	{
+				if (videoFragment.isHidden())
+		    		{
+			        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+			        ft.show (videoFragment);  
+			        ft.commit();
+		    		}
+		    	}
+	    	}
+	    catch (Exception ex)
 	    	{
-			if (videoFragment.isHidden())
-	    		{
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.show (videoFragment);  
-		        ft.commit();
-	    		}
+	    	ex.printStackTrace();
 	    	}
     	}
     
