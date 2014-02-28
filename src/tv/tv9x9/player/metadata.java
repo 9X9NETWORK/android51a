@@ -28,6 +28,7 @@ public class metadata
 	public String google_analytics = null;
 	public String facebook_app_id = null;
 	public String flurry_id = null;
+	public String gcm_sender_id = null;
 	
 	/* chromecast: 5ecf7ff9-2144-46ce-acc9-6d606831e2dc_1 */
 	public String chromecast_app_name = null;
@@ -133,8 +134,10 @@ public class metadata
 	public void init_pools()
 		{
 		Log.i ("vtest", "[metadata] init pools");
+		
 		channel_pool = new Hashtable <String,  Hashtable <String, String>> ();
-		channelgrid  = new Hashtable <Integer, Hashtable <String, String>> ();
+		init_subscription_pool();
+		
 		programgrid  = new Hashtable <String,  Hashtable <String, String>> ();
 		channels_by_youtube = new Hashtable <String,  Hashtable <String, String>> ();	
 		titlecards = new Hashtable <String,  Hashtable <String, String>> ();
@@ -146,6 +149,11 @@ public class metadata
 		set_titles = new String [10];
 		for (int i = 0; i < set_titles.length; i++)
 			set_titles [i] = "Untitled";
+		}
+	
+	public void init_subscription_pool()
+		{
+		channelgrid  = new Hashtable <Integer, Hashtable <String, String>> ();
 		}
 	
 	public void init_query_cache()
@@ -454,7 +462,7 @@ public class metadata
 
 		if (count > 0)
 			{
-			String results[] = new String[count];
+			String results[] = new String [count];
 
 			int n = 0;
 
@@ -478,7 +486,7 @@ public class metadata
 
 				String nature = pool_meta (real_channel, "nature");
 							
-				if (nature.equals ("3") || nature.equals ("4") || nature.equals ("5"))
+				if (nature != null && (nature.equals ("3") || nature.equals ("4") || nature.equals ("5")))
 					Arrays.sort (results, sort_by_date);
 				else
 					Arrays.sort (results, sort_by_position);		
@@ -601,7 +609,7 @@ public class metadata
 			channel_lock.unlock();	
 			}
 		
-		init_pools();
+		init_subscription_pool();
 		}
 	
 	public int programs_in_channel (int channel)
