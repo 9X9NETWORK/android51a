@@ -23,6 +23,7 @@ public class metadata
 	public String mso_preferred_lang_code = null;
 	
 	public String api_server = "api.flipr.tv";
+	// public String api_server = "beagle.9x9.tv";
 	public String relay_server = "relay-dev.9x9.tv";
 	public int relay_port = 909;
 	public String google_analytics = null;
@@ -458,16 +459,16 @@ public class metadata
 
 	public String[] program_line_by_id (String real_channel)
 		{
-		int count = programs_in_real_channel (real_channel);
-
-		if (count > 0)
+		if (real_channel != null && programgrid != null)
 			{
-			String results[] = new String [count];
-
-			int n = 0;
-
-			if (real_channel != null)
+			int count = programs_in_real_channel (real_channel);
+	
+			if (count > 0)
 				{
+				String results[] = new String [count];
+	
+				int n = 0;
+	
 				try
 					{
 					program_lock.lock();
@@ -494,7 +495,7 @@ public class metadata
 				return results;
 				}
 			}
-
+		
 		return null;
 		}
 

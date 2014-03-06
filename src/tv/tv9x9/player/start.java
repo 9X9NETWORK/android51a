@@ -482,7 +482,9 @@ public class start extends Activity
 				else if (fields[0].equals ("chromecast-id"))
 					config.chromecast_app_name = fields[1];
 				else if (fields[0].equals ("flurry"))
-					config.flurry_id = fields[1];				
+					config.flurry_id = fields[1];	
+				else if (fields[0].equals ("notify") || fields[0].equals ("gcm-sender-id"))
+					config.gcm_sender_id = fields[1];
 				}
 			}
 		}

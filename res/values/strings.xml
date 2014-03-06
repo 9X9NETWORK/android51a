@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9--> 
-    <!-- 
     <string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>         
     <string name="white_label">portal</string>
@@ -13,48 +12,14 @@
     <string name="splash_slogan">Empowering Cloud TV</string>
     <string name="signin_logo">tvlogo</string>    
     <string name="signin_bg">bgnew</string>     
-    <string name="set_banner">banner_9x9</string>   
+    <string name="set_banner">banner_crashcourse</string>   
 	<string name="fb_app_id">361253423962738</string>
-    -->
-
-    <!-- College Humor -->
-    <!-- 
-    <string name="app_name">collegehumor on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/collegehumor_launch_logo</string>
-    <string name="white_label">collegehumor</string>
-    <string name="mso">collegehumor</string>
-    <string name="default_region">en</string>
-    <string name="logo">collegehumor_logo</string>
-    <string name="splash_background">collegehumor_bg_open</string>
-    <string name="splash_foreground">collegehumor_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">collegehumor_logo_signin</string>
-    <string name="signin_bg">collegehumor_bg_open</string>
-    <string name="set_banner">collegehumor_banner01</string>
-    <string name="fb_app_id">450168698417667</string>
-    -->
-	
-    <!-- Network_A -->
-    <string name="app_name">Network_A on FLIPr</string>
-    <string name="app_icon">@drawable/networka_launch_logo</string>
-    <string name="white_label">networka</string>
-    <string name="mso">networka</string>
-    <string name="default_region">en</string>
-    <string name="logo">logo_networka</string>
-    <string name="splash_background">bg_open_networka</string>
-    <string name="splash_foreground">open_logo_networka</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">logo_networka</string>
-    <string name="signin_bg">bg_open_networka</string>
-    <string name="set_banner">banner_networka</string>
-    <string name="fb_app_id">450168698417667</string>
-
-    <!-- crash course -->
-    <!-- 
+	  
+    <!-- crash course
     <string name="app_name">Crash Course on FLIPr</string>
     <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
     <string name="white_label">crashcourse</string>     
-    <string name="mso">crashcourse</string>
+    <string name="mso">9x9</string>
     <string name="default_region">en</string>               
     <string name="logo">crash_course_cyan</string>
     <string name="splash_background">bg_open_crashcourse</string>
@@ -65,23 +30,7 @@
     <string name="set_banner">banner_crashcourse</string>      	
     <string name="fb_app_id">1414438248794640</string>    
     -->
-
-    <!-- EchoMusic -->
-    <!-- 
-    <string name="app_name">EchoMusic</string>
-    <string name="app_icon">@drawable/ic_launcher_hdpi_echomusic</string>
-    <string name="white_label">echomusic</string>
-    <string name="mso">echomusic</string>
-    <string name="default_region">zh</string>
-    <string name="logo">logo_topbar_echomusic</string>
-    <string name="splash_background">splash_bg_echomusic</string>
-    <string name="splash_foreground">splash_logo_echomusic</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_bg">bgnew</string>     
-    <string name="set_banner">banner_9x9</string>   
-	<string name="fb_app_id">361253423962738</string>
-    -->
-	
+    
     <!-- cts 
     <string name="app_name">CTS</string>
     <string name="app_icon">@drawable/cts_icon_new</string>    
@@ -369,4 +318,5 @@
 	<string name="get_suggested_tv_apps">Get Suggested TV Apps Now!</string>	
 	<string name="download">Download</string>
 	<string name="on_chromecast">Video is playing on Chromecast</string>
+	<string name="shake">Shake</string>
 </resources>

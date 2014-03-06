@@ -4,14 +4,11 @@
 <!-- package="tw.com.cts.player" -->
 <!-- package="tw.edu.fcu.player9x9tv" -->
 <!-- package="tv.goodtv.player9x9tv" -->
-<!-- package="us.crashcourse.player9x9tv" -->
-<!-- package="us.networka.player9x9tv" -->
-<!-- package="us.collegehumor.player9x9tv" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="us.networka.player9x9tv"
-      android:versionCode="72"
-      android:versionName="5.0.0.72">
+      package="tv.tv9x9.player"
+      android:versionCode="76"
+      android:versionName="5.0.0.76">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -28,7 +25,10 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.VIBRATE" />
-                   
+    <uses-permission android:name="android.permission.WAKE_LOCK" />    
+	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+	<uses-permission android:name="tv.tv9x9.player.permission.C2D_MESSAGE" />
+	          
     <!-- change to false to allow Google TV -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="true" />
          
@@ -46,7 +46,7 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!--
+			<!--	
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -64,34 +64,6 @@
 			</intent-filter>
 			-->
 					
-			<!-- for College Humor -->
-			<!--
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-    			<category android:name="android.intent.category.DEFAULT" />
-   				<category android:name="android.intent.category.BROWSABLE" />  	
-    			<data android:scheme="flipr-collegehumor" />        	       					   					
-			</intent-filter>	
-			-->
-								
-			<!-- for Network_A -->
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-    			<category android:name="android.intent.category.DEFAULT" />
-   				<category android:name="android.intent.category.BROWSABLE" />  	
-    			<data android:scheme="flipr-networka" />        	       					   					
-			</intent-filter>	
-								
-			<!-- for Crash Course -->
-			<!--
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-    			<category android:name="android.intent.category.DEFAULT" />
-   				<category android:name="android.intent.category.BROWSABLE" />  	
-    			<data android:scheme="flipr-crashcourse" />        	       					   					
-			</intent-filter>	
-			-->
-								
 			<!-- for CTS -->
 			<!--
 			<intent-filter>
@@ -146,6 +118,16 @@
 </manifest>
 -->
 
+		<receiver
+            android:name="tv.tv9x9.player.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="tv.tv9x9.player" />
+            </intent-filter>
+        </receiver>
+        <service android:name=".GcmIntentService" />
+        
 		<receiver android:name="tv.tv9x9.player.Message9x9Manager">
 			<intent-filter>
 				<action android:name="com.edgecore.launcher.tv9x9.message9x9.INFO" />

@@ -13,19 +13,29 @@ public class playerAPI implements futil.Notifier
 		{
 		}
 	
-	public playerAPI (final Handler handler, final metadata m, String cmd)
+	public playerAPI (final Handler handler, metadata m, String cmd)
+		{
+		player_api (handler, m.api_server, m, cmd);
+		}
+	
+	public playerAPI (final Handler handler, final String api_server, metadata m, String cmd)
+		{
+		player_api (handler, api_server, m, cmd);
+		}
+
+	public void player_api (final Handler handler, final String api_server, metadata m, String cmd)
 		{
 		final String final_cmd = add_mso (m, cmd);
 		
-		Log.i ("vtest", "[PlayerAPI " + m.api_server + "] " + cmd);
-
+		Log.i ("vtest", "[PlayerAPI " + api_server + "] " + cmd);
+	
 		Thread t = new Thread ()
 			{
 			public void run ()
 				{
 				try
 					{
-					futil.get_webfile_notify (handler, m.api_server, final_cmd, playerAPI.this);
+					futil.get_webfile_notify (handler, api_server, final_cmd, playerAPI.this);
 					}
 				catch (Exception ex)
 					{
@@ -34,7 +44,7 @@ public class playerAPI implements futil.Notifier
 					}				
 				}
 			};
-
+	
 		t.start ();
 		}
 	

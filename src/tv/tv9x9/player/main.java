@@ -6,6 +6,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +26,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -32,10 +35,16 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorListener;
+import android.hardware.SensorManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.os.Vibrator;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -83,6 +92,7 @@ import com.facebook.model.GraphUser;
 import com.facebook.widget.*;
 
 import com.flurry.android.FlurryAgent;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class main extends VideoBaseActivity
 	{
@@ -98,7 +108,7 @@ public class main extends VideoBaseActivity
 		}
 	
 	/* note, SIGNOUT, HELP, CATEGORY_ITEM and APP_ITEM are not real layers, but menu items */
-	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, HELP, CATEGORY_ITEM, APP_ITEM };
+	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, HELP, CATEGORY_ITEM, APP_ITEM, SHAKE };
 	
 	toplayer current_layer = toplayer.HOME;
 	toplayer layer_before_signin = toplayer.HOME;
@@ -115,6 +125,7 @@ public class main extends VideoBaseActivity
 		home_configure_white_label();
 		onVideoActivityLayout();
 		setup_home_buttons();
+		shake_detect();
 		
 		/* ugly hack because we need to call fezbuk1 in ready() not onCreate() */
 		fezbuk_bundle = savedInstanceState;
@@ -140,6 +151,7 @@ public class main extends VideoBaseActivity
 	public void onResume()
 		{
 		super.onResume();
+		shake_resume();
 		if (uiHelper != null)
 			uiHelper.onResume();
 		}
@@ -148,6 +160,7 @@ public class main extends VideoBaseActivity
     public void onPause()
     	{
         super.onPause();
+        shake_pause();
         if (uiHelper != null)
         	uiHelper.onPause();
     	}
@@ -228,7 +241,10 @@ public class main extends VideoBaseActivity
 	    		if (menu_is_extended())
 	    			toggle_menu();
 	    		else if (channel_overlay_visible)
-	    			toggle_channel_overlay (home_slider.current_home_page);
+	    			{
+	    			if (home_slider != null)
+	    				toggle_channel_overlay (home_slider.current_home_page);
+	    			}
 	    		else
 	    			exit_stage_left();
 	    		}
@@ -259,7 +275,7 @@ public class main extends VideoBaseActivity
 	    		zero_signin_data();
 	    		}
 	    	else if (current_layer == toplayer.GUIDE || current_layer == toplayer.SEARCH 
-	    				|| current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS)
+	    				|| current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS || current_layer == toplayer.SHAKE)
 	    		toggle_menu();
 	    	return true;
 	    	}
@@ -378,7 +394,10 @@ public class main extends VideoBaseActivity
 		analytics ("back");
 		player_real_channel = null;
 		
-		enable_home_layer();
+		if (previous_layer == toplayer.SHAKE)
+			enable_shake_layer();
+		else
+			enable_home_layer();
 		}
 	
 	public void onVideoActivityFlingUp()
@@ -483,11 +502,13 @@ public class main extends VideoBaseActivity
 			{
 			ex.printStackTrace();
 			}
+		
+		gcm_register();
 		}
 	
 	public void home_configure_white_label()
 		{
-		int top_bars[] = { R.id.home_top_bar, R.id.guide_top_bar, R.id.store_top_bar, R.id.search_top_bar, R.id.apps_top_bar };
+		int top_bars[] = { R.id.home_top_bar, R.id.guide_top_bar, R.id.store_top_bar, R.id.search_top_bar, R.id.apps_top_bar, R.id.shake_top_bar };
 		
 		for (int top_bar: top_bars)
 			{
@@ -620,6 +641,10 @@ public class main extends VideoBaseActivity
 			
 			case APPS:
 				track_screen ("appDirectory");
+				break;
+				
+			case SHAKE:
+				track_screen ("shake");
 				break;
 				
 			case HELP:
@@ -870,6 +895,8 @@ public class main extends VideoBaseActivity
 				}
 			}
 		
+		items.push (new menuitem (toplayer.SHAKE, R.string.shake, R.drawable.icon_store, R.drawable.icon_store_press));
+		
 		if (!is_facebook)
 			items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
 		
@@ -951,6 +978,12 @@ public class main extends VideoBaseActivity
 						close_menu();
 						track_layer (toplayer.STORE);
 						}
+				break;
+				
+			case SHAKE:
+	        	log ("click on: menu shake");
+	        	close_menu();
+	        	enable_shake_layer();
 				break;
 				
 			case SETTINGS:
@@ -1911,6 +1944,9 @@ public class main extends VideoBaseActivity
 		View apps_layer = findViewById (R.id.appslayer);
 		apps_layer.setVisibility (layer == toplayer.APPS ? View.VISIBLE : View.GONE);
 
+		View shake_layer = findViewById (R.id.shakelayer);
+		shake_layer.setVisibility (layer == toplayer.SHAKE ? View.VISIBLE : View.GONE);
+		
 		current_layer = layer;
 		
 		redraw_menu();
@@ -3060,15 +3096,18 @@ public class main extends VideoBaseActivity
 		{
 		disable_video_layer();
 		set_layer (toplayer.HOME);
-
-		reset_arena_to_home();		
 		
-		if (home_slider == null)
+		if (portal_stack_ids != null)
 			{
-			log ("+++++++++++++++++++++++++++++++ new HomeSlider +++++++++++++++++++++++++++++++++++");
-	        home_slider = new HomeSlider();
-	        vHomePager = (StoppableViewPager) home_layer().findViewById (R.id.homepager);
-	        vHomePager.setAdapter (home_slider);
+			reset_arena_to_home();	
+			
+			if (home_slider == null)
+				{
+				log ("+++++++++++++++++++++++++++++++ new HomeSlider +++++++++++++++++++++++++++++++++++");
+		        home_slider = new HomeSlider();
+		        vHomePager = (StoppableViewPager) home_layer().findViewById (R.id.homepager);
+		        vHomePager.setAdapter (home_slider);
+				}
 			}
 		
 		track_layer (toplayer.HOME);		
@@ -3102,7 +3141,7 @@ public class main extends VideoBaseActivity
         @Override
         public int getCount()
         	{
-            return portal_stack_ids.length;
+            return portal_stack_ids == null ? 0 : portal_stack_ids.length;
         	}
 
 		@Override
@@ -3372,7 +3411,8 @@ public class main extends VideoBaseActivity
 	public void refresh_home()
 		{
 		vc_cache = new Hashtable < String, String[] > ();
-		home_slider.reload_data();
+		if (home_slider != null)
+			home_slider.reload_data();
 		}
 	
 	/* ------------------------------------ frontpage ------------------------------------ */
@@ -6346,7 +6386,8 @@ public class main extends VideoBaseActivity
 
     public void launch_player (String channel_id, String channels[])
     	{
-    	previous_layer = current_layer;
+    	if (current_layer != toplayer.PLAYBACK)
+    		previous_layer = current_layer;
     	previous_arena = arena;
     	
     	if (channels.length > 0 && channels [0] != null)
@@ -6375,6 +6416,113 @@ public class main extends VideoBaseActivity
     	make_layer_visible (toplayer.PLAYBACK);
     	video_normal();
     	}
+    
+	/*** SHAKE **************************************************************************************************/
+    
+    public void enable_shake_layer()
+    	{
+		disable_video_layer();
+		set_layer (toplayer.SHAKE);
+		setup_shake_buttons();
+		init_shake (false);
+    	}
+    
+    Stack <String> shake_channel_stack = null;
+    boolean shake_initialized = false;
+    String shake_channels[] = null;
+    
+    public void init_shake (boolean force)
+    	{
+    	if (!shake_initialized || force)
+    		{
+    		shake_initialized = true;
+    		
+    		/* make sure there is at least something */
+    		if (shake_channel_stack == null)
+    			shake_channel_stack = new Stack <String> ();
+    		
+    		String query;
+    		
+    		if (config.usertoken != null)
+    			query = "channelStack?stack=recommend&user=" + config.usertoken;
+    		else
+    			query = "channelStack?stack=recommend";
+    		
+    		new playerAPI (in_main_thread, config, query)
+				{
+				public void success (String[] lines)
+					{
+					log ("[shake] lines received: " + lines.length);
+					config.parse_channel_info (lines);
+					
+					if (!shake_channel_stack.isEmpty())
+						shake_channel_stack = new Stack <String> ();
+		    		
+					for (String line: lines)
+						if (!line.equals (""))
+							{
+							String fields[] = line.split ("\t");
+							shake_channel_stack.push (fields[1]);
+							}
+					}		
+				public void failure (int code, String errtext)
+					{
+					alert ("ERROR! " + errtext);
+					}
+				};	
+    		}
+    	}
+    
+	public void setup_shake_buttons()
+		{
+		View vStoreTopBar = findViewById (R.id.shake_top_bar);
+		
+		View vMenu = vStoreTopBar.findViewById (R.id.menubutton);
+		if (vMenu != null)
+			vMenu.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: shake menu button");
+		        	toggle_menu();
+		        	}
+				});	
+		
+		View vSearch = vStoreTopBar.findViewById (R.id.searchbutton);
+		if (vSearch != null)
+			vSearch.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: shake search button");
+		        	enable_search_apparatus (R.id.shake_top_bar);
+		        	}
+				});			
+				
+		View vRefresh = vStoreTopBar.findViewById (R.id.refresh);
+		if (vRefresh != null)
+			vRefresh.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: shake refresh button");
+		        	}
+				});	
+		
+		View vShake = findViewById (R.id.shakelayer);		
+		if (vShake != null)
+			vShake.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	/* eat this */
+		        	}
+				});				
+		}
     
 	/*** STORE **************************************************************************************************/
     
@@ -7611,5 +7759,209 @@ public class main extends VideoBaseActivity
 			{
 			/* dragging to switch sets */
 			}
+		}
+	
+	/* Google Cloud Messaging */
+	
+    GoogleCloudMessaging gcm = null;
+    
+    String EXTRA_MESSAGE = "message";
+    String PROPERTY_REG_ID = "registration_id";
+    String PROPERTY_APP_VERSION = "appVersion";
+    int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    
+	public void gcm_register()
+		{
+		if (config != null && config.gcm_sender_id != null)
+			{
+	        gcm = GoogleCloudMessaging.getInstance (this);
+	        String regid = get_gcm_registration_id (getApplicationContext());
+
+	        if (regid.isEmpty())
+	        	register_in_background();
+			}
+		}
+		
+	public String get_gcm_registration_id (Context context)
+		{
+	    SharedPreferences prefs = get_gcm_preferences (context);
+	    
+	    String registration_id = prefs.getString (PROPERTY_REG_ID, "");
+	    if (registration_id.isEmpty())
+	    	{
+	        log ("gcm: registration not found");
+	        return "";
+	    	}
+	    
+	    int registered_version = prefs.getInt (PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+	    int current_version = get_app_version (context);
+	    if (current_version >= 0 && registered_version != current_version)
+	    	{
+	        log ("gcm: App version changed");
+	        return "";
+	    	}
+	    
+	    log ("gcm: obtained saved GCM id: " + registration_id);
+	    return registration_id;
+		}
+	
+	private SharedPreferences get_gcm_preferences (Context context)
+		{
+	    return getSharedPreferences (main.class.getSimpleName(), Context.MODE_PRIVATE);
+		}
+	
+	private void store_registration_id (Context context, String regId)
+		{
+	    final SharedPreferences prefs = get_gcm_preferences (context);
+	    int appVersion = get_app_version (context);
+	    log ("gcm: saving regId on app version " + appVersion);
+	    SharedPreferences.Editor editor = prefs.edit();
+	    editor.putString (PROPERTY_REG_ID, regId);
+	    editor.putInt (PROPERTY_APP_VERSION, appVersion);
+	    editor.commit();
+		}
+	
+	public int get_app_version (Context context)
+		{
+		try
+			{
+	        PackageInfo packageInfo = context.getPackageManager().getPackageInfo (context.getPackageName(), 0);
+	        return packageInfo.versionCode;
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			return -1;
+			}
+		}
+	
+	public void register_in_background()
+		{
+        try
+        	{
+        	final Context context = getApplicationContext();
+                
+    		Thread t = new Thread()
+				{
+				public void run()
+					{
+					log ("in a thread");
+					
+					gcm = GoogleCloudMessaging.getInstance (context);
+					
+		            log ("trying to register with GCM sender id: " + config.gcm_sender_id);                     
+		            String regid = null;
+					try
+						{
+						regid = gcm.register (config.gcm_sender_id);
+						}
+					catch (Exception ex)
+						{
+						ex.printStackTrace();
+						return;
+						}
+		            log ("gcm: device registered, registration ID=" + regid);
+		            store_registration_id (getApplicationContext(), regid);
+		            
+					// http://api.flipr.tv/playerAPI/deviceRegister?mso=crashcourse&type=gcm&token=xxxxxxxx
+		    		new playerAPI (in_main_thread, config, "deviceRegister?type=gcm&token=" + regid)
+						{
+						public void success (String[] lines)
+							{
+							log ("gcm: successfully registered GCM on 9x9 server");
+							}
+						public void failure (int code, String errtext)
+							{
+							log ("gcm: failure registering GCM: " + errtext);
+							}
+						};
+					}
+				};
+			
+			t.start();
+        	}
+        catch (Exception ex)
+        	{
+        	ex.printStackTrace();
+        	}
+		}
+	
+	private ShakeDetector mShakeDetector = null;
+	private SensorManager mSensorManager = null;
+	private Sensor mAccelerometer = null;
+	   
+	/* this does not reliable get turned off, probably because of MediaPlayer */
+	private boolean shake_in_progress = false;
+	
+	public void shake_detect()
+		{
+        mSensorManager = (SensorManager) getSystemService (Context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor (Sensor.TYPE_ACCELEROMETER);
+        mShakeDetector = new ShakeDetector(new ShakeDetector.OnShakeListener()
+        	{
+            @Override
+            public void onShake()
+            	{
+            	if (current_layer == toplayer.SHAKE || previous_layer == toplayer.SHAKE)
+	            	{            		            
+	            	if (true || !shake_in_progress)
+		            	{
+		                alert ("SHAKE SHAKE SHAKE!");
+		                Vibrator v = (Vibrator) getSystemService (Context.VIBRATOR_SERVICE);
+		                v.vibrate (500);
+		                play_sound (R.raw.shake);
+		            	}
+	            	else
+	            		log ("shake is in progress");
+	            	}
+            	else
+            		log ("shake: not in SHAKE or PLAYBACK (via SHAKE) mode");
+            	}
+        	});
+		}
+	
+	public void shake_resume()
+		{
+		if (mSensorManager != null)
+			mSensorManager.registerListener (mShakeDetector, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+		}
+
+	public void shake_pause()
+		{
+		if (mSensorManager != null)
+			mSensorManager.unregisterListener (mShakeDetector);
+		}
+	
+	public void play_sound (int sound_id)
+		{
+		shake_in_progress = true;
+		MediaPlayer mp = MediaPlayer.create (this, sound_id);
+        mp.start();
+        mp.setOnCompletionListener (new OnCompletionListener()
+        	{
+            @Override
+            public void onCompletion(MediaPlayer mp)
+            	{
+                mp.release();
+                
+                shake_in_progress = false;
+                
+                String shake_channel = null;
+                String fake_set[] = null;
+                
+                if (shake_channel_stack == null || shake_channel_stack.size() <= 1)
+                	init_shake (true);
+                
+                if (shake_channel_stack == null || shake_channel_stack.isEmpty())
+                	shake_channel = "1029"; /* Ellen -- should refill here, or when count=1 remaining */
+                else
+                	shake_channel = shake_channel_stack.pop();
+
+                /* a runt set of only one channel */
+                fake_set = new String[] { shake_channel };
+                
+                launch_player (shake_channel, fake_set);
+            	}
+        	});
 		}
 	}

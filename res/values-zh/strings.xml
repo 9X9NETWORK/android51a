@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
-    <!-- 
+    <!--   
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
@@ -13,7 +13,7 @@
     <string name="splash_slogan">Empowering Cloud TV</string>     
     <string name="signin_logo">tvlogo</string>    
     <string name="signin_bg">bgnew</string>      
-    <string name="set_banner">banner_9x9</string>     
+    <string name="set_banner">banner_crashcourse</string>     
 	<string name="fb_app_id">361253423962738</string>            	  
     -->
 	
@@ -171,7 +171,6 @@
     -->
 	
     <!-- crash course -->
-    <!-- 
     <string name="app_name">Crash Course on FLIPr</string>
     <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
     <string name="white_label">crashcourse</string>     
@@ -318,7 +317,7 @@
     <string name="set_banner">banner_superstar</string>            
 	<string name="fb_app_id">422631834537839</string>
    
-    <bool name="uses_chromecast">true</bool>
+    <bool name="uses_chromecast">false</bool>
     
     <string name="guest">訪客</string>
     <string name="enter_search_terms">輸入想找的內容</string>
