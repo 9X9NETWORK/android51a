@@ -1,0 +1,101 @@
+I/vtest   ( 9394): [main] CCX onRouteSelected
+I/vtest   ( 9394): [main] CCX onRouteSelected
+I/vtest   ( 9394): [main] CCX onConnected
+I/vtest   ( 9394): [main] CCX onConnected
+I/vtest   ( 9394): [main] CCX ApplicationConnectionResultCallback.onResult: statusCode 2002
+I/vtest   ( 9394): [main] CCX application could not launch
+I/vtest   ( 9394): [main] CCX: not sent
+I/vtest   ( 9394): [main] CCX: gcast_api_client is null
+I/vtest   ( 9394): [main] CCX: gcast_channel is null
+I/vtest   ( 9394): [main] CCX volume changed
+I/vtest   ( 9394): [main] CCX onRouteUnselected: info=MediaRouter.RouteInfo{ uniqueId=com.google.android.gms/.cast.media.CastMediaRouteProviderService:2835a564c452ac82b8ab7e9c331707f4, name=SonyTV, description=Chromecast Home Screen, enabled=true, connecting=false, playbackType=1, playbackStream=-1, volumeHandling=1, volume=20, volumeMax=20, presentationDisplayId=-1, extras=Bundle[{com.google.android.gms.cast.EXTRA_CAST_DEVICE="SonyTV" (2835a564c452ac82b8ab7e9c331707f4)}], providerPackageName=com.google.android.gms }
+I/vtest   ( 9394): [main] CCX: not sent
+I/vtest   ( 9394): [main] CCX: gcast_api_client is null
+I/vtest   ( 9394): [main] CCX: gcast_channel is null
+I/vtest   ( 9394): [main] CCX onRouteUnselected: info=MediaRouter.RouteInfo{ uniqueId=com.google.android.gms/.cast.media.CastMediaRouteProviderService:2835a564c452ac82b8ab7e9c331707f4, name=SonyTV, description=Chromecast Home Screen, enabled=true, connecting=false, playbackType=1, playbackStream=-1, volumeHandling=1, volume=20, volumeMax=20, presentationDisplayId=-1, extras=Bundle[{com.google.android.gms.cast.EXTRA_CAST_DEVICE="SonyTV" (2835a564c452ac82b8ab7e9c331707f4)}], providerPackageName=com.google.android.gms }
+I/vtest   ( 9394): [main] CCX: not sent
+I/vtest   ( 9394): [main] CCX: gcast_api_client is null
+I/vtest   ( 9394): [main] CCX: gcast_channel is null
+I/vtest   ( 9394): [main] CCX onRouteSelected
+I/vtest   ( 9394): [main] CCX onRouteSelected
+I/vtest   ( 9394): [main] CCX onConnected
+I/vtest   ( 9394): [main] CCX: gcast_api_client says it is not connected
+I/vtest   ( 9394): [main] CCX onConnected
+I/vtest   ( 9394): [main] CCX volume changed
+I/vtest   ( 9394): [main] CCX volume changed
+I/vtest   ( 9394): [main] CCX ApplicationConnectionResultCallback.onResult: statusCode 0
+I/vtest   ( 9394): [main] CCX application name: collegehumor, status: Ready to play, sessionId: 8BE53492-490A-92D8-5150-8990D7828FE6, wasLaunched: true
+I/vtest   ( 9394): [main] CCX connected!
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"senderConnected","data":{"type":"senderconnected","B":false,"defaultPrevented":false,"Qa":true,"data":"99:us.collegehumor.player9x9tv-261"}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: Received message from 99:us.collegehumor.player9x9tv-261
+I/vtest   ( 9394): [main] CCX does not seem to be a JSON message
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: Received message from 99:us.collegehumor.player9x9tv-261
+I/vtest   ( 9394): [main] CCX does not seem to be a JSON message
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"initializing","playCount":1,"seekCount":0,"position":0,"duration":0}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"initializing","playCount":1,"seekCount":0,"position":0,"duration":0}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"initializing","playCount":1,"seekCount":0,"position":0,"duration":0}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"initializing","playCount":1,"seekCount":0,"position":0,"duration":0}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"initializing","playCount":1,"seekCount":0,"position":0,"duration":0}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"buffering","playCount":1,"seekCount":0,"position":4000,"duration":0}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"buffering","playCount":1,"seekCount":0,"position":4000,"duration":0}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"buffering","playCount":1,"seekCount":0,"position":4000,"duration":0}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"buffering","playCount":1,"seekCount":0,"position":4000,"duration":0}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"buffering","playCount":1,"seekCount":0,"position":4000,"duration":0}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":4000,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"buffering","playCount":1,"seekCount":0,"position":4000,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"buffering","playCount":1,"seekCount":0,"position":4000,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":4796.766,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":5839.210999999999,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":6882,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":8133.311000000001,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":8925.833,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":9926.9,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":11261.322,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":12304.1,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":13346.866,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":14598.211,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":15390.4,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":16683.433,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":17726.211,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":18977.533,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":20020,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":21271.322,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":22564.355,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":23857.399999999998,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":24858.466,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":25900.922000000002,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":26902,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":28195.033,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":29196.100000000002,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":29946.899999999998,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":31239.611,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":32032.122,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":33325.155,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":34326.222,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":35368.676999999996,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":36369.744,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":37162.244,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":38413.600000000006,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":39456.366,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":40749.077,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":42000.411,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":43001.466,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":43794,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":45086.7,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":46087.755000000005,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":47130.544,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":48423.577000000005,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":49174.377,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":50175.111000000004,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":51468.166,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":52260.666,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":53011.466,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":54554.777,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"playing","playCount":1,"seekCount":0,"position":55305.255000000005,"duration":75000}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: Received message from 99:us.collegehumor.player9x9tv-261
+I/vtest   ( 9394): [main] CCX does not seem to be a JSON message
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: {"event":"progress","data":{"channel":"30683","episode":"6xvlzvNkj2o","state":"paused","playCount":1,"seekCount":0,"position":56348.022,"duration":75302.311}}
+I/vtest   ( 9394): [main] CCX Chromecast Raw onMessageReceived: Received message from 99:us.collegehumor.player9x9tv-261
+I/vtest   ( 9394): [main] CCX does not seem to be a JSON message
+I/vtest   ( 9394): [main] CCX removing media router callback
+I/vtest   ( 9394): [main] CCX adding media router callback
