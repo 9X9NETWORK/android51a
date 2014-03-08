@@ -504,6 +504,19 @@ public class main extends VideoBaseActivity
 			}
 		
 		gcm_register();
+		
+		Intent intent = getIntent();
+		Bundle extras = intent.getExtras();	
+		if (extras != null)
+			{
+			String channel = extras.getString ("tv.9x9.channel");
+			if (channel != null)
+				{
+				log ("launch channel: " + channel);		
+                String fake_set[] = new String[] { channel };            
+                launch_player (channel, fake_set);
+				}
+			}
 		}
 	
 	public void home_configure_white_label()
@@ -895,7 +908,7 @@ public class main extends VideoBaseActivity
 				}
 			}
 		
-		items.push (new menuitem (toplayer.SHAKE, R.string.shake, R.drawable.icon_store, R.drawable.icon_store_press));
+		items.push (new menuitem (toplayer.SHAKE, R.string.shake, R.drawable.icon_shake_black, R.drawable.icon_shake_black));
 		
 		if (!is_facebook)
 			items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
@@ -3482,6 +3495,12 @@ public class main extends VideoBaseActivity
 	
 					frontpage_start = System.currentTimeMillis() / 1000L;
 					process_portal_frontpage_data (lines);
+					
+					if (current_layer != toplayer.PLAYBACK)
+						{
+						/* only if we haven't gone to playback, such as a share or notify */
+						enable_home_layer();
+						}
 					}
 				}
 			public void failure (int code, String errtext)
@@ -3542,8 +3561,6 @@ public class main extends VideoBaseActivity
 				log ("frontpage :: " + fields[0] + ": " + fields[1]);
 				}
 			}
-	
-		enable_home_layer();
 		}	
 	 
 	LinearLayout sets_scroller = null;

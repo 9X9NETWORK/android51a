@@ -32,7 +32,8 @@ public class GcmIntentService extends IntentService {
         // in your BroadcastReceiver.
         String messageType = gcm.getMessageType(intent);
 
-        if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
+        if (!extras.isEmpty())
+        	{  // has effect of unparcelling Bundle
             /*
              * Filter messages based on message type. Since it is likely that GCM
              * will be extended in the future with new message types, just ignore
@@ -41,60 +42,101 @@ public class GcmIntentService extends IntentService {
              */
             if (GoogleCloudMessaging.
                     MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-                sendNotification("Send error: " + extras.toString());
+            	// send error
+                sendNotification("error", extras);
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_DELETED.equals(messageType)) {
-                sendNotification("Deleted messages on server: " +
-                        extras.toString());
+            	// deleted messages on server
+                sendNotification("deleted", extras);
             // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 // This loop represents the service doing some work.
                 for (int i=0; i<5; i++) {
-                    Log.i(TAG, "Working... " + (i+1)
+                    Log.i(TAG, "gcm: Working... " + (i+1)
                             + "/5 @ " + SystemClock.elapsedRealtime());
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
                     }
                 }
-                Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
+                Log.i(TAG, "gcm: Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
-                sendNotification("Received: " + extras.toString());
+                sendNotification("received", extras);
                 Log.i(TAG, "Received: " + extras.toString());
             }
+        else
+        	Log.i (TAG, "gcm: extras was empty, ignoring GCM");
         }
         // Release the wake lock provided by the WakefulBroadcastReceiver.
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
+
+    // I/vtest   (28656): gcm: payload=Received: Bundle[{ts=1394159260568, from=892665728999, content=ddtv:28718:yt6yBESVVU_ec, 
+    // message=SPLAT, android.support.content.wakelockid=1, collapse_key=do_not_collapse}]
+    
     // Put the message into a notification and post it.
     // This is just one simple example of what you might choose to do with
     // a GCM message.
-    private void sendNotification(String msg)
+    private void sendNotification (String why, Bundle bundle)
     	{
-        mNotificationManager = (NotificationManager)
-                this.getSystemService(Context.NOTIFICATION_SERVICE);
+    	if (!why.equals ("received"))
+    		{
+    		Log.i (TAG, "gcm: ignoring " + why);
+    		return;
+    		}
+    	String msg = bundle.toString();
+    	String text = bundle.getString ("message");
+    	String app_name = getResources().getString (R.string.app_name);
+    	
+    	String mso = null;
+    	String channel_id = null;
+    	String episode_id = null;
+    	
+    	String content = bundle.getString ("content");
+    	if (content != null)
+    		{
+    		String fields[] = content.split (":");
+    		if (fields.length >= 1)
+    			mso = fields[0];
+    		if (fields.length >= 2)
+    			channel_id = fields[1];
+    		if (fields.length >= 3)
+    			episode_id = fields[2];
+    		}
+    	
+        mNotificationManager = (NotificationManager) getSystemService (Context.NOTIFICATION_SERVICE);
 
-        PendingIntent contentIntent = PendingIntent.getActivity
-        		(this, 0, new Intent (this, start.class), 0);
-
+        Intent start_intent = new Intent (this, start.class);
+        start_intent.setAction ("tv.tv9x9.player.notify");
+        
+        if (mso != null)
+        	start_intent.putExtra ("mso", mso);
+        
+        if (channel_id != null)
+        	start_intent.putExtra ("channel", channel_id);
+        
+        if (episode_id != null)
+        	start_intent.putExtra ("episode", episode_id);
+        
+        PendingIntent pi = PendingIntent.getActivity (this, 0, start_intent, 0);
+        
         String icon_name = getResources().getString (R.string.app_icon);	
         String fields[] = icon_name.split ("/");
         icon_name = fields [fields.length - 1];
         icon_name = icon_name.replaceAll ("\\.[a-z]+$", "");        
 		int icon_id = getResources().getIdentifier (icon_name, "drawable", getPackageName());
         Log.i ("vtest", "gcm: icon=" + icon_name + " id=" + icon_id);
-        
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-        .setContentTitle ("GCM Notification")
-        .setStyle(new NotificationCompat.BigTextStyle()
-        .bigText(msg))
-        .setContentText(msg)
+        Log.i ("vtest", "gcm: payload=" + msg);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder (this)
+        .setContentTitle (app_name)
+        .setStyle (new NotificationCompat.BigTextStyle()
+        .bigText (text))
+        .setContentText (text)
         .setSmallIcon (icon_id);
 
-        mBuilder.setContentIntent(contentIntent);
+        mBuilder.setContentIntent (pi);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     	}
 }

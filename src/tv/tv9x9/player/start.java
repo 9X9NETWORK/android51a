@@ -1,5 +1,7 @@
 package tv.tv9x9.player;
 
+import java.net.URI;
+
 import tv.tv9x9.player.switchboard.LocalBinder;
 
 import android.app.Activity;
@@ -43,6 +45,8 @@ public class start extends Activity
 	
 	/* if started with a flipr://... */
 	Uri URI_for_launch = null;
+	String channel_for_launch = null;
+	String episode_for_launch = null;
 	
 	String identity = "start";
 	
@@ -104,6 +108,23 @@ public class start extends Activity
 		    	log ("URL query: " + uri.getQuery());
 		    	}
 	    	}
+	    else if (action.equals ("tv.tv9x9.player.notify"))
+    		{
+    		// http://ddtv.9x9.tv/view?ch=28718&ep=yt6yBESVVU_ec
+    	
+    		Bundle extras = intent.getExtras();
+    		String channel = extras.getString ("channel");
+    		String episode = extras.getString ("episode");
+    		String url = null;
+    		if (episode != null)
+    			url = "http://www.flipr.tv/view?ch=" + channel + "&ep=" + episode;
+    		else
+    			url = "http://www.flipr.tv/view?ch=" + channel;
+    		
+    		URI_for_launch = Uri.parse (url);
+    		channel_for_launch = channel;
+    		episode_for_launch = episode;
+    		}
 		}
 	
 	@Override
@@ -299,6 +320,12 @@ public class start extends Activity
 	    	log ("LAUNCH URL: " + url);
 	    	wIntent.putExtra ("tv.9x9.url", url);
 			}
+		
+    	if (channel_for_launch != null)
+    		wIntent.putExtra ("tv.9x9.channel", channel_for_launch);
+    	if (episode_for_launch != null)
+    		wIntent.putExtra ("tv.9x9.episode", episode_for_launch);
+    	
 		startActivity (wIntent);
 		}
 	

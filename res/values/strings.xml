@@ -4,7 +4,7 @@
     <string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>         
     <string name="white_label">portal</string>
-    <string name="mso">9x9</string>
+    <string name="mso">ddtv</string>
     <string name="default_region">en</string>    
     <string name="logo">tvlogo</string>   
     <string name="splash_background">bgnew</string>
@@ -318,5 +318,6 @@
 	<string name="get_suggested_tv_apps">Get Suggested TV Apps Now!</string>	
 	<string name="download">Download</string>
 	<string name="on_chromecast">Video is playing on Chromecast</string>
-	<string name="shake">Shake</string>
+	<string name="shake">Shake &amp; Discover</string>
+	<string name="shake_text">Shake your device to discover new channels.</string>
 </resources>
