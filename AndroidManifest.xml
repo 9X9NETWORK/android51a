@@ -3,10 +3,24 @@
 <!-- package="tv.tv9x9.player" -->
 <!-- package="tw.com.cts.player" -->
 <!-- package="tw.edu.fcu.player9x9tv" -->
+<!-- package="tv.ddtv.player9x9tv" -->
 <!-- package="tv.goodtv.player9x9tv" -->
+<!-- package="tv.flipr.crashcourse" -->
+<!-- package="tv.flipr.networka" -->
+<!-- package="tv.flipr.collegehumor" -->
+<!-- package="tv.flipr.shane" -->
+<!-- package="tv.flipr.smosh" -->
+<!-- package="tv.flipr.history" -->
+<!-- package="tv.flipr.nba" -->
+<!-- package="tv.flipr.thefinebros" -->
+<!-- package="tv.flipr.spinninrec" -->
+<!-- package="tv.flipr.joeygraceffa" -->
+<!-- package="tv.flipr.thenewslens" -->
+<!-- package="tv.flipr.superstar" -->
+<!-- package="tv.flipr.musicvideo" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.tv9x9.player"
+      package="tv.flipr.superstar"
       android:versionCode="77"
       android:versionName="5.0.0.77">
           
@@ -32,8 +46,8 @@
     <!-- change to false to allow Google TV -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="true" />
          
-    <!--uses-feature android:name="com.google.android.tv" android:required="true" /-->
       
+    <!--uses-feature android:name="com.google.android.tv" android:required="true" /-->
     <application android:icon="@string/app_icon" android:label="@string/app_name" android:largeHeap="true" android:debuggable="false">
         <!--meta-data android:name="com.facebook.sdk.ApplicationId" android:value="361253423962738"/-->    
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/fb_app_id"/>
@@ -46,7 +60,7 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!--	
+			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -62,10 +76,110 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr" />        	       					   					
 			</intent-filter>
+			 -->
+			 		
+			<!-- for Joey Graceffa -->
+			<!--		
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-joeygraceffa" />        	       					   					
+			</intent-filter>	
 			-->
-					
-			<!-- for CTS -->
+
+			<!-- for Spinnin' Records -->
+			<!--		
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-spinninrec" />        	       					   					
+			</intent-filter>	
+			-->
+
+			<!-- for The Fine Bros -->
 			<!--
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-thefinebros" />        	       					   					
+			</intent-filter>	
+		 	-->	
+					
+			<!-- for History -->
+			<!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-history" />        	       					   					
+			</intent-filter>	
+		 	-->
+					
+			<!-- for NBA -->
+			<!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-nba" />        	       					   					
+			</intent-filter>	
+		 	-->
+								
+			<!-- for Smosh -->
+			<!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-smosh" />        	       					   					
+			</intent-filter>	
+		 	-->	
+											
+			<!-- for Shane -->
+			<!--		
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-shane" />        	       					   					
+			</intent-filter>	
+			-->		
+ 								
+			<!-- for College Humor -->
+			<!--
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-collegehumor" />        	       					   					
+			</intent-filter>
+			-->
+								
+			<!-- for Network_A -->
+			<!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-networka" />        	       					   					
+			</intent-filter>
+			-->	
+								
+			<!-- for Crash Course -->
+			<!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-crashcourse" />        	       					   					
+			</intent-filter>
+			 -->	
+								
+			<!-- for CTS -->
+			<!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -73,7 +187,7 @@
     			<data android:scheme="flipr-cts" />        	       					   					
 			</intent-filter>	
 			-->
-
+	
 			<!-- for GOODTV -->
 			<!-- 
 			<intent-filter>
@@ -103,6 +217,36 @@
     			<data android:scheme="flipr-fcu" />        	       					   					
 			</intent-filter>	
 			-->
+			
+			<!-- for THENEWSLENS -->
+			<!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-thenewslens" />        	       					   					
+			</intent-filter>	
+		 	 -->
+		 	 
+		 	 <!-- for SUPERSTAR -->
+				
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-superstar" />        	       					   					
+			</intent-filter>	
+					 	 
+			
+			<!-- for MUSICVIDEO -->
+		    <!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-musicvideo" />        	       					   					
+			</intent-filter>	
+			 -->
 																				
         </activity>
 
