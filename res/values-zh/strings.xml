@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
-    <!--   
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
@@ -14,10 +13,78 @@
     <string name="signin_logo">tvlogo</string>    
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_crashcourse</string>     
-	<string name="fb_app_id">361253423962738</string>            	  
+	<string name="fb_app_id">361253423962738</string>
+ 	
+    <!-- Joey Graceffa -->
+    <!--   
+    <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/joeygraceffa_launch_logo</string>
+    <string name="white_label">joeygraceffa</string>
+    <string name="mso">joeygraceffa</string>
+    <string name="default_region">en</string>
+    <string name="logo">joeygraceffa_logo</string>
+    <string name="splash_background">joeygraceffa_bg_open</string>
+    <string name="splash_foreground">joeygraceffa_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">joeygraceffa_logo_signin</string>
+    <string name="signin_bg">joeygraceffa_bg_open</string>
+    <string name="set_banner">joeygraceffa_banner01</string>
+    <string name="fb_app_id">595235090571267</string>
     -->
+
+    <!-- Spinnin' Records -->
+    <!--   
+    <string name="app_name">SpinninRec on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/spinninrec_launch_logo</string>
+    <string name="white_label">spinninrec</string>
+    <string name="mso">spinninrec</string>
+    <string name="default_region">en</string>
+    <string name="logo">spinninrec_logo</string>
+    <string name="splash_background">spinninrec_bg_open</string>
+    <string name="splash_foreground">spinninrec_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">spinninrec_logo_signin</string>
+    <string name="signin_bg">spinninrec_bg_open</string>
+    <string name="set_banner">spinninrec_banner01</string>
+    <string name="fb_app_id">1468306366724948</string>
+    -->
+
+    <!-- The Fine Bros -->
+    <!--   
+    <string name="app_name">The Fine Bros on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/thefinebros_launch_logo</string>
+    <string name="white_label">thefinebros</string>
+    <string name="mso">thefinebros</string>
+    <string name="default_region">en</string>
+    <string name="logo">thefinebros_logo</string>
+    <string name="splash_background">thefinebros_bg_open</string>
+    <string name="splash_foreground">thefinebros_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">thefinebros_logo_signin</string>
+    <string name="signin_bg">thefinebros_bg_open</string>
+    <string name="set_banner">thefinebros_banner01</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+	 
+    <!-- History -->
+    <!-- 
+    <string name="app_name">History Channel on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/history_launch_logo</string>
+    <string name="white_label">history</string>
+    <string name="mso">history</string>
+    <string name="default_region">en</string>
+    <string name="logo">history_logo</string>
+    <string name="splash_background">history_bg_open</string>
+    <string name="splash_foreground">history_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">history_logo_signin</string>
+    <string name="signin_bg">history_bg_open</string>
+    <string name="set_banner">history_banner01</string>
+    <string name="fb_app_id">361253423962738</string>
+ 	-->
     
     <!-- crash course -->
+    <!--   
     <string name="app_name">Crash Course on FLIPr</string>
     <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
     <string name="white_label">crashcourse</string>     
@@ -31,6 +98,23 @@
     <string name="signin_bg">bg_open_crashcourse</string>   
     <string name="set_banner">banner_crashcourse</string>      	  
     <string name="fb_app_id">1414438248794640</string>
+    -->
+
+    <!-- EchoMusic -->
+    <!--
+    <string name="app_name">音樂圖書館</string>
+    <string name="app_icon">@drawable/ic_launcher_hdpi_echomusic</string>
+    <string name="white_label">echomusic</string>
+    <string name="mso">echomusic</string>
+    <string name="default_region">zh</string>
+    <string name="logo">logo_topbar_echomusic</string>
+    <string name="splash_background">splash_bg_echomusic</string>
+    <string name="splash_foreground">splash_logo_echomusic</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>           
+	<string name="fb_app_id">361253423962738</string>       
+    -->
         
     <!-- string name="app_name">華視</string --><!-- cts original -->
     <!-- cts festival-->  
@@ -48,6 +132,23 @@
     <string name="signin_bg">splash_vice</string>           
 	<string name="fb_app_id">361253423962738</string>              
     -->
+    
+    <!-- thenewslens  -->
+    <!-- 
+    <string name="app_name">關鍵評論網 FLIPr</string>
+    <string name="app_icon">@drawable/launch_logo_thenewslens</string>    
+    <string name="white_label">thenewslens</string>     
+    <string name="mso">thenewslens</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_thenewslens</string>
+    <string name="splash_background">bg_open_thenewslens</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">open_logo_thenewslens</string>    
+    <string name="signin_logo">logo_signin_thenewslens</string>        
+    <string name="signin_bg">bg_open_thenewslens</string>
+    <string name="set_banner">banner_thenewslens</string>            
+	<string name="fb_app_id">436354623134686</string>
+	-->
 
     <!-- goodtv -->
     <!-- 
@@ -98,7 +199,8 @@
 	<string name="fb_app_id">361253423962738</string>           
     -->
             
-    <!-- Tzu Chi
+    <!-- Tzu Chi -->
+    <!--    
     <string name="app_name">慈濟</string>
 	<string name="app_icon">@drawable/tc_icon_new</string>    
     <string name="white_label">tc</string>
@@ -112,7 +214,41 @@
     <string name="signin_bg">splash_vice</string>           
 	<string name="fb_app_id">361253423962738</string>           
 	-->
-   
+	
+	<!-- superstar  -->
+    <!--  
+    <string name="app_name">網路大明星</string>
+    <string name="app_icon">@drawable/launch_logo_superstar</string>    
+    <string name="white_label">superstar</string>     
+    <string name="mso">superstar</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_superstar</string>
+    <string name="splash_background">bg_open_superstar</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">open_logo_superstar</string>    
+    <string name="signin_logo">logo_signin_superstar</string>        
+    <string name="signin_bg">bg_open_superstar</string>
+    <string name="set_banner">banner_superstar</string>            
+	<string name="fb_app_id">422631834537839</string>
+	-->
+    
+    <!-- musicvideo  -->
+    <!--  
+    <string name="app_name">MV不解釋</string>
+    <string name="app_icon">@drawable/launch_logo_musicvideo</string>    
+    <string name="white_label">musicvideo</string>     
+    <string name="mso">musicvideo</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_musicvideo</string>
+    <string name="splash_background">bg_open_musicvideo</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">open_logo_musicvideo</string>    
+    <string name="signin_logo">logo_signin_musicvideo</string>        
+    <string name="signin_bg">bg_open_musicvideo</string>
+    <string name="set_banner">banner_musicvideo</string>            
+	<string name="fb_app_id">463854980410020</string>
+    -->
+	
     <bool name="uses_chromecast">false</bool>
     
     <string name="guest">訪客</string>
