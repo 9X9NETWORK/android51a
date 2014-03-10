@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
+    <!-- 
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
@@ -14,7 +15,7 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_crashcourse</string>     
 	<string name="fb_app_id">361253423962738</string>
- 	
+ 	 -->
     <!-- Joey Graceffa -->
     <!--   
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -134,7 +135,7 @@
     -->
     
     <!-- thenewslens  -->
-    <!-- 
+     
     <string name="app_name">關鍵評論網 FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_thenewslens</string>    
     <string name="white_label">thenewslens</string>     
@@ -148,7 +149,7 @@
     <string name="signin_bg">bg_open_thenewslens</string>
     <string name="set_banner">banner_thenewslens</string>            
 	<string name="fb_app_id">436354623134686</string>
-	-->
+	
 
     <!-- goodtv -->
     <!-- 
@@ -216,7 +217,7 @@
 	-->
 	
 	<!-- superstar  -->
-    <!--  
+    <!--   
     <string name="app_name">網路大明星</string>
     <string name="app_icon">@drawable/launch_logo_superstar</string>    
     <string name="white_label">superstar</string>     
@@ -230,10 +231,10 @@
     <string name="signin_bg">bg_open_superstar</string>
     <string name="set_banner">banner_superstar</string>            
 	<string name="fb_app_id">422631834537839</string>
-	-->
+	 -->
     
     <!-- musicvideo  -->
-    <!--  
+    <!--    
     <string name="app_name">MV不解釋</string>
     <string name="app_icon">@drawable/launch_logo_musicvideo</string>    
     <string name="white_label">musicvideo</string>     
@@ -310,7 +311,7 @@
     <string name="tlogin_enter_a_pw">請輸入密碼</string>
     <string name="tlogin_retype_pw">重新輸入密碼</string>
     <string name="tlogin_create_account_button">建立帳號</string>
-    <string name="tlogin_pw_no_match">密碼錯誤</string>
+    <string name="tlogin_pw_no_match">輸入的密碼不一致</string>
     <string name="tlogin_pw_six">密碼至少需6碼或超過6碼</string>
     <string name="tlogin_valid_email">請提供一個有效email!</string>
     <string name="newest">最新的</string>    
@@ -422,7 +423,7 @@
     <string name="namecolon">名稱：</string>          
     <string name="period">。</string>     
     <string name="rename_this_set">變更頻道名稱</string>    
-    <string name="current_password_wrong">密碼錯誤</string>    
+    <string name="current_password_wrong">目前的密碼錯誤</string>    
     <string name="devicecolon">設備：</string>     
     <string name="modelcolon">型號：</string>       
     <string name="resolutioncolon">分辨率：</string>          
