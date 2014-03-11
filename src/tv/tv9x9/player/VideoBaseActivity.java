@@ -1950,7 +1950,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				return;
 				}
 
-			String program_line[] = config.program_line_by_id (player_real_channel);
+			String program_line[] = config.program_line_by_id (player_real_channel);			
+			if (program_line == null)
+				{
+				log ("program line is null!");
+				return;
+				}
+			
 			if (current_episode_index + 1 <= program_line.length)
 				{
 				log ("next episode");
