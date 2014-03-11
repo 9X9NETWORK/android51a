@@ -20,9 +20,9 @@
 <!-- package="tv.flipr.musicvideo" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.flipr.superstar"
-      android:versionCode="77"
-      android:versionName="5.0.0.77">
+      package="tv.tv9x9.player"
+      android:versionCode="78"
+      android:versionName="5.0.0.78">
           
     <!-- Instructions
     	The build for CTS version is very fragile:

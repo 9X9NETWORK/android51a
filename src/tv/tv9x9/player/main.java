@@ -31,6 +31,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -1623,7 +1624,7 @@ public class main extends VideoBaseActivity
 		{
 		String actual_channel_id = player_real_channel;
 		
-		if (program_line == null || current_episode_index > program_line.length)
+		if (actual_channel_id == null || program_line == null || current_episode_index > program_line.length)
 			return;
 		
 		String episode_id = program_line [current_episode_index - 1];
@@ -7926,7 +7927,8 @@ public class main extends VideoBaseActivity
 		                alert ("SHAKE SHAKE SHAKE!");
 		                Vibrator v = (Vibrator) getSystemService (Context.VIBRATOR_SERVICE);
 		                v.vibrate (500);
-		                play_sound (R.raw.shake);
+		                // play_sound (R.raw.shake);
+		                play_sound ("shake.mp3");
 		            	}
 	            	else
 	            		log ("shake is in progress");
@@ -7952,7 +7954,7 @@ public class main extends VideoBaseActivity
 	public void play_sound (int sound_id)
 		{
 		shake_in_progress = true;
-		MediaPlayer mp = MediaPlayer.create (this, sound_id);
+		MediaPlayer mp = MediaPlayer.create (main.this, sound_id);
         mp.start();
         mp.setOnCompletionListener (new OnCompletionListener()
         	{
@@ -7981,4 +7983,86 @@ public class main extends VideoBaseActivity
             	}
         	});
 		}
+	
+	public void play_sound (String asset_filename)
+		{
+		shake_in_progress = true;
+		MediaPlayer mp = new MediaPlayer();
+		
+		AssetFileDescriptor descriptor = null;
+		try
+			{
+			descriptor = getAssets().openFd (asset_filename);
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			};
+
+		if (descriptor == null)
+			{
+			mp.release();
+			return;
+			}
+		
+		try
+			{
+			mp.setDataSource (descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			mp.release();
+			return;
+			}
+
+		try 
+			{
+			mp.prepare();
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			mp.release();
+			}
+		
+		try
+			{
+		    descriptor.close();	
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			mp.release();
+			return;
+			}
+	    
+	    mp.start();
+	    mp.setOnCompletionListener (new OnCompletionListener()
+	    	{
+	        @Override
+	        public void onCompletion(MediaPlayer mp)
+	        	{
+	            mp.release();
+	            
+	            shake_in_progress = false;
+	            
+	            String shake_channel = null;
+	            String fake_set[] = null;
+	            
+	            if (shake_channel_stack == null || shake_channel_stack.size() <= 1)
+	            	init_shake (true);
+	            
+	            if (shake_channel_stack == null || shake_channel_stack.isEmpty())
+	            	shake_channel = "1029"; /* Ellen -- should refill here, or when count=1 remaining */
+	            else
+	            	shake_channel = shake_channel_stack.pop();
+	
+	            /* a runt set of only one channel */
+	            fake_set = new String[] { shake_channel };
+	            
+	            launch_player (shake_channel, fake_set);
+	        	}
+	    	});
+		}    
 	}
