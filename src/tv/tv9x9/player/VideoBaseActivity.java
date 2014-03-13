@@ -523,7 +523,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void track_event (String category, String action, String label, long value)
 		{
-		String smashed_event = category + "." + action + "." + label + value;
+		track_event (category, action, label, value, "");
+		}
+	
+	public void track_event (String category, String action, String label, long value, String extra)
+		{
+		String smashed_event = category + "." + action + "." + label + value + "." + extra;
 		
 		if (most_recent_event != null && most_recent_event.equals (smashed_event))
 			return;		
@@ -2033,7 +2038,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		restore_video_end_msec = end_msec;
 		
 		in_main_thread.post (update_metadata);
-		submit_pdr();
+		// submit_pdr();
 		onVideoActivityPlayback();
 		}
 
@@ -2954,7 +2959,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 						String channel_name = config.pool_meta (current_channel, "name");
 						String episode_name = config.program_meta(current_episode, "name");
 						
-						track_event ("p" + current_channel + "/" + "e" + current_episode, "epWatched", channel_name + "/" + episode_name, 0);							
+						// track_event ("p" + current_channel + "/" + "e" + current_episode, "epWatched", channel_name + "/" + episode_name, 0);							
 						
 						if (config.usertoken != null)
 							{
@@ -3057,7 +3062,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				 url = url + "/e" + episode_id;
 			i.putExtra (Intent.EXTRA_TEXT, url);
 			startActivity (Intent.createChooser (i, "Share this 9x9.tv episode"));
-			track_event ("share", "share", "share", 0);
+			track_event ("share", "share", "share", 0, channel_id);
 			}
 		}	
 	

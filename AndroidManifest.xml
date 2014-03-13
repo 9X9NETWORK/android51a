@@ -21,8 +21,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="78"
-      android:versionName="5.0.0.78">
+      android:versionCode="80"
+      android:versionName="5.0.0.80">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -270,7 +270,7 @@
                 <category android:name="tv.tv9x9.player" />
             </intent-filter>
         </receiver>
-        <service android:name=".GcmIntentService" />
+        <service android:name="tv.tv9x9.player.GcmIntentService" />
         
 		<receiver android:name="tv.tv9x9.player.Message9x9Manager">
 			<intent-filter>

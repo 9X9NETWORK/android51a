@@ -909,7 +909,8 @@ public class main extends VideoBaseActivity
 				}
 			}
 		
-		items.push (new menuitem (toplayer.SHAKE, R.string.shake, R.drawable.icon_shake_black, R.drawable.icon_shake_black));
+		if (config.shake_and_discover_feature)
+			items.push (new menuitem (toplayer.SHAKE, R.string.shake, R.drawable.icon_shake_black, R.drawable.icon_shake_black));
 		
 		if (!is_facebook)
 			items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
@@ -1586,7 +1587,8 @@ public class main extends VideoBaseActivity
 	public boolean update_channel_thumb_inner (String actual_channel_id)
 		{
 		boolean channel_thumbnail_found = false;
-		
+		if (1 == 2)
+		{		
 		ImageView vChannelIcon1 = (ImageView) findViewById (R.id.chicon);
 		
 		String filename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + actual_channel_id + ".png";
@@ -1608,7 +1610,7 @@ public class main extends VideoBaseActivity
 				bitmap.recycle();
 				}
 			}
-		
+		}
 		return channel_thumbnail_found;
 		}
 		
@@ -1643,17 +1645,10 @@ public class main extends VideoBaseActivity
 		if (vLandscapeChannel != null)
 			vLandscapeChannel.setText (channel_name);
 		
-		/*
-		TextView vEpisodeName = (TextView) findViewById (R.id.eptitle);
-		if (vEpisodeName != null)
-			vEpisodeName.setText (episode_name != null && !episode_name.equals ("") ? episode_name : "[no episode name]");
-		*/
-		
 		TextView vLandscapeEpisode = (TextView) findViewById (R.id.landscape_episode_name);
 		if (vLandscapeEpisode != null)
 			vLandscapeEpisode.setText (episode_name != null && !episode_name.equals ("") ? episode_name : "[no episode name]");
-		
-		
+				
 		if (!update_channel_thumb_inner (actual_channel_id))
 			{
 			String channel_line_of_one[] = { actual_channel_id };
@@ -1663,7 +1658,7 @@ public class main extends VideoBaseActivity
 		TextView vEpisodeTitle = (TextView) findViewById (R.id.episode_title);
 		vEpisodeTitle.setText (episode_name);
 		
-		//TOTO: TEMPORARY!
+		// TODO: TEMPORARY!
 		vEpisodeTitle.setOnClickListener (new OnClickListener()
 			{
 	        @Override
@@ -1823,7 +1818,7 @@ public class main extends VideoBaseActivity
 						String youtube_username = config.pool_meta (real_channel, "extra");
 						ytchannel.subscribe_on_youtube (config, youtube_username);
 						config.subscriptions_altered = config.grid_update_required = true;
-						track_event ("function", "follow", "follow", 0);
+						track_event ("function", "follow", "follow", 0, real_channel);
 						update_layer_after_subscribe (real_channel);
 						}
 					public void failure (int code, String errtext)
@@ -1866,7 +1861,7 @@ public class main extends VideoBaseActivity
 						String youtube_username = config.pool_meta (real_channel, "extra");
 						ytchannel.delete_on_youtube (config, youtube_username);
 						config.subscriptions_altered = config.grid_update_required = true;
-						track_event ("function", "unfollow", "unfollow", 0);
+						track_event ("function", "unfollow", "unfollow", 0, real_channel);
 						update_layer_after_subscribe (real_channel);
 						}
 					public void failure (int code, String errtext)
@@ -3809,6 +3804,21 @@ public class main extends VideoBaseActivity
 			}
 		
 		@Override
+		public int getViewTypeCount()
+			{
+			return 2;
+			}
+	
+		@Override
+		public int getItemViewType (int position)
+			{
+			if (is_phone())
+				return 0;
+			else
+				return mini_mode ? 0 : 1;
+			}
+		
+		@Override
 		public View getView (final int position, View convertView, ViewGroup parent)
 			{			
 			final String channel_id = content [position + 1];			
@@ -3827,7 +3837,8 @@ public class main extends VideoBaseActivity
 			
 			View row = convertView;			
 			
-			int wanted_layout_type = is_tablet() ? (mini_mode ? R.layout.channel_mini : R.layout.channel_tablet) : R.layout.channel;			
+			int wanted_layout_type = is_tablet() ? (mini_mode ? R.layout.channel_mini : R.layout.channel_tablet) : R.layout.channel;
+			// wanted_layout_type = is_tablet() ? R.layout.channel_null : R.layout.channel;
 			int cached_layout_type = wanted_layout_type;
 								
 			/* determine what type of row this actually is */
@@ -3846,11 +3857,17 @@ public class main extends VideoBaseActivity
 				log ("layout type: R.layout.channel_mini");
 			*/
 			
-			if (true || row == null || wanted_layout_type != cached_layout_type)
+			// if (true || row == null || wanted_layout_type != cached_layout_type)
+				// {
+				// row = inflater.inflate (wanted_layout_type, null);
+				// }
+
+			if (row == null)
 				{
+				log ("ChannelAdapter inflate row type: " + wanted_layout_type);
 				row = inflater.inflate (wanted_layout_type, null);
 				}
-
+			
 			if (is_phone())
 				adjust_for_device (row);			
 			
@@ -3890,7 +3907,7 @@ public class main extends VideoBaseActivity
 				LinearLayout.LayoutParams pic_layout = (LinearLayout.LayoutParams) vChannelFrame.getLayoutParams();
 				pic_layout.height = height;
 				pic_layout.width = width;
-				vChannelFrame.setLayoutParams (pic_layout);
+				vChannelFrame.setLayoutParams (pic_layout);						
 				}
 			else
 				{
@@ -3900,9 +3917,6 @@ public class main extends VideoBaseActivity
 				pic_layout.height = height;
 				vChannelIcon.setLayoutParams (pic_layout);
 				}
-			
-			// vProgress.setVisibility (channel_thumbnail_found ? View.GONE : View.VISIBLE);
-			vProgress.setVisibility (View.GONE);
 			
 			if (!channel_thumbnail_found)
 				{
@@ -4065,28 +4079,37 @@ public class main extends VideoBaseActivity
 			if (is_phone())
 				{				
 				TextView vFirstEpisodeTitle = (TextView) row.findViewById (R.id.first_episode_title);
-				vFirstEpisodeTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 24);
+				if (vFirstEpisodeTitle != null)
+					vFirstEpisodeTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 24);
 				
 				TextView vAgo = (TextView) row.findViewById (R.id.ago);
-				vAgo.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+				if (vAgo != null)
+					vAgo.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
 				
 				View vSmallChannelIcon = row.findViewById (R.id.small_channel_icon);
-				LinearLayout.LayoutParams layout6 = (LinearLayout.LayoutParams) vSmallChannelIcon.getLayoutParams();
-				layout6.height = pixels_40;
-				layout6.width = pixels_40;
-				vSmallChannelIcon.setLayoutParams (layout6);
+				if (vSmallChannelIcon != null)
+					{
+					LinearLayout.LayoutParams layout6 = (LinearLayout.LayoutParams) vSmallChannelIcon.getLayoutParams();
+					layout6.height = pixels_40;
+					layout6.width = pixels_40;
+					vSmallChannelIcon.setLayoutParams (layout6);
+					}
 				
 				TextView vChannelFromHeader = (TextView) row.findViewById (R.id.channel_from_header);
-				vChannelFromHeader.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+				if (vChannelFromHeader != null)
+					vChannelFromHeader.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
 				
 				TextView vChannelName = (TextView) row.findViewById (R.id.channel_name);
-				vChannelName.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
+				if (vChannelName != null)
+					vChannelName.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
 				
 				TextView vEpisodeCount = (TextView) row.findViewById (R.id.episode_count);
-				vEpisodeCount.setTextSize (TypedValue.COMPLEX_UNIT_SP, 20);
+				if (vEpisodeCount != null)
+					vEpisodeCount.setTextSize (TypedValue.COMPLEX_UNIT_SP, 20);
 				
 				TextView vEpisodePlural = (TextView) row.findViewById (R.id.episode_plural);
-				vEpisodePlural.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+				if (vEpisodePlural != null)
+					vEpisodePlural.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
 				}
 			}
 		}
@@ -4110,17 +4133,17 @@ public class main extends VideoBaseActivity
 			{
 			if (program_line.length >= 1)
 				{	
-				e0_found = fill_in_episode_thumb (program_line[0], parent, R.id.channel_icon, R.id.first_episode_title);
+				e0_found = fill_in_episode_thumb (program_line[0], parent, R.id.channel_icon, 0 /* R.id.first_episode_title */ );
 				}
 			if (program_line.length >= 2)
 				{
 				if (is_tablet())
-					e1_found = fill_in_episode_thumb (program_line[1], parent, R.id.episode1, R.id.episode1_title);
+					e1_found = fill_in_episode_thumb (program_line[1], parent, R.id.episode1, 0 /* R.id.episode1_title */);
 				}
 			if (program_line.length >= 3)
 				{
 				if (is_tablet())
-					e2_found = fill_in_episode_thumb (program_line[2], parent, R.id.episode2, R.id.episode2_title);
+					e2_found = fill_in_episode_thumb (program_line[2], parent, R.id.episode2, 0 /* R.id.episode2_title */);
 				}
 			if (is_phone())
 				{
@@ -4133,7 +4156,7 @@ public class main extends VideoBaseActivity
 				if (program_line.length >= 4)
 					{
 					if (is_tablet())
-						e3_found = fill_in_episode_thumb (program_line[3], parent, R.id.episode3, R.id.episode3_title);
+						e3_found = fill_in_episode_thumb (program_line[3], parent, R.id.episode3, 0 /* R.id.episode3_title */);
 					}
 				}
 			
@@ -4146,11 +4169,11 @@ public class main extends VideoBaseActivity
 			}
 		else
 			{
-			fill_in_episode_thumb (null, parent, R.id.episode1, R.id.episode1_title);
+			fill_in_episode_thumb (null, parent, R.id.episode1, 0 /* R.id.episode1_title */);
 			if (is_tablet())
 				{
-				fill_in_episode_thumb (null, parent, R.id.episode2, R.id.episode2_title);
-				fill_in_episode_thumb (null, parent, R.id.episode3, R.id.episode3_title);
+				fill_in_episode_thumb (null, parent, R.id.episode2, 0 /* R.id.episode2_title */);
+				fill_in_episode_thumb (null, parent, R.id.episode3, 0 /* R.id.episode3_title */);
 				}
 			}
 		
@@ -4507,21 +4530,22 @@ public class main extends VideoBaseActivity
 		{
 		public void run()
 			{
+			int num_comments = 0;
 			TextView vNumComments = (TextView) findViewById (R.id.num_comments);
 			
 			if (playback_comments_adapter != null)
 				{
-				String num_comments = config.program_meta (current_episode_id, "maxcomment");
+				String num_comments_string = config.program_meta (current_episode_id, "maxcomment");
 				log ("playback comments updated (episode " + current_episode_id + ", " + num_comments + " comments)");
-				if (num_comments != null && !num_comments.equals (""))
+				if (num_comments_string != null && !num_comments_string.equals (""))
 					{
-					playback_comments_adapter.set_episode_id (current_episode_id);
-					playback_comments_adapter.set_number_of_comments (Integer.parseInt (num_comments));
-					vNumComments.setText (num_comments);
-					playback_comments_adapter.notifyDataSetChanged();
+					num_comments = Integer.parseInt (num_comments_string);
 					}
-				else
-					vNumComments.setText ("0");
+					
+				vNumComments.setText ("" + num_comments); // moved
+				
+				playback_comments_adapter.set_episode_id (current_episode_id); // moved
+				playback_comments_adapter.set_number_of_comments (num_comments); // movied
 				
 				playback_comments_adapter.notifyDataSetChanged();
 				}
@@ -4966,8 +4990,8 @@ public class main extends VideoBaseActivity
 		        @Override
 		        public void onClick (View v)
 		        	{
-		        	log ("click on: playback share"); 
-		        	share_episode (player_real_channel, null);
+		        	log ("click on: playback share");
+		        	share();
 		        	}
 				});	
 		
@@ -4981,7 +5005,7 @@ public class main extends VideoBaseActivity
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: playback share"); 
-		        	share_episode (player_real_channel, null);
+		        	share();
 		        	}
 				});	
 			}
@@ -5216,7 +5240,7 @@ public class main extends VideoBaseActivity
 				TextView vHeader = (TextView) row.findViewById (R.id.num_comments_header);
 				TextView vNum = (TextView) row.findViewById (R.id.num_comments);
 				String num_comments = config.program_meta (episode_id, "maxcomment");
-				if (num_comments == null) num_comments = "";
+				if (num_comments == null || num_comments.equals("")) num_comments = "0";
 				vNum.setText (num_comments);
 				}
 			else
@@ -7922,16 +7946,25 @@ public class main extends VideoBaseActivity
             	{
             	if (current_layer == toplayer.SHAKE || previous_layer == toplayer.SHAKE)
 	            	{            		            
-	            	if (true || !shake_in_progress)
+	            	if (!shake_in_progress)
 		            	{
-		                alert ("SHAKE SHAKE SHAKE!");
-		                Vibrator v = (Vibrator) getSystemService (Context.VIBRATOR_SERVICE);
-		                v.vibrate (500);
+	            		for (int i = 0; i < 10; i++)
+	            			log ("******************** SHAKE SHAKE SHAKE! ********************");
+		                // Vibrator v = (Vibrator) getSystemService (Context.VIBRATOR_SERVICE);
+		                // v.vibrate (500);
 		                // play_sound (R.raw.shake);
+		                shake_in_progress = true;
+		                in_main_thread.postDelayed (new Runnable()
+		                	{
+							@Override
+							public void run()
+								{
+								shake_in_progress = false;
+								}}, 5000);
 		                play_sound ("shake.mp3");
 		            	}
 	            	else
-	            		log ("shake is in progress");
+	            		log ("******************** SHAKE ALREADY IN PROGRESS ********************");
 	            	}
             	else
             		log ("shake: not in SHAKE or PLAYBACK (via SHAKE) mode");
@@ -7953,7 +7986,6 @@ public class main extends VideoBaseActivity
 	
 	public void play_sound (int sound_id)
 		{
-		shake_in_progress = true;
 		MediaPlayer mp = MediaPlayer.create (main.this, sound_id);
         mp.start();
         mp.setOnCompletionListener (new OnCompletionListener()
@@ -7984,10 +8016,16 @@ public class main extends VideoBaseActivity
         	});
 		}
 	
+	MediaPlayer mp = null;
+	
 	public void play_sound (String asset_filename)
 		{
-		shake_in_progress = true;
-		MediaPlayer mp = new MediaPlayer();
+		if (mp != null)
+			{
+			mp.release();
+			}
+		
+		mp = new MediaPlayer();
 		
 		AssetFileDescriptor descriptor = null;
 		try

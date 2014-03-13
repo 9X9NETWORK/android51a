@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:orientation="horizontal"
+		android:layout_marginLeft="5dip"
+		android:layout_marginRight="5dip"
+		android:layout_marginTop="5dip"    
+		android:background="@drawable/grayround">
+	    	
+		<FrameLayout
+		  	android:id="@+id/channel_frame"    
+		    android:layout_width="100dip"
+			android:layout_height="100dip">    
+		    <ImageView
+		        android:id="@+id/channel_icon"
+		       	android:layout_width="fill_parent" 
+		       	android:layout_height="fill_parent"
+		       	android:adjustViewBounds="true" 
+		       	android:scaleType="fitXY"
+				android:layout_marginLeft="10dip"
+				android:layout_marginRight="10dip"
+				android:layout_marginTop="10dip"
+				android:layout_marginBottom="10dip"
+				android:background="#FF0000"
+		        />
+			<ImageView				    
+				android:layout_width="50dip"
+				android:layout_height="50dip"
+				android:layout_gravity="center"		
+				android:gravity="center"	
+				android:src="@drawable/icon_playlist"								
+				/>			    		
+		</FrameLayout>
+    				
+		<LinearLayout	    
+		    android:layout_width="fill_parent"		    
+		    android:layout_height="fill_parent"
+			android:layout_marginLeft="5dip"		
+			android:layout_marginRight="5dip"						    
+			android:layout_marginBottom="10dip"		    
+		    android:orientation="vertical"
+			android:layout_gravity="bottom"
+			android:gravity="bottom">
+				    <TextView
+					    android:id="@+id/title"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center"
+						android:textSize="24sp"
+						android:textColor="#FFFFFF"
+						android:paddingLeft="3dip"
+						android:paddingRight="5dip"
+						android:gravity="center_vertical|left"
+						android:singleLine="true"	
+						android:ellipsize="end"	
+				    	/>			
+		</LinearLayout>    		
+	</LinearLayout>		
+
+</LinearLayout>

@@ -512,6 +512,8 @@ public class start extends Activity
 					config.flurry_id = fields[1];	
 				else if (fields[0].equals ("notify") || fields[0].equals ("gcm-sender-id"))
 					config.gcm_sender_id = fields[1];
+				else if (fields[0].equals ("shake-discover"))
+					config.shake_and_discover_feature = fields[1].equals ("on");
 				}
 			}
 		}

@@ -93,8 +93,9 @@ public class GcmIntentService extends IntentService {
     	String mso = null;
     	String channel_id = null;
     	String episode_id = null;
-    	
+        	
     	String content = bundle.getString ("content");
+    	Log.i (TAG, "gcm: content=" + content);
     	if (content != null)
     		{
     		String fields[] = content.split (":");

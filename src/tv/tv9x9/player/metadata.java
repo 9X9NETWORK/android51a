@@ -34,6 +34,8 @@ public class metadata
 	/* chromecast: 5ecf7ff9-2144-46ce-acc9-6d606831e2dc_1 */
 	public String chromecast_app_name = null;
 	
+	public boolean shake_and_discover_feature = false;
+	
 	public String region = "en";
 	public String supported_region = null;
 	

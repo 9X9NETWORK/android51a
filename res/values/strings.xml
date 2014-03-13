@@ -4,7 +4,7 @@
     <string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>         
     <string name="white_label">portal</string>
-    <string name="mso">ddtv</string>
+    <string name="mso">9x9</string>
     <string name="default_region">en</string>    
     <string name="logo">tvlogo</string>   
     <string name="splash_background">bgnew</string>
@@ -12,7 +12,7 @@
     <string name="splash_slogan">Empowering Cloud TV</string>
     <string name="signin_logo">tvlogo</string>    
     <string name="signin_bg">bgnew</string>     
-    <string name="set_banner">banner_crashcourse</string>   
+    <string name="set_banner">banner_9x9</string>   
 	<string name="fb_app_id">361253423962738</string>
 	
     <!-- Joey Graceffa -->
@@ -544,4 +544,5 @@
 	<string name="on_chromecast">Video is playing on Chromecast</string>
 	<string name="shake">Shake &amp; Discover</string>
 	<string name="shake_text">Shake your device to discover new channels.</string>
+	<string name="sign_up_a_new_account">Sign up a new account</string>
 </resources>

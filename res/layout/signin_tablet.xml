@@ -79,7 +79,7 @@
 				android:layout_gravity="bottom|center_horizontal"
 				android:textSize="18sp"
 				android:textColor="#FFFFFF"
-				android:text="Sign in with Email"
+				android:text="@string/si_sign_in_with_email"
 				android:background="@drawable/btn_sign"		
 				/>	
 		    <Button     

@@ -37,13 +37,6 @@
 				android:gravity="center"	
 				android:src="@drawable/icon_playlist"								
 				/>			    
-			<ProgressBar
-		  	 	android:id="@+id/progress"
-		      	android:layout_width="100sp"
-		      	android:layout_height="100sp"
-		      	style="@android:style/Widget.ProgressBar.Large.Inverse"
-		      	android:layout_gravity="center_vertical|center_horizontal"
-		      	/>
 		    <LinearLayout
 		        android:id="@+id/title_row"
 			    android:layout_width="match_parent"
@@ -149,7 +142,7 @@
 			        android:adjustViewBounds="true"
 			        android:scaleType="centerCrop"
 			        />	
-			    <TextView
+			    <!-- TextView
 			        android:id="@+id/episode1_title"
 				    android:layout_width="match_parent"
 				    android:layout_height="wrap_content"	    		    
@@ -158,7 +151,7 @@
 					android:textSize="11dip"
 					android:textColor="#FFFFFF"
 					android:singleLine="true"
-					/>					        
+					/-->					        
 		    </FrameLayout>
 			<FrameLayout 
 		        android:layout_width="0dip" 
@@ -175,7 +168,7 @@
 			        android:adjustViewBounds="true"
 			        android:scaleType="centerCrop"
 			        />	
-			    <TextView
+			    <!-- TextView
 			        android:id="@+id/episode2_title"
 				    android:layout_width="match_parent"
 				    android:layout_height="wrap_content"
@@ -184,7 +177,7 @@
 					android:textSize="11dip"
 					android:textColor="#FFFFFF"
 					android:singleLine="true"					
-					/>					        
+					/-->					        
 		    </FrameLayout>	     
 			<FrameLayout 
 		        android:layout_width="0dip" 
@@ -201,7 +194,7 @@
 			        android:adjustViewBounds="true"
 			        android:scaleType="centerCrop"
 			        />	
-			    <TextView
+			    <!-- TextView
 			        android:id="@+id/episode3_title"
 				    android:layout_width="match_parent"
 				    android:layout_height="wrap_content"		    
@@ -210,7 +203,7 @@
 					android:textSize="11dip"
 					android:textColor="#FFFFFF"
 					android:singleLine="true"					
-					/>					        
+					/-->					        
 		    </FrameLayout>          
 		</LinearLayout>    		
 		</LinearLayout>
