@@ -2062,8 +2062,15 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		video_play_pending = true;
 		
-		videoFragment.set_manage_audio_focus (false);
-
+		try
+			{
+			videoFragment.set_manage_audio_focus (false);
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			}
+		
 		//// yt_player.setFullscreen (false); <-- commented out 15-May-2013 !!!!
 
 		// playerView.setVisibility(View.VISIBLE);
@@ -3059,7 +3066,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				server = mso + ".flipr.tv";
 			String url = "http://" + server + "/view/p" + channel_id;
 			if (episode_id != null)
-				 url = url + "/e" + episode_id;
+				 url = url + "/" + episode_id;
 			i.putExtra (Intent.EXTRA_TEXT, url);
 			startActivity (Intent.createChooser (i, "Share this 9x9.tv episode"));
 			track_event ("share", "share", "share", 0, channel_id);
