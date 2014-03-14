@@ -46,6 +46,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.os.Vibrator;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -2787,8 +2788,8 @@ public class main extends VideoBaseActivity
 		{
 		// method not visible!
 		// AccessToken accessToken = AccessToken.createFromString (access_token, null, AccessTokenSource.FACEBOOK_APPLICATION_NATIVE);		
-		// Session.open (accessToken, null);
-		
+		// Session.open (accessToken, null);		
+        
 		StatusCallback or_callback = new StatusCallback()
 			{
 		    @Override
@@ -4820,7 +4821,8 @@ public class main extends VideoBaseActivity
 	
 	public void enable_player_layer()
 		{		
-		video_normal();
+		video_normal();		
+        
 		set_layer (toplayer.PLAYBACK);
 		
 		View video_layer = video_layer();
@@ -5297,7 +5299,7 @@ public class main extends VideoBaseActivity
 			{
 			log ("disable video layer");
 			View video_layer = video_layer();
-			video_layer.setVisibility (View.GONE);
+			video_layer.setVisibility (View.GONE);			
 			}
 		else
 			log ("disable video layer: ignored, video is minimized");

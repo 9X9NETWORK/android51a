@@ -53,6 +53,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.common.GooglePlayServicesClient;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -272,8 +273,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 	    videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentById (R.id.video_fragment_container);
 	    videoFragment.set_context (this);
-	
-	    videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentById (R.id.video_fragment_container);
+	    
+	    // FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+        // ft.detach (videoFragment);  
+        // ft.commit();
+        
+	    // to remove fragment
+	    // getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
 	    
 		if (mBound)
 			{
@@ -3718,6 +3724,22 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    	}
     	}
     
+    public void attach_video_fragment()
+    	{
+		log ("videoFragment attach");
+	    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+        ft.attach (videoFragment);  
+        ft.commit();
+    	}
+    
+    public void detach_video_fragment()
+		{
+		log ("videoFragment detach");
+	    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+	    ft.detach (videoFragment);  
+	    ft.commit();
+		}
+	    
     private void sendMessage (String message)
     	{
     	log ("SEND MESSAGE: " + message);
@@ -4073,6 +4095,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		private YouTubePlayer player = null;
 		private String videoId;
 	
+		final String devkey = "AI39si5HrNx2gxiCnGFlICK4Bz0YPYzGDBdJHfZQnf-fClL2i7H_A6Fxz6arDBriAMmnUayBoxs963QLxfo-5dLCO9PCX-DTrA";
+		
 		private VideoBaseActivity ctx = null;
 		
 		public void log (String text)
@@ -4089,8 +4113,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		public void onCreate (Bundle savedInstanceState)
 			{
 			super.onCreate (savedInstanceState);
-			log ("onCreate");
-			final String devkey = "AI39si5HrNx2gxiCnGFlICK4Bz0YPYzGDBdJHfZQnf-fClL2i7H_A6Fxz6arDBriAMmnUayBoxs963QLxfo-5dLCO9PCX-DTrA";
+			log ("onCreate");			
 			initialize (devkey, this);
 			reset_time_played();
 			}
@@ -4107,6 +4130,47 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			super.onDestroy();
 			}
 	
+		@Override
+		public void onStart()
+			{
+			log ("onStart"); 
+			super.onStart();
+			}
+		
+		@Override
+		public void onResume()
+			{
+			log ("onResume");
+			initialize (devkey, this);
+			super.onResume();
+			}
+
+		@Override
+		public void onPause()
+			{
+			log ("onPause");
+			if (player != null)
+				{
+				try { player.release(); player = null; } catch (Exception ex) { ex.printStackTrace(); };
+				log ("YouTube released");
+				}
+			super.onPause();
+			}
+
+		@Override
+		public void onAttach (Activity activity)
+			{
+			log ("onAttach"); 
+			super.onAttach (activity);
+			}
+		
+		@Override
+		public void onDetach()
+			{
+			log ("onDetach"); 
+			super.onDetach();
+			}
+		
 		public void set_context (VideoBaseActivity ctx)
 			{
 			this.ctx = ctx;
@@ -4185,7 +4249,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			if (!ctx.chromecasted)
 				{
 				videoId = id;
-				try { player.loadVideo (id, start_msec); } catch (Exception ex) { ex.printStackTrace(); }
+				if (player != null)
+					try { player.loadVideo (id, start_msec); } catch (Exception ex) { ex.printStackTrace(); }
 				}
 			}
 
@@ -4194,19 +4259,22 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			if (!ctx.chromecasted)
 				{
 				videoId = id;
-				try { player.loadVideo (id); } catch (Exception ex) { ex.printStackTrace(); }
+				if (player != null)
+					try { player.loadVideo (id); } catch (Exception ex) { ex.printStackTrace(); }
 				}
 			}
 
 		public void set_manage_audio_focus (boolean focus)
 			{
-			try { player.setManageAudioFocus (false); } catch (Exception ex) { ex.printStackTrace(); }
+			if (player != null)
+				try { player.setManageAudioFocus (false); } catch (Exception ex) { ex.printStackTrace(); }
 			}
 
 		public int get_offset()
 			{
 			int offset = 0;
-			try { offset = player.getCurrentTimeMillis(); } catch (Exception ex) {};
+			if (player != null)
+				try { offset = player.getCurrentTimeMillis(); } catch (Exception ex) {};
 			return offset;
 			}
 
@@ -4221,7 +4289,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		public void seek (int offset)
 			{
 			if (!ctx.chromecasted)
-				try { player.seekToMillis (offset); } catch (Exception ex) {};
+				if (player != null)
+					try { player.seekToMillis (offset); } catch (Exception ex) {};
 			}
 		
 		public boolean is_playing()
