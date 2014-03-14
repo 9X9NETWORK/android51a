@@ -4130,7 +4130,14 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				this.videoId = videoId;
 				if (player != null)
 					{
-					player.cueVideo (videoId);
+					try
+						{
+						player.cueVideo (videoId);
+						}
+					catch (Exception ex)
+						{
+						ex.printStackTrace();
+						}
 					}
 				}
 			}
@@ -4143,7 +4150,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		public void pause()
 			{
 			if (player != null)
-				player.pause();
+				{
+				try
+					{
+					player.pause();
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					}
+				}
 			}
 	
 		public void play()
@@ -4151,7 +4167,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			if (!ctx.chromecasted)
 				{
 				if (player != null)
-					player.play();
+					{
+					try
+						{										
+						player.play();
+						}
+					catch (Exception ex)
+						{
+						ex.printStackTrace();
+						}
+					}
 				}
 			}
 		
@@ -4520,20 +4545,49 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 						}
 					}
 				});
-						
-			player.addFullscreenControlFlag (YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
+					
+			try
+				{
+				player.addFullscreenControlFlag (YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
+				}
+			catch (Exception ex)
+				{
+				ex.printStackTrace();
+				}
 			
 			/* these three lines force the navigation bar (present on tablets and at least one dongle), to remain locked on */
 			// int flags = player.getFullscreenControlFlags();
 			// flags &= ~player.FULLSCREEN_FLAG_CONTROL_SYSTEM_UI;
 			// player.setFullscreenControlFlags (flags);
 			
-			player.setPlayerStyle (YouTubePlayer.PlayerStyle.CHROMELESS);
+			try
+				{
+				player.setPlayerStyle (YouTubePlayer.PlayerStyle.CHROMELESS);
+				}
+			catch (Exception ex)
+				{
+				ex.printStackTrace();
+				}
 			
-			player.setOnFullscreenListener ((VideoBaseActivity) getActivity());
+			try
+				{
+				player.setOnFullscreenListener ((VideoBaseActivity) getActivity());
+				}
+			catch (Exception ex)
+				{
+				ex.printStackTrace();
+				}
+			
 			if (!was_restored && videoId != null)
 				{
-				player.cueVideo (videoId);
+				try
+					{
+					player.cueVideo (videoId);
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					}
 				}
 				
 			if (!was_restored)
