@@ -1707,15 +1707,6 @@ public class main extends VideoBaseActivity
 		if (vAgo != null)
 			vAgo.setText (ago);
 		
-		String txt_follow = getResources().getString (R.string.follow);
-		String txt_unfollow = getResources().getString (R.string.unfollow);
-		
-		String funf = config.is_subscribed (actual_channel_id) ? txt_unfollow : txt_follow;
-		
-		ImageView vInfo = (ImageView) findViewById (R.id.infobutton);
-		if (vInfo != null)
-			vInfo.setVisibility (current_subepisode > 0 ? View.VISIBLE : View.INVISIBLE);
-		
 		TextView vSubepisode = (TextView) findViewById (R.id.subepisodetitle);
 		if (vSubepisode != null)
 			{
