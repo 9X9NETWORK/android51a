@@ -662,7 +662,7 @@
 					
 				</LinearLayout>
 				  						
-				<tv.tv9x9.player.HorizontalListView
+				<!-- tv.tv9x9.player.HorizontalListView
 		    	    android:id="@+id/playback_episodes"
 				    android:layout_width="match_parent"
 		    		android:layout_height="90dip"
@@ -670,7 +670,21 @@
 		    		android:layout_marginBottom="5dip"
 					android:layout_marginLeft="10dip"
 					android:layout_marginRight="10dip"	    	
-		    		/>
+		    		/-->
+		    		
+				<android.support.v4.view.ViewPager
+				    android:id="@+id/playback_horiz"			    
+				    android:layout_width="match_parent"
+				    android:layout_height="wrap_content"
+		    		android:layout_marginTop="0dip"				    
+		    		android:layout_marginBottom="5dip"
+					android:layout_marginLeft="10dip"
+					android:layout_marginRight="10dip"					    
+				    android:layout_gravity="top|center_horizontal"
+				    android:gravity="top|center_horizontal"
+					android:scrollbarSize="0dip"
+					android:background="#00000000"		    
+				    />		   			     		
 			</LinearLayout>		
 		    <LinearLayout
 		        android:id="@+id/playbackbody_comments_view"

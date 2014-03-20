@@ -68,6 +68,11 @@ public class playerAPI implements futil.Notifier
 				ret += "?lang=zh";
 			}
 		
+		if (ret.contains ("?"))
+			ret += "&v=40";
+		else
+			ret += "?v=40";
+		
 		return ret;
 		}
 	}

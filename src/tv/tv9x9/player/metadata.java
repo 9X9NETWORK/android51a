@@ -713,6 +713,41 @@ public class metadata
 			}
 		}
 	
+	public long get_most_appropriate_timestamp (String channel_id)
+		{
+		String episode_id = null;
+		boolean use_channel_meta = true;
+		
+		if (is_youtube (channel_id))
+			{
+			String program_line[] = program_line_by_id (channel_id);
+			if (program_line != null && program_line.length > 0)
+				{
+				episode_id = program_line [0];
+				use_channel_meta = false;
+				}
+			}
+		
+		String ts;
+		if (use_channel_meta)
+			ts = pool_meta (channel_id, "timestamp");
+		else
+			ts = program_meta (episode_id, "timestamp");
+		
+		return Long.parseLong (ts) / 1000;
+		}
+	
+	public boolean is_youtube (String channel)
+		{
+		if (channel != null)
+			{
+			String nature = pool_meta (channel, "nature");
+			if (nature != null)
+				return nature.equals ("3") || nature.equals ("4");
+			}
+		return false;
+		}
+	
 	public boolean is_subscribed (String channel)
 		{
 		if (usertoken == null)

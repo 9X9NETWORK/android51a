@@ -873,6 +873,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		toast_by_resource (R.string.no_episodes_in_channel);
 		}
 	
+	public void onVideoActivityRejigger()
+		{
+		/* override this */
+		}
+	
 	int relay_retries = 0;
 	
 	public void attach_relay()
@@ -1138,7 +1143,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			return;
 			}
 		
-		new playerAPI (in_main_thread, config, "channelLineup?channel=" + channel_id + "&v=32")
+		new playerAPI (in_main_thread, config, "channelLineup?channel=" + channel_id)
 			{
 			public void success (String[] chlines)
 				{
@@ -1186,7 +1191,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		
 		log ("load channel " + channel_id + " then: not yet known");		
-		new playerAPI (in_main_thread, config, "channelLineup?channel=" + channel_id + "&v=32")
+		new playerAPI (in_main_thread, config, "channelLineup?channel=" + channel_id)
 			{
 			public void success (String[] chlines)
 				{
@@ -1239,12 +1244,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		
 		log ("unable to find episode \"" + episode_id + "\" in channel \"" + player_real_channel + "\"");
-		
-		String nature = config.pool_meta (player_real_channel, "nature");
-			
-		if (nature != null && (nature.equals ("3") || nature.equals ("4") || nature.equals ("5")))
+
+		if (config.is_youtube (player_real_channel))
 			{
-			/* fallback behavior -- create a fake episode that can be played */
+			/* fallback behavior -- create a fake episode that can be played, for YouTube channels or playlists only */
 			log ("creating fake episode: " + episode_id);
 			config.add_runt_episode (player_real_channel, episode_id);
 			play_specified_episode (episode_id);
@@ -1410,6 +1413,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{
 			current_episode_index = episode;
 	
+			onVideoActivityRejigger();
+			
 			/* probably onStopped() has not been called yet, but we want analytics now */			
 			videoFragment.add_to_time_played();
 			analytics ("play");
@@ -3071,8 +3076,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			if (config.api_server.equals ("api.flipr.tv"))
 				server = mso + ".flipr.tv";
 			String url = "http://" + server + "/view/p" + channel_id;
+			String eprefix = config.is_youtube (channel_id) ? "yt" : "";
 			if (episode_id != null)
-				 url = url + "/" + episode_id;
+				 url = url + "/" + eprefix + episode_id;
 			i.putExtra (Intent.EXTRA_TEXT, url);
 			startActivity (Intent.createChooser (i, "Share this 9x9.tv episode"));
 			track_event ("share", "share", "share", 0, channel_id);

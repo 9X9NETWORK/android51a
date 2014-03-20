@@ -442,7 +442,7 @@ public final class R {
 		public static final int com_facebook_placepickerfragment_list_row = 0x7f030029;
 		public static final int com_facebook_search_bar_layout = 0x7f03002a;
 		public static final int com_facebook_usersettingsfragment = 0x7f03002b;
-		public static final int support_simple_spinner_dropdown_item = 0x7f030055;
+		public static final int support_simple_spinner_dropdown_item = 0x7f030056;
 	}
 	public static final class string {
 		public static final int abc_action_bar_home_description = 0x7f09001b;

@@ -150,8 +150,7 @@ public class ytchannel
 			@Override
 			public void run()
 				{
-				String nature = config.pool_meta (channel_id, "nature");
-				if (nature.equals ("3") || nature.equals ("4"))
+				if (config.is_youtube (channel_id))
 					{
 					fetch_and_parse_by_id (config, channel_id);
 					handler.post (update);
@@ -181,8 +180,7 @@ public class ytchannel
 			@Override
 			public void run()
 				{
-				String nature = config.pool_meta (channel_id, "nature");
-				if (nature.equals ("3") || nature.equals ("4"))
+				if (config.is_youtube (channel_id))
 					{
 					fetch_and_parse_by_id (config, channel_id);
 					handler.post (new Runnable()

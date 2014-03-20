@@ -402,6 +402,7 @@ public class main extends VideoBaseActivity
 			enable_home_layer();
 		}
 	
+	@Override
 	public void onVideoActivityFlingUp()
 		{
 		if (current_layer == toplayer.PLAYBACK)
@@ -426,6 +427,7 @@ public class main extends VideoBaseActivity
 			}
 		}
 
+	@Override
 	public void onVideoActivityFlingDown()
 		{
 		if (current_layer == toplayer.PLAYBACK)
@@ -450,6 +452,7 @@ public class main extends VideoBaseActivity
 			}
 		}
 
+	@Override
 	public void onVideoActivityFlingLeft()
 		{
 		if (current_layer == toplayer.PLAYBACK)
@@ -461,9 +464,16 @@ public class main extends VideoBaseActivity
 				HorizontalListView vEpisodes = (HorizontalListView) findViewById (R.id.playback_episodes);			
 				vEpisodes.scrollTo (where_am_i() * (pixels_200 + pixels_20));
 				}
+			if (playback_episode_pager != null)
+				{
+				/* TODO */
+				playback_episode_pager.rejigger();
+				// playback_episode_pager.notifyDataSetChanged();
+				}
 			}
 		}
 
+	@Override
 	public void onVideoActivityFlingRight()
 		{
 		if (current_layer == toplayer.PLAYBACK)
@@ -475,9 +485,22 @@ public class main extends VideoBaseActivity
 				HorizontalListView vEpisodes = (HorizontalListView) findViewById (R.id.playback_episodes);			
 				vEpisodes.scrollTo (where_am_i() * (pixels_200 + pixels_20));
 				}
+			if (playback_episode_pager != null)
+				{
+				/* TODO */
+				playback_episode_pager.rejigger();
+				// playback_episode_pager.notifyDataSetChanged();
+				}
 			}
 		}
 
+	@Override
+	public void onVideoActivityRejigger()
+		{
+		if (playback_episode_pager != null)
+			playback_episode_pager.rejigger();
+		}
+	
 	boolean flurry_id_sent = false;
 	
 	@Override
@@ -1554,10 +1577,7 @@ public class main extends VideoBaseActivity
 		if (player_real_channel != null && program_line != null)
 			{
 			start_playing();
-			
-			String nature = config.pool_meta (player_real_channel, "nature");
-			
-			if (!nature.equals ("3") && !nature.equals ("4") && !nature.equals ("5"))
+			if (!config.is_youtube (player_real_channel))
 				thumbnail.download_titlecard_images_for_channel (main.this, config, player_real_channel, in_main_thread, titlecard_image_update);
 			}		
 		
@@ -1680,7 +1700,7 @@ public class main extends VideoBaseActivity
 	        	}
 			});	
 			
-		String timestamp = config.program_meta (episode_id, "timestamp");
+		String timestamp = config.program_meta (episode_id, "timestamp");		
 		String ago = util.ageof (Long.parseLong (timestamp) / 1000);
 		
 		TextView vAgo = (TextView) findViewById (R.id.episode_age);
@@ -1754,6 +1774,9 @@ public class main extends VideoBaseActivity
 				}
 			if (playback_episode_adapter != null)
 				playback_episode_adapter.notifyDataSetChanged();
+			
+			if (playback_episode_pager != null) ;
+				playback_episode_pager.notifyDataSetChanged();
 			}
 		}
 	
@@ -3476,7 +3499,7 @@ public class main extends VideoBaseActivity
 		
 		frontpage_start = System.currentTimeMillis();
 		
-		new playerAPI (in_main_thread, config, "portal?time=" + hour + "&v=32")
+		new playerAPI (in_main_thread, config, "portal?time=" + hour)
 			{
 			public void success (String[] lines)
 				{
@@ -3658,7 +3681,7 @@ public class main extends VideoBaseActivity
 			return;
 			}
 		
-		final String query = "channelLineup?user=" + config.usertoken + "&setInfo=true&v=32";
+		final String query = "channelLineup?user=" + config.usertoken + "&setInfo=true";
 		
 		if (vc_cache.get (query) != null)
 			{
@@ -3724,7 +3747,7 @@ public class main extends VideoBaseActivity
 		else
 			{
 			String short_id = id.replaceAll ("^virtual:", "");
-			query = "setInfo?set=" + short_id + "&v=32";
+			query = "setInfo?set=" + short_id;
 			}
 		
 		log (query);
@@ -4039,11 +4062,10 @@ public class main extends VideoBaseActivity
 				{				
 				if (num_episodes > 0 && program_line != null && program_line.length > 0)
 					{
-					vAgo.setVisibility (View.VISIBLE);
-					String episode_id = program_line [0];
-					String timestamp = config.program_meta (episode_id, "timestamp");
-					String ago = util.ageof (Long.parseLong (timestamp) / 1000);
+					long ts = config.get_most_appropriate_timestamp (channel_id);
+					String ago = util.ageof (ts);
 					vAgo.setText (ago);
+					vAgo.setVisibility (View.VISIBLE);
 					}
 				else
 					vAgo.setVisibility (View.GONE);
@@ -4183,9 +4205,8 @@ public class main extends VideoBaseActivity
 			TextView vSubTitle = (TextView) parent.findViewById (R.id.subtitle);
 			if (vSubTitle != null)
 				{
-				String episode_id = program_line [0];
-				String timestamp = config.program_meta (episode_id, "timestamp");
-				String ago = util.ageof (Long.parseLong (timestamp) / 1000);
+				long ts = config.get_most_appropriate_timestamp (channel_id);
+				String ago = util.ageof (ts);
 				String txt_episode = getResources().getString (R.string.episode_lc);
 				String txt_episodes = getResources().getString (R.string.episodes_lc);
 				String subtitle = ago + " • " + program_line.length + " " + (program_line.length == 1 ? txt_episode : txt_episodes);
@@ -4310,7 +4331,6 @@ public class main extends VideoBaseActivity
 				@Override
 				public void run()
 					{
-					// log ("horiz update thumbs: " + channel_id);
 					EpisodeAdapter horiz_adapter = (EpisodeAdapter) horiz.getAdapter();
 					horiz_adapter.notifyDataSetChanged();
 					}
@@ -4320,6 +4340,40 @@ public class main extends VideoBaseActivity
 			}
 		};
 	
+	public EpisodeSlider NEW_setup_horiz (ViewPager horiz, final String channel_id)
+		{
+		final EpisodeSlider horiz_adapter = new EpisodeSlider (horiz, channel_id, new String[0]);
+				       
+		if (horiz == null)
+			return null;
+		
+		horiz.setAdapter (horiz_adapter);						
+		load_channel_then (channel_id, NEW_setup_horiz_inner, channel_id, horiz);
+
+		return horiz_adapter;
+		}
+	
+	final Callback NEW_setup_horiz_inner = new Callback()
+		{
+		@Override
+		public void run_string_and_object (final String channel_id, Object horiz_obj)
+			{
+			final ViewPager horiz = (ViewPager) horiz_obj;
+			Runnable horiz_update_thumbs = new Runnable()
+				{
+				@Override
+				public void run()
+					{
+					String episodes[] = config.program_line_by_id (channel_id);
+					EpisodeSlider horiz_adapter = (EpisodeSlider) horiz.getAdapter();
+					horiz_adapter.set_content (channel_id, episodes);
+					}
+				};
+
+			thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, horiz_update_thumbs);
+			}
+		};
+		
 	class EpisodeAdapter extends ArrayAdapter <String>
 		{
 		Activity context;
@@ -4524,6 +4578,8 @@ public class main extends VideoBaseActivity
 			{
 			if (playback_episode_adapter != null)
 				playback_episode_adapter.notifyDataSetChanged();
+			if (playback_episode_pager != null)
+				playback_episode_pager.notifyDataSetChanged();
 			}
 		};
 	
@@ -4566,6 +4622,8 @@ public class main extends VideoBaseActivity
 			{
 			if (playback_episode_adapter != null)
 				playback_episode_adapter.set_channel_id (channel_id);
+			if (playback_episode_pager != null)
+				playback_episode_pager.notifyDataSetChanged();
 			if (playback_channel_adapter != null)				
 				playback_channel_adapter.notifyDataSetChanged();
 						
@@ -4634,12 +4692,19 @@ public class main extends VideoBaseActivity
 			}
 		}
 	
+	EpisodeSlider playback_episode_pager = null;
+	
 	public void setup_player_adapters (String channel_id)
 		{
 		log ("setup player adapters");
 		
-		HorizontalListView horiz = (HorizontalListView) findViewById (R.id.playback_episodes);
-		playback_episode_adapter = setup_horiz (horiz, channel_id);
+		HorizontalListView horiz = (HorizontalListView) findViewById (0 /* R.id.playback_episodes */);
+		if (horiz != null)
+			playback_episode_adapter = setup_horiz (horiz, channel_id);
+		
+		ViewPager vPager = (ViewPager) findViewById (R.id.playback_horiz);
+		if (vPager != null)			
+			playback_episode_pager = NEW_setup_horiz (vPager, channel_id);
 		
 		ListView vPlaybackChannels = (ListView) findViewById (R.id.playback_channel_list);
 		if (vPlaybackChannels != null)
@@ -4673,26 +4738,6 @@ public class main extends VideoBaseActivity
 					}
 				});		
 			}
-		/* this listener won't work on the container layout, playbackbody_comments_view */
-		if (false)
-			vPlaybackComments.setOnTouchListener (new View.OnTouchListener()
-				{
-		        @Override
-		        public boolean onTouch (View v, MotionEvent event)
-		        	{
-		        	log ("VCOMMENTS ONTOUCH");
-		            switch (event.getAction())
-		            	{
-			            case MotionEvent.ACTION_DOWN:
-			            	toggle_extended_comments_view();
-			                break;
-			            case MotionEvent.ACTION_UP:
-			            case MotionEvent.ACTION_CANCEL:
-			                break;
-			            }
-		            return false;
-		        	}
-				});
 		
 		View vExpand = findViewById (R.id.expand);
 		vExpand.setOnClickListener (new OnClickListener()
@@ -5121,9 +5166,8 @@ public class main extends VideoBaseActivity
 			
 			if (program_line != null && program_line.length > 0)
 				{
-				String episode_id = program_line [0];
-				String timestamp = config.program_meta (episode_id, "timestamp");
-				String ago = util.ageof (Long.parseLong (timestamp) / 1000);
+				long ts = config.get_most_appropriate_timestamp (channel_id);
+				String ago = util.ageof (ts);
 				String txt_episode = getResources().getString (R.string.episode_lc);
 				String txt_episodes = getResources().getString (R.string.episodes_lc);
 				subtitle = ago + " • " + program_line.length + " " + (program_line.length == 1 ? txt_episode : txt_episodes);
@@ -5642,9 +5686,7 @@ public class main extends VideoBaseActivity
 		{
 		View vContainer = findViewById (R.id.video_fragment_container);
 		View vBacking = findViewById (R.id.backing_controls);
-		View vChromecast = findViewById (R.id.chromecast_window);
-				
-
+		View vChromecast = findViewById (R.id.chromecast_window);				
 		
 		int max_drag = screen_width - pixels_60 - minimized_width;
 		
@@ -5675,6 +5717,178 @@ public class main extends VideoBaseActivity
 		
 		return false;
 		}
+
+	class SwapEpisodes
+		{
+		LinearLayout hrow = null;
+		int position = 0;
+		public SwapEpisodes (int position)
+			{
+			this.position = position;
+			}
+		};
+	
+		SwapEpisodes current_horiz_swap = null;
+	
+	/* this is implemented using the base class! */
+
+	public class EpisodeSlider extends PagerAdapter
+		{
+		String content[] = null;
+		String channel_id = null;
+		
+		ViewPager vp = null;
+		
+		public EpisodeSlider (ViewPager vp, String channel_id, String content[])
+			{			
+			super();
+			
+			this.vp = vp;
+			
+			this.channel_id = channel_id;
+			this.content = content; 
+			
+			/* set the height of the viewpager */
+			
+			int per = is_phone() ? 3 : 4;    
+			int smudge = (int) (per * 6 * density);
+			
+			LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vp.getLayoutParams();
+			int width = screen_width / per;
+			int height = (int) ((float) width / 1.77);
+			layout.height = height;
+			vp.setLayoutParams (layout);
+	        }
+		
+		public void set_content (String channel_id, String content[])
+			{
+			this.channel_id = channel_id;
+			this.content = content; 
+			notifyDataSetChanged();
+			}
+		
+		@Override
+		public void notifyDataSetChanged()
+			{			
+			super.notifyDataSetChanged();
+			log ("[HORIZ] notifyDataSetChanged");
+			redraw_swap (current_horiz_swap);
+			}
+		
+		public void rejigger()
+			{
+			if (vp != null)
+				{
+		    	int per = is_phone() ? 3 : 4;
+				int page_wanted = (current_episode_index - 1) / per;
+				vp.setCurrentItem (page_wanted, true);
+				}
+			redraw_swap (current_horiz_swap);
+			}
+		
+	    @Override
+	    public int getCount()
+	    	{
+	    	int per = is_phone() ? 3 : 4;
+	    	int length = content != null ? (content.length + per - 1) / per : 0;
+	    	log ("EpisodeSlider: " + length + " pages");
+	        return length;
+	    	}
+	
+		@Override
+		public boolean isViewFromObject (View view, Object object)
+			{
+			return (((SwapEpisodes) object).hrow) == (LinearLayout) view;
+			}
+		
+		@Override
+		public Object instantiateItem (ViewGroup container, int position)
+			{
+			log ("[HORIZ] instantiate: " + position);
+			
+			final SwapEpisodes swap = new SwapEpisodes (position);			
+	
+			LinearLayout hrow = (LinearLayout) View.inflate (main.this, R.layout.episode_row, null);					
+			swap.hrow = hrow;
+			
+			if (is_phone())
+				{
+				View vBox = hrow.findViewById (R.id.ep3_box);
+				vBox.setVisibility (View.GONE);
+				}
+			
+			/* fill in data */					
+			
+			((ViewPager) container).addView (hrow, 0);
+			redraw_swap (swap);			
+			
+			return swap;
+			}
+		
+		public void redraw_swap (final SwapEpisodes swap)
+			{
+			if (swap != null)
+				{
+				LinearLayout hrow = swap.hrow;
+				
+				final int per = is_phone() ? 3 : 4;
+				int base = swap.position * per;
+				
+				for (int i = 0; i < per; i++)
+					{
+					int resource_id = getResources().getIdentifier ("ep" + i, "id", getPackageName());
+					int title_id = getResources().getIdentifier ("eptitle" + i, "id", getPackageName());
+					int box_id = getResources().getIdentifier ("ep" + i + "_box", "id", getPackageName());
+					String episode = base + i < content.length ? content [base + i] : null;
+					fill_in_episode_thumb (episode, hrow, resource_id, title_id);
+					View vBorder = hrow.findViewById (resource_id);
+					vBorder.setBackgroundColor (base + i == current_episode_index - 1 ? Color.WHITE : Color.BLACK);
+					View vBox = hrow.findViewById (box_id);
+					vBox.setVisibility (episode == null ? View.INVISIBLE : View.VISIBLE);
+					log ("[HORIZ] current: " + (current_episode_index - 1) + ", this one: " + (base + i));
+					
+					final int i_final = i;
+					vBox.setOnClickListener (new OnClickListener()
+						{
+				        @Override
+				        public void onClick (View v)
+				        	{
+				        	int index = 1 + swap.position * per + i_final;
+				        	log ("playback click: " + index);
+				        	play_nth_episode_in_channel (channel_id, index);
+				        	}
+						});	
+					}
+				
+				/* TODO: here, download episode thumbs if necessary */
+						
+				if (!is_phone())
+					{
+					String episode3 = base + 3 < content.length ? content [base+3] : null;
+					fill_in_episode_thumb (episode3, hrow, R.id.ep3, 0);
+					}
+				}
+			}
+		
+		@Override
+		public void destroyItem (ViewGroup container, int position, Object object)
+			{
+			log ("[HORIZ] destroy: " + position);
+			SwapEpisodes swap = (SwapEpisodes) object;
+			((ViewPager) container).removeView (swap.hrow);
+			}
+		
+		@Override
+		public void setPrimaryItem (ViewGroup container, int position, Object object)
+			{
+			log ("[HORIZ]: primary item: " + position);
+			if (object != null)
+				{
+				current_horiz_swap = (SwapEpisodes) object;
+				redraw_swap (current_horiz_swap);
+				}
+			}
+		}		
 	
 	/*** GUIDE **************************************************************************************************/
 	
@@ -5828,7 +6042,7 @@ public class main extends VideoBaseActivity
 	
 	GridSlider grid_slider = null;	
 	StoppableViewPager vPager = null;
-	
+
 	int top_lefts[] = { 11, 14, 17, 41, 44, 47, 71, 74, 77 };
 	
 	/* we don't want to redraw everything, but we will need to remove the background from this square */
@@ -6696,7 +6910,7 @@ public class main extends VideoBaseActivity
 	
 	public void top_categories()
 		{
-		final String query = "category?v=32&lang=" + config.region;
+		final String query = "category?lang=" + config.region;
 				
 		if (config.query_cache.get (query) != null)
 			{
@@ -6815,7 +7029,7 @@ public class main extends VideoBaseActivity
 		String category_id = category_list [index];
 		
 		final String query = "categoryInfo?category=" + category_id
-				+ "&v=32&region=" + config.region + "&count=" + category_stride + "&start=" + starting;
+				+ "&region=" + config.region + "&count=" + category_stride + "&start=" + starting;
 		
 		if (config.query_cache.get (query) != null)
 			{
@@ -7443,7 +7657,7 @@ public class main extends VideoBaseActivity
 		set_spinner (View.VISIBLE);
 		prepare_search_screen (term);
 		
-		new playerAPI (in_main_thread, config, "search?text=" + encoded_term + "&v=32")
+		new playerAPI (in_main_thread, config, "search?text=" + encoded_term)
 			{
 			public void success (String[] chlines)
 				{
