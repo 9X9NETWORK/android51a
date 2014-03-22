@@ -537,9 +537,13 @@ public class main extends VideoBaseActivity
 			String channel = extras.getString ("tv.9x9.channel");
 			if (channel != null)
 				{
-				log ("launch channel: " + channel);		
-                String fake_set[] = new String[] { channel };            
-                launch_player (channel, fake_set);
+                String fake_set[] = new String[] { channel };  
+                String episode = extras.getString ("tv.9x9.episode");
+                if (episode != null)
+                	log ("launch channel: " + channel);
+                else
+                	log ("launch channel: " + channel + ", episode: " + episode);	
+                launch_player (channel, episode, fake_set);
 				}
 			}
 		}
@@ -1724,11 +1728,7 @@ public class main extends VideoBaseActivity
 				}
 			}
 		
-		String channel_position = null;
-		
-		int grid_cursor = config.first_position_of (actual_channel_id);
-		if (grid_cursor > 0)
-			channel_position = "" + (grid_cursor / 10) + "-" + (grid_cursor % 10);
+		update_episode_count (player_real_channel);
 		
 		log ("update_metadata: channel=|" + channel_name + "|");
 		log ("update_metadata: episode=|" + episode_name + "|");		
@@ -4548,6 +4548,23 @@ public class main extends VideoBaseActivity
 		play_first (channel_id);
 		}
 	
+	public void play_episode_in_channel (String channel_id, String episode_id)
+		{
+		program_line = config.program_line_by_id (channel_id);
+		if (program_line != null)
+			{
+			for (int i = 0; i < program_line.length; i++)
+				{
+				if (episode_id.equals (program_line [i]))
+					{
+					play_nth_episode_in_channel (channel_id, i+1);
+					return;
+					}
+				}
+			}
+		alert ("Episode not found!");
+		}
+	
 	public void play_nth_episode_in_channel (String channel_id, int position)
 		{
 		program_line = config.program_line_by_id (channel_id);
@@ -4633,7 +4650,6 @@ public class main extends VideoBaseActivity
 			ytchannel.fetch_youtube_comments_in_thread (in_main_thread, playback_comments_updated, config, episode_id);
 			
 			String channel_name = config.pool_meta (channel_id, "name");
-			int num_episodes = config.programs_in_real_channel (channel_id);
 			String episode_desc = config.program_meta (episode_id, "desc");
 			
 			TextView vChannelName = (TextView) findViewById (R.id.playback_channel);
@@ -4644,16 +4660,7 @@ public class main extends VideoBaseActivity
 			if (vDesc != null)
 				vDesc.setText (episode_desc);
 			
-			String txt_episode = getResources().getString (R.string.episode_lc);
-			String txt_episodes = getResources().getString (R.string.episodes_lc);
-			
-			TextView vEpisodeCount = (TextView) findViewById (R.id.playback_episode_count);
-			if (vEpisodeCount != null)
-				vEpisodeCount.setText ("" + num_episodes);
-			
-			TextView vEpisodePlural = (TextView) findViewById (R.id.playback_episode_plural);
-			if (vEpisodePlural != null)
-				vEpisodePlural.setText (num_episodes == 1 ? txt_episode : txt_episodes);
+			update_episode_count (channel_id);
 			
 			boolean channel_thumbnail_found = false;
 			
@@ -4682,7 +4689,23 @@ public class main extends VideoBaseActivity
 				}		
 			}
 		}
-	
+
+	public void update_episode_count (String channel_id)
+		{
+		int num_episodes = config.programs_in_real_channel (channel_id);
+				
+		String txt_episode = getResources().getString (R.string.episode_lc);
+		String txt_episodes = getResources().getString (R.string.episodes_lc);
+		
+		TextView vEpisodeCount = (TextView) findViewById (R.id.playback_episode_count);
+		if (vEpisodeCount != null)
+			vEpisodeCount.setText ("" + num_episodes);
+		
+		TextView vEpisodePlural = (TextView) findViewById (R.id.playback_episode_plural);
+		if (vEpisodePlural != null)
+			vEpisodePlural.setText (num_episodes == 1 ? txt_episode : txt_episodes);
+		}
+
 	EpisodeSlider playback_episode_pager = null;
 	
 	public void setup_player_adapters (String channel_id)
@@ -5782,7 +5805,6 @@ public class main extends VideoBaseActivity
 	    	{
 	    	int per = is_phone() ? 3 : 4;
 	    	int length = content != null ? (content.length + per - 1) / per : 0;
-	    	log ("EpisodeSlider: " + length + " pages");
 	        return length;
 	    	}
 	
@@ -5848,7 +5870,7 @@ public class main extends VideoBaseActivity
 				        	log ("playback click: " + index);
 				        	play_nth_episode_in_channel (channel_id, index);
 				        	}
-						});	
+						});					
 					}
 				
 				/* TODO: here, download episode thumbs if necessary */
@@ -5858,6 +5880,27 @@ public class main extends VideoBaseActivity
 					String episode3 = base + 3 < content.length ? content [base+3] : null;
 					fill_in_episode_thumb (episode3, hrow, R.id.ep3, 0);
 					}
+				
+				if (base + 4 >= content.length)
+					ytchannel.extend_channel (config, channel_id, in_main_thread, new Runnable()
+						{						
+						@Override
+						public void run()
+							{
+							String program_line[] = config.program_line_by_id (channel_id);
+							set_content (channel_id, program_line);
+							redraw_swap (swap);
+							update_metadata_inner();
+							thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, new Runnable()
+								{
+								@Override
+								public void run()
+									{
+									redraw_swap (swap);
+									}									
+								});
+							}					
+						});
 				}
 			}
 		
@@ -6635,21 +6678,30 @@ public class main extends VideoBaseActivity
 
     public void launch_player (String channel_id, String channels[])
     	{
-    	if (current_layer != toplayer.PLAYBACK)
-    		previous_layer = current_layer;
-    	previous_arena = arena;
-    	
-    	if (channels.length > 0 && channels [0] != null)
-    		{
-    		String new_channels[] = new String [channels.length + 1];
-    		for (int i = 0; i < channels.length; i++)
-    			new_channels [i+1] = channels [i];
-    		new_channels [0] = null;
-    		channels = new_channels;
-    		}
-    	arena = channels;    	
-    	play_channel (channel_id);
+    	launch_player (channel_id, null, channels);
     	}
+ 
+    public void launch_player (String channel_id, String episode_id, String channels[])
+		{
+		if (current_layer != toplayer.PLAYBACK)
+			previous_layer = current_layer;
+		previous_arena = arena;
+		
+		if (channels.length > 0 && channels [0] != null)
+			{
+			String new_channels[] = new String [channels.length + 1];
+			for (int i = 0; i < channels.length; i++)
+				new_channels [i+1] = channels [i];
+			new_channels [0] = null;
+			channels = new_channels;
+			}
+		arena = channels;    	
+		
+		if (episode_id != null)
+			play_episode_in_channel (channel_id, episode_id);
+		else
+			play_channel (channel_id);
+		}
     
     public void unlaunch_player()
     	{

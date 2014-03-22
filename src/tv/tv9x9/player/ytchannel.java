@@ -32,7 +32,6 @@ import org.json.JSONObject;
 
 import tv.tv9x9.player.metadata.Comment;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.util.Log;
 
@@ -45,7 +44,7 @@ public class ytchannel
 		public void failure (int code, String errtext);
 		}
 
-	public static String fetch_youtube (String nature, String username)
+	public static String fetch_youtube (String nature, String username, int start_index)
 		{
 		Log.i ("fl", "Requesting YouTube channel: " + username);
 
@@ -57,10 +56,10 @@ public class ytchannel
 		String url = null;
 		if (nature.equals ("3"))
 			url = "http://gdata.youtube.com/feeds/api/users/" + username
-					+ "/uploads?v=2&alt=json&start-index=1&max-results=50&prettyprint=true";
+					+ "/uploads?v=2&alt=json&start-index=" + start_index + "&max-results=50&prettyprint=true";
 		else if (nature.equals ("4"))
 			url = "http://gdata.youtube.com/feeds/api/playlists/" + username
-					+ "?v=2&alt=json&start-index=1&max-results=50&prettyprint=true";
+					+ "?v=2&alt=json&start-index=" + start_index + "&max-results=50&prettyprint=true";
 		else
 			{
 			Log.i ("vtest", "unknown channel nature: " + nature);
@@ -164,7 +163,7 @@ public class ytchannel
 							handler.post (update);
 							}
 						};
-					fetch_and_parse_32 (handler, call_my_runnable, config, channel_id);
+					fetch_and_parse_32 (handler, call_my_runnable, config, channel_id, 1);
 					}
 				}
 			};
@@ -209,11 +208,72 @@ public class ytchannel
 								});
 							}
 						};
-					fetch_and_parse_32 (handler, call_my_callable, config, channel_id);
+					fetch_and_parse_32 (handler, call_my_callable, config, channel_id, 1);
 					}
 				}
 			};
 		
+		t.start();
+		}
+	
+	public static void extend_channel (final metadata config, final String channel_id, final Handler h, final Runnable callback)
+		{
+		String extending = config.pool_meta (channel_id, "extending");
+		
+		/* avoid overhead of creating thread */
+		if (extending != null && !extending.equals(""))
+			return;
+			
+		Thread t = new Thread()
+			{
+			@Override
+			public void run()
+				{
+				String extending = config.pool_meta (channel_id, "extending");
+				if (extending == null || extending.equals(""))
+					{
+					config.set_channel_meta_by_id (channel_id, "extending", "true");
+					String extent = config.pool_meta (channel_id, "extent");
+					final int new_extent = extent == null ? 51 : Integer.parseInt (extent) + 50;
+					String nature = config.pool_meta (channel_id, "nature");
+					if (config.is_youtube (channel_id))
+						{
+						String username = config.pool_meta (channel_id, "extra");
+						Log.i ("vtest", "extending youtube channel \"" + channel_id + "\": " + username + " (at: " + extent + ")");
+						String data = fetch_youtube (nature, username, new_extent);
+						parse_youtube (config, channel_id, nature, username, data);
+						config.set_channel_meta_by_id (channel_id, "extent", Integer.toString (new_extent));
+						config.set_channel_meta_by_id (channel_id, "extending", "");
+						h.post (callback);
+						}
+					else
+						{
+						/* 9x9 channel */
+						Log.i ("vtest", "extending 9x9 channel \"" + channel_id + "\" (at: " + extent + ")");
+						/* wants a Callback not a Runnable */
+						Callback call_my_callable = new Callback()
+							{
+							public void run_string (String channel)
+								{
+								h.post (new Runnable()
+									{
+									public void run()
+										{
+										config.set_channel_meta_by_id (channel_id, "extent", Integer.toString (new_extent));
+										config.set_channel_meta_by_id (channel_id, "extending", "");	
+										h.post (callback);
+										}
+									});
+								}
+							};
+						fetch_and_parse_32 (h, call_my_callable, config, channel_id, new_extent);
+						}		
+					}	
+				else
+					Log.i ("vtest", "already in process of extending " + channel_id);
+				}
+			};
+			
 		t.start();
 		}
 	
@@ -222,22 +282,25 @@ public class ytchannel
 		Log.i ("vtest", "fetch and parse by channel id: " + channel_id);
 		String nature = config.pool_meta (channel_id, "nature");
 		String extra = config.pool_meta (channel_id, "extra");
-		if (nature.equals ("3") || nature.equals ("4"))
+		if (config.is_youtube (channel_id))
 			fetch_and_parse_youtube (config, channel_id, nature, extra);
 		else
 			{
 			Log.i ("vtest", "!! channel " + channel_id + " nature is: " + nature);
 			// fetch_and_parse_teltel (config, channel_id, nature, extra);
-			if (channel_id.equals ("14367") || channel_id.equals ("14368"))
-				{
-				}
 			}
 		}
 	
 	public static void fetch_and_parse_youtube (metadata config, String channel_id, String nature, String username)
 		{
 		Log.i ("vtest", "fetch_and_parse_youtube channel \"" + channel_id + "\": " + username);
-		String data = fetch_youtube (nature, username);
+		String data = fetch_youtube (nature, username, 1);
+		config.set_channel_meta_by_id (channel_id, "extent", "1");
+		parse_youtube (config, channel_id, nature, username, data);
+		}
+	
+	public static void parse_youtube (metadata config, String channel_id, String nature, String username, String data)
+		{
 		if (data == null)
 			{
 			Log.i ("vtest", "youtube channel JSON data is null");
@@ -248,6 +311,9 @@ public class ytchannel
 			Log.i ("vtest", "error in HTTP request: " + data);
 			return;
 			}
+		
+		int sort_base = config.highest_sort (channel_id);
+		
 		Log.i ("vtest", "(channel " + channel_id + ") data starts with: " + data.substring(0,20));
 		try
 			{
@@ -285,11 +351,6 @@ public class ytchannel
 			      
 				JSONObject title_container = entry.getJSONObject ("title");
 				String title = (title_container != null) ? title_container.getString ("$t") : "[no title]";
-				
-				/* playlists have an additional level */
-				if (nature.equals ("4"))
-					{
-					}
 				
 				boolean unplayable = false;
 				
@@ -479,7 +540,7 @@ public class ytchannel
 
 				Hashtable <String, String> program = new Hashtable <String, String> ();
 
-				program.put ("sort", Integer.toString(i));
+				program.put ("sort", Integer.toString (sort_base + 1 + i));
 				program.put ("id", video_id);
 				program.put ("channel", channel_id);
 				program.put ("name", title);
@@ -509,49 +570,18 @@ public class ytchannel
 			}
 		}
 	
-	public static void fetch_and_parse_teltel (final Handler h, final Callback callback, final metadata config, final String channel)
-		{
-		if (true)
-			{
-			fetch_and_parse_32 (h, callback, config, channel);
-			return;
-			}
-		
-		new playerAPI (h, config, "programInfo?channel=" + channel + "&user=" + config.usertoken + "&sidx=1&limit=50")
-			{
-			public void success (String[] lines)
-				{
-				config.parse_program_info (lines);
-				h.post (new Runnable()
-					{
-					public void run()
-						{
-						if (callback != null)
-							callback.run_string (channel);
-						}
-					});
-				}
-
-			public void failure (int code, String errtext)
-				{
-				Log.i ("vtest", "ERROR! " + errtext);
-				}
-			};
-		}
-	
 	/* 3.2 style channels with subepisodes */
 	
-	public static void fetch_and_parse_32 (final Handler h, final Callback callback, final metadata config, final String channel)
+	public static void fetch_and_parse_32 (final Handler h, final Callback callback, final metadata config, final String channel, final int start)
 		{
-		String query = "programInfo?channel=" + channel + "&user=" + config.usertoken + "&sidx=1&limit=100&v=40";
-		if (channel != null && channel.equals ("28087"))
-			query = "programInfo?channel=" + channel + "&user=" + config.usertoken + "&v=40";
+		String query = "programInfo?channel=" + channel + "&user=" + config.usertoken + "&start=" + start + "&count=50";
 		
 		new playerAPI (h, config, query)
 			{
 			public void success (String[] lines)
 				{
 				config.parse_program_info_32 (lines);
+				config.set_channel_meta_by_id (channel, "extent", "1");
 				h.post (new Runnable()
 					{
 					public void run()
@@ -646,24 +676,19 @@ public class ytchannel
 		{
 		if (channel_id != null)
 			{
-			final String nature = config.pool_meta (channel_id, "nature");
 			final String extra = config.pool_meta (channel_id, "extra");
-			
-			if (nature == null)
-				{
-				Log.i ("vtest", "channel " + channel_id + " has no nature!");
-				return;
-				}		
-			
-			if (nature.equals ("3") || nature.equals ("4"))
+
+			if (config.is_youtube (channel_id))
 				{
 				if (extra == null)
 					{
 					Log.i ("vtest", "channel " + channel_id + " has no \"extra\" field!");
 					return;
 					}	
-				
+			
+				String nature = config.pool_meta (channel_id, "nature");
 				fetch_and_parse_youtube (config, channel_id, nature, extra);
+				
 				h.post (new Runnable()
 					{
 					public void run()
@@ -675,8 +700,8 @@ public class ytchannel
 				}
 			else
 				{
-				/* must do the callback from within fetch_and_parse_teltel */
-				fetch_and_parse_teltel (h, callback, config, channel_id);
+				/* must do the callback from within fetch_and_parse_32 */
+				fetch_and_parse_32 (h, callback, config, channel_id, 1);
 				}
 			}
 		else
@@ -703,10 +728,6 @@ public class ytchannel
 		
 		t.start();
 		}
-	
-	// j.feed.entry[1].title
-	// j.feed.entry[1].content
-	// j.feed.entry[2].author[0].name
 	
 	public static void parse_youtube_comments_json (metadata config, String video_id, String data)
 		{

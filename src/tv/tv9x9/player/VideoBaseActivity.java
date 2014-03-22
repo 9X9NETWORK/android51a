@@ -1201,7 +1201,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				if (channel_id.equals ("14367") || channel_id.equals ("14368"))
 					{
 					log ("SPECIAL PROCESSING FOR: " + channel_id);
-					ytchannel.fetch_and_parse_32 (in_main_thread, callback, config, channel_id);
+					ytchannel.fetch_and_parse_32 (in_main_thread, callback, config, channel_id, 1);
 					}
 				else
 					{

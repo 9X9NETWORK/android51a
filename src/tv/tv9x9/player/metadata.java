@@ -668,6 +668,33 @@ public class metadata
 		return count;
 		}
 
+	public int highest_sort (String real_channel)
+		{
+		int highest = 0;
+		
+		if (real_channel != null)
+			{
+			try
+				{
+				program_lock.lock();
+				for (Entry <String, Hashtable <String, String>> entry : programgrid.entrySet ())
+					{
+					// entry.getKey() and entry.getValue()
+					String sort_string = program_meta_nolock (entry.getKey (), "sort");
+					int sort_int = Integer.parseInt (sort_string);
+					if (sort_int > highest)
+						highest = sort_int;
+					}
+				}
+			finally
+				{
+				program_lock.unlock();	
+				}
+			}
+	
+		return highest;
+		}
+	
 	public Stack <String> channels_with_status (String status)
 		{
 		Stack <String> matches = new Stack <String> ();
@@ -1054,16 +1081,7 @@ public class metadata
 			return null;
 			}
 		
-		/*
-		if (fields.length != 16 && fields.length != 22 && fields.length != 24 && fields.length != 25)
-			{
-			Log.i ("vtest", "Number of fields is " + fields.length + " (should be 16, 22, 24 or 25. ignoring), text: " + line);
-			return;
-			}
-		*/
-		
 		Hashtable <String, String> channel = new Hashtable <String, String>();
-		// Log.i ("vtest", "CHANNEL: " + s);
 		
 		String thumb = fields[4];
 		String episode_thumb = null;
@@ -1330,6 +1348,10 @@ public class metadata
 		// Log.i ("vtest", "PINFO32: " + line); // noisy
 		
 		String[] fields = line.split ("\t");
+		
+		/* bad way to skip the preamble information */
+		if (fields.length < 5)
+			return;
 		
 		/* filter out 9x9 audio programs */
 		if (fields[4].equals ("3"))
