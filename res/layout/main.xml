@@ -6,11 +6,14 @@
 
     <include layout="@layout/menu_layer" />
 
-	<FrameLayout
+	<LinearLayout
 	    android:id="@+id/slidingpanel"
 	    android:layout_width="match_parent"
-	    android:layout_height="match_parent">
+	    android:layout_height="match_parent"
+	    android:orientation="vertical">
 	
+	    <include android:id="@+id/sliding_top_bar" layout="@layout/top_bar" />
+	    		
 	    <include layout="@layout/home_layer" android:id="@+id/home_layer" />
 	    	    	        	    
 	    <include layout="@layout/signin_layer" />
@@ -29,7 +32,7 @@
 				
 		<include layout="@layout/settings_phone" />
 									    	    	    	    		
-	</FrameLayout>
+	</LinearLayout>
 	
 	<include layout="@layout/settings_tablet" />
 			

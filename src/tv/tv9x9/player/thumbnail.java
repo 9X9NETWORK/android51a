@@ -763,7 +763,7 @@ public class thumbnail
 	
 	public static void download_list_of_images
 			(final Context ctx, final metadata config, final String dir, final Stack <String> filenames, final Stack <String> urls,
-					final Handler in_main_thread, final Runnable update)
+					final boolean clobber, final Handler in_main_thread, final Runnable update)
 		{
 		Thread t = new Thread ()
 			{
@@ -776,7 +776,7 @@ public class thumbnail
 					String filename = filenames.pop();
 					String url = urls.pop();
 					String full_filename = ctx.getFilesDir() + "/" + config.api_server + "/" + dir + "/" + filename + ".png";
-					download_image (ctx, full_filename, url);
+					download_image (ctx, full_filename, url, clobber);
 					in_main_thread.post (update);
 					}			
 				}
@@ -785,10 +785,10 @@ public class thumbnail
 		t.start();
 		}
 	
-	public static void download_image (Context ctx, String filename, String url)
+	public static void download_image (Context ctx, String filename, String url, boolean clobber)
 		{
 		File f = new File (filename);
-		if (f.exists() && f.length() == 0)
+		if (clobber || (f.exists() && f.length() == 0))
 			{
 			Log.i ("vtest", "Image was zero bytes: " + filename);
 			f.delete();

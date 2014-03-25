@@ -5,8 +5,6 @@
     android:background="#FFFFFF"
     android:orientation="vertical"
     android:visibility="gone">		 
-    
-    <include android:id="@+id/store_top_bar" layout="@layout/top_bar" />
 		
     <LinearLayout           
 		android:layout_width="fill_parent" 

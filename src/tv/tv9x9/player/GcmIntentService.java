@@ -124,7 +124,9 @@ public class GcmIntentService extends IntentService {
         if (episode_id != null)
         	start_intent.putExtra ("episode", episode_id);
         
-        PendingIntent pi = PendingIntent.getActivity (this, 0, start_intent, 0);
+        Log.i ("vtest", "gcm: start_intent mso=" + mso + " channel=" + channel_id + " episode=" + episode_id);
+        
+        PendingIntent pi = PendingIntent.getActivity (this, 0, start_intent, PendingIntent.FLAG_CANCEL_CURRENT);
         
         String icon_name = getResources().getString (R.string.app_icon);	
         String fields[] = icon_name.split ("/");
@@ -141,6 +143,8 @@ public class GcmIntentService extends IntentService {
         .setSmallIcon (icon_id);
 
         mBuilder.setContentIntent (pi);
-        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        
+        mNotificationManager.cancelAll();
+        mNotificationManager.notify (NOTIFICATION_ID, mBuilder.build());
     	}
 }

@@ -126,6 +126,7 @@ public class main extends VideoBaseActivity
 		adjust_layout_for_screen_size();
 		home_configure_white_label();
 		onVideoActivityLayout();
+		setup_global_buttons();
 		setup_home_buttons();
 		shake_detect();
 		
@@ -550,7 +551,7 @@ public class main extends VideoBaseActivity
 	
 	public void home_configure_white_label()
 		{
-		int top_bars[] = { R.id.home_top_bar, R.id.guide_top_bar, R.id.store_top_bar, R.id.search_top_bar, R.id.apps_top_bar, R.id.shake_top_bar };
+		int top_bars[] = { R.id.sliding_top_bar };
 		
 		for (int top_bar: top_bars)
 			{
@@ -714,46 +715,63 @@ public class main extends VideoBaseActivity
 		set_layer (layer);
 		}
 	
-	public void setup_home_buttons()
+	public void setup_global_buttons()
 		{
-		View vHomeTopBar = findViewById (R.id.home_top_bar);
+		View vSlidingTopBar = findViewById (R.id.sliding_top_bar);
 		
-		View vMenu = vHomeTopBar.findViewById (R.id.menubutton);
+		View vMenu = vSlidingTopBar.findViewById (R.id.menubutton);
 		if (vMenu != null)
 			vMenu.setOnClickListener (new OnClickListener()
 				{
 		        @Override
 		        public void onClick (View v)
 		        	{
-		        	log ("click on: home menu button");
+		        	log ("click on: sliding menu button");
 		        	toggle_menu (true);
 		        	}
-				});	
+				});
 		
-		View vSearch = vHomeTopBar.findViewById (R.id.searchbutton);
+		View vSearch = vSlidingTopBar.findViewById (R.id.searchbutton);
 		if (vSearch != null)
 			vSearch.setOnClickListener (new OnClickListener()
 				{
 		        @Override
 		        public void onClick (View v)
 		        	{
-		        	log ("click on: home search button");
-		        	enable_search_apparatus (R.id.home_top_bar);
+		        	log ("click on: global search button");
+		        	enable_search_apparatus (R.id.sliding_top_bar);
 		        	}
 				});	
-
-		View vRefresh = vHomeTopBar.findViewById (R.id.refresh);
+		
+		
+		View vRefresh = vSlidingTopBar.findViewById (R.id.refresh);
 		if (vRefresh != null)
 			vRefresh.setOnClickListener (new OnClickListener()
 				{
 		        @Override
 		        public void onClick (View v)
 		        	{
-		        	log ("click on: home refresh button");
-		        	refresh_home();
+		        	if (current_layer == toplayer.GUIDE)
+			        	{
+			        	log ("click on: guide refresh button");
+			        	refresh_guide();
+			        	}
+		        	else if (current_layer == toplayer.STORE)
+		        		{
+    		        	log ("click on: store refresh button");
+    		        	store_refresh();
+		        		}
+		        	else if (current_layer == toplayer.HOME)
+		        		{
+			        	log ("click on: home refresh button");
+			        	refresh_home();
+		        		}
 		        	}
 				});	
-		
+		}
+	
+	public void setup_home_buttons()
+		{
 		View vHomeLayer = home_layer();
 		if (vHomeLayer != null)
 			vHomeLayer.setOnClickListener (new OnClickListener()
@@ -1944,6 +1962,9 @@ public class main extends VideoBaseActivity
 			return;
 			}
 		
+		View vTopBar = findViewById (R.id.sliding_top_bar);
+		vTopBar.setVisibility (layer == toplayer.SETTINGS || layer == toplayer.TERMS || layer == toplayer.SIGNIN ? View.GONE : View.VISIBLE);
+		
 		View home_layer = home_layer();
 		home_layer.setVisibility (layer == toplayer.HOME ? View.VISIBLE : View.GONE);
 
@@ -2866,31 +2887,6 @@ public class main extends VideoBaseActivity
 	
 	public void setup_apps_buttons()
 		{
-		View vHomeTopBar = findViewById (R.id.apps_top_bar);
-		
-		View vMenu = vHomeTopBar.findViewById (R.id.menubutton);
-		if (vMenu != null)
-			vMenu.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: apps menu button");
-		        	toggle_menu();
-		        	}
-				});	
-		
-		View vSearch = vHomeTopBar.findViewById (R.id.searchbutton);
-		if (vSearch != null)
-			vSearch.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: apps search button");
-		        	enable_search_apparatus (R.id.apps_top_bar);
-		        	}
-				});	
 		}
 
 	public class app
@@ -2933,7 +2929,7 @@ public class main extends VideoBaseActivity
 					count0 = 0;
 					count1 = 0;
 					
-					Pattern pattern = Pattern.compile ("id=([^&]*)\\&", Pattern.CASE_INSENSITIVE);
+					Pattern pattern = Pattern.compile ("id=([^&]*)", Pattern.CASE_INSENSITIVE);
 					
 					for (int i = 0; i < lines.length; i++)
 						{
@@ -3017,7 +3013,7 @@ public class main extends VideoBaseActivity
 			urls.push (a.icon_url);
 			}
 		
-		thumbnail.download_list_of_images (main.this, config, "apps", filenames, urls, in_main_thread, apps_thumberino);
+		thumbnail.download_list_of_images (main.this, config, "apps", filenames, urls, true, in_main_thread, apps_thumberino);
 		}
 	
 	public void launch_suggested_app (String name, String url)
@@ -4147,7 +4143,7 @@ public class main extends VideoBaseActivity
 			{
 			if (program_line.length >= 1)
 				{	
-				e0_found = fill_in_episode_thumb (program_line[0], parent, R.id.channel_icon, 0 /* R.id.first_episode_title */ );
+				e0_found = fill_in_episode_thumb (program_line[0], parent, R.id.channel_icon, is_phone() ? R.id.first_episode_title : 0);
 				}
 			if (program_line.length >= 2)
 				{
@@ -5930,32 +5926,6 @@ public class main extends VideoBaseActivity
 	
 	public void setup_guide_buttons()
 		{
-		View vGuideTopBar = findViewById (R.id.guide_top_bar);
-		
-		View vMenu = vGuideTopBar.findViewById (R.id.menubutton);
-		if (vMenu != null)
-			vMenu.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: guide menu button");
-		        	toggle_menu();
-		        	}
-				});	
-		
-		View vSearch = vGuideTopBar.findViewById (R.id.searchbutton);
-		if (vSearch != null)
-			vSearch.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: guide search button");
-		        	enable_search_apparatus (R.id.guide_top_bar);
-		        	}
-				});		
-		
 		View vGuideLayer = findViewById (R.id.guidelayer);
 		if (vGuideLayer != null)
 			vGuideLayer.setOnClickListener (new OnClickListener()
@@ -5966,18 +5936,6 @@ public class main extends VideoBaseActivity
 		        	/* eat this */
 		        	}
 				});
-		
-		View vRefresh = vGuideTopBar.findViewById (R.id.refresh);
-		if (vRefresh != null)
-			vRefresh.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: guide refresh button");
-		        	refresh_guide();
-		        	}
-				});	
 		
 		if (is_phone())
 			{
@@ -6769,43 +6727,6 @@ public class main extends VideoBaseActivity
     
 	public void setup_shake_buttons()
 		{
-		View vStoreTopBar = findViewById (R.id.shake_top_bar);
-		
-		View vMenu = vStoreTopBar.findViewById (R.id.menubutton);
-		if (vMenu != null)
-			vMenu.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: shake menu button");
-		        	toggle_menu();
-		        	}
-				});	
-		
-		View vSearch = vStoreTopBar.findViewById (R.id.searchbutton);
-		if (vSearch != null)
-			vSearch.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: shake search button");
-		        	enable_search_apparatus (R.id.shake_top_bar);
-		        	}
-				});			
-				
-		View vRefresh = vStoreTopBar.findViewById (R.id.refresh);
-		if (vRefresh != null)
-			vRefresh.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: shake refresh button");
-		        	}
-				});	
-		
 		View vShake = findViewById (R.id.shakelayer);		
 		if (vShake != null)
 			vShake.setOnClickListener (new OnClickListener()
@@ -6870,44 +6791,6 @@ public class main extends VideoBaseActivity
 	
 	public void setup_store_buttons()
 		{
-		View vStoreTopBar = findViewById (R.id.store_top_bar);
-		
-		View vMenu = vStoreTopBar.findViewById (R.id.menubutton);
-		if (vMenu != null)
-			vMenu.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: store menu button");
-		        	toggle_menu();
-		        	}
-				});	
-		
-		View vSearch = vStoreTopBar.findViewById (R.id.searchbutton);
-		if (vSearch != null)
-			vSearch.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: store search button");
-		        	enable_search_apparatus (R.id.store_top_bar);
-		        	}
-				});			
-				
-		View vRefresh = vStoreTopBar.findViewById (R.id.refresh);
-		if (vRefresh != null)
-			vRefresh.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: store refresh button");
-		        	store_refresh();
-		        	}
-				});	
-		
 		View vCategoryName = findViewById (R.id.category_handle);
 		if (vCategoryName != null)
 			vCategoryName.setOnClickListener (new OnClickListener()
@@ -7624,32 +7507,6 @@ public class main extends VideoBaseActivity
 	
 	public void setup_search_buttons()
 		{
-		View vSearchTopBar = findViewById (R.id.search_top_bar);
-		
-		View vMenu = vSearchTopBar.findViewById (R.id.menubutton);
-		if (vMenu != null)
-			vMenu.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: search menu button");
-		        	toggle_menu();
-		        	}
-				});	
-		
-		View vSearch = vSearchTopBar.findViewById (R.id.searchbutton);
-		if (vSearch != null)
-			vSearch.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: search layer search button");
-		        	enable_search_apparatus (R.id.search_top_bar);
-		        	}
-				});			
-
 		View vSearchLayer = findViewById (R.id.searchlayer);		
 		if (vSearchLayer != null)
 			vSearchLayer.setOnClickListener (new OnClickListener()
@@ -7678,12 +7535,6 @@ public class main extends VideoBaseActivity
 				return;
 				}
 			}
-		
-		
-		
-		
-		
-		
 		
 		String encoded_term = util.encodeURIComponent (term);
 	
@@ -7777,7 +7628,7 @@ public class main extends VideoBaseActivity
 	public void prepare_search_screen (String term)
 		{
 		enable_search_layer();
-		enable_search_apparatus (R.id.store_top_bar);
+		enable_search_apparatus (R.id.sliding_top_bar);
 		String txt_searched_for = getResources().getString (R.string.searched_for_colon);
 		TextView vTermUsed = (TextView) findViewById (R.id.search_term_used);
 		vTermUsed.setText (txt_searched_for + " " + term);

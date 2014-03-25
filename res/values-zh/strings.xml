@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
-    <!-- 
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
@@ -15,7 +14,6 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">361253423962738</string>
-	 -->
 
 	<!-- Joey Graceffa -->
     <!--   
@@ -102,7 +100,7 @@
     <string name="fb_app_id">277020789128327</string>
     -->
 
-    <!-- Smosh -->
+    <!-- Smosh
     <string name="app_name">Smosh on Flipr Unofficial</string>
     <string name="app_icon">@drawable/smosh_launch_logo</string>
     <string name="white_label">smosh</string>
@@ -116,6 +114,7 @@
     <string name="signin_bg">smosh_bg_open</string>
     <string name="set_banner">smosh_banner01</string>
     <string name="fb_app_id">492773477497848</string>
+	-->
 	
     <!-- Shane -->
     <!-- 
