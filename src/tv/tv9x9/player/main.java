@@ -540,9 +540,9 @@ public class main extends VideoBaseActivity
                 String fake_set[] = new String[] { channel };  
                 String episode = extras.getString ("tv.9x9.episode");
                 if (episode != null)
-                	log ("launch channel: " + channel);
-                else
                 	log ("launch channel: " + channel + ", episode: " + episode);	
+                else
+                	log ("launch channel: " + channel);
                 launch_player (channel, episode, fake_set);
 				}
 			}
@@ -4544,25 +4544,18 @@ public class main extends VideoBaseActivity
 			enable_player_layer();
 			setup_player_adapters (channel_id);
 			}
-
 		play_first (channel_id);
 		}
 	
 	public void play_episode_in_channel (String channel_id, String episode_id)
 		{
-		program_line = config.program_line_by_id (channel_id);
-		if (program_line != null)
+		if (current_layer != toplayer.PLAYBACK)
 			{
-			for (int i = 0; i < program_line.length; i++)
-				{
-				if (episode_id.equals (program_line [i]))
-					{
-					play_nth_episode_in_channel (channel_id, i+1);
-					return;
-					}
-				}
+			enable_player_layer();
+			setup_player_adapters (channel_id);
 			}
-		alert ("Episode not found!");
+		log ("Play episode: " + episode_id + " in channel " + channel_id);
+		play (channel_id, episode_id);
 		}
 	
 	public void play_nth_episode_in_channel (String channel_id, int position)

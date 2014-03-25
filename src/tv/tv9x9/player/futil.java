@@ -7,8 +7,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -81,8 +85,21 @@ public class futil
 		HttpParams parameters = new BasicHttpParams();
 		HttpConnectionParams.setSocketBufferSize (parameters, 16384);		
 		
+		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		schemeRegistry.register (new Scheme ("https", SSLSocketFactory.getSocketFactory(), 443));
+		
+		SingleClientConnManager mgr = new SingleClientConnManager (parameters, schemeRegistry);
+		
 		//HttpClient client = new DefaultHttpClient ();
-		HttpClient client = new DefaultHttpClient (parameters);
+		//HttpClient client = new DefaultHttpClient (parameters);
+		HttpClient client = null;
+		
+		if (url.contains ("/login/"))
+			{
+			client = new DefaultHttpClient (mgr, parameters);
+			}
+		else
+			client = new DefaultHttpClient (parameters);
 		
 		HttpGet request = new HttpGet (url);
 		
@@ -93,7 +110,7 @@ public class futil
 			}
 		
 		String answer;
-		ResponseHandler<String> responseHandler = new BasicResponseHandler ();
+		ResponseHandler <String> responseHandler = new BasicResponseHandler ();
 	
 		try
 			{
@@ -145,11 +162,35 @@ public class futil
 		/* temporary */
 		String player_api = filename.contains ("pdr_process") ? "hello" : "playerAPI";
 		
-		HttpClient client = new DefaultHttpClient ();
-		HttpGet request = new HttpGet ("http://" + host + "/" + player_api + "/" + filename);
+		HttpParams parameters = new BasicHttpParams();
+		HttpConnectionParams.setSocketBufferSize (parameters, 16384);	
+		
+		//HttpClient client = new DefaultHttpClient ();
+		//HttpClient client = new DefaultHttpClient (parameters);
+		HttpClient client = null;
+		
+		String scheme = "http";
+		if (filename.startsWith ("login?") || filename.startsWith ("signup?") || filename.startsWith ("setUserProfile?"))
+			{
+			/* use https */
+			Log.i ("vtest", "using https");
+			
+			scheme = "https";
+			
+			SchemeRegistry schemeRegistry = new SchemeRegistry();
+			schemeRegistry.register (new Scheme ("https", SSLSocketFactory.getSocketFactory(), 443));
+			
+			SingleClientConnManager mgr = new SingleClientConnManager (parameters, schemeRegistry);
+			
+			client = new DefaultHttpClient (mgr, parameters);
+			}
+		else
+			client = new DefaultHttpClient (parameters);		
+
+		HttpGet request = new HttpGet (scheme + "://" + host + "/" + player_api + "/" + filename);
 		
 		String answer;
-		ResponseHandler<String> responseHandler = new BasicResponseHandler ();
+		ResponseHandler <String> responseHandler = new BasicResponseHandler ();
 
 		try
 			{

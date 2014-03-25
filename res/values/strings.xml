@@ -173,7 +173,7 @@
     <string name="app_name">Crash Course on FLIPr</string>
     <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
     <string name="white_label">crashcourse</string>     
-    <string name="mso">9x9</string>
+    <string name="mso">crashcourse</string>
     <string name="default_region">en</string>               
     <string name="logo">logo_crashcourse</string>
     <string name="splash_background">bg_open_crashcourse</string>
@@ -537,7 +537,7 @@
 	<string name="verifypw">Verify</string>	 
 	<string name="guide_guest_hint">Get to your favorite programs by following them so you never miss an update. Sign in to start following programs and build your own personal program guide!</string>
 	<string name="terms_of_use">Terms of Use</string> 
-	<string name="by_creating">By creating an account, I accept the terms of service and privacy policy of this app.</string>
+	<string name="by_creating">By creating an account, I accept the <b><u>terms of service</u></b> and <b><u>privacy policy</u></b> of this app.</string>
 	<string name="suggested_tv_apps">Suggested TV Apps</string>
 	<string name="get_suggested_tv_apps">Get Suggested TV Apps Now!</string>	
 	<string name="download">Download</string>

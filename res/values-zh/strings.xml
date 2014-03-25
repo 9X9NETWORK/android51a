@@ -538,7 +538,7 @@
 	<string name="verifypw">確認</string>
 	<string name="guide_guest_hint">若想訂閱更多好看節目，請登入或註冊帳號!</string>
 	<string name="terms_of_use">使用條款</string> 			
-	<string name="by_creating">我同意FLIPr.tv的使用條款與隱私政策</string>	 
+	<string name="by_creating">我同意FLIPr.tv的<b><u>使用條款</u></b>與<b><u>隱私政策</u></b>!</string>
 	<string name="suggested_tv_apps">更多APP</string>	 	
 	<string name="get_suggested_tv_apps">多螢互動的APP都在這裡</string>		
 	<string name="download">下載</string>	

@@ -974,7 +974,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			else if (fields[0].equals ("CHANNEL"))
 				{
 				log ("RECEIVED: " + s);
-				load_channel_then (fields[1], null, null);
+				load_channel_then (fields[1], null, null, null);
 				}
 			else if (fields[0].equals ("PLAY"))
 				{
@@ -1093,7 +1093,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			onVideoActivityRefreshMetadata (player_real_channel, episode);
 			}
 		};
-	
+		
 	public void onVideoActivityRefreshMetadata (String channel_id, String episode_id)
 		{
 		/* override this */
@@ -1106,66 +1106,24 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		/* RETARDED */
 		/* We want to call yt_player.stop() here. BUT THERE IS NO STOP API */
 		video_play_pending = true;
-		load_channel_then (channel_id, play_episode_inner, episode_id);
+		load_channel_then (channel_id, play_episode_inner, episode_id, null);
 		}
 	
 	final Callback play_episode_inner = new Callback()
 		{
 		@Override
-		public void run_string (String episode_id)
+		public void run_string_and_object (String episode_id, Object arg)
 			{
 			log ("play_episode: " + episode_id);
+			onVideoActivityRefreshMetadata (player_real_channel, episode_id);
 			play_specified_episode (episode_id);
 			}
 		};
 		
-	public void load_channel_then (final String channel_id, final Callback callback, final String arg)
-		{
-		if (config.programs_in_real_channel (channel_id) > 0)
-			{
-			if (callback != null)
-				callback.run_string (arg);
-			return;
-			}
-		
-		String name = config.pool_meta(channel_id, "name");
-		if (name != null && !name.equals (""))
-			{
-			ytchannel.fetch_and_parse_by_id_in_thread (config, channel_id, in_main_thread, new Runnable()
-				{
-				@Override
-				public void run()
-					{
-					if (callback != null)
-						callback.run_string (arg);
-					}				
-				});				
-			return;
-			}
-		
-		new playerAPI (in_main_thread, config, "channelLineup?channel=" + channel_id)
-			{
-			public void success (String[] chlines)
-				{
-				log ("load channel " + channel_id + ", lines received: " + chlines.length);
-				config.parse_channel_info (chlines);
-
-				ytchannel.fetch_and_parse_by_id (config, channel_id);				
-				if (callback != null)
-					callback.run_string (arg);
-
-				return;
-				}
-	
-			public void failure (int code, String errtext)
-				{
-				log ("ERROR! " + errtext);
-				}
-			};
-		}
-
 	public void load_channel_then (final String channel_id, final Callback callback, final String arg1, final Object arg2)
 		{
+		/* if we already have episodes, done */
+		
 		if (config.programs_in_real_channel (channel_id) > 0)
 			{
 			log ("load channel " + channel_id + " then: has episodes");
@@ -1173,6 +1131,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				callback.run_string_and_object (arg1, arg2);
 			return;
 			}
+		
+		/* if the channel is known but without episodes */
 		
 		String name = config.pool_meta(channel_id, "name");
 		if (name != null && !name.equals (""))
@@ -1190,6 +1150,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			return;
 			}
 		
+		/* if the channel is not known */
+		
 		log ("load channel " + channel_id + " then: not yet known");		
 		new playerAPI (in_main_thread, config, "channelLineup?channel=" + channel_id)
 			{
@@ -1197,16 +1159,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				{
 				log ("load channel " + channel_id + ", lines received: " + chlines.length);
 				config.parse_channel_info (chlines);
-	
-				if (channel_id.equals ("14367") || channel_id.equals ("14368"))
-					{
-					log ("SPECIAL PROCESSING FOR: " + channel_id);
-					ytchannel.fetch_and_parse_32 (in_main_thread, callback, config, channel_id, 1);
-					}
-				else
-					{
-					ytchannel.fetch_and_parse_by_id_in_thread (config, channel_id, in_main_thread, callback, arg1, arg2);
-					}
+				ytchannel.fetch_and_parse_by_id_in_thread (config, channel_id, in_main_thread, callback, arg1, arg2);
 				return;
 				}
 	
@@ -1216,6 +1169,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				}
 			};
 		}
+	
 	public void play_specified_episode (String episode_id)
 		{
 		log ("play specified episode: " + episode_id + " in channel: " + player_real_channel);
@@ -2909,7 +2863,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		String episode_name = config.program_meta (cumulative_episode_id, "name");			
 		
 		if (duration >= 6)
-			track_event ("p" + cumulative_channel_id + "/" + "e" + cumulative_episode_id, "epWatched", channel_name + "/" + episode_name, duration);	
+			track_event ("p" + cumulative_channel_id + "/" + cumulative_episode_id, "epWatched", channel_name + "/" + episode_name, duration);	
 		
 		cumulative_episode_id = null;
 		cumulative_episode_time = 0;

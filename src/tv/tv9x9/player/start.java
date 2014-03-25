@@ -465,7 +465,7 @@ public class start extends Activity
 		if (end_time - start_time < 3000)
 			{
 			long delay = 3000 - (end_time - start_time);
-			Log.i ("vtest", "delayed launch: " + delay);
+			Log.i ("vtest", "delayed launch: " + delay + " milliseconds");
 			in_main_thread.postDelayed (new Runnable()
 				{
 				public void run()

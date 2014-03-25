@@ -28,7 +28,7 @@ public class GcmIntentService extends IntentService {
     	Log.i ("vtest", "gcm: GcmIntentService onHandleIntent");
         Bundle extras = intent.getExtras();
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
-        // The getMessageType() intent parameter must be the intent you received
+        // The getMessageType() intent parafmeter must be the intent you received
         // in your BroadcastReceiver.
         String messageType = gcm.getMessageType(intent);
 
@@ -104,7 +104,10 @@ public class GcmIntentService extends IntentService {
     		if (fields.length >= 2)
     			channel_id = fields[1];
     		if (fields.length >= 3)
+    			{
     			episode_id = fields[2];
+    			episode_id = episode_id.replaceAll ("^yt", "");
+    			}
     		}
     	
         mNotificationManager = (NotificationManager) getSystemService (Context.NOTIFICATION_SERVICE);
