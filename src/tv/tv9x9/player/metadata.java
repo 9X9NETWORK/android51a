@@ -207,6 +207,11 @@ public class metadata
 
 	public int first_empty_position()
 		{
+		return first_empty_position_setwise();		
+		}
+	
+	public int first_empty_position_linear()
+		{
 		for (int i = 1; i <= 9; i++)
 			for (int j = 1; j <= 9; j++)
 				{
@@ -218,7 +223,25 @@ public class metadata
 				}
 		return -1;
 		}
-
+	
+	public int first_empty_position_setwise()
+		{
+		int top_lefts[] = { 11, 14, 17, 41, 44, 47, 71, 74, 77 };
+		
+		for (int set = 0; set < 9; set++)
+			{
+			for (int dy = 0; dy <= 2; dy++)
+				for (int dx = 0; dx <= 2; dx++)
+					{
+					int possible = top_lefts [set] + 10 * dy + dx;
+					if (!occupied (possible))
+						return possible;
+					}
+			}
+		
+		return -1;
+		}
+	
 	/* position -1 to remove from grid */
 	
 	public void place_in_channel_grid (String channel_id, int position, boolean add_flag)

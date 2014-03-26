@@ -4291,6 +4291,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{
 			try
 				{
+				if (player == null)
+					{
+					log ("set_playback_event_listener: player is null!");
+					return;
+					}
 				player.setPlaybackEventListener (new YouTubePlayer.PlaybackEventListener()
 					{				
 					@Override
@@ -4451,6 +4456,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{	
 			try
 				{
+				if (player == null)
+					{
+					log ("set_state_change_listener: player is null!");
+					return;
+					}
 				player.setPlayerStateChangeListener (new YouTubePlayer.PlayerStateChangeListener()
 					{
 					@Override

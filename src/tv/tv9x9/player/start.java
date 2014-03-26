@@ -192,6 +192,7 @@ public class start extends Activity
 		
 		try
 			{
+			// this is now deprecated. see com.facebook.AppEventsLogger.activateApp (this, config.facebook_app_id);
 			// com.facebook.Settings.publishInstallAsync (getBaseContext(), "110847978946712");
 			}
 		catch (Exception ex)

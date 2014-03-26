@@ -1613,16 +1613,19 @@ public class main extends VideoBaseActivity
 		{
 		public void run()
 			{
-			String actual_channel_id = player_real_channel;			
-			if (program_line != null)
+			if (player_real_channel != null)
 				{
-				String episode_id = program_line [current_episode_index - 1];
-				
-				if (player_real_channel.contains (":"))				
-					actual_channel_id = config.program_meta (episode_id, "real_channel");
+				String actual_channel_id = player_real_channel;			
+				if (program_line != null)
+					{
+					String episode_id = program_line [current_episode_index - 1];
+					
+					if (player_real_channel.contains (":"))				
+						actual_channel_id = config.program_meta (episode_id, "real_channel");
+					}
+				if (!actual_channel_id.contains (":"))
+					update_channel_thumb_inner (actual_channel_id);
 				}
-			if (!actual_channel_id.contains (":"))
-				update_channel_thumb_inner (actual_channel_id);
 			}
 		};
 		
@@ -6829,7 +6832,7 @@ public class main extends VideoBaseActivity
 	
 	public void top_categories()
 		{
-		final String query = "category?lang=" + config.region;
+		final String query = "category";
 				
 		if (config.query_cache.get (query) != null)
 			{
