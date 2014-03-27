@@ -117,7 +117,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	// String APP_NAME = "5ecf7ff9-2144-46ce-acc9-6d606831e2dc";
 	// String APP_NAME = "9C4D71DA"; <- buzzkill
 	
-	/* 0=unstarted, 2=waiting for service, 3=started */
+	/* 0=unstarted, 2=waiting for service, 3=started 4=started+initialized */
 	int started = 0;
 
 	boolean mBound = false;
@@ -1241,6 +1241,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			google_cast_create();
 			if (videoFragment.ready())
 				{
+				started = 4;
 				onVideoActivityReady();
 				saved_usertoken = (config != null) ? config.usertoken : null;
 				}

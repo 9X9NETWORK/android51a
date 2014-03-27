@@ -240,7 +240,7 @@ public class main extends VideoBaseActivity
 	    	else if (current_layer == toplayer.HOME)
 	    		{
 	    		View vChannelOverlay = findViewById (R.id.channel_overlay);
-	    		boolean channel_overlay_visible = vChannelOverlay.getVisibility() == View.VISIBLE;
+	    		boolean channel_overlay_visible = vChannelOverlay != null && vChannelOverlay.getVisibility() == View.VISIBLE;
 	    		if (menu_is_extended())
 	    			toggle_menu();
 	    		else if (channel_overlay_visible)
