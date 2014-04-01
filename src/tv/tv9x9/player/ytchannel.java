@@ -236,6 +236,13 @@ public class ytchannel
 					String extent = config.pool_meta (channel_id, "extent");
 					final int new_extent = extent == null ? 51 : Integer.parseInt (extent) + 50;
 					String nature = config.pool_meta (channel_id, "nature");
+					
+					if (new_extent > 201)
+						{
+						Log.i ("vtest", "new extent would be over 201 " + new_extent + ", will not extend " + channel_id);
+						return;
+						}
+					
 					if (config.is_youtube (channel_id))
 						{
 						String username = config.pool_meta (channel_id, "extra");
