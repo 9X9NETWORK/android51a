@@ -60,6 +60,9 @@ public class ytchannel
 		else if (nature.equals ("4"))
 			url = "http://gdata.youtube.com/feeds/api/playlists/" + username
 					+ "?v=2&alt=json&start-index=" + start_index + "&max-results=50&prettyprint=true";
+		else if (nature.equals ("s"))
+			url = "http://gdata.youtube.com/feeds/api/channels?q=" + username
+					+ "v=2&alt=json&start-index=" + start_index + "&max-results=50&prettyprint=true";
 		else
 			{
 			Log.i ("vtest", "unknown channel nature: " + nature);
@@ -139,6 +142,24 @@ public class ytchannel
 			}
 	
 		return answer;
+		}
+	
+	public static void youtube_channel_search_in_thread
+			(final metadata config, final String term, final Handler handler, final Runnable update)
+		{
+		Thread t = new Thread()
+			{
+			@Override
+			public void run()
+				{
+				Log.i ("vtest", "youtube_channel_search_in_thread: \"" + term + "\"");
+				String data = fetch_youtube ("s", term, 1);
+				String channels[] = parse_youtube_search (config, data);
+				handler.post (update);
+				}
+			};
+	
+		t.start();
 		}
 	
 	public static void fetch_and_parse_by_id_in_thread 
@@ -428,7 +449,7 @@ public class ytchannel
 			 		JSONObject video_id_container = entry.getJSONObject ("id");
 					video_url = (video_id_container != null) ? video_id_container.getString ("$t") : "";
 					}
-				else if (nature.equals ("4"))
+				else if (nature.equals ("4") || nature.equals ("s"))
 					{
 					JSONArray links = entry.getJSONArray ("link");
 					if (links != null)
@@ -560,7 +581,7 @@ public class ytchannel
 				program.put ("timestamp", timestamp);
 				program.put ("duration", duration);
 
-				if (channel_id.equals ("virtual:following"))
+				if (channel_id.equals ("virtual:following") && username != null)
 					{
 					String real_channel = config.youtube_username_to_channel_id (username);
 					program.put ("real_channel", real_channel);
@@ -577,6 +598,166 @@ public class ytchannel
 			}
 		}
 	
+	// d.feed.entry[0].title.$t
+	// d.feed.entry[0].updated.$t
+	// d.feed.entry[0].author[0].uri.$t  <- https://gdata.youtube.com/feeds/api/users/machinima
+	// d.feed.entry[0].media$thumbnail[0].url   <-- channel thumb
+	// d.feed.entry[0].gd$feedLink[0].countHint
+	
+	public static String[] parse_youtube_search (metadata config, String data)
+		{
+		if (data == null)
+			{
+			Log.i ("vtest", "youtube channel JSON data is null");
+			return null;
+			}
+		if (data.startsWith ("ERROR"))
+			{
+			Log.i ("vtest", "error in HTTP request: " + data);
+			return null;
+			}
+
+		Log.i ("vtest", "search data starts with: " + data.substring(0,20));
+		try
+			{
+			JSONObject json = new JSONObject (data);
+			JSONObject dataObject = null;
+			try
+				{
+				dataObject = json.getJSONObject ("feed");
+				}
+			catch (Exception ex)
+				{
+				Log.i ("vtest", "JSON: no dataObject in search data!");
+				return null;
+				}
+			JSONArray entries = null;
+			try
+				{
+				entries = dataObject.getJSONArray ("entry");
+				}
+			catch (Exception ex)
+				{
+				Log.i ("vtest", "JSON: no entries in search data!");
+				return null;
+				}
+			
+			for (int i = 0; i < entries.length(); i++)
+				{
+				Log.i ("vtest", "search entry: " + i + " of " + entries.length());
+				JSONObject entry = entries.getJSONObject (i);
+				if (entry == null)
+					{
+					Log.i ("vtest", "JSON: entry #" + i + " of search data is null!");
+					continue;
+					}
+			      
+				JSONObject title_container = entry.getJSONObject ("title");
+				String title = (title_container != null) ? title_container.getString ("$t") : "[no title]";
+	
+				JSONObject updated_container = entry.getJSONObject ("updated");			
+				String updated_date = (updated_container != null) ? updated_container.getString ("$t") : "";
+				
+				/* example 2012-11-11T05:57:15.000Z -- SimpleDateFormat is not documented as working with "Z" type timezones */
+				updated_date = updated_date.replace ("Z", "-0000");
+				
+				String timestamp = "";
+	            SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+	            try
+	            	{
+					Date dt = sdf.parse (updated_date);
+					timestamp = "" + dt.getTime();
+	            	}
+	            catch (ParseException e1)
+	            	{
+	            	}
+	            
+	            JSONArray authors = null;
+	            try
+	            	{
+	            	authors = dataObject.getJSONArray ("author");
+	            	}
+	            catch (Exception e2)
+	            	{
+	            	Log.i ("vtest", "no authors in this search entry");
+	            	continue;
+	            	}
+	            
+				JSONObject first_author = authors.getJSONObject (0);
+				JSONObject first_uri_container = first_author.getJSONObject ("uri");	
+				
+				String uri = first_uri_container.getString ("$t");
+
+	            JSONArray media_thumbnails = null;
+	            try
+	            	{
+	            	media_thumbnails = dataObject.getJSONArray ("media$thumbnail");
+	            	}
+	            catch (Exception e3)
+	            	{
+	            	Log.i ("vtest", "no media thumbnails in this search entry");
+	            	continue;
+	            	}
+	            
+	            JSONObject first_media_thumbnail = media_thumbnails.getJSONObject (0);
+	            
+				String channel_thumb = first_media_thumbnail.getString ("url");
+				
+				
+	            JSONArray gd_feed_links = null;
+	            try
+	            	{
+	            	gd_feed_links = dataObject.getJSONArray ("gd$feedLink");
+	            	}
+	            catch (Exception e3)
+	            	{
+	            	Log.i ("vtest", "no gd$feedLink in this search entry");
+	            	continue;
+	            	}
+	            
+	            JSONObject first_gd_feed_link = gd_feed_links.getJSONObject (0);
+	            
+	            int count_hint = first_gd_feed_link.getInt ("countHint");
+	         
+	            String fields[] = uri.split ("/");
+	            String username = null;
+	            if (fields.length > 0)
+	            	username = fields [fields.length - 1];
+	            
+				Log.i ("vtest", "title: " + title);
+				Log.i ("vtest", "uri: " + uri);
+				Log.i ("vtest", "username: " + username);
+				Log.i ("vtest", "channel_thumb: " + channel_thumb);
+				Log.i ("vtest", "count hint: " + count_hint);
+	
+				/*
+				Hashtable <String, String> program = new Hashtable <String, String> ();
+	
+				program.put ("sort", Integer.toString (sort_base + 1 + i));
+				program.put ("id", video_id);
+				program.put ("channel", channel_id);
+				program.put ("name", title);
+				program.put ("desc", desc);
+				program.put ("thumb", thumb);
+				program.put ("url1", video_url);
+				program.put ("url2", "");
+				program.put ("url3", "");
+				program.put ("url4", "");
+				program.put ("timestamp", timestamp);
+				program.put ("duration", duration);
+				
+				config.add_programs_from_youtube (program);
+				*/
+				}
+			}
+		catch (JSONException e)
+			{
+			e.printStackTrace ();
+			}
+		
+		return null;
+		}
+		
 	/* 3.2 style channels with subepisodes */
 	
 	public static void fetch_and_parse_32 (final Handler h, final Callback callback, final metadata config, final String channel, final int start)

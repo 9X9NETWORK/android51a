@@ -1,7 +1,5 @@
 package tv.tv9x9.player;
 
-/* flurry key: 648QZK9W54HCPMBHGZ4M */
-
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -96,11 +94,8 @@ import com.facebook.widget.*;
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-public class main extends VideoBaseActivity
+public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	{
-	/* set of channels, for up/down flipping */
-	// String arena[] = null; inherit from VideoBaseActivity
-	
 	boolean single_channel = false;
 	boolean single_episode = false;
 	
@@ -467,9 +462,7 @@ public class main extends VideoBaseActivity
 				}
 			if (playback_episode_pager != null)
 				{
-				/* TODO */
 				playback_episode_pager.rejigger();
-				// playback_episode_pager.notifyDataSetChanged();
 				}
 			}
 		}
@@ -488,9 +481,7 @@ public class main extends VideoBaseActivity
 				}
 			if (playback_episode_pager != null)
 				{
-				/* TODO */
 				playback_episode_pager.rejigger();
-				// playback_episode_pager.notifyDataSetChanged();
 				}
 			}
 		}
@@ -508,11 +499,11 @@ public class main extends VideoBaseActivity
 	public void onVideoActivityReady()
 		{
 		/* normally this is sent in onStart(), but config might not be available then */
-		FlurryAgent.onStartSession (this, config.flurry_id);
+		if (config.flurry_id != null)
+			FlurryAgent.onStartSession (this, config.flurry_id);
 		flurry_id_sent = true;
 		
 		resume_as_logged_in_user();
-		// attach_relay();
 		setup_home_buttons();
 		populate_home();
 		
@@ -5844,10 +5835,12 @@ public class main extends VideoBaseActivity
 					int resource_id = getResources().getIdentifier ("ep" + i, "id", getPackageName());
 					int title_id = getResources().getIdentifier ("eptitle" + i, "id", getPackageName());
 					int box_id = getResources().getIdentifier ("ep" + i + "_box", "id", getPackageName());
-					String episode = base + i < content.length ? content [base + i] : null;
+					String episode = null;
+					if (content != null)
+						episode = base + i < content.length ? content [base + i] : null;
 					fill_in_episode_thumb (episode, hrow, resource_id, title_id);
 					View vBorder = hrow.findViewById (resource_id);
-					vBorder.setBackgroundColor (base + i == current_episode_index - 1 ? Color.WHITE : Color.BLACK);
+					vBorder.setBackgroundColor (content != null && base + i == current_episode_index - 1 ? Color.WHITE : Color.BLACK);
 					View vBox = hrow.findViewById (box_id);
 					vBox.setVisibility (episode == null ? View.INVISIBLE : View.VISIBLE);
 					log ("[HORIZ] current: " + (current_episode_index - 1) + ", this one: " + (base + i));
@@ -5869,11 +5862,13 @@ public class main extends VideoBaseActivity
 						
 				if (!is_phone())
 					{
-					String episode3 = base + 3 < content.length ? content [base+3] : null;
+					String episode3 = null;
+					if (content != null)
+						episode3 = base + 3 < content.length ? content [base+3] : null;
 					fill_in_episode_thumb (episode3, hrow, R.id.ep3, 0);
 					}
 				
-				if (base + 4 >= content.length)
+				if (content != null && base + 4 >= content.length)
 					ytchannel.extend_channel (config, channel_id, in_main_thread, new Runnable()
 						{						
 						@Override
@@ -6787,7 +6782,7 @@ public class main extends VideoBaseActivity
 			{
 			store_initialized = true;
 			AbsListView vStore = (AbsListView) findViewById (is_tablet() ? R.id.store_list_tablet : R.id.store_list_phone);
-			store_adapter = new StoreAdapter (this, category_channels);
+			store_adapter = new StoreAdapter (this, (StoreAdapter.mothership) this, config, current_category_index, category_channels);
 			vStore.setAdapter (store_adapter);
 			}
 		}
@@ -6944,9 +6939,16 @@ public class main extends VideoBaseActivity
 		load_category (0, 0);		
 		}
 
+	public boolean outgoing_category_queries_pending()
+		{
+		return outgoing_category_query;
+		}
+	
 	public void load_category (final int index, final int starting)
 		{
 		/* http://player.9x9.tv/playerAPI/categoryInfo?category=6&lang=en&start=30&count=3 */	
+		
+		outgoing_category_query = true;
 		
 		String category_id = category_list [index];
 		
@@ -7072,7 +7074,7 @@ public class main extends VideoBaseActivity
 		for (int i = 0; i < category_channels.length; i++)
 			log ("CATCH load_cat" + i + ": " + category_channels [i]);
 
-		store_adapter.set_content (category_channels);	
+		store_adapter.set_content (current_category_index, category_channels);	
 		redraw_store_list();
 		
 		thumbnail.stack_thumbs (main.this, config, category_channels, in_main_thread, store_channel_thumb_updated);
@@ -7098,240 +7100,7 @@ public class main extends VideoBaseActivity
 	public void redraw_store_list()
 		{	
 		}
-	
-	public class StoreAdapter extends BaseAdapter
-		{
-		private Context context;
-		private String channels[] = null;
 		
-		public StoreAdapter (Context c, String channels[])
-			{
-			context = c;
-			this.channels = channels;
-			}
-	
-		public void set_content (String channels[])
-			{
-			this.channels = channels;
-			notifyDataSetChanged();
-			}
-		
-		@Override
-		public int getCount()
-			{			
-			return channels == null ? 0 : channels.length;
-			}
-	
-		@Override
-		public int getViewTypeCount()
-			{
-			return 2;
-			}
-	
-		@Override
-		public int getItemViewType (int position)
-			{
-			return channels [position].equals ("+") ? 1 : 0;
-			}
-		
-		@Override
-		public Object getItem (int position)
-			{
-			return position;
-			}
-	
-		@Override
-		public long getItemId (int position)
-			{
-			return position;
-			}
-		
-		@Override
-		public View getView (final int position, View convertView, ViewGroup parent)
-			{
-			LinearLayout rv = null;
-					
-			log ("store getView: " + position);
-			
-			if (convertView == null)
-				rv = (LinearLayout) View.inflate (main.this, is_tablet() ? R.layout.store_item_tablet : R.layout.store_item, null);				
-			else
-				rv = (LinearLayout) convertView;
-						
-			if (rv == null)
-				{
-				log ("getView: [position " + position + "] rv is null!");
-				return null;
-				}
-			
-			ImageView vChannelicon = (ImageView) rv.findViewById (R.id.chicon); 
-			ImageView vEpisodeicon = (ImageView) rv.findViewById (R.id.epicon); 
-			
-			TextView vTitle = (TextView) rv.findViewById (R.id.title);
-			TextView vMeta = (TextView) rv.findViewById (R.id.meta);
-			
-			if (vTitle == null)
-				{
-				log ("getView: [position" + position + "] vTitle is null!");
-				}
-					
-			if (position < channels.length && channels [position] != null)
-				{
-				final String channel_id = channels [position];
-				
-				if (channel_id.equals ("+"))
-					{
-					/* store only, not for search */
-					rv = (LinearLayout) View.inflate (main.this, R.layout.store_item_more, null);		
-					if (!outgoing_category_query)
-						{
-						outgoing_category_query = true;
-						load_category (current_category_index, position);
-						}
-					}
-				else
-					{
-					String name = config.pool_meta (channel_id, "name");
-					
-					String timestamp = config.pool_meta (channel_id, "timestamp");
-					String ago = timestamp == null ? "" : util.ageof (Long.parseLong (timestamp) / 1000);
-					
-					if (vTitle != null)
-						vTitle.setText (name == null ? "" : name);
-					
-					if (vMeta != null)
-						{
-						int icount = config.programs_in_real_channel (channel_id);
-						if (icount == 0)
-							{
-							String count = config.pool_meta (channel_id, "count");
-							if (count != null && !count.equals (""))
-								icount = Integer.parseInt (count);
-							}
-						
-						String txt_episode = getResources().getString (R.string.episode_lc);		
-						String txt_episodes = getResources().getString (R.string.episodes_lc);
-						
-						vMeta.setText (ago + " • " + icount + " " + (icount == 1 ? txt_episode : txt_episodes));
-						}
-					
-					if (vEpisodeicon != null)
-						{
-						vEpisodeicon.setImageResource (R.drawable.store_unavailable);
-						
-						boolean channel_thumbnail_found = false;
-						
-						if (vChannelicon != null)
-							{
-							String filename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + channel_id + ".png";
-							
-							File f = new File (filename);
-							if (f.exists ())
-								{
-								Bitmap bitmap = BitmapFactory.decodeFile (filename);
-								if (bitmap != null)
-									{
-									channel_thumbnail_found = true;
-									vChannelicon.setImageBitmap (bitmap);
-									}
-								}
-							}
-						
-						boolean episode_thumbnail_found = false;
-						String filename = getFilesDir() + "/" + config.api_server + "/xthumbs/" + channel_id + ".png";
-						
-						File f = new File (filename);
-						if (f.exists ())
-							{
-							BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-							bmOptions.inJustDecodeBounds = true;
-							
-							/* don't actually need this but might in the future */
-							BitmapFactory.decodeFile (filename, bmOptions);
-							float width = bmOptions.outWidth;
-							float height = bmOptions.outHeight;
-							
-							bmOptions.inJustDecodeBounds = false;
-							bmOptions.inSampleSize = 2;
-							bmOptions.inPurgeable = true;
-							
-							Bitmap bitmap = BitmapFactory.decodeFile (filename, bmOptions);
-							if (bitmap != null)
-								{
-								episode_thumbnail_found = true;
-								vEpisodeicon.setImageBitmap (bitmap);
-								}
-							}
-						
-						if (!channel_thumbnail_found)
-							{
-							if (vChannelicon != null)
-								vChannelicon.setImageResource (R.drawable.noimage);
-							}
-					
-						if (!episode_thumbnail_found)
-							vEpisodeicon.setImageResource (R.drawable.store_unavailable);
-						
-						ImageView vFollow = (ImageView) rv.findViewById (R.id.follow);
-						
-						if (vFollow != null)
-							{
-							int follow_icon = is_tablet() ? R.drawable.icon_follow : R.drawable.icon_follow_black;
-							int unfollow_icon = is_tablet() ? R.drawable.icon_unfollow : R.drawable.icon_unfollow_press;
-							vFollow.setImageResource (config.is_subscribed (channel_id) ? unfollow_icon : follow_icon);
-							}
-						
-						if (vFollow != null)
-							vFollow.setOnClickListener (new OnClickListener()
-								{
-						        @Override
-						        public void onClick (View v)
-						        	{
-						        	log ("click on: store follow " + channel_id);
-						        	follow_or_unfollow (channel_id);
-						        	}
-								});
-						
-						View vShare = rv.findViewById (R.id.share);
-						if (vShare != null)
-							vShare.setOnClickListener (new OnClickListener()
-								{
-						        @Override
-						        public void onClick (View v)
-						        	{
-						        	log ("click on: store share " + channel_id);
-						        	share_episode (channel_id, null);
-						        	}
-								});	
-						
-						if (vEpisodeicon != null)
-							vEpisodeicon.setOnClickListener (new OnClickListener()
-								{
-						        @Override
-						        public void onClick (View v)
-						        	{
-						        	log ("click on: store play " + channel_id);
-						        	launch_player (channel_id, channels);
-						        	}
-								});							
-						}
-					}
-				}
-			else
-				{
-				vChannelicon.setImageResource (R.drawable.unavailable);		
-				vEpisodeicon.setImageResource (R.drawable.store_unavailable);
-				vTitle.setText ("");
-				}
-			
-			FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vEpisodeicon.getLayoutParams();
-			layout.height = (int) ((float) (screen_width - pixels_40) / 1.77 * 0.55);
-			vEpisodeicon.setLayoutParams (layout);
-			
-			return rv;
-			}	
-		}	
-	
 	class LineItemAdapter extends ArrayAdapter <String>
 		{
 		Activity context;
@@ -7502,7 +7271,7 @@ public class main extends VideoBaseActivity
 		if (!search_initialized)
 			{
 			search_initialized = true;
-			search_adapter = new StoreAdapter (this, search_channels);
+			search_adapter = new StoreAdapter (this, (StoreAdapter.mothership) this, config, -1, search_channels);
 			AbsListView vSearch = (AbsListView) findViewById (is_tablet() ? R.id.search_list_tablet : R.id.search_list_phone);
 			vSearch.setAdapter (search_adapter);
 			}
@@ -7596,7 +7365,7 @@ public class main extends VideoBaseActivity
 					}
 
 				search_channels = channel_ids;
-				search_adapter.set_content (search_channels);
+				search_adapter.set_content (-1, search_channels);
 				search_adapter.notifyDataSetChanged();
 				
 				redraw_search_list();

@@ -111,12 +111,6 @@ import org.json.JSONObject;
 
 public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer.OnFullscreenListener
 	{
-	/* APP_NAME no longer used, it is now kept in config.chromecast-id */
-	// String APP_NAME = "7b53e536-a36e-4ac0-9d51-2250458805da";
-	String APP_NAME = "5ecf7ff9-2144-46ce-acc9-6d606831e2dc_1";
-	// String APP_NAME = "5ecf7ff9-2144-46ce-acc9-6d606831e2dc";
-	// String APP_NAME = "9C4D71DA"; <- buzzkill
-	
 	/* 0=unstarted, 2=waiting for service, 3=started 4=started+initialized */
 	int started = 0;
 
@@ -274,13 +268,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentById (R.id.video_fragment_container);
 	    videoFragment.set_context (this);
 	    
-	    // FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-        // ft.detach (videoFragment);  
-        // ft.commit();
-        
-	    // to remove fragment
-	    // getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
-	    
 		if (mBound)
 			{
 			started = 3;
@@ -365,12 +352,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (progress_timer != null)
 			progress_timer.cancel();
 		
-		if (mService != null)
-			{
-			mService.relay_post ("RELEASE");
-			mService.unset_callbacks (identity);
-			}
-		
 		google_cast_destroy();
 		super.onDestroy();
 		}
@@ -440,6 +421,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    v_movement_threshhold = pixels_120;
 		}
 		
+	public int actual_pixels (int dp)
+		{
+		return (int) (dp * density);
+		}
+	
+	public int screen_width()
+		{
+		return screen_width;		
+		}
+	
 	public void device_parameters()
 		{
 		try
@@ -502,9 +493,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{	
 		if (screen != null)
 			{
-			// if (most_recent_screen != null && most_recent_screen.equals (screen))
-			//	return;
-		
 			if (most_recent_screen_or_menu != null && most_recent_screen_or_menu.equals (screen))
 				return;
 			
@@ -878,136 +866,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		/* override this */
 		}
 	
-	int relay_retries = 0;
-	
-	public void attach_relay()
-		{
-		if (mService.is_connected())
-			{
-			mService.set_callbacks (identity, relay_receive, relay_error);
-			announce();
-			}
-		else
-	    	in_main_thread.postDelayed (start_relay_task, relay_retries > 20 ? 30000 : 2000);
-		}
-		
-	public void announce()
-		{
-		boolean googletv = false;
-		if (getPackageManager().hasSystemFeature ("com.google.android.tv"))
-			{
-			googletv = true;
-		    log ("Google TV detected");
-			}
-		mService.relay_post ("DEVICE " + (googletv ? "GoogleTV" : "AndroidTV"));
-		String token = config.rendering_token != null ? config.rendering_token : config.usertoken;
-		if (token != null && !token.equals (""))
-			mService.relay_post ("RENDERER " + token);
-		else
-			mService.relay_post ("RENDERER nobody");
-		mService.relay_post ("WHOAMI");
-		readout_volume();
-		}
-	
-	final Callback relay_started = new Callback()
-		{
-		@Override
-		public void run_string (String s)
-			{
-			log ("relay started");
-			announce();
-			}
-		};
-	
-	final Runnable start_relay_task = new Runnable()
-		{
-		@Override
-		public void run()
-			{
-			config = mService.get_metadata (identity);
-			if (mService.is_connected())
-				{
-				log ("start_relay_task, already connected, carry on");
-				mService.set_callbacks (identity, relay_receive, relay_error);
-				}
-			else
-				mService.open_relay (identity, relay_started, relay_receive, relay_error);
-			}
-		};
-			
-	final Callback relay_error = new Callback()
-		{
-		@Override
-		public void run_string (String s)
-			{
-			log ("relay error: " + s);
-			log ("** RECONNECT **");
-	    	relay_retries++;
-			/* to prevent stack overflow, post this in the main thread, in case this was called from a thread */
-	    	if (relay_retries < 10)
-	    		in_main_thread.postDelayed (start_relay_task, 500);
-			}
-		};
-
-	final Callback relay_receive = new Callback()
-		{
-		@Override
-		public void run_string (String s)
-			{
-			log ("relay received: " + s);
-			String fields[] = s.split (" ");
-			if (fields[0].equals ("BECOME"))
-				{
-				log ("RECEIVED: " + s);
-				config.rendering_token = fields [1];
-				if (fields.length >= 3)
-					{
-					mService.relay_post ("RENDERER " + config.rendering_token + " " + fields[2]);
-					config.rendering_username = fields [2];
-					}
-				else
-					mService.relay_post ("RENDERER " + config.rendering_token);				
-				mService.relay_post ("REPORT READY");
-				// set_screen_from_thread (screentype.BEACHBALL);
-				// set_screen_from_thread (screentype.VIDEO);
-				}
-			else if (fields[0].equals ("CHANNEL"))
-				{
-				log ("RECEIVED: " + s);
-				load_channel_then (fields[1], null, null, null);
-				}
-			else if (fields[0].equals ("PLAY"))
-				{
-				log ("RECEIVED: " + s);				
-				play (fields[1], fields[2]);
-				}
-			else if (fields[0].equals ("PAUSE"))
-				{
-				pause_video();
-				}
-			else if (fields[0].equals ("RESUME"))
-				{
-				video_play();
-				}
-			else if (fields[0].equals ("VOLUME"))
-				{
-				set_volume (Integer.parseInt (fields[1]));
-				readout_volume();
-				}			
-			else if (fields[0].equals ("OFF"))
-				{
-				log ("RECEIVED: " + s);
-				config.television_turning_off = true;
-				exit_stage_left();
-				}			
-			else if (fields[0].equals ("YOUARE"))
-				{
-				log ("RECEIVED: " + s);
-				final String devname = fields[1];
-				}
-			}
-		};
-		
 	String chromecast_stream_status = "play";
 	
 	public void pause_video()
@@ -1215,7 +1073,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		AudioManager au = (AudioManager) getSystemService (Context.AUDIO_SERVICE);
 		int vol = au.getStreamVolume (AudioManager.STREAM_MUSIC);
 		int max_vol = au.getStreamMaxVolume (AudioManager.STREAM_MUSIC);
-		mService.relay_post ("REPORT VOLUME " + vol + " " + max_vol);
+		// mService.relay_post ("REPORT VOLUME " + vol + " " + max_vol);
 		return vol;
 		}
 	
@@ -1233,8 +1091,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{
 			config = mService.get_metadata (identity);
 			
-			FlurryAgent.onStartSession (this, "648QZK9W54HCPMBHGZ4M");
-			// FlurryAgent.onStartSession (this, config.flurry_id);
+			if (config.flurry_id != null && !config.flurry_id.isEmpty())
+				FlurryAgent.onStartSession (this, config.flurry_id);
 			FlurryAgent.setLogEnabled (true);
 			FlurryAgent.setLogLevel (Log.DEBUG);
 			
@@ -1685,7 +1543,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				log ("PLAY TITLECARD " + end_title_id + ": " + message);
 				
 				current_end_titlecard_id = end_title_id;
-				play_black_video();
 				
 				in_main_thread.postDelayed (new Runnable()
 					{
@@ -1755,7 +1612,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				
 				/* save this so we can detect if the user has moved on */
 				current_begin_titlecard_id = begin_title_id;
-				play_black_video();
 				
 				in_main_thread.postDelayed (new Runnable()
 					{
@@ -1835,13 +1691,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		log ("++ [" + episode_id + "] current subepisode " + current_subepisode + " -> " + (current_subepisode + 1));
 		current_subepisode++;
 		play_current_subepisode();
-		}
-		
-	public void play_black_video()
-		{
-		// yt_player.setPlaybackEventListener (null);
-		// yt_player.setPlayerStateChangeListener (null);
-		// try { yt_player.loadVideo (black_video_id, 0); } catch (Exception ex) { ex.printStackTrace(); }
 		}
 	
 	public void set_titlecard_bg (String bgimage, String channel, String titlecard_id, String begin_or_end)
@@ -2037,11 +1886,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			ex.printStackTrace();
 			}
 		
-		//// yt_player.setFullscreen (false); <-- commented out 15-May-2013 !!!!
-
-		// playerView.setVisibility(View.VISIBLE);
-		//// WHY?? playerView.requestFocus();
-		
 		View vTitlecard = findViewById (R.id.titlecard);
 		vTitlecard.setVisibility (View.GONE);				
 		
@@ -2101,7 +1945,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	            	catch (Exception ex)
 		            	{	
 		            	}
-	            	mService.relay_post ("REPORT TICK " + offset + " " + duration);
 	            	if (video_cutoff_time >= 0)
 	            		{
 	            		if (offset > 0 && offset > video_cutoff_time)
@@ -2930,9 +2773,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 						
 						String nature = config.pool_meta (current_channel, "nature");
 						String channel_name = config.pool_meta (current_channel, "name");
-						String episode_name = config.program_meta(current_episode, "name");
-						
-						// track_event ("p" + current_channel + "/" + "e" + current_episode, "epWatched", channel_name + "/" + episode_name, 0);							
+						String episode_name = config.program_meta(current_episode, "name");							
 						
 						if (config.usertoken != null)
 							{
@@ -3234,33 +3075,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
      
         if (gcast_media_route_button_main != null)
         	gcast_media_route_button_main.setRouteSelector (gcast_media_route_selector);
-        
-		/*
-        gcast_session_listener = new SessionListener();
-        gcast_message_stream = new tvStream();
-        gcast_context = new CastContext (getApplicationContext());
-        
-        log ("chromecast app name: " + config.chromecast_app_name);
-        
-        gcast_media_route_selector = MediaRouteHelper.buildMediaRouteSelector (MediaRouteHelper.CATEGORY_CAST, config.chromecast_app_name, null);
-        
-        gcast_media_route_button = (MediaRouteButton) findViewById (R.id.media_route_button);        
-        if (gcast_media_route_button != null)
-        	gcast_media_route_button.setRouteSelector (gcast_media_route_selector);
-        
-        // gcast_media_route_button_main = (MediaRouteButton) findViewById (R.id.media_route_button_main);        
-        // if (gcast_media_route_button_main != null)
-        //	gcast_media_route_button_main.setRouteSelector (gcast_media_route_selector);
-        
-        // gcast_media_route_button.setDialogFactory(mDialogFactory);
-        
-        MediaRouteHelper.registerMinimalMediaRouteProvider (gcast_context, this);
-        gcast_media_router = MediaRouter.getInstance (getApplicationContext());
-
-        gcast_media_router_callback = new MediaRouterCallback();
-                
-
-        */
         
         gcast_created = true;        
         if (gcast_start_pending)
@@ -3735,77 +3549,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     	}            
 
     boolean chromecasted = false;
-    
-         
-    /*
-    private class tvStream extends CastMessageStream
-    	{
-    	boolean is_playing = false;
-    	
-        @Override
-        protected void onGameJoined(String playerSymbol, String opponentName)
-        	{
-        	}
-
-		@Override
-		protected void onGameError(String errorMessage)
-			{
-			}     
-	    
-		@Override
-	    public void onChromecastPausePlay (boolean is_playing)
-	    	{    
-			this.is_playing = is_playing;
-			ImageView vPausePlay = (ImageView) findViewById (R.id.pause_or_play);
-			if (vPausePlay != null)
-				vPausePlay.setImageResource (is_playing ? R.drawable.pause_tablet : R.drawable.play_tablet);	
-	    	}	    
-		
-		@Override
-	    public void onChromecastPosition (String channel, String episode, int position, int duration)
-    		{
-			float pct = (float) position / (float) duration;
-			onVideoActivityProgress (is_playing, position, duration, pct);
-    		}
-		
-	    
-		@Override
-	    public void onChromecastEpisodeChanged (String channel, String episode)
-	    	{    
-			update_metadata_mini (episode);
-	    	}	    
-        }
-    */
-    
-    /*
-    private class MediaRouterCallback extends MediaRouter.Callback
-    	{
-        @Override
-        public void onRouteSelected (MediaRouter router, RouteInfo route)
-        	{
-        	log ("onRouteSelected: " + route);
-            VideoBaseActivity.this.onRouteSelected (route);
-        	}
-
-        @Override
-        public void onRouteUnselected(MediaRouter router, RouteInfo route)
-        	{
-            log ("onRouteUnselected: " + route);
-            VideoBaseActivity.this.onRouteUnselected (route);
-        	}
-    	}    
-    */
-
+             
     public void chromecast (String channel_id, String episode_id, int offset)
     	{
-    	// if (gcast_application_session != null)
-    	// gcast_message_stream.play (config, channel_id, episode_id, arena);
-    	// else
-    		{
-    		/* display the JSON only */
-    		/* CastMessageStream.assemble_play_command_json (config, channel_id, episode_id, arena); */
-    		}
-    		
     	JSONObject json = assemble_play_command_json (channel_id, episode_id, offset, arena);
     	pending_seek = false;
     	try { sendMessage (json.toString()); } catch (Exception ex) { ex.printStackTrace(); }
@@ -4044,608 +3790,4 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    
 	    return payload;
 		}
-    
-    /************************************************************************/
-    
-    
-
-    public static final class VideoFragment extends YouTubePlayerSupportFragment implements OnInitializedListener
-		{
-    	boolean paused = false;
-    	
-		private YouTubePlayer player = null;
-		private String videoId;
-	
-		final String devkey = "AI39si5HrNx2gxiCnGFlICK4Bz0YPYzGDBdJHfZQnf-fClL2i7H_A6Fxz6arDBriAMmnUayBoxs963QLxfo-5dLCO9PCX-DTrA";
-		
-		private VideoBaseActivity ctx = null;
-		
-		public void log (String text)
-			{
-			Log.i ("vtest", "[videoFragment] " + text);
-			}
-		
-		public static VideoFragment newInstance()
-			{
-			return new VideoFragment();
-			}
-	
-		@Override
-		public void onCreate (Bundle savedInstanceState)
-			{
-			super.onCreate (savedInstanceState);
-			log ("onCreate");			
-			initialize (devkey, this);
-			reset_time_played();
-			}
-	
-		@Override
-		public void onDestroy()
-			{
-			if (player != null)
-				{
-				try { player.release(); } catch (Exception ex) { ex.printStackTrace(); };
-				log ("YouTube released");
-				}
-			log ("onDestroy");    		
-			super.onDestroy();
-			}
-	
-		@Override
-		public void onStart()
-			{
-			log ("onStart"); 
-			super.onStart();
-			}
-		
-		@Override
-		public void onResume()
-			{
-			log ("onResume");
-			initialize (devkey, this);
-			super.onResume();
-			}
-
-		@Override
-		public void onPause()
-			{
-			log ("onPause");
-			if (player != null)
-				{
-				try { player.release(); player = null; } catch (Exception ex) { ex.printStackTrace(); };
-				log ("YouTube released");
-				}
-			super.onPause();
-			}
-
-		@Override
-		public void onAttach (Activity activity)
-			{
-			log ("onAttach"); 
-			super.onAttach (activity);
-			}
-		
-		@Override
-		public void onDetach()
-			{
-			log ("onDetach"); 
-			super.onDetach();
-			}
-		
-		public void set_context (VideoBaseActivity ctx)
-			{
-			this.ctx = ctx;
-			}
-		
-		public boolean ready()
-			{
-			return player != null;
-			}
-		
-		public boolean is_paused()
-			{
-			return paused;
-			}
-		
-		public void setVideoId (String videoId)
-			{
-			log ("setVideoId: " + videoId);
-			if (videoId != null && !videoId.equals(this.videoId))
-				{
-				this.videoId = videoId;
-				if (player != null)
-					{
-					try
-						{
-						player.cueVideo (videoId);
-						}
-					catch (Exception ex)
-						{
-						ex.printStackTrace();
-						}
-					}
-				}
-			}
-	
-		public String current_video_id()
-			{
-			return videoId;
-			}
-		
-		public void pause()
-			{
-			if (player != null)
-				{
-				try
-					{
-					player.pause();
-					}
-				catch (Exception ex)
-					{
-					ex.printStackTrace();
-					}
-				}
-			}
-	
-		public void play()
-			{
-			if (!ctx.chromecasted)
-				{
-				if (player != null)
-					{
-					try
-						{										
-						player.play();
-						}
-					catch (Exception ex)
-						{
-						ex.printStackTrace();
-						}
-					}
-				}
-			}
-		
-		public void load_video (String id, int start_msec)
-			{
-			if (!ctx.chromecasted)
-				{
-				videoId = id;
-				if (player != null)
-					try { player.loadVideo (id, start_msec); } catch (Exception ex) { ex.printStackTrace(); }
-				}
-			}
-
-		public void load_video (String id)
-			{
-			if (!ctx.chromecasted)
-				{
-				videoId = id;
-				if (player != null)
-					try { player.loadVideo (id); } catch (Exception ex) { ex.printStackTrace(); }
-				}
-			}
-
-		public void set_manage_audio_focus (boolean focus)
-			{
-			if (player != null)
-				try { player.setManageAudioFocus (false); } catch (Exception ex) { ex.printStackTrace(); }
-			}
-
-		public int get_offset()
-			{
-			int offset = 0;
-			if (player != null)
-				try { offset = player.getCurrentTimeMillis(); } catch (Exception ex) {};
-			return offset;
-			}
-
-		public int get_duration()
-			{
-			int duration = 0;
-			if (player != null)
-				try { duration = player.getDurationMillis(); } catch (Exception ex) {};
-			return duration;
-			}
-		
-		public void seek (int offset)
-			{
-			if (!ctx.chromecasted)
-				if (player != null)
-					try { player.seekToMillis (offset); } catch (Exception ex) {};
-			}
-		
-		public boolean is_playing()
-			{
-			boolean is_playing = true;
-			if (player != null)
-				try { is_playing = player.isPlaying(); } catch (Exception ex) {};
-			return is_playing;
-			}
-		
-		public void set_full_screen (boolean flag)
-			{
-			if (player != null)
-				try { player.setFullscreen (flag); } catch (Exception ex) {};
-			}
-		
-		public void set_listeners()
-			{
-			set_playback_event_listener();
-			set_state_change_listener();
-			}
-				
-		long video_time_counter = 0L;
-		
-		public void add_to_time_played()
-			{
-			long now = System.currentTimeMillis();
-			ctx.cumulative_episode_time += (now - video_time_counter);
-			video_time_counter = now;	
-			}
-		
-		public void reset_time_played()
-			{
-			video_time_counter = System.currentTimeMillis();
-			}
-		
-		public void set_playback_event_listener()
-			{
-			try
-				{
-				if (player == null)
-					{
-					log ("set_playback_event_listener: player is null!");
-					return;
-					}
-				player.setPlaybackEventListener (new YouTubePlayer.PlaybackEventListener()
-					{				
-					@Override
-					public void onBuffering (boolean isBuffering)
-						{
-						log ("video event: onBuffering=" + isBuffering);
-						ctx.set_video_visibility (View.VISIBLE);
-						ctx.set_video_alpha (255);
-						ctx.mService.relay_post ("REPORT BUFFERING");
-						}
-			
-					@Override
-					public void onPaused()
-						{
-						log ("video event: onPaused");
-						paused = true;
-						
-						ctx.in_main_thread.post (new Runnable()
-							{
-							public void run()
-								{
-								ctx.onVideoActivityPauseOrPlay (true);
-								ctx.in_main_thread.post (ctx.redraw_control_bar);
-								}
-							});
-						// in_main_thread.post (go_halfscreen);
-						ctx.mService.relay_post ("REPORT PAUSED");
-						ctx.submit_track_eof();
-						
-						add_to_time_played();					
-						}
-			
-					@Override
-					public void onPlaying()
-						{
-						log ("video event: onPlaying");
-						paused = false;
-						
-						ctx.set_video_visibility (View.VISIBLE);
-						ctx.set_video_alpha (255);
-						// ImageView knob = (ImageView) findViewById (R.id.knob);
-						ImageView knob = (ImageView) ctx.findViewById (R.id.knob);
-						if (knob != null)
-							knob.setVisibility (View.VISIBLE);
-						if (false && ctx.video_has_started)
-							{
-							/* presume this is resuming from a pause */
-				        	long offset = player.getCurrentTimeMillis();
-				        	if (offset > 0)
-				        		ctx.in_main_thread.post (ctx.go_fullscreen);
-							}
-						ctx.video_has_started = true;
-						ctx.video_play_pending = false;
-						ctx.pending_restart = false;
-						ctx.mService.relay_post ("REPORT PLAYING");
-						ctx.readout_volume();
-						ctx.in_main_thread.post (new Runnable()
-							{
-							public void run()
-								{
-								ctx.onVideoActivityPauseOrPlay (false);
-								}
-							});
-						// ctx.submit_track_unpause();
-						
-						reset_time_played();
-						}
-			
-					@Override
-					public void onSeekTo (int newPositionMillis)
-						{
-						log ("video event: onSeekTo: " + newPositionMillis);
-						ctx.invalidate_progress_bar();
-						}
-			
-					@Override
-					public void onStopped()
-						{
-						log ("video event: onStopped");
-						
-						add_to_time_played();	
-						
-						log ("pending_restart is: " + ctx.pending_restart);
-						ctx.reset_progress_bar();
-						// video_cutoff_time = -1;
-						// video_next_trigger = video_release_trigger = -1;
-						ctx.set_video_alpha (0);
-						ctx.submit_track_eof();
-						if (ctx.chromecasted)
-							{
-							log ("onStopped: chromecast is active, won't move to next episode");
-							return;
-							}
-						else if (ctx.video_systemic_error)
-							{
-							/* don't want to start videos -- problem with a layout or view */
-							ctx.video_systemic_error = false;
-							log ("onStopped: systemic error, won't move to next episode");
-							return;
-							}
-						else if (ctx.exit_in_progress)
-							{
-							log ("onStopped: exit in progress, won't move to next episode");
-							return;
-							}
-						else if (ctx.restore_video_location)
-							{
-							log ("onstopped: restore_video_location is set, won't move to next episode");
-							return;
-							}
-						// in_main_thread.post (go_fullscreen);
-						// in_main_thread.post (remove_dialog_tuner);
-						// set_screen_from_thread (video_play_pending ? screentype.BEACHBALL : screentype.SPLASH);
-						else if (ctx.playing_begin_titlecard)
-							{
-							log ("onStopped: playing begin titlecard, won't move to next episode");
-							return;
-							}
-						else if (ctx.playing_end_titlecard)
-							{
-							log ("onStopped: playing end titlecard, won't move to next episode");
-							return;
-							}
-						else if (!ctx.able_to_play_video())
-							{	
-							log ("onStopped: incorrect mode to play another video");
-							return;
-							}						
-						else if (ctx.pending_restart)
-							{
-							log ("onStopped: pending_restart, re-kicking the video");
-							ctx.pending_restart = false;
-							ctx.start_playing();
-							return;
-							}					
-						else if (ctx.video_has_started)
-							{
-							if (ctx.screen_is_on())
-								ctx.next_episode_with_rules();
-							else
-								log ("onStopped: screen is off, won't move to next episode");
-							}
-						else
-							{
-							log ("onStopped: video was not started, won't move to next episode");
-							return;
-							}
-						}
-					});
-				}
-			catch (Exception ex)
-				{
-				ex.printStackTrace();
-				}
-			}
-		
-		public void set_state_change_listener()
-			{	
-			try
-				{
-				if (player == null)
-					{
-					log ("set_state_change_listener: player is null!");
-					return;
-					}
-				player.setPlayerStateChangeListener (new YouTubePlayer.PlayerStateChangeListener()
-					{
-					@Override
-					public void onAdStarted()
-						{
-						log ("[video state] onAdStarted");
-						}
-			
-					@Override
-					public void onError (ErrorReason reason)
-						{
-						log ("[video state] onError: " + reason.toString());
-		
-						/* maybe this error is in the middle of a video */
-						add_to_time_played();
-						
-						/* not displaying errors is idiotic -- requested by PMs */
-						if (1 == 2)
-							{
-							if (reason.toString().equals ("USER_DECLINED_RESTRICTED_CONTENT"))
-								ctx.alert ("Restricted content -- probably age restriction");
-							else if (reason.toString().equals ("INTERNAL_ERROR"))
-								ctx.alert ("Internal error -- probably this video is private");
-							else if (reason.toString().equals ("UNAUTHORIZED_OVERLAY"))
-								ctx.video_systemic_error = true;
-							else if (reason.toString().equals ("PLAYER_VIEW_TOO_SMALL"))
-								ctx.video_systemic_error = true;		
-							else if (reason.toString().equals ("UNKNOWN"))
-								/* API bug? -- do nothing */;
-							else
-								ctx.alert (reason.toString());
-							}
-						else
-							{
-							if (reason.toString().equals ("UNAUTHORIZED_OVERLAY"))
-								ctx.video_systemic_error = true;
-							else if (reason.toString().equals ("PLAYER_VIEW_TOO_SMALL"))
-								ctx.video_systemic_error = true;
-							}
-						
-						/* this behavior requested by PMs is idiotic */
-						if (!ctx.exit_in_progress && !ctx.playing_begin_titlecard 
-								&& !ctx.playing_end_titlecard && ctx.screen_is_on() && ctx.able_to_play_video())
-							{
-							/* add extra time to minimize catastrophe caused by requested, idiotic behavior */
-							ctx.in_main_thread.postDelayed (new Runnable()
-								{	
-								@Override
-								public void run()
-									{
-									if (ctx.screen_is_on() && ctx.able_to_play_video())
-										{
-										log ("video onError; playing next episode");
-										ctx.next_episode();
-										}
-									}
-								}, 200);
-							}
-						}
-			
-					@Override
-					public void onLoaded (String arg0)
-						{		
-						log ("[video state] onLoaded");
-						}
-			
-					@Override
-					public void onLoading()
-						{
-						log ("[video state] onLoading");
-						ctx.set_video_visibility (View.VISIBLE);
-						}
-			
-					@Override
-					public void onVideoEnded()
-						{
-						log ("[video state] onVideoEnded");
-						add_to_time_played();
-						}
-			
-					@Override
-					public void onVideoStarted()
-						{
-						log ("[video state] onVideoStarted");
-						ctx.set_poi_trigger (false);
-						ctx.set_video_visibility (View.VISIBLE);
-						ctx.onVideoActivityVideoStarted (player);
-						ctx.setup_progress_bar();
-						reset_time_played();
-						}
-					});
-				}
-			catch (Exception ex)
-				{
-				ex.printStackTrace();
-				}
-			}
-	
-		int video_height = 0, video_width = 0;
-		
-		@Override
-		public void onInitializationSuccess (Provider provider, YouTubePlayer player, boolean was_restored)
-			{
-			this.player = player;
-			
-			log ("YouTube initialized successfully");
-			
-			SpecialFrameLayout yt_wrapper = (SpecialFrameLayout) ctx.findViewById (R.id.ytwrapper2);
-			yt_wrapper.setOnVideoResize (new Callback()
-				{
-				@Override
-				public void run_two_integers (int newX, int newY)
-					{
-					/* This is no longer necessary to the player. But keeping it in, since knowing newX and newY helps when diagnosing problems */
-					log ("AHA! newX=" + newX + ", newY=" + newY);
-					if (newX > pixels_100 && newY > pixels_100)
-						{
-						log ("recording new video size: width=" + newX + " height=" + newY);
-						video_width = newX;
-						video_height = newY;
-						}
-					}
-				});
-					
-			try
-				{
-				player.addFullscreenControlFlag (YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
-				}
-			catch (Exception ex)
-				{
-				ex.printStackTrace();
-				}
-			
-			/* these three lines force the navigation bar (present on tablets and at least one dongle), to remain locked on */
-			// int flags = player.getFullscreenControlFlags();
-			// flags &= ~player.FULLSCREEN_FLAG_CONTROL_SYSTEM_UI;
-			// player.setFullscreenControlFlags (flags);
-			
-			try
-				{
-				player.setPlayerStyle (YouTubePlayer.PlayerStyle.CHROMELESS);
-				}
-			catch (Exception ex)
-				{
-				ex.printStackTrace();
-				}
-			
-			try
-				{
-				player.setOnFullscreenListener ((VideoBaseActivity) getActivity());
-				}
-			catch (Exception ex)
-				{
-				ex.printStackTrace();
-				}
-			
-			if (!was_restored && videoId != null)
-				{
-				try
-					{
-					player.cueVideo (videoId);
-					}
-				catch (Exception ex)
-					{
-					ex.printStackTrace();
-					}
-				}
-				
-			if (!was_restored)
-				ctx.ready();			
-			}
-	
-		@Override
-		public void onInitializationFailure (Provider provider, YouTubeInitializationResult result)
-			{
-			player = null;
-			}
-		
-		@Override
-		public void onConfigurationChanged (Configuration newConfig)
-			{
-			super.onConfigurationChanged (newConfig);
-			log ("CONFIGURATION CHANGED IN VIDEO FRAGMENT!");
-			ctx.onVideoActivityLayout();
-			}
-		}    
-	}
+ 	}
