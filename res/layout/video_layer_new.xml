@@ -221,7 +221,7 @@
 					/>	
 			</FrameLayout>
 	      	<fragment
-			    class="tv.tv9x9.player.VideoBaseActivity$VideoFragment"
+			    class="tv.tv9x9.player.VideoFragment"
 			    android:id="@+id/video_fragment_container"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
