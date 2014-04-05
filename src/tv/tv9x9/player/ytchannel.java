@@ -62,7 +62,7 @@ public class ytchannel
 					+ "?v=2&alt=json&start-index=" + start_index + "&max-results=50&prettyprint=true";
 		else if (nature.equals ("s"))
 			url = "http://gdata.youtube.com/feeds/api/channels?q=" + username
-					+ "v=2&alt=json&start-index=" + start_index + "&max-results=50&prettyprint=true";
+					+ "&v=2&alt=json&start-index=" + start_index + "&max-results=50&prettyprint=true";
 		else
 			{
 			Log.i ("vtest", "unknown channel nature: " + nature);
@@ -145,7 +145,7 @@ public class ytchannel
 		}
 	
 	public static void youtube_channel_search_in_thread
-			(final metadata config, final String term, final Handler handler, final Runnable update)
+			(final metadata config, final String term, final Handler handler, final Callback update)
 		{
 		Thread t = new Thread()
 			{
@@ -154,8 +154,16 @@ public class ytchannel
 				{
 				Log.i ("vtest", "youtube_channel_search_in_thread: \"" + term + "\"");
 				String data = fetch_youtube ("s", term, 1);
-				String channels[] = parse_youtube_search (config, data);
-				handler.post (update);
+				final String channels[] = parse_youtube_search (config, data);
+				if (update != null)
+					handler.post (new Runnable()
+						{
+						public void run()
+							{
+							if (update != null)
+								update.run_string_array (channels);
+							}
+						});
 				}
 			};
 	
@@ -617,6 +625,8 @@ public class ytchannel
 			return null;
 			}
 
+		String commas = "";
+		
 		Log.i ("vtest", "search data starts with: " + data.substring(0,20));
 		try
 			{
@@ -675,7 +685,7 @@ public class ytchannel
 	            JSONArray authors = null;
 	            try
 	            	{
-	            	authors = dataObject.getJSONArray ("author");
+	            	authors = entry.getJSONArray ("author");
 	            	}
 	            catch (Exception e2)
 	            	{
@@ -691,7 +701,7 @@ public class ytchannel
 	            JSONArray media_thumbnails = null;
 	            try
 	            	{
-	            	media_thumbnails = dataObject.getJSONArray ("media$thumbnail");
+	            	media_thumbnails = entry.getJSONArray ("media$thumbnail");
 	            	}
 	            catch (Exception e3)
 	            	{
@@ -707,7 +717,7 @@ public class ytchannel
 	            JSONArray gd_feed_links = null;
 	            try
 	            	{
-	            	gd_feed_links = dataObject.getJSONArray ("gd$feedLink");
+	            	gd_feed_links = entry.getJSONArray ("gd$feedLink");
 	            	}
 	            catch (Exception e3)
 	            	{
@@ -719,6 +729,12 @@ public class ytchannel
 	            
 	            int count_hint = first_gd_feed_link.getInt ("countHint");
 	         
+	            if (count_hint <= 0)
+	            	{
+	            	Log.i ("vtest", "no episodes seem to be in this search entry, skipping");
+	            	continue;
+	            	}
+
 	            String fields[] = uri.split ("/");
 	            String username = null;
 	            if (fields.length > 0)
@@ -730,24 +746,12 @@ public class ytchannel
 				Log.i ("vtest", "channel_thumb: " + channel_thumb);
 				Log.i ("vtest", "count hint: " + count_hint);
 	
-				/*
-				Hashtable <String, String> program = new Hashtable <String, String> ();
-	
-				program.put ("sort", Integer.toString (sort_base + 1 + i));
-				program.put ("id", video_id);
-				program.put ("channel", channel_id);
-				program.put ("name", title);
-				program.put ("desc", desc);
-				program.put ("thumb", thumb);
-				program.put ("url1", video_url);
-				program.put ("url2", "");
-				program.put ("url3", "");
-				program.put ("url4", "");
-				program.put ("timestamp", timestamp);
-				program.put ("duration", duration);
+				String channel_id = "=" + username;
+				config.add_channel (0, channel_id, title, "", channel_thumb, "" + count_hint, "", "", "3", username);
 				
-				config.add_programs_from_youtube (program);
-				*/
+				config.set_channel_meta_by_id (channel_id, "timestamp", timestamp);
+
+				commas += (commas.isEmpty() ? "" : ",") + channel_id;
 				}
 			}
 		catch (JSONException e)
@@ -755,7 +759,8 @@ public class ytchannel
 			e.printStackTrace ();
 			}
 		
-		return null;
+		/* this is absurd but temporary */
+		return commas.split (",");
 		}
 		
 	/* 3.2 style channels with subepisodes */
@@ -902,6 +907,11 @@ public class ytchannel
 	public static void fetch_youtube_comments_in_thread
 			(final Handler h, final Runnable callback, final metadata config, final String video_id) 
 		{
+		String requested = config.program_meta (video_id, "comments_fetched");
+		if (requested != null && requested.equals ("true"))
+			return;
+		config.set_program_meta (video_id, "comments_fetched", "true");
+		
 		Thread t = new Thread()
 			{
 			public void run()

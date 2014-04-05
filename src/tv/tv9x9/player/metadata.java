@@ -1196,8 +1196,8 @@ public class metadata
 		return fields[1];
 		}
 
-	public void add_channel (int position, String id, String name, String desc, String thumb, String count, String type, String status, String nature,
-			String extra)
+	public void add_channel (int position, String id, String name, String desc, 
+			String thumb, String count, String type, String status, String nature, String extra)
 		{
 		Hashtable <String, String> channel = new Hashtable <String, String> ();
 
@@ -1655,6 +1655,24 @@ public class metadata
 			}
 		}
 
+	public void set_program_meta (String episode_id, String field, String value)
+		{
+		try
+			{
+			program_lock.lock();
+			Hashtable <String, String> program = programgrid.get (episode_id);
+			if (program != null)
+				{	
+				program.put (field,  value);
+				programgrid.put (episode_id, program);
+				}
+			}
+		finally
+			{
+			program_lock.unlock();
+			}
+		}
+	
 	public boolean OBSOLETE_is_youtube_channel (int channel)
 		{
 		if (!occupied (channel))

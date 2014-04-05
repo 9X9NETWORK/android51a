@@ -30,4 +30,8 @@ public class Callback implements Runnable
 	public void run_string_and_object (String a, Object b)
 		{
 		}
+	
+	public void run_string_array (String a[])
+		{		
+		}
 	}

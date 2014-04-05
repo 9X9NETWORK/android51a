@@ -771,6 +771,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	/* eat this */
+		        	log ("home layer ate my tap!");
 		        	}
 				});					
 		}
@@ -1126,7 +1127,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			LinearLayout rv = null;
 					
-			log ("apps getView: " + position);
+			log ("menu getView: " + position + " (of " + getCount() + ")");
 			
 			if (convertView == null)
 				rv = (LinearLayout) View.inflate (main.this, R.layout.menu_item, null);				
@@ -1668,6 +1669,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		String episode_id = program_line [current_episode_index - 1];
 		String episode_name = config.program_meta (episode_id, "name");
+		String episode_desc = config.program_meta (episode_id, "desc");
 		
 		String channel_name = null;
 		if (actual_channel_id.contains (":"))
@@ -1694,6 +1696,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 		TextView vEpisodeTitle = (TextView) findViewById (R.id.episode_title);
 		vEpisodeTitle.setText (episode_name);
+		
+		TextView vDesc = (TextView) findViewById (R.id.playback_episode_description);
+		vDesc.setText (episode_desc);
 		
 		// TODO: TEMPORARY!
 		vEpisodeTitle.setOnClickListener (new OnClickListener()
@@ -1819,26 +1824,33 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		};		
 	
-	public void follow_or_unfollow (String channel_id)
+	public void follow_or_unfollow (String channel_id, View v)
 		{
 		if (config.is_subscribed (channel_id))
-			unsubscribe (channel_id);
+			unsubscribe (channel_id, v);
 		else
-			subscribe (channel_id);
+			subscribe (channel_id, v);
 		}
 	
-	public void subscribe (final String real_channel)
+	public void subscribe (final String real_channel, final View v)
 		{
 		if (config.usertoken != null)
 			{
+    		if (follow_or_unfollow_in_progress)
+				{
+				log ("follow or unfollow already in progress");
+				return;
+				}
 			final int position =  config.youtube_auth_token == null ? config.first_empty_position() : 0;
 	    	if (position >= 0)
 				{
+	    		make_follow_icon_a_spinner (v);
 	    		int server_position = (position == 0) ? 0 : config.client_to_server (position);
 	    		new playerAPI (in_main_thread, config, "subscribe?user=" + config.usertoken + "&channel=" + real_channel + "&grid=" + server_position)
 					{
 					public void success (String[] lines)
 						{
+						make_follow_icon_normal (v);
 						toast_by_resource (R.string.following_yay);
 						config.place_in_channel_grid (real_channel, position, true);
 						config.set_channel_meta_by_id (real_channel, "subscribed", "1");						
@@ -1850,6 +1862,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						}
 					public void failure (int code, String errtext)
 						{
+						make_follow_icon_normal (v);
 						alert ("Subscription failure: " + errtext);
 						config.dump_subscriptions();
 						}
@@ -1864,24 +1877,31 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				public void run()
 					{
 					if (config.usertoken != null)
-						subscribe (real_channel);
+						subscribe (real_channel, v);
 					}
 				});
 			}
 		}
 		
-	public void unsubscribe (final String real_channel)
+	public void unsubscribe (final String real_channel, final View v)
 		{
 		if (config.usertoken != null)
 			{
+    		if (follow_or_unfollow_in_progress)
+				{
+				log ("follow or unfollow already in progress");
+				return;
+				}
 			final int position =  config.youtube_auth_token == null ? config.first_position_of (real_channel) : 0;
 	    	if (position >= 0)
 				{
+	    		make_follow_icon_a_spinner (v);
 	    		int server_position = (position == 0) ? 0 : config.client_to_server (position);
 	    		new playerAPI (in_main_thread, config, "unsubscribe?user=" + config.usertoken + "&channel=" + real_channel + "&grid=" + server_position)
 					{
 					public void success (String[] lines)
 						{
+						make_follow_icon_normal (v);
 						toast_by_resource (R.string.unfollowing_yay);
 						config.place_in_channel_grid (real_channel, position, false);
 						config.set_channel_meta_by_id (real_channel, "subscribed", "0");		
@@ -1893,6 +1913,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						}
 					public void failure (int code, String errtext)
 						{
+						make_follow_icon_normal (v);
 						alert ("Failure unsubscribing: " + errtext);
 						config.dump_subscriptions();
 						}
@@ -1903,6 +1924,53 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			/* this can't actually happen */
 			toast_by_resource (R.string.please_login_first);
+			}
+		}
+	
+	boolean follow_or_unfollow_in_progress = false;
+	
+	public void set_follow_icon_state (int resource_id, String channel_id, int follow_resource_id, int unfollow_resource_id)
+		{
+		View v = findViewById (resource_id);
+		if (v != null)
+			set_follow_icon_state (v, channel_id, follow_resource_id, unfollow_resource_id);
+		}
+
+	public void set_follow_icon_state (View v, String channel_id, int follow_resource_id, int unfollow_resource_id)
+		{
+		if (v != null)
+			{
+			ImageView vFollowIcon = (ImageView) v.findViewById (R.id.follow_icon);
+			if (vFollowIcon != null)
+				vFollowIcon.setImageResource (config.is_subscribed (channel_id) ? unfollow_resource_id : follow_resource_id);
+			}
+		}
+	
+	public void make_follow_icon_a_spinner (View v)
+		{
+		follow_or_unfollow_in_progress = true;
+		if (v != null)
+			{
+			View vSpinner = v.findViewById (R.id.follow_progress);
+			if (vSpinner != null)
+				vSpinner.setVisibility (View.VISIBLE);
+			View vIcon = v.findViewById (R.id.follow_icon);
+			if (vIcon != null)
+				vIcon.setVisibility (View.GONE);
+			}
+		}
+	
+	public void make_follow_icon_normal (View v)
+		{
+		follow_or_unfollow_in_progress = false;
+		if (v != null)
+			{
+			View vSpinner = v.findViewById (R.id.follow_progress);
+			if (vSpinner != null)
+				vSpinner.setVisibility (View.GONE);
+			View vIcon = v.findViewById (R.id.follow_icon);
+			if (vIcon != null)
+				vIcon.setVisibility (View.VISIBLE);
 			}
 		}
 	
@@ -1931,10 +1999,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		else if (current_layer == toplayer.PLAYBACK)
 			{
-			ImageView vFollow = (ImageView) findViewById (R.id.playback_follow);
-			vFollow.setImageResource (config.is_subscribed (channel_id) ? R.drawable.icon_unfollow : R.drawable.icon_follow);
-			ImageView vFollowLandscape = (ImageView) findViewById (R.id.playback_follow_landscape);
-			vFollowLandscape.setImageResource (config.is_subscribed (channel_id) ? R.drawable.icon_unfollow : R.drawable.icon_follow);			
+			set_follow_icon_state (R.id.playback_follow, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
+			set_follow_icon_state (R.id.playback_follow_landscape, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);		
 			}
 		}
 	
@@ -2211,6 +2277,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	/* eat this */
+		        	log ("signin layer ate my tap!");
 		        	}
 				});
 		
@@ -2510,6 +2577,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	/* eat this */
+		        	log ("terms layer ate my tap!");
 		        	}
 				});
 		
@@ -2874,13 +2942,38 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		disable_video_layer();
 		set_layer (toplayer.APPS);
-		setup_apps_buttons();
 		init_apps();
+		setup_apps_buttons();
 		track_layer (toplayer.APPS);
 		}
 	
 	public void setup_apps_buttons()
 		{
+		AbsListView vAppsList = (AbsListView) findViewById (is_phone() ? R.id.apps_list_phone : R.id.apps_list_tablet);				
+		vAppsList.setOnItemClickListener (new OnItemClickListener()
+			{
+			public void onItemClick (AdapterView parent, View v, int position, long id)
+				{
+				log ("onItemClick: " + position);
+				if (position < apps.length)
+					{
+					log ("app list click: " + position);
+					launch_suggested_app (apps [position].title, apps [position].market_url);
+					}
+				}
+			});
+		
+		View vAppsLayer = findViewById (R.id.appslayer);
+		if (vAppsLayer != null)
+			vAppsLayer.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	/* eat these */
+		        	log ("apps layer ate my tap!");
+		        	}
+				});		
 		}
 
 	public class app
@@ -2955,22 +3048,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					if (menu_adapter != null)
 						redraw_menu();
 					
-					AbsListView vAppsList = (AbsListView) findViewById (is_tablet() ? R.id.apps_list_tablet : R.id.apps_list_phone);				
+					View vPhone = findViewById (R.id.apps_list_phone);
+					vPhone.setVisibility (is_phone() ? View.VISIBLE : View.GONE);
+					
+					View vTablet = findViewById (R.id.apps_list_tablet);
+					vTablet.setVisibility (is_phone() ? View.GONE : View.VISIBLE);
+					
+					AbsListView vAppsList = (AbsListView) findViewById (is_phone() ? R.id.apps_list_phone : R.id.apps_list_tablet);
 					apps_adapter = new AppsAdapter (main.this, apps);
 					vAppsList.setAdapter (apps_adapter);
 					
-					vAppsList.setOnItemClickListener (new OnItemClickListener()
-						{
-						public void onItemClick (AdapterView parent, View v, int position, long id)
-							{
-							if (position < apps.length)
-								{
-								log ("app list click: " + position);
-								launch_suggested_app (apps [position].title, apps [position].market_url);
-								}
-							}
-						});
-					
+					setup_apps_buttons();
 					download_app_thumbs();
 					}
 				public void failure (int code, String errtext)
@@ -3022,9 +3110,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		private Context context;
 		private app apps[] = null;
 		
-		public AppsAdapter (Context c, app apps[])
+		public AppsAdapter (Context context, app apps[])
 			{
-			context = c;
+			this.context = context;
 			this.apps = apps;
 			}
 
@@ -3052,7 +3140,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			LinearLayout rv = null;
 					
-			log ("apps getView: " + position);
+			log ("apps getView: " + position + " (of " + getCount() + ")");
 			
 			if (convertView == null)
 				rv = (LinearLayout) View.inflate (main.this, R.layout.app_item, null);				
@@ -3094,6 +3182,19 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			View vBottomBar = rv.findViewById (R.id.bottom_bar);
 			vBottomBar.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
+			
+			/*
+			View vDownload = rv.findViewById (R.id.download_button);
+			vDownload.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: apps download button");
+		        	launch_suggested_app (apps [position].title, apps [position].market_url);
+		        	}
+				});	
+			*/
 			
 			return rv;
 			}	
@@ -3853,20 +3954,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				cached_layout_type = (row.findViewById (R.id.episode2) != null) ? R.layout.channel_tablet : R.layout.channel_mini;
 				}
 
-			/*
-			if (wanted_layout_type == R.layout.channel)
-				log ("layout type: R.layout.channel");
-			else if (wanted_layout_type == R.layout.channel_tablet)
-				log ("layout type: R.layout.channel_tablet");
-			else if (wanted_layout_type == R.layout.channel_mini)
-				log ("layout type: R.layout.channel_mini");
-			*/
-			
-			// if (true || row == null || wanted_layout_type != cached_layout_type)
-				// {
-				// row = inflater.inflate (wanted_layout_type, null);
-				// }
-
 			if (row == null)
 				{
 				log ("ChannelAdapter inflate row type: " + wanted_layout_type);
@@ -3953,17 +4040,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        	}
 					});	
 			
-			ImageView vFollow = (ImageView) row.findViewById (R.id.follow);
+			View vFollow = row.findViewById (R.id.follow);
 			if (vFollow != null)
 				{
-				vFollow.setImageResource (config.is_subscribed (channel_id) ? R.drawable.icon_unfollow : R.drawable.icon_follow);
+				set_follow_icon_state (vFollow, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
 				vFollow.setOnClickListener (new OnClickListener()
 					{
 			        @Override
 			        public void onClick (View v)
 			        	{
 			        	log ("click on: home follow/unfollow channel " + channel_id);
-			        	follow_or_unfollow (channel_id);
+			        	follow_or_unfollow (channel_id, v);
 			        	}
 					});
 				}
@@ -4622,13 +4709,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, playback_episode_thumb_updated);
 			
-			ImageView vFollow = (ImageView) findViewById (R.id.playback_follow);
-			if (vFollow != null)
-				vFollow.setImageResource (config.is_subscribed (channel_id) ? R.drawable.icon_unfollow : R.drawable.icon_follow);
-			
-			ImageView vFollowLandscape = (ImageView) findViewById (R.id.playback_follow_landscape);
-			if (vFollowLandscape != null)
-				vFollowLandscape.setImageResource (config.is_subscribed (channel_id) ? R.drawable.icon_unfollow : R.drawable.icon_follow);
+			set_follow_icon_state (R.id.playback_follow, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
+			set_follow_icon_state (R.id.playback_follow_landscape, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
 			
 			ytchannel.fetch_youtube_comments_in_thread (in_main_thread, playback_comments_updated, config, episode_id);
 			
@@ -4998,7 +5080,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		int orientation = getRequestedOrientation();
 		boolean landscape = orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 		
-		ImageView vPlaybackFollow = (ImageView) findViewById (R.id.playback_follow);
+		View vPlaybackFollow = findViewById (R.id.playback_follow);
 		if (vPlaybackFollow != null)
 			{
 			vPlaybackFollow.setVisibility (config.usertoken != null ? View.VISIBLE : View.GONE);
@@ -5008,12 +5090,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: playback follow/unfollow");
-		        	follow_or_unfollow (player_real_channel);
+		        	follow_or_unfollow (player_real_channel, v);
 		        	}
 				});	
 			}
 		
-		ImageView vPlaybackFollowLandscape = (ImageView) findViewById (R.id.playback_follow_landscape);
+		View vPlaybackFollowLandscape = findViewById (R.id.playback_follow_landscape);
 		if (vPlaybackFollowLandscape != null)
 			{
 			vPlaybackFollowLandscape.setVisibility (config.usertoken != null && landscape ? View.VISIBLE : View.GONE);
@@ -5023,7 +5105,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: playback follow/unfollow");
-		        	follow_or_unfollow (player_real_channel);
+		        	follow_or_unfollow (player_real_channel, v);
 		        	}
 				});	
 			}
@@ -5062,6 +5144,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	/* eat these */
+		        	log ("video layer ate my tap!");
 		        	}
 				});			
 		
@@ -5932,6 +6015,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	/* eat this */
+		        	log ("guide layer ate my tap!");
 		        	}
 				});
 		
@@ -6238,7 +6322,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: guide follow/unfollow");
-		        	follow_or_unfollow (channel_id);
+		        	follow_or_unfollow (channel_id, v);
 		        	}
 		    	});
 			}
@@ -6733,6 +6817,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	/* eat this */
+		        	log ("shake layer ate my tap!");
 		        	}
 				});				
 		}
@@ -6808,6 +6893,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	/* eat this */
+		        	log ("store layer ate my tap!");
 		        	}
 				});				
 		}
@@ -7287,6 +7373,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	/* eat this */
+		        	log ("search layer ate my tap!");
 		        	}
 				});				
 		}
@@ -7378,6 +7465,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				Log.i ("vtest", "ERROR! " + errtext);
 				}
 			};
+			
+		if (1 == 2)
+			ytchannel.youtube_channel_search_in_thread (config, encoded_term, in_main_thread, new Callback()
+				{
+				public void run_string_array (String a[])
+					{
+					for (String channel: a)
+						{
+						log ("__search channel: " + channel);
+						}
+					}
+				});
 		}
 	
 	public void redraw_search_list()
@@ -7500,7 +7599,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	/* eat this */
-		        	log ("bonk");
+		        	log ("settings layer ate my tap!");
 		        	}
 				});		
 		}

@@ -88,6 +88,8 @@ public class GcmIntentService extends IntentService {
     		}
     	String msg = bundle.toString();
     	String text = bundle.getString ("message");
+    	text = util.decodeURIComponent (text);
+    	
     	String app_name = getResources().getString (R.string.app_name);
     	
     	String mso = null;
@@ -135,6 +137,7 @@ public class GcmIntentService extends IntentService {
 		int icon_id = getResources().getIdentifier (icon_name, "drawable", getPackageName());
         Log.i ("vtest", "gcm: icon=" + icon_name + " id=" + icon_id);
         Log.i ("vtest", "gcm: payload=" + msg);
+        Log.i ("vtest", "gcm: text=" + text);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder (this)
         .setContentTitle (app_name)
         .setStyle (new NotificationCompat.BigTextStyle()

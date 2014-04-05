@@ -4,7 +4,7 @@
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
-    <string name="mso">joeygraceffa</string>
+    <string name="mso">9x9</string>
     <string name="default_region">en</string>
     <string name="logo">tvlogo</string>
     <string name="splash_background">bgnew</string>
@@ -334,7 +334,7 @@
 	<string name="fb_app_id">463854980410020</string>
     -->
 	
-    <bool name="uses_chromecast">false</bool>
+    <bool name="uses_chromecast">true</bool>
     
     <string name="guest">訪客</string>
     <string name="enter_search_terms">輸入想找的內容</string>

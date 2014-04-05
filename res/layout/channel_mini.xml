@@ -111,16 +111,29 @@
 			        android:scaleType="fitXY"
 					android:src="@drawable/icon_share"
 			        />
-				<ImageView
-			    	android:id="@+id/follow"
+				<FrameLayout
+			    	android:id="@+id/follow"			  
 			        android:layout_width="50dip" 
-			        android:layout_height="50dip"
-			        android:padding="6dip"
-			        android:adjustViewBounds="true"
-			        android:scaleType="fitXY"			        
-					android:src="@drawable/icon_follow"
-			        />
-				</LinearLayout>				    	  		
+			        android:layout_height="50dip">		    	  
+					<ImageView
+				    	android:id="@+id/follow_icon"
+				        android:layout_width="wrap_content" 
+				        android:layout_height="fill_parent"
+				        android:padding="6dip"
+						android:src="@drawable/icon_follow"
+				        />			
+				    <ProgressBar
+					    android:id="@+id/follow_progress"          
+				    	android:layout_width="fill_parent"
+				    	android:layout_height="fill_parent"
+				    	android:layout_gravity="center"
+				    	android:gravity="center"
+				        android:padding="6dip"			    	
+				    	style="@android:style/Widget.ProgressBar.Inverse"
+				    	android:visibility="gone"
+				    	/>					        
+			    </FrameLayout>				
+			</LinearLayout>				    	  		
 		</LinearLayout>
 	</LinearLayout>		
 

@@ -1236,6 +1236,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			current_subepisode = 0;
 			
 			String episode_id = program_line [episode - 1];
+			onVideoActivityRefreshMetadata (player_real_channel, episode_id); // TODO: this here?
 			
 			chromecast (player_real_channel, episode_id, 0);
 
@@ -1910,7 +1911,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 
 	final Runnable pause_or_play_adjustment = new Runnable()
 		{
-		public void run ()
+		public void run()
 			{
 			onVideoActivityPauseOrPlay (true);
 			}

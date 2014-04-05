@@ -72,18 +72,37 @@
 			</LinearLayout>
 			<ImageView
 		    	android:id="@+id/share"
-		        android:layout_width="wrap_content" 
-		        android:layout_height="fill_parent"
+		        android:layout_width="45dip" 
+		        android:layout_height="45dip"
 		        android:padding="6dip"
 				android:src="@drawable/icon_share"
+				android:adjustViewBounds="true"
+				android:scaleType="fitXY"
 		        />
-			<ImageView
-		    	android:id="@+id/follow"
-		        android:layout_width="wrap_content" 
-		        android:layout_height="fill_parent"
-		        android:padding="6dip"
-				android:src="@drawable/icon_follow"
-		        />			
+			<FrameLayout
+		    	android:id="@+id/follow"			  
+		        android:layout_width="45dip" 
+		        android:layout_height="45dip">		    	  
+				<ImageView
+			    	android:id="@+id/follow_icon"
+			        android:layout_width="fill_parent" 
+			        android:layout_height="fill_parent"
+			        android:padding="6dip"
+					android:src="@drawable/icon_follow"
+					android:adjustViewBounds="true"
+					android:scaleType="fitXY"					
+			        />			
+			    <ProgressBar
+				    android:id="@+id/follow_progress"          
+			    	android:layout_width="fill_parent"
+			    	android:layout_height="fill_parent"
+			    	android:layout_gravity="center"
+			    	android:gravity="center"
+			        android:padding="6dip"			    	
+			    	style="@android:style/Widget.ProgressBar.Inverse"
+			    	android:visibility="gone"
+			    	/>					        
+		    </FrameLayout>
 		</LinearLayout>			
 	</LinearLayout>
 </LinearLayout>	

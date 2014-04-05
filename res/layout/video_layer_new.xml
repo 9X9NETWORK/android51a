@@ -57,15 +57,29 @@
 		        android:scaleType="fitXY"				        
 				android:src="@drawable/icon_share"
 		        />		
-			<ImageView
+		    <FrameLayout
 		    	android:id="@+id/playback_follow_landscape"
-		        android:layout_width="50dip" 
-		        android:layout_height="50dip"
-		        android:padding="6dip"
-		        android:adjustViewBounds="true"
-		        android:scaleType="fitXY"			        
-				android:src="@drawable/icon_follow"
-		        />			    
+		    	android:layout_width="50dip" 
+		        android:layout_height="50dip">
+				<ImageView
+			    	android:id="@+id/follow_icon"
+			        android:layout_width="fill_parent" 
+			        android:layout_height="fill_parent"
+			        android:padding="6dip"
+			        android:adjustViewBounds="true"
+			        android:scaleType="fitXY"			        
+					android:src="@drawable/icon_follow"
+			        />			  
+			    <ProgressBar
+				    android:id="@+id/follow_progress"          
+			    	android:layout_width="fill_parent"
+			    	android:layout_height="fill_parent"
+			    	android:layout_gravity="center"
+			    	android:gravity="center"
+			    	style="@android:style/Widget.ProgressBar.Inverse"
+			    	android:visibility="gone"
+			    	/>				        
+		    </FrameLayout>  
 			<android.support.v7.app.MediaRouteButton
 			    android:id="@+id/media_route_button"
 				android:mediaRouteTypes="user"			    
@@ -467,15 +481,29 @@
 					        android:scaleType="fitXY"				        
 							android:src="@drawable/icon_share"
 					        />		
-						<ImageView
-					    	android:id="@+id/playback_follow"
+					    <FrameLayout
+					    	android:id="@+id/playback_follow"		
 					        android:layout_width="35dip" 
-					        android:layout_height="35dip"
-					        android:padding="2dip"
-					        android:adjustViewBounds="true"
-					        android:scaleType="fitXY"			        
-							android:src="@drawable/icon_follow"
-					        />					   
+					        android:layout_height="35dip">				    				        
+							<ImageView
+						    	android:id="@+id/follow_icon"
+						        android:layout_width="fill_parent" 
+						        android:layout_height="fill_parent"
+						        android:padding="2dip"
+						        android:adjustViewBounds="true"
+						        android:scaleType="fitXY"			        
+								android:src="@drawable/icon_follow"
+						        />					   
+						    <ProgressBar
+							    android:id="@+id/follow_progress"          
+						    	android:layout_width="fill_parent"
+						    	android:layout_height="fill_parent"
+						    	android:layout_gravity="center"
+						    	android:gravity="center"
+						    	style="@android:style/Widget.ProgressBar.Inverse"
+						    	android:visibility="gone"
+						    	/>									        
+					    </FrameLayout>
 					</LinearLayout>     			
 			    </LinearLayout>				
 	    	</LinearLayout>

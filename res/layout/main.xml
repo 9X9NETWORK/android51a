@@ -15,7 +15,9 @@
 	    <include android:id="@+id/sliding_top_bar" layout="@layout/top_bar" />
 	    		
 	    <include layout="@layout/home_layer" android:id="@+id/home_layer" />
-	    	    	        	    
+	    	    	        	    			
+		<include layout="@layout/apps_layer" />
+			    
 	    <include layout="@layout/signin_layer" />
 	   
 	    <include layout="@layout/terms_layer" />
@@ -27,8 +29,6 @@
 		<include layout="@layout/search_layer" />
 
 		<include layout="@layout/shake_layer" />
-				
-		<include layout="@layout/apps_layer" />
 				
 		<include layout="@layout/settings_phone" />
 									    	    	    	    		

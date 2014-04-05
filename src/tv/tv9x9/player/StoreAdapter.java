@@ -31,10 +31,11 @@ public class StoreAdapter extends BaseAdapter
 		public void log (String text);
 		public boolean is_tablet();
 		public void load_category (final int index, final int starting);
-		public void follow_or_unfollow (String channel_id);
+		public void follow_or_unfollow (String channel_id, final View v);
 		public void share_episode (String channel_id, String episode_id);
 		public void launch_player (String channel_id, String channels[]);
 		public boolean outgoing_category_queries_pending();
+		public void set_follow_icon_state (View v, String channel_id, int follow_resource_id, int unfollow_resource_id);
 		};
 	
 	public StoreAdapter (Context c, mothership ms, metadata config, int current_category_index, String channels[])
@@ -205,15 +206,12 @@ public class StoreAdapter extends BaseAdapter
 				
 					if (!episode_thumbnail_found)
 						vEpisodeicon.setImageResource (R.drawable.store_unavailable);
+
+					View vFollow = rv.findViewById (R.id.follow);
 					
-					ImageView vFollow = (ImageView) rv.findViewById (R.id.follow);
-					
-					if (vFollow != null)
-						{
-						int follow_icon = ms.is_tablet() ? R.drawable.icon_follow : R.drawable.icon_follow_black;
-						int unfollow_icon = ms.is_tablet() ? R.drawable.icon_unfollow : R.drawable.icon_unfollow_press;
-						vFollow.setImageResource (config.is_subscribed (channel_id) ? unfollow_icon : follow_icon);
-						}
+					int follow_icon = ms.is_tablet() ? R.drawable.icon_follow : R.drawable.icon_follow_black;
+					int unfollow_icon = ms.is_tablet() ? R.drawable.icon_unfollow : R.drawable.icon_unfollow_press;
+					ms.set_follow_icon_state (vFollow, channel_id, follow_icon, unfollow_icon);
 					
 					if (vFollow != null)
 						vFollow.setOnClickListener (new OnClickListener()
@@ -222,7 +220,7 @@ public class StoreAdapter extends BaseAdapter
 					        public void onClick (View v)
 					        	{
 					        	ms.log ("click on: store follow " + channel_id);
-					        	ms.follow_or_unfollow (channel_id);
+					        	ms.follow_or_unfollow (channel_id, v);
 					        	}
 							});
 					
