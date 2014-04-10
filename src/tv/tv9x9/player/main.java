@@ -7,14 +7,27 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 
 import tv.tv9x9.player.HorizontalListView.OnScrollListener;
 import tv.tv9x9.player.metadata.Comment;
@@ -42,6 +55,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 import android.os.Vibrator;
 import android.support.v4.app.FragmentTransaction;
@@ -149,9 +163,29 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	public void onResume()
 		{
 		super.onResume();
+		
+		if (restore_video_location)
+			{
+			log ("will restore video");
+			if (videoFragment != null)
+				{
+				videoFragment.set_startup_function (in_main_thread, new Runnable()
+					{
+						@Override
+						public void run()
+							{
+							log ("video restore startup function");
+							restore_location();
+							}						
+					});
+				}
+			else
+				log ("videoFragment is null");
+			}
+		
 		shake_resume();
 		if (uiHelper != null)
-			uiHelper.onResume();
+			uiHelper.onResume();		
 		}
 	
     @Override
@@ -161,6 +195,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
         shake_pause();
         if (uiHelper != null)
         	uiHelper.onPause();
+        
+		if (video_is_minimized && !chromecasted)
+			{
+			log ("saving state of minimized video");
+			remember_location();
+			}
     	}
     
     @Override
@@ -735,6 +775,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				});	
 		
 		
+		/*
 		View vRefresh = vSlidingTopBar.findViewById (R.id.refresh);
 		if (vRefresh != null)
 			vRefresh.setOnClickListener (new OnClickListener()
@@ -758,7 +799,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        	refresh_home();
 		        		}
 		        	}
-				});	
+				});
+		*/	
 		}
 	
 	public void setup_home_buttons()
@@ -1304,9 +1346,47 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		}
 	
 	@Override
+	public void fixup_pause_or_play_button()
+		{
+		if (videoFragment != null && !chromecasted)
+			{
+			/* if in main thread */
+			if (Looper.myLooper() == Looper.getMainLooper())
+				fixup_pause_or_play_inner();
+			
+			for (int delay: new Integer[] { 10, 100, 250, 500, 1000, 2000, 3000, 4000, 5000 })
+				{
+				in_main_thread.postDelayed (new Runnable()
+					{
+					@Override
+					public void run()
+						{
+						fixup_pause_or_play_inner();						
+						}	
+					}, delay);
+				}
+			}
+		}
+	
+	public void fixup_pause_or_play_inner()
+		{
+		if (!chromecasted)
+			{
+			boolean is_playing = videoFragment.is_playing();
+			ImageView vPausePlay = (ImageView) findViewById (R.id.pause_or_play);
+			if (vPausePlay != null)
+				vPausePlay.setImageResource (is_playing ? R.drawable.pause_tablet : R.drawable.play_tablet);
+			}
+		}
+	
+	@Override
 	public void onVideoActivityProgress (boolean is_playing, int offset, int duration, float pct)
 		{
 		videoActivityUpdateProgressBar (offset, duration);
+		
+		/* update pause button when we can */
+		if (!chromecasted && Looper.myLooper() == Looper.getMainLooper())
+			fixup_pause_or_play_inner();
 		}
 
 	@Override
@@ -1722,7 +1802,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			});	
 			
 		String timestamp = config.program_meta (episode_id, "timestamp");		
-		String ago = util.ageof (Long.parseLong (timestamp) / 1000);
+		String ago = util.ageof (main.this, Long.parseLong (timestamp) / 1000);
 		
 		TextView vAgo = (TextView) findViewById (R.id.episode_age);
 		if (vAgo != null)
@@ -1760,7 +1840,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (vEpisodeName != null)
 			vEpisodeName.setText (episode_name != null && !episode_name.equals ("") ? episode_name : "[no episode name]");
 		String timestamp = config.program_meta (episode_id, "timestamp");
-		String ago = util.ageof (Long.parseLong (timestamp) / 1000);		
+		String ago = util.ageof (main.this, Long.parseLong (timestamp) / 1000);		
 		TextView vAgo = (TextView) findViewById (R.id.episode_age);
 		if (vAgo != null)
 			vAgo.setText (ago);
@@ -1844,8 +1924,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			final int position =  config.youtube_auth_token == null ? config.first_empty_position() : 0;
 	    	if (position >= 0)
 				{
-	    		make_follow_icon_a_spinner (v);
+
 	    		int server_position = (position == 0) ? 0 : config.client_to_server (position);
+	    		
+	    		if (real_channel.startsWith ("="))
+	    			{
+	    			subscribe_via_post (real_channel, position, v);
+	    			return;
+	    			}
+	    		
+	    		make_follow_icon_a_spinner (v);
 	    		new playerAPI (in_main_thread, config, "subscribe?user=" + config.usertoken + "&channel=" + real_channel + "&grid=" + server_position)
 					{
 					public void success (String[] lines)
@@ -1976,6 +2064,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void update_layer_after_subscribe (String channel_id)
 		{
+		log ("update layer after subscribe: " + channel_id);
 		if (current_layer == toplayer.STORE)
 			{
 			if (store_adapter != null)
@@ -2002,6 +2091,113 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			set_follow_icon_state (R.id.playback_follow, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
 			set_follow_icon_state (R.id.playback_follow_landscape, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);		
 			}
+		}
+
+	public void subscribe_via_post (final String real_channel, final int position, final View v)
+		{
+		make_follow_icon_a_spinner (v);
+		
+		final String channel_name = config.pool_meta (real_channel, "name");
+		final String channel_image = config.pool_meta (real_channel, "thumb");
+		final String url = "http://www.youtube.com/user/" + real_channel.replaceAll ("^=", "");
+		
+		String program_line[] = config.program_line_by_id (real_channel);
+		
+		final String e1_thumb = (program_line.length > 0) ? config.program_meta(program_line[0], "thumb") : "";
+		final String e2_thumb = (program_line.length > 1) ? config.program_meta(program_line[1], "thumb") : "";
+		final String e3_thumb = (program_line.length > 2) ? config.program_meta(program_line[2], "thumb") : "";
+		
+		final String e1_name = (program_line.length > 0) ? config.program_meta(program_line[0], "name") : "";
+		final String e2_name = (program_line.length > 1) ? config.program_meta(program_line[1], "name") : "";
+		final String e3_name = (program_line.length > 2) ? config.program_meta(program_line[2], "name") : "";
+
+		if (e1_thumb != null && e1_thumb.startsWith ("http"))
+			config.set_channel_meta_by_id (real_channel, "episode_thumb", e1_thumb);
+		
+		// channelSubmit response:
+		// 0	SUCCESS
+		// I/vtest   (15411): --
+		// I/vtest   (15411): 32604	Test of FAITH	https://lh4.googleusercontent.com/-IsaoVr_-NPU/AAAAAAAAAAI/AAAAAAAAAAA/dBRQPKmAthM/photo.jpg	3	
+
+		Thread t = new Thread ()
+			{
+			@Override
+			public void run()
+				{
+			    HttpClient httpclient = new DefaultHttpClient();
+			    HttpPost httppost = new HttpPost ("http://" + config.api_server + "/playerAPI/channelSubmit");
+
+				ResponseHandler <String> response_handler = new BasicResponseHandler();
+
+		        List <NameValuePair> kv = new ArrayList <NameValuePair> (7);
+		        kv.add (new BasicNameValuePair ("mso", config.mso));
+		        kv.add (new BasicNameValuePair ("url", url));
+		        kv.add (new BasicNameValuePair ("grid", "" + config.client_to_server (position)));
+		        kv.add (new BasicNameValuePair ("langCode", "" + config.region));
+		        kv.add (new BasicNameValuePair ("user", config.usertoken));
+		        kv.add (new BasicNameValuePair ("name", channel_name + "|" + e1_name + "|" + e2_name + "|" + e3_name));
+		        kv.add (new BasicNameValuePair ("image", channel_image + "|" + e1_thumb + "|" + e2_thumb + "|" + e3_thumb));
+
+				try
+			    	{
+			        httppost.setEntity (new UrlEncodedFormEntity (kv));
+			        String response = httpclient.execute (httppost, response_handler);			        
+			        Log.i ("vtest", "channelSubmit response: " + response);
+			        String lines[] = response.split ("\n");
+			        if (lines.length >= 3)
+			        	{
+			        	String fields[] = lines[0].split ("\t");
+			        	if (fields[0].equals ("0"))
+			        		{
+			        		/* first do a little dance to rename this fake channel */
+			        		fields = lines[2].split ("\t");
+			        		final String new_channel_id = fields[0];
+			        		log ("new channel id is: " + new_channel_id + ", position is: " + position);
+			        		config.copy_channel (real_channel, new_channel_id);
+			        		player_real_channel = new_channel_id;
+			        		if (playback_episode_pager != null)
+			        			playback_episode_pager.set_channel_id_only (new_channel_id);
+			        		
+			        		/* perform actual subscription on main thread */
+			        		in_main_thread.post (new Runnable()
+			        			{
+								@Override
+								public void run()
+									{
+									toast_by_resource (R.string.following_yay);
+									config.place_in_channel_grid (new_channel_id, position, true);
+									config.set_channel_meta_by_id (new_channel_id, "subscribed", "1");						
+									String youtube_username = config.pool_meta (new_channel_id, "extra");
+									ytchannel.subscribe_on_youtube (config, youtube_username);
+									config.subscriptions_altered = config.grid_update_required = true;
+									track_event ("function", "follow", "follow", 0, new_channel_id);
+									update_layer_after_subscribe (new_channel_id);
+									thumbnail.stack_thumbs (main.this, config, new String[] { new_channel_id }, null, null);
+									}			        			
+			        			});
+
+			        		}
+			        	}
+			    	}
+			    catch (Exception ex)
+			    	{
+			        Log.i ("vtest", "channelSubmit failure");
+			        ex.printStackTrace();
+			    	}
+			
+				/* UI change must be done on the main thread */
+				in_main_thread.post (new Runnable()
+					{
+					@Override
+					public void run()
+						{
+					    make_follow_icon_normal (v);
+						}					
+					});
+				}
+			};
+
+		t.start();
 		}
 	
 	public View home_layer()
@@ -3026,12 +3222,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							{
 							app a = new app();
 							String fields[] = lines[i].split ("\t");
-							a.title = fields[0];
-							a.description = fields[1];
-							a.icon_url = fields[2];
-							a.market_url = fields[3];
+							a.title = fields.length > 0 ? fields[0] : "";
+							a.description = fields.length > 1 ? fields[1] : "";
+							a.icon_url = fields.length > 2 ? fields[2] : "";
+							a.market_url = fields.length > 3 ? fields[3] : "";
 							/* market://details?id=tv.ddtv.player9x9tv&hl=en */
-							Matcher m = pattern.matcher (fields[3]);
+							Matcher m = pattern.matcher (a.market_url);
 							if (m.find())
 								a.basename = m.group (1);
 							if (section == 0)
@@ -3100,9 +3296,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void launch_suggested_app (String name, String url)
 		{
-		Intent intent = new Intent (Intent.ACTION_VIEW, Uri.parse (url));
-		startActivity (intent);
-		track_event ("install", "toDownload-others", name, 0);
+		if (url != null && !url.equals (""))
+			{
+			Intent intent = new Intent (Intent.ACTION_VIEW, Uri.parse (url));
+			startActivity (intent);
+			track_event ("install", "toDownload-others", name, 0);
+			}
 		}
 	
 	public class AppsAdapter extends BaseAdapter
@@ -3183,18 +3382,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			View vBottomBar = rv.findViewById (R.id.bottom_bar);
 			vBottomBar.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 			
-			/*
-			View vDownload = rv.findViewById (R.id.download_button);
-			vDownload.setOnClickListener (new OnClickListener()
+			String txt_download = getResources().getString (R.string.download);
+			String txt_coming_soon = getResources().getString (R.string.coming_soon);
+			
+			TextView vDownload = (TextView) rv.findViewById (R.id.download_button);
+			if (vDownload != null)
 				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: apps download button");
-		        	launch_suggested_app (apps [position].title, apps [position].market_url);
-		        	}
-				});	
-			*/
+				if (apps [position].market_url == null || apps [position].market_url.equals(""))
+					vDownload.setText (txt_coming_soon);
+				else
+					vDownload.setText (txt_download);
+				}
 			
 			return rv;
 			}	
@@ -3222,6 +3420,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        home_slider = new HomeSlider();
 		        vHomePager = (StoppableViewPager) home_layer().findViewById (R.id.homepager);
 		        vHomePager.setAdapter (home_slider);
+		        if (portal_stack_ids.length > 1)
+		        	{
+		        	int unique_sets = portal_stack_ids.length / 100;
+		        	int start_set = unique_sets * 50;
+		        	log ("start set: " + start_set);
+		        	vHomePager.setCurrentItem (start_set);
+		        	}
 				}
 			}
 		
@@ -3425,6 +3630,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						{
 						sh.channel_adapter = new ChannelAdapter (main.this, sh.arena, sh);
 						sh.vChannels.setAdapter (sh.channel_adapter);
+						sh.vChannels.set_refresh_function (in_main_thread, new Runnable()
+							{
+							@Override
+							public void run()
+								{
+								refresh_home();
+								}							
+							});
 			    		LayoutInflater inflater = main.this.getLayoutInflater();
 			    		View shim = inflater.inflate (R.layout.footer_shim, null);
 			    		sh.vChannels.addFooterView (shim);
@@ -3525,6 +3738,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void refresh_home()
 		{
+		log ("refresh home");
 		vc_cache = new Hashtable < String, String[] > ();
 		if (home_slider != null)
 			home_slider.reload_data();
@@ -3663,89 +3877,39 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				log ("frontpage :: " + fields[0] + ": " + fields[1]);
 				}
 			}
-		}	
-	 
-	LinearLayout sets_scroller = null;
-	
-	public void OLD_setup_sets_scroller()
-		{
-		if (sets_scroller == null)
+		
+		if (portal_stack_ids.length > 1)
 			{
-			String text_array[] = { "Daily News", "Selected YouTube", "Whatever's on Third", "Chinese News" };
-			HorizontalScrollView vHoriz = null ; // (HorizontalScrollView) findViewById (R.id.sets_horiz);
-			sets_scroller = new LinearLayout (main.this);
-			sets_scroller.setLayoutParams (new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-			// LinearLayout vHorizInside = (LinearLayout) findViewById (R.id.sets_horiz_inside);
-			sets_scroller.setOrientation(LinearLayout.HORIZONTAL);
+			/* makin' copies: the only sensible way to loop around the home pages is to use ViewPager with
+			   duplicate data repeated. The user will never reach the end unless she is a nutter. */
+			
+			int repeat = 100;
+			int new_num_stacks = repeat * num_stacks;
+			
+			String new_portal_stack_ids[] = new String [new_num_stacks];
+			String new_portal_stack_names[] = new String [new_num_stacks];
+			String new_portal_stack_episode_thumbs[] = new String [new_num_stacks];
+			String new_portal_stack_channel_thumbs[] = new String [new_num_stacks];
 			
 			int count = 0;
-			View item = View.inflate (main.this, R.layout.set_item, null);
-			sets_scroller.addView (item, count++);
-			for (int i = 0; i < portal_stack_names.length; i++)
-				{
-				item = View.inflate (main.this, R.layout.set_item, null);
-				TextView vText = (TextView) item.findViewById (R.id.set_title);
-				vText.setText (portal_stack_names[i]);
-				sets_scroller.addView (item, count++);
-				
-				final int set_index = i;
-				item.setOnClickListener (new OnClickListener()
+			
+			for (int i = 0; i < repeat; i++)
+				for (int j = 0; j < num_stacks; j++)
 					{
-			        @Override
-			        public void onClick (View v)
-			        	{
-			        	String set_id = portal_stack_ids [set_index];
-			        	log ("click on: set scroller, set " + set_id);
-			        	
-			        	if (!set_id.equals (current_home_stack))
-			        		{
-			        		// init_home_with_set (set_id);
-			        		OLD_update_sets_scroller();
-			        		}
-			        	else
-			        		{
-			        		channel_overlay_adapter.set_content (arena);
-			        		// toggle_channel_overlay(); TODO:
-			        		}
-			        	}
-					});	
-				}
-			
-			item = View.inflate (main.this, R.layout.set_item, null);
-			sets_scroller.addView (item, count++);
-			
-			vHoriz.addView (sets_scroller);
-			
-			OLD_update_sets_scroller();
-			}
-		}
-	
-	public void OLD_update_sets_scroller()
-		{
-		for (int i = 1; i < sets_scroller.getChildCount() - 1; i++)
-			{
-			View v = sets_scroller.getChildAt (i);
-			TextView vTitle = (TextView) v.findViewById (R.id.set_title);
-			View vChevron = v.findViewById (R.id.down_chevron);
-			if (v != null)
-				{
-				log ("+++ PS " + (i-1) + " = " + portal_stack_ids[i-1] + " vs current: " + current_home_stack);
-				if (portal_stack_ids[i-1].equals (current_home_stack))
-					{
-					vTitle.setTextColor (Color.argb (0xFF, 0xFF, 0xFF, 0xFF));
-					v.setBackgroundColor (Color.argb (0xFF, 0x00, 0x00, 0x00));
-					vChevron.setVisibility (View.VISIBLE);
+					new_portal_stack_ids [count] = portal_stack_ids [j];
+					new_portal_stack_names [count] = portal_stack_names [j];
+					new_portal_stack_episode_thumbs [count] = portal_stack_episode_thumbs [j];
+					new_portal_stack_channel_thumbs [count] = portal_stack_channel_thumbs [j];
+					count++;
 					}
-				else
-					{
-					vTitle.setTextColor (Color.argb (0xFF, 0x00, 0x00, 0x00));
-					v.setBackgroundColor (Color.argb (0x00, 0x00, 0x00, 0x00));
-					vChevron.setVisibility (View.GONE);
-					}
-				}
+			
+			portal_stack_ids = new_portal_stack_ids;
+			portal_stack_names = new_portal_stack_names;
+			portal_stack_episode_thumbs = new_portal_stack_episode_thumbs;
+			portal_stack_channel_thumbs = new_portal_stack_channel_thumbs;			
 			}
-		}
-		
+		}	
+			
 	public void query_pile (String id, Callback callback)
 		{
 		if (id.equals ("virtual:following"))
@@ -4131,7 +4295,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				if (num_episodes > 0 && program_line != null && program_line.length > 0)
 					{
 					long ts = config.get_most_appropriate_timestamp (channel_id);
-					String ago = util.ageof (ts);
+					String ago = util.ageof (main.this, ts);
 					vAgo.setText (ago);
 					vAgo.setVisibility (View.VISIBLE);
 					}
@@ -4274,7 +4438,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (vSubTitle != null)
 				{
 				long ts = config.get_most_appropriate_timestamp (channel_id);
-				String ago = util.ageof (ts);
+				String ago = util.ageof (main.this, ts);
 				String txt_episode = getResources().getString (R.string.episode_lc);
 				String txt_episodes = getResources().getString (R.string.episodes_lc);
 				String subtitle = ago + " • " + program_line.length + " " + (program_line.length == 1 ? txt_episode : txt_episodes);
@@ -4404,7 +4568,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					}
 				};
 
-			thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, horiz_update_thumbs);
+			// thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, horiz_update_thumbs);
 			}
 		};
 	
@@ -4426,6 +4590,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		@Override
 		public void run_string_and_object (final String channel_id, Object horiz_obj)
 			{
+			String episodes[] = config.program_line_by_id (channel_id);
+			final ViewPager horiz = (ViewPager) horiz_obj;
+			EpisodeSlider horiz_adapter = (EpisodeSlider) horiz.getAdapter();
+			horiz_adapter.set_content (channel_id, episodes);
+			
+			/*
 			final ViewPager horiz = (ViewPager) horiz_obj;
 			Runnable horiz_update_thumbs = new Runnable()
 				{
@@ -4437,8 +4607,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					horiz_adapter.set_content (channel_id, episodes);
 					}
 				};
-
-			thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, horiz_update_thumbs);
+			*/
+			// thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, horiz_update_thumbs);
 			}
 		};
 		
@@ -4707,7 +4877,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						
 			playback_comments_updated.run();
 			
-			thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, playback_episode_thumb_updated);
+			// thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, playback_episode_thumb_updated);
 			
 			set_follow_icon_state (R.id.playback_follow, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
 			set_follow_icon_state (R.id.playback_follow_landscape, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
@@ -5183,7 +5353,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	@Override
 	public boolean able_to_play_video()
 		{
-		if (current_layer != toplayer.PLAYBACK)
+		if (current_layer != toplayer.PLAYBACK && !video_is_minimized)
 			return false;
 		
 		View vVideoLayer = video_layer();
@@ -5247,7 +5417,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (program_line != null && program_line.length > 0)
 				{
 				long ts = config.get_most_appropriate_timestamp (channel_id);
-				String ago = util.ageof (ts);
+				String ago = util.ageof (main.this, ts);
 				String txt_episode = getResources().getString (R.string.episode_lc);
 				String txt_episodes = getResources().getString (R.string.episodes_lc);
 				subtitle = ago + " • " + program_line.length + " " + (program_line.length == 1 ? txt_episode : txt_episodes);
@@ -5395,7 +5565,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					timestamp = 0;
                 	}
                 
-        		String ago = util.ageof (timestamp / 1000);
+        		String ago = util.ageof (main.this, timestamp / 1000);
         		vAgo.setText (ago);
 				}
 			
@@ -5828,6 +5998,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			this.channel_id = channel_id;
 			this.content = content; 
 			
+			log ("episode slider: " + content.length + " episodes");
+			
 			/* set the height of the viewpager */
 			
 			int per = is_phone() ? 3 : 4;    
@@ -5844,7 +6016,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			this.channel_id = channel_id;
 			this.content = content; 
+			log ("episode slider reset: " + content.length + " episodes");
 			notifyDataSetChanged();
+			}
+		
+		public void set_channel_id_only (String channel_id)
+			{
+			this.channel_id = channel_id;
 			}
 		
 		@Override
@@ -5871,6 +6049,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	{
 	    	int per = is_phone() ? 3 : 4;
 	    	int length = content != null ? (content.length + per - 1) / per : 0;
+	    	log ("** HORIZ length: " + length);
 	        return length;
 	    	}
 	
@@ -5908,10 +6087,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			if (swap != null)
 				{
+				log ("*** redraw swap: " + swap.position);
+				
 				LinearLayout hrow = swap.hrow;
 				
 				final int per = is_phone() ? 3 : 4;
 				int base = swap.position * per;
+				
+				String episodes[] = new String [4];
+				boolean all_thumbs_found = true;
 				
 				for (int i = 0; i < per; i++)
 					{
@@ -5921,7 +6105,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					String episode = null;
 					if (content != null)
 						episode = base + i < content.length ? content [base + i] : null;
-					fill_in_episode_thumb (episode, hrow, resource_id, title_id);
+					episodes [i] = episode;
+					if (!fill_in_episode_thumb (episode, hrow, resource_id, title_id))
+						all_thumbs_found = false;
 					View vBorder = hrow.findViewById (resource_id);
 					vBorder.setBackgroundColor (content != null && base + i == current_episode_index - 1 ? Color.WHITE : Color.BLACK);
 					View vBox = hrow.findViewById (box_id);
@@ -5940,15 +6126,31 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				        	}
 						});					
 					}
-				
-				/* TODO: here, download episode thumbs if necessary */
 						
 				if (!is_phone())
 					{
 					String episode3 = null;
 					if (content != null)
 						episode3 = base + 3 < content.length ? content [base+3] : null;
-					fill_in_episode_thumb (episode3, hrow, R.id.ep3, 0);
+					episodes [3] = episode3;
+					if (!fill_in_episode_thumb (episode3, hrow, R.id.ep3, 0))
+						all_thumbs_found = false;
+					}
+				
+				log ("all thumbs found: " + all_thumbs_found);
+				
+				if (!all_thumbs_found)
+					{
+					/* download episode thumbs */
+					thumbnail.download_specific_episode_thumbnails
+							(main.this, config, channel_id, episodes, in_main_thread, new Runnable()
+						{
+						@Override
+						public void run()
+							{
+							redraw_swap (swap);
+							}									
+						});
 					}
 				
 				if (content != null && base + 4 >= content.length)
@@ -5961,6 +6163,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							set_content (channel_id, program_line);
 							redraw_swap (swap);
 							update_metadata_inner();
+							/*
 							thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, new Runnable()
 								{
 								@Override
@@ -5969,6 +6172,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 									redraw_swap (swap);
 									}									
 								});
+							*/
 							}					
 						});
 				}
@@ -7168,10 +7372,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (category_adapter != null)
 			category_adapter.notifyDataSetChanged();
 		
-		String name = category_names.get (category_id);
+		String name = category_names.get (category_id);		
+		String txt_category_colon = getResources().getString (R.string.categorycolon);
 		
 		TextView vCategoryName = (TextView) findViewById (R.id.category_name);
-		vCategoryName.setText ("Category: " + name);
+		vCategoryName.setText (txt_category_colon + " " + name);
 		}
 
 	final Runnable store_channel_thumb_updated = new Runnable()
@@ -7287,10 +7492,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				}
 			
 			View vLogo = vContainer.findViewById (R.id.logo);
-			View vPhantomRefresh = vContainer.findViewById (R.id.phantom_refresh);
+			// View vPhantomRefresh = vContainer.findViewById (R.id.phantom_refresh);
 			
 			vLogo.setVisibility (View.GONE);
-			vPhantomRefresh.setVisibility (View.GONE);
+			// vPhantomRefresh.setVisibility (View.GONE);
 			vSearchContainer.setVisibility (View.VISIBLE);
 			
 			View vCancel = vContainer.findViewById (R.id.search_cancel);
@@ -7336,11 +7541,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (vContainer != null)
 			{
 			View vSearchContainer = vContainer.findViewById (R.id.search_container);
-			vSearchContainer.setVisibility (View.GONE);
+			vSearchContainer.setVisibility (View.INVISIBLE);
 			View vLogo = vContainer.findViewById (R.id.logo);
-			View vPhantomRefresh = vContainer.findViewById (R.id.phantom_refresh);
+			// View vPhantomRefresh = vContainer.findViewById (R.id.phantom_refresh);
 			vLogo.setVisibility (View.VISIBLE);
-			vPhantomRefresh.setVisibility (View.INVISIBLE);
+			// vPhantomRefresh.setVisibility (View.INVISIBLE);
 			}
 		}
 	
@@ -7378,6 +7583,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				});				
 		}
 	
+	boolean search_9x9_done = false;
+	boolean search_youtube_done = false;
+
+	String channel_ids_9x9[] = null;
+	String channel_ids_youtube[] = null;
+	
 	public void perform_search (final String term)
 		{
 		if (term.startsWith ("server="))
@@ -7403,6 +7614,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		set_spinner (View.VISIBLE);
 		prepare_search_screen (term);
 		
+		search_9x9_done = search_youtube_done = false;
+		channel_ids_9x9 = null;
+		channel_ids_youtube = null;
+		
 		new playerAPI (in_main_thread, config, "search?text=" + encoded_term)
 			{
 			public void success (String[] chlines)
@@ -7423,7 +7638,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						section++;
 						continue;
 						}
-					if (section == 3)
+					if (section == 3) /* or 2?? */
 						{
 						config.parse_channel_info_line (s);
 						num_channels++;
@@ -7450,33 +7665,112 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						count++;
 						}
 					}
-
-				search_channels = channel_ids;
-				search_adapter.set_content (-1, search_channels);
-				search_adapter.notifyDataSetChanged();
+			
+				search_9x9_done = true;
+				channel_ids_9x9 = channel_ids;
 				
-				redraw_search_list();
-				
-				thumbnail.stack_thumbs (main.this, config, search_channels, in_main_thread, search_channel_thumb_updated);
+				search_is_ready();
 				}
 	
 			public void failure (int code, String errtext)
 				{
 				Log.i ("vtest", "ERROR! " + errtext);
+				search_9x9_done = true;
+				search_is_ready();
 				}
 			};
 			
-		if (1 == 2)
-			ytchannel.youtube_channel_search_in_thread (config, encoded_term, in_main_thread, new Callback()
+		ytchannel.youtube_channel_search_in_thread (config, encoded_term, in_main_thread, new Callback()
+			{
+			public void run_string_array (String a[])
 				{
-				public void run_string_array (String a[])
+				for (String channel: a)
 					{
-					for (String channel: a)
+					log ("__search channel: " + channel);
+					}
+				search_youtube_done = true;
+				channel_ids_youtube = a;
+				search_is_ready();
+				}
+			});
+		}
+	
+	public void search_is_ready()
+		{		
+		if (search_9x9_done && search_youtube_done)
+			{
+			if (channel_ids_9x9 != null && channel_ids_youtube == null)
+				{
+				log ("search is ready: only 9x9 channels came back");
+				search_channels = channel_ids_9x9;
+				}
+			else if (channel_ids_9x9 == null && channel_ids_youtube != null)
+				{
+				log ("search is ready: only youtube channels came back");
+				search_channels = channel_ids_youtube;
+				}
+			else if (channel_ids_9x9 == null && channel_ids_youtube == null)
+				{
+				log ("search is ready: NO channels came back");
+				search_channels = new String [0];
+				}
+			else
+				{	
+				Set <String> youtubes = new HashSet <String> ();
+				
+				/* make a list of all the YouTube usernames in the 9x9 result portion */
+				for (String id: channel_ids_9x9)
+					{
+					if (config.is_youtube (id))
 						{
-						log ("__search channel: " + channel);
+						String extra = "=" + config.pool_meta (id, "extra");
+						if (extra != null && !extra.equals (""))
+							{
+							log ("9x9 channel " + id + " => " + extra);
+							youtubes.add (extra);
+							}
 						}
 					}
-				});
+								
+				int true_num_youtubes = 0;
+				
+				/* how many YouTube channels are actually not in the 9x9 results */
+				for (String id: channel_ids_youtube)
+					{
+					if (!youtubes.contains (id))
+						true_num_youtubes++;
+					}
+				
+				/* merge */
+				int count = 0;
+				String search_channels_new[] = new String [channel_ids_9x9.length + true_num_youtubes];
+				
+				for (int i = 0; i <=  java.lang.Math.max (channel_ids_9x9.length, channel_ids_youtube.length); i++)
+					{
+					if (i < channel_ids_9x9.length)
+						search_channels_new [count++] = channel_ids_9x9 [i];	
+					if (i < channel_ids_youtube.length)
+						{
+						String id = channel_ids_youtube [i];
+						if (!youtubes.contains (id))
+							search_channels_new [count++] = id;
+						else
+							log ("omitted because it is already a 9x9 channel: " + id);
+						}
+					}				
+				log ("search is ready: merge 9x9 and youtube channels");
+				search_channels = search_channels_new;
+				}
+			
+			search_adapter.set_content (-1, search_channels);
+			search_adapter.notifyDataSetChanged();
+			
+			redraw_search_list();
+			
+			thumbnail.stack_thumbs (main.this, config, search_channels, in_main_thread, search_channel_thumb_updated);
+			}
+		else
+			log ("search_is_ready? search_9x9_done " + search_9x9_done + ", search_youtube_done " + search_youtube_done);
 		}
 	
 	public void redraw_search_list()

@@ -73,7 +73,8 @@ public class thumbnail
 							String filename = ctx.getFilesDir() + "/" + m.api_server + "/cthumbs/" + channel_id + ".png"; 
 							
 							download (channel_id, url, filename, false);
-							in_main_thread.post (update);	
+							if (update != null)
+								in_main_thread.post (update);	
 							
 							/* data obtained via 3.2 has an extra thumbnail. These are used by the portal and store */
 							
@@ -82,7 +83,8 @@ public class thumbnail
 								{
 								String ep_filename = ctx.getFilesDir() + "/" + m.api_server + "/xthumbs/" + channel_id + ".png"; 
 								download (channel_id, first_episode_thumb, ep_filename, false);
-								in_main_thread.post (update);	
+								if (update != null)
+									in_main_thread.post (update);	
 								}												
 							}
 						}
@@ -92,7 +94,7 @@ public class thumbnail
 					ex.printStackTrace();
 					((Activity) ctx).finish();
 					}
-					}
+				}
 			};
 	
 		t.start();
@@ -329,6 +331,9 @@ public class thumbnail
 
 	public static void download_single_episode_thumb (metadata m, Context ctx, String channel, String episode, Handler in_main_thread, Runnable update)
 		{
+		if (channel == null || episode == null)
+			return;
+		
 		String url = m.program_meta (episode, "thumb");
 		String filepath = m.episode_in_cache (episode);
 
@@ -448,7 +453,43 @@ public class thumbnail
 				catch (Exception ex)
 					{
 					ex.printStackTrace();
-					((Activity) ctx).finish();
+					}
+				}
+			};
+
+		t.start();
+		}
+	
+	public static void download_specific_episode_thumbnails
+			(final Context ctx, final metadata m, final String channel, final String episodes[], final Handler in_main_thread, final Runnable update)
+		{
+		Thread t = new Thread()
+			{
+			public void run()
+				{
+				try
+					{
+					Log.i ("vtest", "----------- Download specific episode thumbnails for channel: " + channel);
+	
+					if (channel == null)
+						return;
+					
+					if (!make_app_dir (ctx, m, "ethumbs")) return;
+					
+					if (!channel.contains (":"))
+						if (!make_app_dir (ctx, m, "ethumbs/" + channel)) return;
+	
+					if (episodes != null)
+						{
+						for (String episode: episodes)
+							download_single_episode_thumb (m, ctx, channel, episode, in_main_thread, update);
+						}
+					
+					in_main_thread.post (update);
+					}				
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
 					}
 				}
 			};

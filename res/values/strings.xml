@@ -545,4 +545,19 @@
 	<string name="shake">Shake &amp; Discover</string>
 	<string name="shake_text">Shake your device to discover new channels.</string>
 	<string name="sign_up_a_new_account">Sign up a new account</string>
+	<string name="coming_soon">Coming Soon</string>
+	<string name="from_uc">From</string>
+	<string name="ago">ago</string>
+	<string name="hence">hence</string>
+	<string name="minute">minute</string>
+	<string name="minutes">minutes</string>
+	<string name="hour">hour</string>
+	<string name="hours">hours</string>
+	<string name="day">day</string>
+	<string name="days">days</string>
+	<string name="month">month</string>
+	<string name="months">months</string>
+	<string name="year">year</string>
+	<string name="years">years</string>
+	<string name="long_ago">long ago</string>
 </resources>

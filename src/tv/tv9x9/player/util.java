@@ -95,15 +95,15 @@ public class util
    			return 0;
 		}
    	
-   	public static String ageof (long seconds)
+   	public static String ageof (Context c, long seconds)
    		{
    		long now = System.currentTimeMillis() / 1000;
-   		
+
    		if (seconds > 0)
    			{
    			long minutes = (now - seconds) / 60;
    			
-   			String ago_or_hence = minutes < 0 ? " hence" : " ago";
+   			String ago_or_hence = " " + (minutes < 0 ? get_string (c, R.string.hence) : get_string (c, R.string.ago));
    			minutes = Math.abs (minutes);
 
    			String age = null;
@@ -120,24 +120,29 @@ public class util
    		            if (months > 12)
    		            	{
    		            	int years = (int) Math.floor ((months + 1) / 12);
-   		            	age = years + (years == 1 ? " year" : " years");
+   		            	age = years + " " + (years == 1 ? get_string (c, R.string.year) : get_string (c, R.string.years));
    		            	}
    		            else
-   		                age = months + (months == 1 ? " month" : " months");
+   		                age = months + " " + (months == 1 ? get_string (c, R.string.month) : get_string (c, R.string.months));
    		          	}
    		          else
-   		        	  age = days + (days == 1 ? " day" : " days");
+   		        	  age = days + " " + (days == 1 ? get_string (c, R.string.day) : get_string (c, R.string.days));
    		          }
    		        else
-   		        	age = hours + (hours == 1 ? " hour" : " hours");
+   		        	age = hours + " " + (hours == 1 ? get_string (c, R.string.hour) : get_string (c, R.string.hours));
    				}
    			else
-   				age = minutes + (minutes == 1 ? " minute" : " minutes");
+   				age = minutes + " " + (minutes == 1 ? get_string (c, R.string.minute) : get_string (c, R.string.minutes));
    			
    			return age + ago_or_hence;
    			}
    		else
-   			return "long ago";
+   			return get_string (c, R.string.long_ago);
+   		}
+   	
+   	public static String get_string (Context context, int id)
+   		{
+   		return context.getResources().getString (id);
    		}
    	
    	public static String md5 (String text)

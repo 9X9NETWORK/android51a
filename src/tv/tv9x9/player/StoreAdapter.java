@@ -129,7 +129,7 @@ public class StoreAdapter extends BaseAdapter
 				String name = config.pool_meta (channel_id, "name");
 				
 				String timestamp = config.pool_meta (channel_id, "timestamp");
-				String ago = timestamp == null ? "" : util.ageof (Long.parseLong (timestamp) / 1000);
+				String ago = timestamp == null ? "" : util.ageof (context, Long.parseLong (timestamp) / 1000);
 				
 				if (vTitle != null)
 					vTitle.setText (name == null ? "" : name);
@@ -172,8 +172,10 @@ public class StoreAdapter extends BaseAdapter
 							}
 						}
 					
+					String thumb_pile = channel_id.startsWith ("=") ? "cthumbs" : "xthumbs";
+					
 					boolean episode_thumbnail_found = false;
-					String filename = context.getFilesDir() + "/" + config.api_server + "/xthumbs/" + channel_id + ".png";
+					String filename = context.getFilesDir() + "/" + config.api_server + "/" + thumb_pile + "/" + channel_id + ".png";
 					
 					File f = new File (filename);
 					if (f.exists ())

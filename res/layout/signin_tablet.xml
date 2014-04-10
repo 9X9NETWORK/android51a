@@ -90,7 +90,7 @@
 				android:layout_gravity="bottom|center_horizontal"
 				android:textSize="18sp"
 				android:textColor="#FFFFFF"
-				android:text="Sign up a new account"
+				android:text="@string/sign_up_a_new_account"
 				android:background="@drawable/btn_sign"		
 				/>						        
 		</LinearLayout>

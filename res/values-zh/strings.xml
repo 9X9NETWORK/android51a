@@ -545,4 +545,19 @@
 	<string name="shake">搖搖「看」</string>
 	<string name="shake_text">搖動您的行動裝置來看看最夯的節目</string>	
 	<string name="sign_up_a_new_account">註冊新帳號</string>
+	<string name="coming_soon">即將推出</string>	
+	<string name="from_uc">從</string>
+	<string name="ago">前</string>
+	<string name="hence">後</string>
+	<string name="minute">分鐘</string>
+	<string name="minutes">分鐘</string>
+	<string name="hour">小時</string>
+	<string name="hours">小時</string>
+	<string name="day">天</string>
+	<string name="days">天</string>	
+	<string name="month">月</string>
+	<string name="months">月</string>
+	<string name="year">年</string>
+	<string name="years">年</string>
+	<string name="long_ago">long ago</string>	
 </resources>

@@ -3,6 +3,7 @@ package tv.tv9x9.player;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -24,6 +25,13 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	final String devkey = "AI39si5HrNx2gxiCnGFlICK4Bz0YPYzGDBdJHfZQnf-fClL2i7H_A6Fxz6arDBriAMmnUayBoxs963QLxfo-5dLCO9PCX-DTrA";
 	
 	private VideoBaseActivity ctx = null;
+	
+	private int most_recent_offset = 0;
+	
+	/* send a play command as soon as possible. This is because it's now necessary to re-initialize the YouTube api when
+	   onPaused is called. Before Google made that change, it just worked and this nastiness was not required */
+	private Handler handler = null;
+	private Runnable startup_function = null;
 	
 	public void log (String text)
 		{
@@ -176,7 +184,10 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			{
 			videoId = id;
 			if (player != null)
+				{
+				log ("load video " + id + ", start: " + start_msec);
 				try { player.loadVideo (id, start_msec); } catch (Exception ex) { ex.printStackTrace(); }
+				}
 			}
 		}
 
@@ -186,7 +197,10 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			{
 			videoId = id;
 			if (player != null)
+				{
+				log ("load video " + id + ", in its entirety");
 				try { player.loadVideo (id); } catch (Exception ex) { ex.printStackTrace(); }
+				}
 			}
 		}
 
@@ -200,7 +214,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		{
 		int offset = 0;
 		if (player != null)
-			try { offset = player.getCurrentTimeMillis(); } catch (Exception ex) {};
+			try { offset = most_recent_offset = player.getCurrentTimeMillis(); } catch (Exception ex) {};			
 		return offset;
 		}
 
@@ -253,6 +267,17 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		video_time_counter = System.currentTimeMillis();
 		}
 	
+	public int get_most_recent_offset()
+		{
+		return most_recent_offset;
+		}	
+	
+	public void set_startup_function (Handler h, Runnable r)
+		{
+		handler = h;
+		startup_function = r;
+		}
+	
 	public void set_playback_event_listener()
 		{
 		try
@@ -276,6 +301,9 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 				@Override
 				public void onPaused()
 					{
+					if (player != null)
+						try { most_recent_offset = player.getCurrentTimeMillis(); } catch (Exception ex) {};
+						
 					log ("video event: onPaused");
 					paused = true;
 					
@@ -342,6 +370,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					{
 					log ("video event: onStopped");
 					
+					most_recent_offset = 0;
 					add_to_time_played();	
 					
 					log ("pending_restart is: " + ctx.pending_restart);
@@ -440,6 +469,8 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					{
 					log ("[video state] onError: " + reason.toString());
 	
+					most_recent_offset = 0;
+					
 					/* maybe this error is in the middle of a video */
 					add_to_time_played();
 					
@@ -504,6 +535,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 				public void onVideoEnded()
 					{
 					log ("[video state] onVideoEnded");
+					most_recent_offset = 0;
 					add_to_time_played();
 					}
 		
@@ -511,6 +543,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 				public void onVideoStarted()
 					{
 					log ("[video state] onVideoStarted");
+					most_recent_offset = 0;
 					ctx.set_poi_trigger (false);
 					ctx.set_video_visibility (View.VISIBLE);
 					ctx.onVideoActivityVideoStarted (player);
@@ -587,6 +620,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			{
 			try
 				{
+				log ("cue video: " + videoId);
 				player.cueVideo (videoId);
 				}
 			catch (Exception ex)
@@ -596,7 +630,14 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			}
 			
 		if (!was_restored)
-			ctx.ready();			
+			ctx.ready();		
+		
+		if (startup_function != null)
+			{
+			log ("executing startup function");
+			handler.post (startup_function);
+			startup_function = null;
+			}
 		}
 
 	@Override

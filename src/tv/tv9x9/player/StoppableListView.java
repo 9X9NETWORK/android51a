@@ -1,7 +1,9 @@
 package tv.tv9x9.player;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ListView;
 
@@ -9,6 +11,10 @@ import android.widget.ListView;
 
 public class StoppableListView extends ListView
 	{
+	private Handler handler = null;
+	private Runnable refresh_function = null;
+	private boolean refresh_in_progress = false;
+	
     public StoppableListView (Context context)
     	{
 		super (context);
@@ -49,4 +55,43 @@ public class StoppableListView extends ListView
     	{
         this.isPagingEnabled = b;
     	}
-}
+    
+	int max_overscroll_distance = 120;
+
+	public void set_refresh_function (Handler h, Runnable r)
+		{	
+		refresh_function = r;
+		handler = h;
+		}
+	
+	@Override
+    protected boolean overScrollBy
+            (int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) 
+    	{
+		Log.i ("vtest", "deltaY: " + deltaY);
+		int max_y_overscroll = deltaY < 0 ? max_overscroll_distance : maxOverScrollY;
+		
+		if (scrollY < (-max_y_overscroll / 2))
+			{
+			if (!refresh_in_progress)
+				{			
+				if (handler != null && refresh_function != null)
+					{
+					refresh_in_progress = true;
+					Log.i ("vtest", "REFRESH!");
+					handler.post (new Runnable()
+						{
+						@Override
+						public void run()
+							{
+							refresh_function.run();
+							refresh_in_progress = false;
+							}
+						});
+					}
+				}
+			}
+		
+        return super.overScrollBy (deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX, max_y_overscroll, isTouchEvent);  
+    	}
+	}

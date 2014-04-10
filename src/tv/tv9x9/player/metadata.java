@@ -307,6 +307,54 @@ public class metadata
 			}
 		}
 	
+	public void copy_channel (String from, String to)
+		{
+		Log.i ("vtest", "copy channel: " + from + " -> " + to);
+		Hashtable <String, String> meta = null;
+		
+		try
+			{
+			channel_lock.lock();
+			meta = channel_pool.get (from);
+			meta.put ("id", to);
+			channel_pool.put (to, meta);
+			}
+		finally
+			{
+			channel_lock.unlock();
+			}	
+		
+		/* now, update programs. Can't make a copy though, since the episode id remains unchanged */
+		
+		try
+			{
+			program_lock.lock();
+			for (Entry <String, Hashtable <String, String>> entry : programgrid.entrySet ())
+				{
+				String this_channel = program_meta_nolock (entry.getKey(), "channel");
+				if (this_channel != null && this_channel.equals (from))
+					{
+					meta = entry.getValue();
+					meta.put ("channel", to);
+					}
+				}
+			}
+		finally
+			{
+			program_lock.unlock();
+			}
+		}
+	
+	Hashtable <String, String> deep_copy_of_meta (Hashtable <String, String> original)
+		{
+		Hashtable <String, String> copy = new Hashtable <String, String> ();
+		for (Entry <String, String> entry: original.entrySet())
+			{
+			copy.put (entry.getKey(), entry.getValue());
+			}
+		return copy;
+		}
+	
 	public String[] subscribed_channels()
 		{
 		int count = 0;
@@ -2083,9 +2131,9 @@ public class metadata
 			
 		if (program_line == null)
 			{
-			program_lock.lock();
 			try
 				{
+				program_lock.lock();
 				/* check scattered virtual channels, try to find something */
 				for (Entry <String, Hashtable <String, String>> entry : programgrid.entrySet ())
 					{
@@ -2124,9 +2172,9 @@ public class metadata
 	
 	public void set_comment (String episode_id, String number, Comment comment)
 		{
-		program_lock.lock();
 		try
 			{
+			program_lock.lock();
 			Hashtable <String, Comment> comments_for_episode = comments.get (episode_id);
 			if (comments_for_episode == null)
 				{
@@ -2150,9 +2198,9 @@ public class metadata
 	
 	public Comment get_comment (String episode_id, String number)
 		{
-		program_lock.lock();
 		try
 			{
+			program_lock.lock();
 			Hashtable <String, Comment> comments_for_episode = comments.get (episode_id);
 			if (comments_for_episode != null)
 				{

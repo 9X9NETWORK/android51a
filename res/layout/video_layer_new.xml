@@ -267,7 +267,7 @@
 					android:textSize="16sp"
 					android:textColor="#D0D0D0"
 					android:singleLine="true"	
-					android:text="from"
+					android:text="@string/from_uc"
 			    	/>				   
 				<ImageView
 			    	android:id="@+id/playback_channel_icon_landscape"
@@ -622,7 +622,7 @@
 							android:gravity="center_vertical|left"
 							android:singleLine="true"	
 							android:ellipsize="end"	
-							android:text="From"							
+							android:text="@string/from_uc"							
 					    	/>				
 						<ImageView
 					    	android:id="@+id/playback_channel_icon"

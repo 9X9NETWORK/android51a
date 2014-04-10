@@ -335,11 +335,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		super.onResume();
 		log ("onResume");
+		/*
 		if (config != null)
 			{			
 			if (restore_video_location)
 				restore_location();
 			}
+		*/
 		launch_in_progress = false;
 		gcast_resume();
 		}
@@ -877,7 +879,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			chromecast_send_simple ("pause");
 			}
 		else
+			{
 			videoFragment.pause();
+			fixup_pause_or_play_button();
+			}
 		}
 
 	public void video_play()
@@ -889,7 +894,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			chromecast_send_simple ("resume");
 			}
 		else
+			{
 			videoFragment.play();
+			fixup_pause_or_play_button();
+			}
 		}
 	
 	public void pause_or_play()
@@ -913,9 +921,15 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				log ("pause_or_play: play");
 				videoFragment.play();
 				}
+			fixup_pause_or_play_button();
 			}
 		}
 	
+	public void fixup_pause_or_play_button()
+		{
+		/* override this */
+		}
+		
 	public void play_first (String channel_id)
 		{
 		player_real_channel = channel_id;
@@ -1899,7 +1913,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		videoFragment.set_listeners();
 		
 
-		log ("load video id: " + id);
+		log ("load video id: " + id + ", start msec: " + start_msec);
 		
 		video_cutoff_time = end_msec;
 				
@@ -2210,7 +2224,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (!chromecasted)
 			{
 			restore_video_location = true;
-			restore_video_position = videoFragment.get_offset();
+			restore_video_position = videoFragment.get_most_recent_offset();
 			restore_video_current_episode_index = current_episode_index;
 			restore_video_current_subepisode = current_subepisode;
 			log ("VIDEO remember location: " + restore_video_position);
@@ -2227,6 +2241,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		pending_restart = true;
 		/* note: leave pending_restart as true! */
 		log ("VIDEO restore location: " + restore_video_position);
+		log ("VIDEO restore video_id: " + restore_video_id);
+		log ("VIDEO restore visibility == View.VISIBLE: " + (restore_video_visibility == View.VISIBLE));		
+		log ("VIDEO restore able to play video: " + able_to_play_video());
 		
 		current_episode_index = restore_video_current_episode_index;
 		current_subepisode = restore_video_current_subepisode;
