@@ -16,6 +16,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -3447,6 +3448,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			set = a_set;
 			}
+		boolean shim_added = false;
 		};
 
 	/* this is implemented using the base class! */
@@ -3635,12 +3637,29 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							@Override
 							public void run()
 								{
-								refresh_home();
+								if (finger_is_down)
+									refresh_home();
+								else
+									log ("won't refresh in this bounce, because finger is not on screen");
 								}							
 							});
+						
+						Callback c = new Callback()
+							{
+							public boolean return_boolean()
+								{
+								return finger_is_down;
+								}
+							};
+						sh.vChannels.set_finger_is_down_function (c);
+
 			    		LayoutInflater inflater = main.this.getLayoutInflater();
-			    		View shim = inflater.inflate (R.layout.footer_shim, null);
-			    		sh.vChannels.addFooterView (shim);
+			    		if (!sh.shim_added)
+				    		{
+				    		View shim = inflater.inflate (R.layout.footer_shim, null);
+				    		sh.vChannels.addFooterView (shim);
+				    		sh.shim_added = true;
+				    		}
 			    		set_mini_mode_thumbs (sh.channel_adapter.mini_mode, sh.home_page);
 						}
 					
@@ -4054,6 +4073,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		boolean requested_channel_thumbs[] = null;
 		Swaphome sh = null;
 		boolean mini_mode = true;
+		Bitmap thumbits[] = null;
 		
 		ChannelAdapter (Activity context, String content[], Swaphome sh)
 			{
@@ -4065,6 +4085,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			requested_channel_thumbs = new boolean [content.length];
 			Arrays.fill (requested_channel_thumbs, Boolean.FALSE);
 			this.sh = sh;
+			thumbits = new Bitmap [content.length];
+			Arrays.fill (thumbits, null);
 			}
 	
 		@Override
@@ -4089,7 +4111,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		
 		@Override
-		public View getView (final int position, View convertView, ViewGroup parent)
+		public View getView (final int position, View convertView, final ViewGroup parent)
 			{			
 			final String channel_id = content [position + 1];			
 			String name = config.pool_meta (channel_id, "name");
@@ -4132,7 +4154,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				vTitle.setText (name != null ? name : ("Channel " + channel_id));
 
 			ImageView vChannelIcon = (ImageView) row.findViewById (R.id.channel_icon);
-			View vProgress = row.findViewById (R.id.progress);
 			
 			boolean channel_thumbnail_found = false;
 			if (1 == 2)
@@ -4154,23 +4175,26 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 			View vChannelFrame = row.findViewById (R.id.channel_frame);
 			
+			int big_thumb_width = 0;
+			int big_thumb_height = 0;
+			
 			if (is_tablet())
 				{
 				float factor = mini_mode ? 0.3f : 0.45f;
-				int width = (int) ((screen_width - pixels_40) * factor);
-				int height = (int) ((float) width / 1.77);
+				big_thumb_width = (int) ((screen_width - pixels_40) * factor);
+				big_thumb_height = (int) ((float) big_thumb_width / 1.77);
 				// FrameLayout.LayoutParams pic_layout = (FrameLayout.LayoutParams) vChannelIcon.getLayoutParams();
 				LinearLayout.LayoutParams pic_layout = (LinearLayout.LayoutParams) vChannelFrame.getLayoutParams();
-				pic_layout.height = height;
-				pic_layout.width = width;
+				pic_layout.height = big_thumb_height;
+				pic_layout.width = big_thumb_width;
 				vChannelFrame.setLayoutParams (pic_layout);						
 				}
 			else
 				{
-				int width = screen_width;
-				int height = (int) ((float) width / 1.77 * 0.8);
+				big_thumb_width = screen_width;
+				big_thumb_height = (int) ((float) big_thumb_width / 1.77 * 0.8);
 				FrameLayout.LayoutParams pic_layout = (FrameLayout.LayoutParams) vChannelIcon.getLayoutParams();
-				pic_layout.height = height;
+				pic_layout.height = big_thumb_height;
 				vChannelIcon.setLayoutParams (pic_layout);
 				}
 			
@@ -4180,7 +4204,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					vChannelIcon.setImageResource (R.drawable.store_unavailable);					
 				}	
 			
-			// View vChannelFrame = row.findViewById (R.id.channel_frame);
 			if (vChannelFrame != null)
 				vChannelFrame.setOnClickListener (new OnClickListener()
 					{
@@ -4241,23 +4264,72 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        	{
 			        	/* eat this */
 			        	}
-					});			
+					});		
+			
+			ImageView vTriple = (ImageView) row.findViewById (R.id.triple_thumb);
+			if (vTriple != null)
+				vTriple.setImageResource (R.drawable.canary);
 			
 			String program_line[] = config.program_line_by_id (channel_id);
 			if (program_line != null && program_line.length > 0)
 				{
-				fill_in_four_episode_thumbs (channel_id, program_line, row, sh, requested_channel_thumbs [position]);
-				requested_channel_thumbs [position] = true;
+				//ImageView vTriple = (ImageView) parent.findViewById (R.id.triple_thumb);
+				if (vTriple != null)
+					{
+					Bitmap bm = null;
+					if (thumbits [position] == null)
+						{
+						bm = triple_thumbnail (channel_id, program_line, big_thumb_width);
+						thumbits [position] = bm;
+						}
+					else
+						bm = thumbits [position];
+					
+					if (bm != null)
+						vTriple.setImageBitmap (bm);
+					}
+				// else
+					fill_in_four_episode_thumbs (channel_id, program_line, row, sh, requested_channel_thumbs [position]);
+				
+				if (!requested_channel_thumbs [position])
+					{
+					requested_channel_thumbs [position] = true;
+					
+					Runnable triple_update_thumbs = new Runnable()
+						{
+						@Override
+						public void run()
+							{
+							log ("triple update thumbs: " + channel_id);
+							thumbits [position] = null;
+							notifyDataSetChanged();
+							}
+						};
+					
+					thumbnail.download_first_n_episode_thumbs
+							(main.this, config, channel_id, is_tablet() ? 4 : 1, in_main_thread, triple_update_thumbs);
+					}
 				}
 			else
 				{
+				final int final_big_thumb_width = big_thumb_width;
 				Callback after_load = new Callback()
 					{
 					@Override
 					public void run_string_and_object (final String channel_id, Object row)
 						{
+						/*
 						String new_program_line[] = config.program_line_by_id (channel_id);
-						fill_in_four_episode_thumbs (channel_id, new_program_line, (View) row, sh, requested_channel_thumbs [position]);
+						ImageView vTriple = (ImageView) parent.findViewById (R.id.triple_thumb);
+						if (vTriple != null)
+							{
+							Bitmap bm = triple_thumbnail (channel_id, new_program_line, final_big_thumb_width);
+							if (bm != null)
+								vTriple.setImageBitmap (bm);
+							}
+						// else
+							fill_in_four_episode_thumbs (channel_id, new_program_line, (View) row, sh, requested_channel_thumbs [position]);
+						*/
 						requested_channel_thumbs [position] = true;
 						notifyDataSetChanged();
 						}
@@ -4390,6 +4462,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				{	
 				e0_found = fill_in_episode_thumb (program_line[0], parent, R.id.channel_icon, is_phone() ? R.id.first_episode_title : 0);
 				}
+			
+			if (1 == 2)
+			{
 			if (program_line.length >= 2)
 				{
 				if (is_tablet())
@@ -4414,7 +4489,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						e3_found = fill_in_episode_thumb (program_line[3], parent, R.id.episode3, 0 /* R.id.episode3_title */);
 					}
 				}
+			}
 			
+			if (1 == 2)
 			if (!e0_found || !e1_found || !e2_found || !e3_found)
 				{
 				if (!requested_thumbs)
@@ -4445,6 +4522,31 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				vSubTitle.setText (subtitle);
 				}
 			}
+		}
+	
+	public Bitmap triple_thumbnail (String channel_id, String program_line[], int big_thumb_width)
+		{
+		if (program_line != null && program_line.length > 1)
+			{
+			String e1 = program_line.length >= 2 ? program_line [1] : null;
+			String e2 = program_line.length >= 3 ? program_line [2] : null;
+			String e3 = program_line.length >= 4 ? program_line [3] : null;
+			
+			String f1 = (e1 == null) ? null : main.this.getFilesDir() + "/" + config.episode_in_cache (e1);
+			String f2 = (e2 == null) ? null : main.this.getFilesDir() + "/" + config.episode_in_cache (e2);
+			String f3 = (e3 == null) ? null : main.this.getFilesDir() + "/" + config.episode_in_cache (e3);
+			
+			int margin_cruft = (int) (density * (5 + 10 + 10 + 5 + 5 + 5));
+			
+			int thumb_width = (screen_width - margin_cruft - big_thumb_width) / 3;
+			int thumb_height = (int) ((float) thumb_width / 1.77);
+			
+			log ("-->THUMB WIDTH :: " + thumb_width + " (big thumb width: " + big_thumb_width + ", screen width: " + screen_width + ")");
+			
+			return bitmappery.generate_triple_thumbnail (channel_id, thumb_width, thumb_height, pixels_5, f1, f2, f3);
+			}
+		else
+			return null;
 		}
 	
 	public boolean fill_in_episode_thumb (String episode_id, View parent, int resource_id, int title_resource_id)
@@ -7950,9 +8052,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				};
 		}
 	
+	boolean finger_is_down = false;
+	
 	@Override
 	public void onActionDown()
 		{
+		finger_is_down = true;
 		if (current_layer == toplayer.HOME)
 			{
 			if (home_slider != null)
@@ -7963,6 +8068,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	@Override
 	public void onActionUp()
 		{
+		finger_is_down = false;
 		if (current_layer == toplayer.HOME)
 			{
 			if (home_slider != null)

@@ -174,5 +174,37 @@
 			 </LinearLayout>					    					        					        				    		   	           
 		</LinearLayout>    		
 	</LinearLayout>		
-
+    		    	<ImageView
+			    	android:id="@+id/episode1"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+			        android:layout_gravity="bottom"
+			        android:gravity="bottom"
+			        android:background="#FF0000"
+			        android:adjustViewBounds="true"
+			        android:scaleType="centerCrop"
+			        android:visibility="gone"
+			        />	
+			            		    	<ImageView
+			    	android:id="@+id/episode2"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+			        android:layout_gravity="bottom"
+			        android:gravity="bottom"
+			        android:background="#FF0000"
+			        android:adjustViewBounds="true"
+			        android:scaleType="centerCrop"
+			        android:visibility="gone"
+			        />	
+    		    	<ImageView
+			    	android:id="@+id/episode3"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+			        android:layout_gravity="bottom"
+			        android:gravity="bottom"
+			        android:background="#FF0000"
+			        android:adjustViewBounds="true"
+			        android:scaleType="centerCrop"
+			        android:visibility="gone"
+			        />	
 </LinearLayout>

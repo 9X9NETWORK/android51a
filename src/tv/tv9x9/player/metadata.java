@@ -1416,7 +1416,7 @@ public class metadata
 	
 	public void parse_program_info_32_line (String virtual_channel, int count, String line)
 		{	
-		// Log.i ("vtest", "PINFO32: " + line); // noisy
+		Log.i ("vtest", "PINFO32: " + line); // noisy
 		
 		String[] fields = line.split ("\t");
 		
@@ -1449,10 +1449,10 @@ public class metadata
 			String durations[] = duration.split ("\\|");
 			String urls[] = url.split ("\\|");
 			String thumbs[] = thumb.split ("\\|");
-						
-			name = names [0];	
+			
+			name = names.length > 0 ? names [0] : "";	
 			url = "";
-			thumb = thumbs [0];
+			thumb = (thumbs.length > 0) ? thumbs [0] : "";
 			
 			program.put ("total-subepisodes", Integer.toString (Math.min (names.length, urls.length) - 1));
 			program.put ("total-duration", durations [0]);
@@ -1562,7 +1562,6 @@ public class metadata
 							break;
 						}
 					String poi_json = util.decodeURIComponent (pfields[4]);
-					// poi_json = poi_json.replaceAll ("\\+", " "); /* TODO: COMPENSATE FOR BUG -- REMOVE AFTER FIXED ON SERVER */
 					Log.i ("vtest", "POI JSON: " + poi_json);
 					program.put ("sub-" + poi_sub + "-poi-" + poi_nth + "-start", pfields[1]);
 					program.put ("sub-" + poi_sub + "-poi-" + poi_nth + "-end", pfields[2]);		

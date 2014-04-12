@@ -15,6 +15,8 @@ public class StoppableListView extends ListView
 	private Runnable refresh_function = null;
 	private boolean refresh_in_progress = false;
 	
+	Callback finger_is_down_function = null;
+	
     public StoppableListView (Context context)
     	{
 		super (context);
@@ -56,7 +58,7 @@ public class StoppableListView extends ListView
         this.isPagingEnabled = b;
     	}
     
-	int max_overscroll_distance = 120;
+	int max_overscroll_distance = 200;
 
 	public void set_refresh_function (Handler h, Runnable r)
 		{	
@@ -64,12 +66,21 @@ public class StoppableListView extends ListView
 		handler = h;
 		}
 	
+	public void set_finger_is_down_function (Callback c)
+		{
+		finger_is_down_function = c;
+		}
+	
 	@Override
     protected boolean overScrollBy
             (int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) 
     	{
 		Log.i ("vtest", "deltaY: " + deltaY);
+		
 		int max_y_overscroll = deltaY < 0 ? max_overscroll_distance : maxOverScrollY;
+		
+		if (finger_is_down_function != null && !finger_is_down_function.return_boolean())
+			max_y_overscroll = maxOverScrollY;
 		
 		if (scrollY < (-max_y_overscroll / 2))
 			{

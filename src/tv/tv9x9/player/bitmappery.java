@@ -1,6 +1,8 @@
 package tv.tv9x9.player;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuffXfermode;
@@ -147,7 +149,7 @@ public class bitmappery
 		Canvas canvas = new Canvas (output);
 	
 		final int color = 0xff424242;
-		final Paint paint = new Paint ();
+		final Paint paint = new Paint();
 		// final Rect rect = new Rect (0, 0, bitmap.getWidth(),
 		// bitmap.getHeight());
 	
@@ -157,7 +159,7 @@ public class bitmappery
 		final RectF rectF = new RectF (dst_rect);
 		final float roundPx = 5;
 	
-		if (bitmap.getWidth () > bitmap.getHeight ())
+		if (bitmap.getWidth() > bitmap.getHeight())
 			{
 			// int offset = (bitmap.getWidth () - bitmap.getHeight ()) / 2;
 			// src_rect = new Rect (offset, 0, bitmap.getHeight (), bitmap.getHeight ());
@@ -177,6 +179,59 @@ public class bitmappery
 		paint.setXfermode (new PorterDuffXfermode (Mode.SRC_IN));
 		canvas.drawBitmap (bitmap, src_rect, dst_rect, paint);
 	
+		return output;
+		}
+	
+	public static Bitmap generate_triple_thumbnail (String channel_id, int thumb_width, int thumb_height, int margin_px, String f1, String f2, String f3)
+		{
+		Bitmap output = Bitmap.createBitmap (3 * thumb_width + 2 * margin_px, thumb_height, Config.ARGB_8888);
+		Canvas canvas = new Canvas (output);
+		
+		canvas.drawARGB (0, 0, 0, 0);
+		
+		// final Paint paint = new Paint();
+		
+		if (f1 != null)
+			{
+			Log.i ("vtest", "[TRIPLE] ch=" + channel_id + " f1=" + f1);
+			Bitmap bm1 = BitmapFactory.decodeFile (f1);
+			if (bm1 != null)
+				{
+				int left = 0;
+				int right = left + thumb_width;
+				final Rect src_rect = new Rect (0, 0, bm1.getWidth(), bm1.getHeight());
+				final Rect dst_rect = new Rect (left, 0, right, thumb_height);
+				canvas.drawBitmap (bm1, src_rect, dst_rect, null);
+				}
+			}
+		
+		if (f2 != null)
+			{
+			Log.i ("vtest", "[TRIPLE] ch=" + channel_id + " f2=" + f2);
+			Bitmap bm2 = BitmapFactory.decodeFile (f2);
+			if (bm2 != null)
+				{
+				int left = thumb_width + margin_px;
+				int right = left + thumb_width;
+				final Rect src_rect = new Rect (0, 0, bm2.getWidth(), bm2.getHeight());
+				final Rect dst_rect = new Rect (left, 0, right, thumb_height);
+				canvas.drawBitmap (bm2, src_rect, dst_rect, null);
+				}
+			}		
+		
+		if (f3 != null)
+			{
+			Log.i ("vtest", "[TRIPLE] ch=" + channel_id + " f3=" + f3);
+			Bitmap bm3 = BitmapFactory.decodeFile (f3);
+			if (bm3 != null)
+				{
+				int left = thumb_width + margin_px + thumb_width + margin_px;
+				int right = left + thumb_width;
+				final Rect src_rect = new Rect (0, 0, bm3.getWidth(), bm3.getHeight());
+				final Rect dst_rect = new Rect (left, 0, right, thumb_height);
+				canvas.drawBitmap (bm3, src_rect, dst_rect, null);
+				}
+			}			
 		return output;
 		}
 	}

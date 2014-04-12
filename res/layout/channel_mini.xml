@@ -36,20 +36,7 @@
 				android:gravity="center"	
 				android:src="@drawable/icon_playlist"	
 				android:visibility="gone"							
-				/>			    
-		    <LinearLayout
-		        android:id="@+id/title_row"
-			    android:layout_width="match_parent"
-			    android:layout_height="wrap_content"
-			    android:orientation="horizontal"
-				android:layout_marginLeft="10dip"
-				android:layout_marginRight="10dip"
-				android:layout_marginTop="10dip"
-				android:layout_marginBottom="10dip"
-				android:layout_gravity="bottom"	    
-				android:background="#40000000">		
-
-			</LinearLayout>			
+				/>			    			
 		</FrameLayout>
     				
 		<LinearLayout	    

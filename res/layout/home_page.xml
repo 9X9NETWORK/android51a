@@ -137,6 +137,8 @@
 					android:dividerHeight="0dp"
 					android:divider="@null"
 					/>	
+				<!-- android:cacheColorHint="@android:color/transparent" -->
+				<!-- 					android:cacheColorHint="#A0A0A0" -->
 			</LinearLayout>
 		   	<LinearLayout   
 				android:id="@+id/channel_overlay"	                

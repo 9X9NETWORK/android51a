@@ -34,4 +34,9 @@ public class Callback implements Runnable
 	public void run_string_array (String a[])
 		{		
 		}
+	
+	public boolean return_boolean()
+		{
+		return false;
+		}
 	}
