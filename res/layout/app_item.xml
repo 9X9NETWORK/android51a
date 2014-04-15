@@ -24,7 +24,7 @@
 	        android:layout_marginLeft="6dip"
 	        android:layout_gravity="left|top"	        
 	        android:gravity="left|top"
-	        android:textSize="22dip"
+	        android:textSize="16dip"
 	        android:textColor="#000000"
 	        android:textStyle="bold"
 	        />
@@ -36,10 +36,10 @@
 	        android:layout_marginRight="6dip"	        
 	        android:layout_gravity="right|center_vertical"
 	        android:gravity="right|center_vertical"
-	        android:textSize="22dip"
+	        android:textSize="11dip"
 	        android:text="@string/download"
-	        android:background="@drawable/grayborder"
-	        android:textColor="#000000"	        
+	        android:background="@drawable/orangeborder"
+	        android:textColor="#FD9025"	        
 	        android:padding="4dip"
 	        />	    
     </LinearLayout>
@@ -47,7 +47,7 @@
         android:id="@+id/desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16dip"
+        android:textSize="13dip"
 	    android:textColor="#000000"       
         />
     <LinearLayout

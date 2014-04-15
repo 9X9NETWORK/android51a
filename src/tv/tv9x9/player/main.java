@@ -129,6 +129,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	Bundle fezbuk_bundle = null;
 	
+	/* the traveling window uses this as its right and bottom margin */
+	int MARGINALIA = pixels_20;
+	
 	@Override
 	public void onCreate (Bundle savedInstanceState)
 		{
@@ -142,6 +145,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		/* ugly hack because we need to call fezbuk1 in ready() not onCreate() */
 		fezbuk_bundle = savedInstanceState;
+		
+		/* use recalculated value instead of just 20 */
+		MARGINALIA = is_phone() ? pixels_10 : pixels_20;
 		}
 
 	@Override
@@ -348,12 +354,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			vEpisodeTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 22);
 			TextView vEpisodeAge = (TextView) findViewById (R.id.episode_age);
 			vEpisodeAge.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
-			TextView vNumCommentsHeader = (TextView) findViewById (R.id.num_comments_header);
-			vNumCommentsHeader.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
-			TextView vNumCommentsDot = (TextView) findViewById (R.id.num_comments_dot);
-			vNumCommentsDot.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);			
-			TextView vNumComments = (TextView) findViewById (R.id.num_comments);
-			vNumComments.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			// TextView vNumCommentsHeader = (TextView) findViewById (R.id.num_comments_header);
+			// vNumCommentsHeader.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			// TextView vNumCommentsDot = (TextView) findViewById (R.id.num_comments_dot);
+			// vNumCommentsDot.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);			
+			// TextView vNumComments = (TextView) findViewById (R.id.num_comments);
+			// vNumComments.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
 			TextView vFromPrefix = (TextView) findViewById (R.id.playback_from_prefix);
 			vFromPrefix.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 			TextView vPlaybackChannel = (TextView) findViewById (R.id.playback_channel);
@@ -1781,7 +1787,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		TextView vDesc = (TextView) findViewById (R.id.playback_episode_description);
 		vDesc.setText (episode_desc);
 		
-		// TODO: TEMPORARY!
+		/*
 		vEpisodeTitle.setOnClickListener (new OnClickListener()
 			{
 	        @Override
@@ -1790,7 +1796,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        	toggle_extended_comments_view();
 	        	}
 			});	
+		*/
 		
+		/*
 		View vPlaybackBodyNormal = findViewById (R.id.playbackbody_normal_view);
 		if (vPlaybackBodyNormal != null)
 			vPlaybackBodyNormal.setOnClickListener (new OnClickListener()
@@ -1801,7 +1809,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        	toggle_extended_comments_view();
 	        	}
 			});	
-			
+		*/
+		
 		String timestamp = config.program_meta (episode_id, "timestamp");		
 		String ago = util.ageof (main.this, Long.parseLong (timestamp) / 1000);
 		
@@ -1869,6 +1878,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		}
 	
+	/*
 	public void toggle_extended_comments_view()
 		{
     	View vNormal = findViewById (R.id.playbackbody_normal_view);
@@ -1885,6 +1895,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        	}
 			});
 		}
+	*/
 	
 	final Runnable go_halfscreen = new Runnable()
 		{
@@ -2089,8 +2100,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		else if (current_layer == toplayer.PLAYBACK)
 			{
-			set_follow_icon_state (R.id.playback_follow, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
-			set_follow_icon_state (R.id.playback_follow_landscape, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);		
+			set_follow_icon_state (R.id.playback_follow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
+			set_follow_icon_state (R.id.playback_follow_landscape, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);		
 			}
 		}
 
@@ -4230,7 +4241,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			View vFollow = row.findViewById (R.id.follow);
 			if (vFollow != null)
 				{
-				set_follow_icon_state (vFollow, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
+				set_follow_icon_state (vFollow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
 				vFollow.setOnClickListener (new OnClickListener()
 					{
 			        @Override
@@ -4884,7 +4895,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    
 	EpisodeAdapter playback_episode_adapter = null;
 	PlaybackChannelAdapter playback_channel_adapter = null;
-	PlaybackCommentsAdapter playback_comments_adapter = null;
+	// PlaybackCommentsAdapter playback_comments_adapter = null;
 	
 	public void play_channel (String channel_id)
 		{
@@ -4933,6 +4944,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		};
 	
+	/*
 	final Runnable playback_comments_updated = new Runnable()
 		{
 		public void run()
@@ -4958,6 +4970,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				}
 			}
 		};
+	*/
 		
 	String current_episode_id = null;
 	
@@ -4977,14 +4990,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (playback_channel_adapter != null)				
 				playback_channel_adapter.notifyDataSetChanged();
 						
-			playback_comments_updated.run();
+			// playback_comments_updated.run();
 			
 			// thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, playback_episode_thumb_updated);
 			
-			set_follow_icon_state (R.id.playback_follow, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
+			set_follow_icon_state (R.id.playback_follow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
 			set_follow_icon_state (R.id.playback_follow_landscape, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
 			
-			ytchannel.fetch_youtube_comments_in_thread (in_main_thread, playback_comments_updated, config, episode_id);
+			// ytchannel.fetch_youtube_comments_in_thread (in_main_thread, playback_comments_updated, config, episode_id);
 			
 			String channel_name = config.pool_meta (channel_id, "name");
 			String episode_desc = config.program_meta (episode_id, "desc");
@@ -5074,6 +5087,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				});			
 			}
 		
+		/*
 		ListView vPlaybackComments = (ListView) findViewById (R.id.playback_comments_list);
 		if (vPlaybackComments != null)
 			{
@@ -5089,6 +5103,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					}
 				});		
 			}
+		*/
 		
 		View vExpand = findViewById (R.id.expand);
 		vExpand.setOnClickListener (new OnClickListener()
@@ -5349,6 +5364,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	}
 				});	
 		
+		View vEphide = findViewById (R.id.playback_ephide);
+		if (vEphide != null)
+			vEphide.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: episode bar hide/unhide");
+			    	hide_unhide_episode_bar();
+		        	}
+				});	
+		
 		int orientation = getRequestedOrientation();
 		boolean landscape = orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 		
@@ -5429,6 +5456,21 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		vLandscapeEpisodeName.setVisibility (landscape ? View.VISIBLE : View.GONE);
 		}
 
+	public void hide_unhide_episode_bar()
+		{
+		View vHoriz = findViewById (R.id.playback_horiz);
+		if (vHoriz != null)
+			{
+			boolean is_visible = vHoriz.getVisibility() == View.VISIBLE;
+			vHoriz.setVisibility (is_visible ? View.GONE : View.VISIBLE);
+			ImageView vHide = (ImageView) findViewById (R.id.playback_ephide);
+			if (vHide != null)
+				vHide.setImageResource (is_visible ? R.drawable.icon_eplist_open : R.drawable.icon_eplist_close);
+			/* an ugly white artifact appears below the view if this is not done */
+			video_layer().postInvalidate();
+			}
+		}
+	
 	public void flip_left()
 		{
 		onVideoActivityFlingRight();
@@ -5536,6 +5578,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		}
 	
+	/*
 	class PlaybackCommentsAdapter extends ArrayAdapter <String>
 		{
 		Activity context;
@@ -5652,7 +5695,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				vAuthor.setText (c.author);
 				vComment.setText (c.text);
 				
-				/* example 2012-11-11T05:57:15.000Z -- SimpleDateFormat is not documented as working with "Z" type timezones */
+				// example 2012-11-11T05:57:15.000Z -- SimpleDateFormat is not documented as working with "Z" type timezones
 				String date = c.date.replace ("Z", "-0000");
 				
 				long timestamp;
@@ -5674,7 +5717,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			return row;
 			}
 		}
-
+	*/
+	
 	boolean video_is_minimized = false;
 	
 	@Override
@@ -5764,7 +5808,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		yt_wrapper.setLayoutParams (wrapper_layout);		
 		
-		minimized_width = (int) ((float) screen_width * 0.6);
+		minimized_width = (int) ((is_phone() ? 210 : 260) * density);
+		// minimized_width = (int) ((float) screen_width * 0.6);
+		// ******* minimized_width: 500, ********** minimized_height: 282
+
 		minimized_height = (int) ((float) minimized_width * aspect);
 		
 		log ("******* w: " + fully_expanded_width + " *************** h: " + fully_expanded_height + " ************ aspect: " + aspect);
@@ -5772,9 +5819,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		container_layout.width = minimized_width; 
 		container_layout.height = minimized_height;
 		container_layout.topMargin = 0;
-		container_layout.bottomMargin = pixels_60;
+		container_layout.bottomMargin = MARGINALIA;
 		container_layout.leftMargin = 0;
-		container_layout.rightMargin = pixels_60;
+		container_layout.rightMargin = MARGINALIA;
 		container_layout.gravity = Gravity.BOTTOM | Gravity.RIGHT;		
 		// container_layout.topMargin = (screen_height - new_height) / 2 - pixels_60;
 		/// container_layout.bottomMargin = pixels_60;
@@ -5794,15 +5841,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		chromecast_layout.width = minimized_width;
 		chromecast_layout.height = minimized_height;
-		chromecast_layout.rightMargin = pixels_60;
-		chromecast_layout.bottomMargin = pixels_60;
+		chromecast_layout.rightMargin = MARGINALIA;
+		chromecast_layout.bottomMargin = MARGINALIA;
 		chromecast_layout.gravity = Gravity.BOTTOM | Gravity.RIGHT;		
 		vChromecast.setLayoutParams (chromecast_layout);
 		
 		backing_layout.width = minimized_width;
 		backing_layout.height = minimized_height;
-		backing_layout.rightMargin = pixels_60;
-		backing_layout.bottomMargin = pixels_60;
+		backing_layout.rightMargin = MARGINALIA;
+		backing_layout.bottomMargin = MARGINALIA;
 		backing_layout.gravity = Gravity.BOTTOM | Gravity.RIGHT;				
 		vBacking.setLayoutParams (backing_layout);
 		
@@ -6040,7 +6087,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View vBacking = findViewById (R.id.backing_controls);
 		View vChromecast = findViewById (R.id.chromecast_window);				
 		
-		int max_drag = screen_width - pixels_60 - minimized_width;
+		int max_drag = screen_width - MARGINALIA - minimized_width;
 		
 		if (deltaX >= 0 && deltaX < max_drag)
 			{
@@ -6048,13 +6095,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			FrameLayout.LayoutParams backing_layout = (FrameLayout.LayoutParams) vBacking.getLayoutParams();
 			FrameLayout.LayoutParams chromecast_layout = (FrameLayout.LayoutParams) vChromecast.getLayoutParams();
 			
-			container_layout.rightMargin = pixels_60 + deltaX;			
+			container_layout.rightMargin = MARGINALIA + deltaX;			
 			vContainer.setLayoutParams (container_layout);
 			
-			backing_layout.rightMargin = pixels_60 + deltaX;
+			backing_layout.rightMargin = MARGINALIA + deltaX;
 			vBacking.setLayoutParams (backing_layout);
 			
-			chromecast_layout.rightMargin = pixels_60 + deltaX;
+			chromecast_layout.rightMargin = MARGINALIA + deltaX;
 			vChromecast.setLayoutParams (chromecast_layout);
 			
 			float percent = (float) deltaX / (float) max_drag;
@@ -6096,8 +6143,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			super();
 			
 			this.vp = vp;
-			
 			this.channel_id = channel_id;
+			
+			if (content == null)
+				content = new String [0];
 			this.content = content; 
 			
 			log ("episode slider: " + content.length + " episodes");
@@ -6117,6 +6166,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		public void set_content (String channel_id, String content[])
 			{
 			this.channel_id = channel_id;
+			if (content == null)
+				content = new String [0];
 			this.content = content; 
 			log ("episode slider reset: " + content.length + " episodes");
 			notifyDataSetChanged();

@@ -137,12 +137,12 @@
 		<!-- put in the middle, no matter what's underneath. Turn off when search is enabled -->							      		  
 		<ImageView
 		    android:id="@+id/logo"						    
-			android:layout_width="wrap_content"
-			android:layout_height="fill_parent"
+			android:layout_width="34dp"
+			android:layout_height="34dp"
 			android:layout_gravity="center"		
 			android:gravity="center"		
 			android:adjustViewBounds="true"
-			android:scaleType="fitCenter"	
+			android:scaleType="fitXY"	
 			android:visibility="visible"											
 			/>		
 				
