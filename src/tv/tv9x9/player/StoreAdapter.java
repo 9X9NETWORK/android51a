@@ -5,6 +5,7 @@ import java.io.File;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -211,8 +212,13 @@ public class StoreAdapter extends BaseAdapter
 
 					View vFollow = rv.findViewById (R.id.follow);
 					
-					int follow_icon = ms.is_tablet() ? R.drawable.icon_follow : R.drawable.icon_follow_black;
-					int unfollow_icon = ms.is_tablet() ? R.drawable.icon_unfollow : R.drawable.icon_unfollow_press;
+					// int follow_icon = ms.is_tablet() ? R.drawable.icon_follow : R.drawable.icon_follow_black;
+					// int unfollow_icon = ms.is_tablet() ? R.drawable.icon_unfollow : R.drawable.icon_unfollow_press;
+					int follow_icon = ms.is_tablet() ? R.drawable.icon_heart : R.drawable.icon_heart_black;
+					int unfollow_icon = ms.is_tablet() ? R.drawable.icon_heart_active : R.drawable.icon_heart_active;
+					
+					Log.i ("vtest", "channel: " + channel_id + " subscribed=" + config.is_subscribed (channel_id));
+					
 					ms.set_follow_icon_state (vFollow, channel_id, follow_icon, unfollow_icon);
 					
 					if (vFollow != null)

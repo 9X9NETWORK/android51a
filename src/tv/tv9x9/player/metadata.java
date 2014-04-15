@@ -848,6 +848,14 @@ public class metadata
 	
 	public boolean is_subscribed (String channel)
 		{
+		if (channel.startsWith ("="))
+			{
+			String username = channel.replaceAll ("^=", "");
+			String new_channel = youtube_username_to_channel_id (username);
+			if (new_channel != null)
+				channel = new_channel;
+			}
+		
 		if (usertoken == null)
 			{
 			return false;

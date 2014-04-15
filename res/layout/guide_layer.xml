@@ -99,7 +99,7 @@
 				android:layout_marginRight="10dip"						
 				android:layout_gravity="center"		
 				android:gravity="center"										
-				android:src="@drawable/icon_unfollow"
+				android:src="@drawable/icon_heart_active"
 				android:visibility="gone"
 				/>				
 		</LinearLayout> 					   

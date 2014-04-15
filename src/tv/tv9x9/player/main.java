@@ -2089,8 +2089,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		else if (current_layer == toplayer.GUIDE)
 			{			
-			ImageView vFollow = (ImageView) findViewById (R.id.guide_follow);
-			vFollow.setImageResource (config.is_subscribed (channel_id) ? R.drawable.icon_unfollow : R.drawable.icon_follow_black);
+			set_follow_icon_state (R.id.guide_follow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
 			redraw_3x3 (current_slider_view, current_set - 1);
 			}
 		else if (current_layer == toplayer.HOME)
@@ -2115,13 +2114,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		String program_line[] = config.program_line_by_id (real_channel);
 		
-		final String e1_thumb = (program_line.length > 0) ? config.program_meta(program_line[0], "thumb") : "";
-		final String e2_thumb = (program_line.length > 1) ? config.program_meta(program_line[1], "thumb") : "";
-		final String e3_thumb = (program_line.length > 2) ? config.program_meta(program_line[2], "thumb") : "";
+		final String e1_thumb = (program_line != null && program_line.length > 0) ? config.program_meta (program_line[0], "thumb") : "";
+		final String e2_thumb = (program_line != null && program_line.length > 1) ? config.program_meta (program_line[1], "thumb") : "";
+		final String e3_thumb = (program_line != null && program_line.length > 2) ? config.program_meta (program_line[2], "thumb") : "";
 		
-		final String e1_name = (program_line.length > 0) ? config.program_meta(program_line[0], "name") : "";
-		final String e2_name = (program_line.length > 1) ? config.program_meta(program_line[1], "name") : "";
-		final String e3_name = (program_line.length > 2) ? config.program_meta(program_line[2], "name") : "";
+		final String e1_name = (program_line != null && program_line.length > 0) ? config.program_meta (program_line[0], "name") : "";
+		final String e2_name = (program_line != null && program_line.length > 1) ? config.program_meta (program_line[1], "name") : "";
+		final String e3_name = (program_line != null && program_line.length > 2) ? config.program_meta (program_line[2], "name") : "";
 
 		if (e1_thumb != null && e1_thumb.startsWith ("http"))
 			config.set_channel_meta_by_id (real_channel, "episode_thumb", e1_thumb);
@@ -4995,7 +4994,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			// thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, playback_episode_thumb_updated);
 			
 			set_follow_icon_state (R.id.playback_follow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
-			set_follow_icon_state (R.id.playback_follow_landscape, channel_id, R.drawable.icon_follow, R.drawable.icon_unfollow);
+			set_follow_icon_state (R.id.playback_follow_landscape, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
 			
 			// ytchannel.fetch_youtube_comments_in_thread (in_main_thread, playback_comments_updated, config, episode_id);
 			
@@ -6672,7 +6671,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 		if (channel_id != null)
 			{
-			vFollow.setImageResource (config.is_subscribed (channel_id) ? R.drawable.icon_unfollow : R.drawable.icon_follow_black);
+			/* there is no longer a follow/unfollow button on individual grid items */
+			set_follow_icon_state (vFollow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
+			// vFollow.setImageResource (config.is_subscribed (channel_id) ? R.drawable.icon_unfollow : R.drawable.icon_follow_black);
 			vFollow.setOnClickListener (new OnClickListener()
 				{
 		        @Override
