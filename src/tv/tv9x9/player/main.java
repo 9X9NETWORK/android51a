@@ -62,6 +62,7 @@ import android.os.Vibrator;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -79,6 +80,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AbsListView;
@@ -983,7 +985,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		Stack <menuitem> items = new Stack <menuitem> ();
 
 		items.push (new menuitem (toplayer.HOME, R.string.home, R.drawable.icon_home, R.drawable.icon_home_press));
-		items.push (new menuitem (toplayer.GUIDE, R.string.my_following, R.drawable.icon_follow_black, R.drawable.icon_follow_press));
+		items.push (new menuitem (toplayer.GUIDE, R.string.my_following, R.drawable.icon_heart_black, R.drawable.icon_heart_press));
 		items.push (new menuitem (toplayer.STORE, R.string.store, R.drawable.icon_store, R.drawable.icon_store_press));
 	
 		if (current_layer == toplayer.STORE && category_list != null)
@@ -1399,8 +1401,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	@Override
 	public void onLastEpisode()
 		{
-		log ("last episode, exiting player -- back to grid");
-		exit_stage_left();
+		log ("last episode!");
+		player_full_stop();
 		}
 	
 	@Override
@@ -1784,8 +1786,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		TextView vEpisodeTitle = (TextView) findViewById (R.id.episode_title);
 		vEpisodeTitle.setText (episode_name);
 		
-		TextView vDesc = (TextView) findViewById (R.id.playback_episode_description);
-		vDesc.setText (episode_desc);
+		fill_episode_description (episode_desc);
 		
 		/*
 		vEpisodeTitle.setOnClickListener (new OnClickListener()
@@ -1854,10 +1855,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		TextView vAgo = (TextView) findViewById (R.id.episode_age);
 		if (vAgo != null)
 			vAgo.setText (ago);
-		TextView vDesc = (TextView) findViewById (R.id.playback_episode_description);
-		if (vDesc != null)
-			vDesc.setText (episode_desc);
-		
+		fill_episode_description (episode_desc);		
 		
 		if (program_line != null)
 			{
@@ -1896,6 +1894,58 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			});
 		}
 	*/
+	
+	public void fill_episode_description (String episode_desc)
+		{
+		if (episode_desc != null)
+			{
+			Pattern pattern = android.util.Patterns.WEB_URL;
+
+			/* the below does a lot of mangling so that we can use WEB_URL; would not be necessary with
+			   a simpler pattern, but a simpler pattern would likely match far fewer URLs */
+			
+			while (true)
+				{
+				Matcher matcher = pattern.matcher (episode_desc);
+				if (matcher.find (0))
+					{
+					// int matchStart = matcher.start(1);
+					// int matchEnd = matcher.end();
+					String before = matcher.group (0);
+					String after = before;
+					after = after.replaceAll ("^http:", "xTTp:");
+					after = after.replaceAll ("^https:", "xTTpS:");
+					after = "<a href=\"" + after + "\">" + after + "</a>";
+					after = after.replaceAll ("\\.", "\032");
+					log ("URL FOUND: " + before + " => " + after);
+					episode_desc = episode_desc.replace (before, after);
+					}		
+				else
+					break;
+				}
+			
+			episode_desc = episode_desc.replaceAll ("xTTpS:", "https:");
+			episode_desc = episode_desc.replaceAll ("xTTp:", "http:");	
+			episode_desc = episode_desc.replaceAll ("\032", ".");			
+			episode_desc = episode_desc.replaceAll ("\n", "<br>\n");
+			String margin = "-" + pixels_10 + "px ";
+			String padding = pixels_10 + "px ";
+			// margin = "-0px ";  uncomment these two lines to see white-box problem
+			// padding = "0px ";
+			String css = "background-color: #1d1d1d; color: #c0c0c0; margin: " + margin + "; padding: " + padding + "; overflow: hidden;";
+			String styleblock = "<style> a:link { color: #ffffff; } </style>";
+			episode_desc = styleblock + "<div style=\"" + css + "\">" + "<div width=\"95%\">" + episode_desc + "</div></div>";
+			}
+		
+		WebView vDesc = (WebView) findViewById (R.id.playback_episode_description);
+		if (vDesc != null)
+			{
+			vDesc.loadData (episode_desc == null ? "" : episode_desc, "text/html", null);
+			vDesc.setHorizontalScrollBarEnabled (false);
+			vDesc.getSettings().setLayoutAlgorithm (LayoutAlgorithm.SINGLE_COLUMN);
+			vDesc.setScrollBarStyle (View.SCROLLBARS_INSIDE_OVERLAY);
+			}
+		}
 	
 	final Runnable go_halfscreen = new Runnable()
 		{
@@ -3505,7 +3555,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (is_tablet())
 				{
 				View vChannelList = home_page.findViewById (R.id.channel_list);
-				LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vChannelList.getLayoutParams();
+				FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vChannelList.getLayoutParams();
 				layout.leftMargin = 0;
 				layout.rightMargin = 0;
 				vChannelList.setLayoutParams (layout);
@@ -3896,6 +3946,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			String fields[] = line.split ("\t");
 			if (section == 0 && fields.length >= 2)
 				{
+				/* sets */
 				portal_stack_ids [stack_count] = fields [0];
 				portal_stack_names [stack_count] = fields [1];
 				if (fields.length >= 4)
@@ -3904,6 +3955,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					portal_stack_channel_thumbs [stack_count] = fields [5];				
 				stack_count++;
 				log ("frontpage :: " + fields[0] + ": " + fields[1]);
+				}
+			else if (section == 1)
+				{
+				/* channels from first set */
+				// add_channel_to_set (virtual_channel_id, s, ++scount);
+				}
+			else if (section == 2)
+				{
+				/* programs, from potentially all channels in section 1 */
+				// parse_program_info_32_line (virtual_channel_id, pcount++, s);
 				}
 			}
 		
@@ -3937,6 +3998,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			portal_stack_episode_thumbs = new_portal_stack_episode_thumbs;
 			portal_stack_channel_thumbs = new_portal_stack_channel_thumbs;			
 			}
+		
+		View vRefresh = findViewById (R.id.pull_to_refresh);
+		vRefresh.setVisibility (View.VISIBLE);
 		}	
 			
 	public void query_pile (String id, Callback callback)
@@ -5005,9 +5069,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (vChannelName != null)
 				vChannelName.setText (channel_name);
 			
-			TextView vDesc = (TextView) findViewById (R.id.playback_episode_description);
-			if (vDesc != null)
-				vDesc.setText (episode_desc);
+			fill_episode_description (episode_desc);
 			
 			update_episode_count (channel_id);
 			
@@ -5363,7 +5425,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	}
 				});	
 		
-		View vEphide = findViewById (R.id.playback_ephide);
+		View vEphide = findViewById (R.id.playback_collapser);
 		if (vEphide != null)
 			vEphide.setOnClickListener (new OnClickListener()
 				{
@@ -6235,6 +6297,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			return swap;
 			}
 		
+		/* remember which are downloaded, to prevent looping when episode thumbnails are bad */
+		Set <String> episode_download_requests = new HashSet <String> ();
+		
 		public void redraw_swap (final SwapEpisodes swap)
 			{
 			if (swap != null)
@@ -6290,8 +6355,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					}
 				
 				log ("all thumbs found: " + all_thumbs_found);
+		
+				String req = player_real_channel + "$" + TextUtils.join (":", episodes);
+				boolean already_downloaded = episode_download_requests.contains (req);
+				episode_download_requests.add (req);
 				
-				if (!all_thumbs_found)
+				if (!all_thumbs_found && !already_downloaded)
 					{
 					/* download episode thumbs */
 					thumbnail.download_specific_episode_thumbnails

@@ -499,12 +499,13 @@
 				    android:background="#1D1D1D"
 				    android:orientation="vertical">					
 
-					<LinearLayout
+					<FrameLayout
 					    android:layout_width="match_parent"
 					    android:layout_height="0dip"
 					    android:layout_weight="1"
-					    android:orientation="horizontal">
-					    <TextView		     
+					    android:orientation="horizontal"					    
+					    android:background="#1D1D1D">
+					    <!-- TextView		     
 					        android:id="@+id/playback_episode_description"   
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -516,8 +517,28 @@
 							android:textSize="16sp"							
 							android:textColor="#C0C0C0"							
 							android:ellipsize="end"					
-					    	/>						    
-					</LinearLayout>
+					    	/ -->
+						<FrameLayout
+						    android:layout_width="match_parent"
+						    android:layout_height="match_parent"				    
+						    android:background="#1D1D1D"
+						    />					    	
+					    <WebView	
+					        android:id="@+id/playback_episode_description"   
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"	
+							android:layout_marginTop="0dip"
+							android:layout_marginBottom="0dip"	
+							android:layout_marginLeft="0dip"	
+							android:layout_marginRight="0dip"																							
+							android:paddingTop="0dip"
+							android:paddingBottom="0dip"		
+							android:paddingLeft="0dip"
+							android:paddingRight="0dip"																					
+							android:gravity="top"					
+							android:background="#1D1D1D"					
+							/>				        					    
+					</FrameLayout>
 					
 					<LinearLayout
 					    android:layout_width="match_parent"
@@ -584,6 +605,7 @@
 					    android:background="#484848"
 					    /-->										
 					<LinearLayout
+					    android:id="@+id/playback_collapser"
 					    android:layout_width="match_parent"
 					    android:layout_height="wrap_content"
 					    android:orientation="horizontal">

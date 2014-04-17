@@ -560,4 +560,5 @@
 	<string name="year">year</string>
 	<string name="years">years</string>
 	<string name="long_ago">long ago</string>
+	<string name="pull_to_refresh">Pull to refresh</string>
 </resources>

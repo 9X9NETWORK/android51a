@@ -123,20 +123,36 @@
 								/>		
 						</LinearLayout>		    
 					</LinearLayout>
-				</FrameLayout>			    
-			   	<tv.tv9x9.player.StoppableListView
-					android:id="@+id/channel_list"				
-					android:layout_width="fill_parent" 
-					android:layout_height="fill_parent"
-					android:layout_marginLeft="10dip"
-					android:layout_marginRight="10dip"
-					android:layout_gravity="top|center_horizontal"
-					android:gravity="top|center_horizontal"				
-					android:drawSelectorOnTop="false"
-					android:cacheColorHint="@android:color/transparent"
-					android:dividerHeight="0dp"
-					android:divider="@null"
-					/>	
+				</FrameLayout>		
+				<FrameLayout
+				    android:layout_width="fill_parent" 
+					android:layout_height="fill_parent">
+				    <TextView					        
+				    	android:id="@+id/pull_to_refresh"
+				    	android:layout_width="fill_parent"
+				    	android:layout_height="wrap_content"
+				    	android:layout_marginTop="10dip"
+				    	android:layout_gravity="top|center_horizontal"
+				    	android:gravity="top|center_horizontal"				    	
+				    	android:textColor="#999999"
+				    	android:textSize="24sp"
+				    	android:text="@string/pull_to_refresh"
+				    	android:visibility="gone"
+				    	/>				   	
+				   	<tv.tv9x9.player.StoppableListView
+						android:id="@+id/channel_list"				
+						android:layout_width="fill_parent" 
+						android:layout_height="fill_parent"
+						android:layout_marginLeft="10dip"
+						android:layout_marginRight="10dip"
+						android:layout_gravity="top|center_horizontal"
+						android:gravity="top|center_horizontal"				
+						android:drawSelectorOnTop="false"
+						android:cacheColorHint="@android:color/transparent"
+						android:dividerHeight="0dp"
+						android:divider="@null"
+						/>	
+				</FrameLayout>
 				<!-- android:cacheColorHint="@android:color/transparent" -->
 				<!-- 					android:cacheColorHint="#A0A0A0" -->
 			</LinearLayout>

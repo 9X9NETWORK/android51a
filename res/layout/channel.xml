@@ -81,7 +81,7 @@
 					android:layout_marginTop="-6dip"
 					android:layout_marginBottom="3dip"
 					android:textSize="18sp"
-					android:textColor="#FFFFFF"
+					android:textColor="#999999"
 					android:paddingLeft="10dip"
 					android:paddingRight="5dip"
 					android:gravity="center_vertical|left"

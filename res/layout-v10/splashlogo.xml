@@ -27,7 +27,7 @@
 			android:layout_height="fill_parent"
 			android:layout_gravity="center"
 			android:gravity="center"
-			android:textSize="42sp"
+			android:textSize="28sp"
 			android:textColor="#FFFFFF"
 			android:paddingLeft="3sp"
 			android:text="@string/splash_slogan"

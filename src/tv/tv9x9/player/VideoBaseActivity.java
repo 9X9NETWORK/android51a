@@ -1810,7 +1810,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	public void onLastEpisode()
 		{
 		/* override this */
-		log ("last episode, exiting player -- back to grid");
+		log ("last episode!");
 		exit_stage_left();
 		}
 	
