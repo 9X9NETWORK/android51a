@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 9x9--> 
+    <!-- 9x9-->
     <string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>         
     <string name="white_label">portal</string>
@@ -14,7 +14,7 @@
     <string name="signin_bg">bgnew</string>     
     <string name="set_banner">banner_9x9</string>   
 	<string name="fb_app_id">361253423962738</string>
-	
+	 
     <!-- Joey Graceffa -->
     <!-- 
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -64,8 +64,8 @@
     <string name="signin_bg">thefinebros_bg_open</string>
     <string name="set_banner">thefinebros_banner01</string>
     <string name="fb_app_id">1468306366724948</string>
-    -->
-
+	-->		
+    
     <!-- History -->
     <!-- 
     <string name="app_name">History Channel on Flipr Unofficial</string>
@@ -132,7 +132,7 @@
     <string name="signin_bg">shane_bg_open</string>
     <string name="set_banner">shane_banner01</string>
     <string name="fb_app_id">359889977487152</string>
-    -->   
+    -->
 	
     <!-- College Humor -->
     <!-- 
@@ -201,8 +201,8 @@
 	<string name="fb_app_id">212239432317755</string>
     -->
 	
-    <!-- cts  -->
-    <!--     
+    <!-- cts -->
+    <!--
     <string name="app_name">CTS</string>
     <string name="app_icon">@drawable/cts_icon_new</string>    
     <string name="white_label">cts</string>     
@@ -216,7 +216,7 @@
     <string name="signin_bg">bg_open_cts</string>
     <string name="set_banner">banner_cts</string>            
 	<string name="fb_app_id">1429057570658015</string>       
-    -->
+    -->     
 
     <!-- goodtv -->
     <!-- 
@@ -230,31 +230,33 @@
     <string name="splash_background">bg_open_goodtv</string>
     <string name="splash_foreground">open_logo_goodtv</string>   
     <string name="splash_slogan"></string>           
-    <string name="signin_logo">logo_signin_vice</string>        
-    <string name="signin_bg">splash_vice</string>        	
+    <string name="signin_logo">logo_signin_goodtv</string>        
+    <string name="signin_bg">bg_open_goodtv</string>        	
+    <string name="set_banner">goodtv_banner01</string>
  	<string name="fb_app_id">555946694494117</string>       
  	-->
  	
     <!-- ddtv -->
-    <!--
+    <!-- 
     <string name="app_name">DDTV</string>
     <string name="app_icon">@drawable/ddtv_launch_logo</string>    
     <string name="white_label">ddtv</string>     
     <string name="mso">ddtv</string>
-    <string name="default_region">zh</string>               
-    <string name="logo">logo_ddtv</string>
-    <string name="splash_background">bg_open_ddtv</string>
-    <string name="splash_foreground">open_logo_ddtv</string>    
+    <string name="default_region">en</string>               
+    <string name="logo">ddtv_logo</string>
+    <string name="splash_background">ddtv_bg_open</string>
+    <string name="splash_foreground">ddtv_open_logo</string>    
     <string name="splash_slogan"></string>
-    <string name="signin_logo">logo_signin_vice</string>        
-    <string name="signin_bg">splash_vice</string>
-	<string name="fb_app_id">496791563769983</string>                          
-    -->     
+    <string name="signin_logo">ddtv_logo_signin</string>        
+    <string name="signin_bg">ddtv_bg_open</string>
+    <string name="set_banner">ddtv_banner01</string>
+    <string name="fb_app_id">496791563769983</string>
+     -->
   
     <!-- fcu -->
-    <!--
+	<!-- 
     <string name="app_name">FCU</string>
-    <string name="app_icon">@drawable/fcu_launch_logo</string>    
+    <string name="app_icon">@drawable/launch_logo_fcu</string>    
     <string name="white_label">fcu</string>     
     <string name="mso">fcu</string>
     <string name="default_region">zh</string>               
@@ -262,10 +264,11 @@
     <string name="splash_background">bg_open_fcu</string>
     <string name="splash_foreground">open_logo_fcu</string>    
     <string name="splash_slogan"></string>
-    <string name="signin_logo">logo_signin_vice</string>                 
-    <string name="signin_bg">splash_vice</string>      
+    <string name="signin_logo">logo_signin_fcu</string>                 
+    <string name="signin_bg">bg_open_fcu</string>
+    <string name="set_banner">banner01_fcu</string>      
 	<string name="fb_app_id">180687745468145</string>           
-  	-->
+    -->
   	           
     <!-- Tzu Chi -->
     <!--    
@@ -283,7 +286,7 @@
 	<string name="fb_app_id">361253423962738</string>           
     -->
     
-    <!-- thenewslens  -->
+    <!-- thenewslens -->
     <!-- 
     <string name="app_name">Thenewslens FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_thenewslens</string>    
@@ -315,9 +318,9 @@
     <string name="signin_bg">bg_open_superstar</string>
     <string name="set_banner">banner_superstar</string>            
 	<string name="fb_app_id">422631834537839</string>
-	-->
+	-->	
     
-    <!-- musicvideo  -->
+    <!-- musicvideo -->
     <!-- 
     <string name="app_name">Musicvideo FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_musicvideo</string>    
@@ -330,9 +333,26 @@
     <string name="splash_foreground">open_logo_musicvideo</string>    
     <string name="signin_logo">logo_signin_musicvideo</string>        
     <string name="signin_bg">bg_open_musicvideo</string>
-    <string name="set_banner">banner_musicvideo</string>            
+    <string name="set_banner">banner01_musicvideo</string>            
 	<string name="fb_app_id">463854980410020</string>
-	-->
+	-->	
+	
+	<!-- newsflipr -->
+    <!-- 
+    <string name="app_name">News FLIPr</string>
+    <string name="app_icon">@drawable/launch_logo_newsflipr</string>    
+    <string name="white_label">newsflipr</string>     
+    <string name="mso">newsflipr</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_newsflipr</string>
+    <string name="splash_background">bg_open_newsflipr</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">open_logo_newsflipr</string>    
+    <string name="signin_logo">logo_signin_newsflipr</string>        
+    <string name="signin_bg">bg_open_newsflipr</string>
+    <string name="set_banner">banner_newsflipr</string>            
+	<string name="fb_app_id">756691711022525</string>
+	-->	
          
     <bool name="uses_chromecast">true</bool>
     
@@ -560,5 +580,5 @@
 	<string name="year">year</string>
 	<string name="years">years</string>
 	<string name="long_ago">long ago</string>
-	<string name="pull_to_refresh">Pull to refresh</string>
+        <string name="pull_to_refresh">Pull to refresh</string>
 </resources>

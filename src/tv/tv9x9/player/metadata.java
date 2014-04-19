@@ -80,6 +80,7 @@ public class metadata
 	Hashtable  <String,  Hashtable <String, String>>   programgrid;
 	Hashtable  <String,  Hashtable <String, String>>   channels_by_youtube;
 	Hashtable  <String,  Hashtable <String, String>>   titlecards;
+	Hashtable  <String,  Hashtable <String, String>>   special_tags;
 	
 	Hashtable <String, Hashtable <String, String>> sets;
 	
@@ -146,6 +147,7 @@ public class metadata
 		titlecards = new Hashtable <String,  Hashtable <String, String>> ();
 		sets = new Hashtable <String, Hashtable <String, String>> ();
 		comments = new Hashtable <String,  Hashtable <String, Comment>> ();
+		special_tags = new Hashtable <String,  Hashtable <String, String>> ();
 		
 		init_query_cache();
 		
@@ -496,7 +498,6 @@ public class metadata
 			String results[] = new String [count];
 			
 			String real_channel = channel_meta (channel, "id");
-			String nature = channel_meta (channel, "nature");
 			
 			int n = 0;
 
@@ -518,7 +519,7 @@ public class metadata
 					program_lock.unlock();
 					}
 
-				if (nature.equals ("3") || nature.equals ("4") || nature.equals ("5"))
+				if (is_youtube (real_channel))
 					Arrays.sort (results, sort_by_date);
 				else
 					Arrays.sort (results, sort_by_position);			
@@ -916,7 +917,10 @@ public class metadata
 				add_channel_to_set (virtual_channel_id, s, ++scount);
 				}
 			else if (section == 3)
-				parse_program_info_32_line (virtual_channel_id, pcount++, s);
+				{
+				/* comment this out because Taipei is complaining that throwing these extra episodes into the pool is confusing them */
+				// parse_program_info_32_line (virtual_channel_id, pcount++, s);
+				}
 			}
 		
 		return set_owner_name;
@@ -1424,7 +1428,7 @@ public class metadata
 	
 	public void parse_program_info_32_line (String virtual_channel, int count, String line)
 		{	
-		Log.i ("vtest", "PINFO32: " + line); // noisy
+		// Log.i ("vtest", "PINFO32: " + line); // noisy
 		
 		String[] fields = line.split ("\t");
 		
@@ -1542,8 +1546,19 @@ public class metadata
 		else
 			program.put ("total-subepisodes", "0");
 		
+		String channel = fields[0];
+		if (channel.contains (":"))
+			{
+			String ch_fields[] = channel.split (":");
+			if (ch_fields.length > 1)
+				{
+				channel = ch_fields[0];
+				program.put ("real_channel",  ch_fields[1]);
+				}
+			}
+		
 		program.put ("sort", Integer.toString (count));
-		program.put ("channel", virtual_channel == null ? fields[0] : virtual_channel);
+		program.put ("channel", virtual_channel == null ? channel : virtual_channel);
 		program.put ("name", name);
 		program.put ("desc", fields[3]);
 		program.put ("thumb", thumb);
@@ -2220,5 +2235,62 @@ public class metadata
 			{
 			program_lock.unlock();
 			}
+		}
+	
+	public void dump_episode_details (String episode_id)
+		{
+		try
+			{
+			program_lock.lock();
+			Hashtable <String, String> program = programgrid.get (episode_id);
+			if (program != null)
+				{
+				for (Entry <String, String> entry : program.entrySet())
+					{
+					String key = entry.getKey();
+					String value = entry.getValue();
+					Log.i ("vtest", "program " + episode_id + " :: " + key + "=" + value);
+					}
+				}
+			}
+		finally
+			{
+			program_lock.unlock();
+			}
+		}
+	
+	public void set_special_tag (String channel_id, String situation, String specific, String tag)
+		{
+		try
+			{
+			channel_lock.lock();
+			Hashtable <String, String> taglist = special_tags.get (channel_id);
+			if (taglist == null)
+				taglist = new Hashtable <String, String> ();
+			taglist.put (situation + ":" + specific, tag);
+			special_tags.put (channel_id, taglist);
+			}
+		finally
+			{
+			channel_lock.unlock();
+			}
+		}
+	
+	public String get_special_tag (String channel_id, String situation, String specific)
+		{
+		String tag = null;
+		try
+			{
+			channel_lock.lock();
+			Hashtable <String, String> taglist = special_tags.get (channel_id);
+			if (taglist == null)
+				taglist = new Hashtable <String, String> ();
+			tag = taglist.get (situation + ":" + specific);
+			}
+		finally
+			{
+			channel_lock.unlock();
+			}
+		return tag;
 		}
 	}

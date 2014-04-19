@@ -506,7 +506,7 @@ public class thumbnail
 				{
 				try
 					{
-					Log.i ("vtest", "----------- Download episode thumbnails for channel: " + channel);
+					Log.i ("vtest", "----------- Download first " + n + " episode thumbnails for channel: " + channel);
 	
 					if (channel == null)
 						return;

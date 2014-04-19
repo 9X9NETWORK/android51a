@@ -526,7 +526,7 @@
 					    <WebView	
 					        android:id="@+id/playback_episode_description"   
 							android:layout_width="match_parent"
-							android:layout_height="wrap_content"	
+							android:layout_height="match_parent"	
 							android:layout_marginTop="0dip"
 							android:layout_marginBottom="0dip"	
 							android:layout_marginLeft="0dip"	
@@ -546,64 +546,6 @@
 					    android:orientation="horizontal"
 					    android:background="#484848"
 					    />
-					<!--LinearLayout
-					    android:layout_width="match_parent"
-					    android:layout_height="wrap_content"
-					    android:orientation="horizontal">
-					    <TextView
-					  	    android:id="@+id/num_comments_header"			        
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:layout_marginLeft="10dip"
-							android:textSize="16sp"
-							android:textColor="#FFFFFF"
-							android:gravity="top"
-							android:singleLine="true"	
-							android:ellipsize="end"	
-							android:text="COMMENTS"
-					    	/>
-					    <TextView	        
-					  	    android:id="@+id/num_comments_dot"						        
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:textSize="16sp"
-							android:textColor="#FFFFFF"
-							android:paddingLeft="10dip"
-							android:gravity="top"
-							android:text="•"
-					    	/>	    
-					    <TextView
-					  	    android:id="@+id/num_comments"			        
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:layout_weight="1"							
-							android:layout_gravity="top|left"
-							android:textSize="16sp"
-							android:textColor="#FFFFFF"
-							android:paddingLeft="10dip"
-							android:gravity="top|left"
-							android:singleLine="true"	
-							android:ellipsize="end"	
-							android:text="0"							
-					    	/>
-						<ImageView
-					    	android:id="@+id/comments_arrow"
-					        android:layout_width="20dip" 
-					        android:layout_height="15dip"
-					        android:layout_marginRight="12dip"
-					        android:layout_gravity="right|center_vertical"
-					        android:gravity="right|center_vertical"
-					        android:adjustViewBounds="true"
-					        android:scaleType="fitXY"
-					        android:src="@drawable/icon_arrow_down"
-					        />						    
-					</LinearLayout>
-					<LinearLayout
-					    android:layout_width="match_parent"
-					    android:layout_height="2px"
-					    android:orientation="horizontal"
-					    android:background="#484848"
-					    /-->										
 					<LinearLayout
 					    android:id="@+id/playback_collapser"
 					    android:layout_width="match_parent"

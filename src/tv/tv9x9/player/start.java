@@ -358,6 +358,7 @@ public class start extends Activity
 		ImageView vLogo = (ImageView) findViewById (R.id.logo);
 		TextView vSlogan = (TextView) findViewById (R.id.slogan);
 		
+		
 		String splash_bg = getResources().getString (R.string.splash_background);
 		String splash_fg = getResources().getString (R.string.splash_foreground);		
 		String splash_slogan = getResources().getString (R.string.splash_slogan);	

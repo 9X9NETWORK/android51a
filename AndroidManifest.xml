@@ -18,11 +18,12 @@
 <!-- package="tv.flipr.thenewslens" -->
 <!-- package="tv.flipr.superstar" -->
 <!-- package="tv.flipr.musicvideo" -->
+<!-- package="tv.flipr.newsflipr" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="94"
-      android:versionName="5.0.0.94">
+      android:versionCode="95"
+      android:versionName="5.0.0.95">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -60,7 +61,6 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -76,7 +76,6 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr" />        	       					   					
 			</intent-filter>
-			 -->
 			 		
 			<!-- for Joey Graceffa -->
 			<!--		
@@ -99,14 +98,14 @@
 			-->
 
 			<!-- for The Fine Bros -->
-			<!--
+			<!--		
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-thefinebros" />        	       					   					
 			</intent-filter>	
-		 	-->	
+			-->		
 					
 			<!-- for History -->
 			<!-- 
@@ -139,15 +138,15 @@
 		 	-->	
 											
 			<!-- for Shane -->
-			<!--		
+			<!--
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-shane" />        	       					   					
 			</intent-filter>	
-			-->		
- 								
+		 	-->	
+											
 			<!-- for College Humor -->
 			<!--
 			<intent-filter>
@@ -199,14 +198,14 @@
 			-->	
 
 			<!-- for DDTV -->
-			<!--
+			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-ddtv" />        	       					   					
-			</intent-filter>	
-			-->
+			</intent-filter>
+			 -->	
 
 			<!-- for FCU -->
 			<!--
@@ -226,17 +225,17 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-thenewslens" />        	       					   					
 			</intent-filter>	
-		 	 -->
+		 	-->
 		 	 
-		 	 <!-- for SUPERSTAR -->
-				
+		 	<!-- for SUPERSTAR -->
+			<!--
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-superstar" />        	       					   					
 			</intent-filter>	
-					 	 
+		 	-->
 			
 			<!-- for MUSICVIDEO -->
 		    <!-- 
@@ -246,7 +245,17 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-musicvideo" />        	       					   					
 			</intent-filter>	
-			 -->
+			-->
+			
+			<!-- for NEWSFLIPR -->
+		    <!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-newsflipr" />        	       					   					
+			</intent-filter>
+		 	-->				 
 																				
         </activity>
 

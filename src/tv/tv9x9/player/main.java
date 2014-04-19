@@ -4,9 +4,6 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -16,8 +13,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +26,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import tv.tv9x9.player.HorizontalListView.OnScrollListener;
-import tv.tv9x9.player.metadata.Comment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -347,49 +341,65 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			layout.height = pixels_50;
 			vTopControls.setLayoutParams (layout);
 			
+			/* video_layer_new.xml */
 			View vControls = findViewById (R.id.controls);
 			LinearLayout.LayoutParams layout3 = (LinearLayout.LayoutParams) vControls.getLayoutParams();
 			layout3.height = pixels_50;
 			vControls.setLayoutParams (layout3);
 			
+			/* video_layer_new.xml */
 			TextView vEpisodeTitle = (TextView) findViewById (R.id.episode_title);
 			vEpisodeTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 22);
+			
+			/* video_layer_new.xml */
 			TextView vEpisodeAge = (TextView) findViewById (R.id.episode_age);
 			vEpisodeAge.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			
 			// TextView vNumCommentsHeader = (TextView) findViewById (R.id.num_comments_header);
 			// vNumCommentsHeader.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
 			// TextView vNumCommentsDot = (TextView) findViewById (R.id.num_comments_dot);
 			// vNumCommentsDot.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);			
 			// TextView vNumComments = (TextView) findViewById (R.id.num_comments);
 			// vNumComments.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			
+			/* video_layer_new.xml */
 			TextView vFromPrefix = (TextView) findViewById (R.id.playback_from_prefix);
 			vFromPrefix.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
+			
+			/* video_layer_new.xml */
 			TextView vPlaybackChannel = (TextView) findViewById (R.id.playback_channel);
 			vPlaybackChannel.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
 			
+			/* video_layer_new.xml, no longer used */
 			TextView vPlaybackEpisodeCount = (TextView) findViewById (R.id.playback_episode_count);
 			vPlaybackEpisodeCount.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
+			
+			/* video_layer_new.xml, no longer used */
 			TextView vPlaybackEpisodePlural = (TextView) findViewById (R.id.playback_episode_plural);
 			vPlaybackEpisodePlural.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 			
+			/* video_layer_new.xml */
 			View vChannelIcon = findViewById (R.id.playback_channel_icon);
 			LinearLayout.LayoutParams layout2 = (LinearLayout.LayoutParams) vChannelIcon.getLayoutParams();
 			layout2.height = pixels_40;
 			layout2.width = pixels_40;
 			vChannelIcon.setLayoutParams (layout2);
 			
+			/* video_layer_new.xml */
 			View vChannelIconLandscape = findViewById (R.id.playback_channel_icon_landscape);
 			LinearLayout.LayoutParams layout6 = (LinearLayout.LayoutParams) vChannelIconLandscape.getLayoutParams();
 			layout6.height = pixels_40;
 			layout6.width = pixels_40;
 			vChannelIconLandscape.setLayoutParams (layout6);
 			
+			/* video_layer_new.xml */
 			View vPlaybackShare = findViewById (R.id.playback_share);
 			LinearLayout.LayoutParams layout4 = (LinearLayout.LayoutParams) vPlaybackShare.getLayoutParams();
 			layout4.height = pixels_30;
 			layout4.width = pixels_30;
 			vPlaybackShare.setLayoutParams (layout4);
 			
+			/* video_layer_new.xml */
 			View vPlaybackFollow = findViewById (R.id.playback_follow);
 			LinearLayout.LayoutParams layout5 = (LinearLayout.LayoutParams) vPlaybackFollow.getLayoutParams();
 			layout5.height = pixels_30;
@@ -462,8 +472,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						@Override
 						public void run()
 							{
-							ListView vPlaybackChannels = (ListView) findViewById (R.id.playback_channel_list);			
-							vPlaybackChannels.smoothScrollToPosition (next);
+							ListView vPlaybackChannels = (ListView) findViewById (R.id.playback_channel_list);
+							if (vPlaybackChannels != null)
+								vPlaybackChannels.smoothScrollToPosition (next);
 							}
 						});
 					}
@@ -487,8 +498,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						@Override
 						public void run()
 							{
-							ListView vPlaybackChannels = (ListView) findViewById (R.id.playback_channel_list);			
-							vPlaybackChannels.smoothScrollToPosition (prev);
+							ListView vPlaybackChannels = (ListView) findViewById (R.id.playback_channel_list);
+							if (vPlaybackChannels != null)
+								vPlaybackChannels.smoothScrollToPosition (prev);
 							}
 						});
 					}
@@ -1647,33 +1659,26 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			return player_real_channel;
 		}	
 	
-	String pending_channel = null;
-	
 	private void change_channel (String channel_id)
 		{
-		pending_channel = channel_id;
 		log ("change channel to: " + channel_id);
 		if (config.programs_in_real_channel (channel_id) < 1)
-			{
-			String nature = config.pool_meta (channel_id, "nature");
-			String yt_username = config.pool_meta (channel_id, "extra");			
-			ytchannel.fetch_youtube_in_thread (in_main_thread, change_channel_inner, config, channel_id, nature, yt_username);
-			}
+			load_channel_then (channel_id, change_channel_inner_CB, channel_id, null);
 		else
-			change_channel_inner_inner();
+			change_channel_inner_inner (channel_id);
 		}
 	
-	final Runnable change_channel_inner = new Runnable()
+	final Callback change_channel_inner_CB = new Callback()
 		{
-		public void run()
+		public void run_string_and_object (String channel_id, Object o)
 			{
-			change_channel_inner_inner();
+			change_channel_inner_inner (channel_id);
 			}
 		};
 	
-	public void change_channel_inner_inner()
+	public void change_channel_inner_inner (String channel_id)
 		{
-		player_real_channel = pending_channel;
+		player_real_channel = channel_id;
 		program_line = config.program_line_by_id (player_real_channel);
 		current_episode_index = 1;
 		
@@ -1685,6 +1690,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}		
 		
 		String episode_id = program_line != null && program_line.length >= 1 ? program_line [0] : null;
+		
+		if (playback_episode_pager != null)
+			playback_episode_pager.set_content (channel_id, program_line);
+		
 		onVideoActivityRefreshMetadata (player_real_channel, episode_id);
 		}		
 	
@@ -1940,10 +1949,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		WebView vDesc = (WebView) findViewById (R.id.playback_episode_description);
 		if (vDesc != null)
 			{
-			vDesc.loadData (episode_desc == null ? "" : episode_desc, "text/html", null);
+
 			vDesc.setHorizontalScrollBarEnabled (false);
 			vDesc.getSettings().setLayoutAlgorithm (LayoutAlgorithm.SINGLE_COLUMN);
 			vDesc.setScrollBarStyle (View.SCROLLBARS_INSIDE_OVERLAY);
+			
+			// this is used as the default encoding of decode.
+			vDesc.getSettings().setDefaultTextEncodingName ("utf-8");
+
+			// vDesc.loadData (episode_desc == null ? "" : episode_desc, "text/html", "utf-8");
+			vDesc.loadDataWithBaseURL ("http://www.youtube.com/", episode_desc == null ? "" : episode_desc, "text/html", "utf-8", null);
 			}
 		}
 	
@@ -3504,6 +3519,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		LineItemAdapter channel_overlay_adapter = null;
 		StoppableListView vChannels = null;
 		ChannelAdapter channel_adapter = null;
+		String set_id = null;
 		public Swaphome (int a_set)
 			{
 			set = a_set;
@@ -3568,6 +3584,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			home_page.setTag (R.id.container, position);			
 			sh.home_page = home_page;
+			sh.set_id = portal_stack_ids [position];
 			((StoppableViewPager) container).addView (home_page, 0);
 			
 			TextView vTitle = (TextView) sh.home_page.findViewById (R.id.primary_set_title);
@@ -3679,6 +3696,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				public void run_string (String id)
 					{
 					sh.arena = config.list_of_channels_in_set (id);
+					
+					View vRefresh = sh.home_page.findViewById (R.id.pull_to_refresh);
+					if (vRefresh != null)
+						vRefresh.setVisibility (sh.arena != null && sh.arena.length > 0 ? View.VISIBLE : View.GONE);
 					
 					sh.vChannelOverlayList = (ListView) sh.home_page.findViewById (R.id.channel_overlay_list);		
 					if (sh.vChannelOverlayList != null)
@@ -3874,7 +3895,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		frontpage_start = System.currentTimeMillis();
 		
-		new playerAPI (in_main_thread, config, "portal?time=" + hour)
+		String type = "portal"; // "portal"
+		
+		new playerAPI (in_main_thread, config, "portal?time=" + hour + "&type=" + type)
 			{
 			public void success (String[] lines)
 				{
@@ -3952,7 +3975,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				if (fields.length >= 4)
 					portal_stack_episode_thumbs [stack_count] = fields [3];
 				if (fields.length >= 6)
-					portal_stack_channel_thumbs [stack_count] = fields [5];				
+					portal_stack_channel_thumbs [stack_count] = fields [5];
+				if (fields.length >= 9)
+					parse_special_tags (fields[8], fields[0]);
 				stack_count++;
 				log ("frontpage :: " + fields[0] + ": " + fields[1]);
 				}
@@ -3999,10 +4024,31 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			portal_stack_channel_thumbs = new_portal_stack_channel_thumbs;			
 			}
 		
-		View vRefresh = findViewById (R.id.pull_to_refresh);
-		vRefresh.setVisibility (View.VISIBLE);
+		// View vRefresh = findViewById (R.id.pull_to_refresh);
+		// vRefresh.setVisibility (View.VISIBLE);
 		}	
 			
+	public void parse_special_tags (String tags, String set_id)
+		{
+		if (tags != null && !tags.equals(""))
+			{
+			String taglists[] = tags.split (";");
+			for (String taglist: taglists)
+				{
+				if (taglist.contains (":") && !taglist.endsWith (":"))
+					{
+					String tagkv[] = taglist.split (":");
+					if (tagkv.length >= 2)
+						{
+						String ids[] = tagkv[1].split (",");
+						for (String id: ids)
+							config.set_special_tag (id, "set", set_id, tagkv[0]);
+						}
+					}
+				}
+			}
+		}
+	
 	public void query_pile (String id, Callback callback)
 		{
 		if (id.equals ("virtual:following"))
@@ -4085,8 +4131,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		else
 			{
+			Calendar now = Calendar.getInstance();
+			int hour = now.get (Calendar.HOUR_OF_DAY);
 			String short_id = id.replaceAll ("^virtual:", "");
-			query = "setInfo?set=" + short_id;
+			query = "setInfo?set=" + short_id + "&time=" + hour;
 			}
 		
 		log (query);
@@ -4301,7 +4349,26 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        	}
 					});	
 			
-			View vFollow = row.findViewById (R.id.follow);
+			ImageView vSpecialTag = (ImageView) row.findViewById (R.id.special_tag);
+			if (vSpecialTag != null)
+				{
+				String tag = config.get_special_tag (channel_id, "set", sh.set_id);
+				if (tag != null && !tag.equals (""))
+					{
+					int resource = 0;
+					if (tag.equals ("recommended") || tag.equals ("best"))
+						resource = R.drawable.app_tag_best_en;
+					else if (tag.equals ("hot"))
+						resource = R.drawable.app_tag_hot_en;
+					vSpecialTag.setVisibility (resource != 0 ? View.VISIBLE : View.GONE);
+					if (resource != 0)
+						vSpecialTag.setImageResource (resource);
+					}
+				else
+					vSpecialTag.setVisibility (View.GONE);
+				}
+			
+			final View vFollow = row.findViewById (R.id.follow);
 			if (vFollow != null)
 				{
 				set_follow_icon_state (vFollow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
@@ -4312,6 +4379,20 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        	{
 			        	log ("click on: home follow/unfollow channel " + channel_id);
 			        	follow_or_unfollow (channel_id, v);
+			        	}
+					});
+				}
+			
+			if (vSpecialTag != null)
+				{
+				vSpecialTag.setOnClickListener (new OnClickListener()
+					{
+					/* note this duplicates vFollow with that being sent! in case special tag is hit accidentally */
+			        @Override
+			        public void onClick (View v)
+			        	{
+			        	log ("click on: home follow/unfollow (special tag) channel " + channel_id);
+			        	follow_or_unfollow (channel_id, vFollow);
 			        	}
 					});
 				}
@@ -4383,6 +4464,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					thumbnail.download_first_n_episode_thumbs
 							(main.this, config, channel_id, is_tablet() ? 4 : 1, in_main_thread, triple_update_thumbs);
 					}
+				else
+					log ("already requested first n thumbs for: " + channel_id);
 				}
 			else
 				{

@@ -1271,6 +1271,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					{
 					String url = config.best_url (episode_id);		
 					log ("episode \"" + episode_id + "\" has no subepisodes, url is: " + url);
+					if (url == null)
+						config.dump_episode_details (episode_id);
 					play_youtube_url (url, start_msec, -1);
 					}
 				else
@@ -2153,6 +2155,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		reset_poi();
 		
+		/* there presently aren't any POIs, and this function may not be stable */
+		boolean always = true;
+		if (always)
+			return;
+		
 		if (program_line == null || program_line.length == 0)
 			{
 			log ("set poi trigger: no programs");
@@ -2164,6 +2171,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			/* POI exists only for subepisodes */
 			
 			int nth = -1;
+			
+			/* TODO: this line can crash! maybe reset program_line */
 			String episode_id = program_line [current_episode_index - 1];
 			
 			int offset = 0;

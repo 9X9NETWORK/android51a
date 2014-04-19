@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -767,7 +768,10 @@ public class ytchannel
 	
 	public static void fetch_and_parse_32 (final Handler h, final Callback callback, final metadata config, final String channel, final int start)
 		{
-		String query = "programInfo?channel=" + channel + "&user=" + config.usertoken + "&start=" + start + "&count=50";
+		Calendar now = Calendar.getInstance();
+		int hour = now.get (Calendar.HOUR_OF_DAY);
+		
+		String query = "programInfo?channel=" + channel + "&user=" + config.usertoken + "&start=" + start + "&count=50" + "&time=" + hour;
 		
 		new playerAPI (h, config, query)
 			{
