@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9-->
+    <!-- 
     <string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>         
     <string name="white_label">portal</string>
@@ -14,7 +15,8 @@
     <string name="signin_bg">bgnew</string>     
     <string name="set_banner">banner_9x9</string>   
 	<string name="fb_app_id">361253423962738</string>
-	 
+	-->
+		 
     <!-- Joey Graceffa -->
     <!-- 
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -202,7 +204,7 @@
     -->
 	
     <!-- cts -->
-    <!--
+	<!-- 
     <string name="app_name">CTS</string>
     <string name="app_icon">@drawable/cts_icon_new</string>    
     <string name="white_label">cts</string>     
@@ -216,7 +218,7 @@
     <string name="signin_bg">bg_open_cts</string>
     <string name="set_banner">banner_cts</string>            
 	<string name="fb_app_id">1429057570658015</string>       
-    -->     
+    -->
 
     <!-- goodtv -->
     <!-- 
@@ -251,7 +253,22 @@
     <string name="signin_bg">ddtv_bg_open</string>
     <string name="set_banner">ddtv_banner01</string>
     <string name="fb_app_id">496791563769983</string>
-     -->
+    -->
+  
+    <!-- ktsf26 -->
+    <string name="app_name">KTSF26</string>
+    <string name="app_icon">@drawable/ktsf_launch_logo</string>    
+    <string name="white_label">ktsf26</string>     
+    <string name="mso">ktsf26</string>
+    <string name="default_region">en</string>               
+    <string name="logo">ktsf_logo</string>
+    <string name="splash_background">ktsf_bg_open</string>
+    <string name="splash_foreground">ktsf_open_logo</string>    
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">ktsf_logo_signin</string>        
+    <string name="signin_bg">ktsf_bg_open</string>
+    <string name="set_banner">ktsf_banner01</string>
+    <string name="fb_app_id">496791563769983</string>
   
     <!-- fcu -->
 	<!-- 
