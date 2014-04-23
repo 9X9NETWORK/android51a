@@ -1,4 +1,4 @@
-package us.collegehumor.player9x9tv;
+package tv.flipr.joeygraceffa;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -40,7 +40,7 @@ public class start extends Activity
 	
 	public void launch_start()
 		{
-		Log.i ("vtest", "NetworkA Activity, launching start");
+		Log.i ("vtest", "JoeyGraceffa Activity, launching start");
 		Intent wIntent = new Intent (this, tv.tv9x9.player.start.class);
 		startActivity (wIntent);
 		}
