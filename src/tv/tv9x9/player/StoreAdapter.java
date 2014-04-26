@@ -18,6 +18,8 @@ import android.widget.TextView;
 public class StoreAdapter extends BaseAdapter
 	{
 	private Context context;
+	
+	private String category_id = null;
 	private String channels[] = null;
 	
 	mothership ms = null;
@@ -39,19 +41,21 @@ public class StoreAdapter extends BaseAdapter
 		public void set_follow_icon_state (View v, String channel_id, int follow_resource_id, int unfollow_resource_id);
 		};
 	
-	public StoreAdapter (Context c, mothership ms, metadata config, int current_category_index, String channels[])
+	public StoreAdapter (Context c, mothership ms, metadata config, int current_category_index, String category_id, String channels[])
 		{
 		context = c;
 		this.channels = channels;
+		this.category_id = category_id;
 		this.ms = ms;
 		this.config = config;
 		this.current_category_index = current_category_index;
 		}
 	
-	public void set_content (int current_category_index, String channels[])
+	public void set_content (int current_category_index, String category_id, String channels[])
 		{
 		this.channels = channels;
 		this.current_category_index = current_category_index;
+		this.category_id = category_id;
 		notifyDataSetChanged();
 		}
 	
@@ -88,14 +92,14 @@ public class StoreAdapter extends BaseAdapter
 	@Override
 	public View getView (final int position, View convertView, ViewGroup parent)
 		{
-		LinearLayout rv = null;
+		FrameLayout rv = null;
 				
 		ms.log ("store getView: " + position);
 		
 		if (convertView == null)
-			rv = (LinearLayout) View.inflate (context, ms.is_tablet() ? R.layout.store_item_tablet : R.layout.store_item, null);				
+			rv = (FrameLayout) View.inflate (context, ms.is_tablet() ? R.layout.store_item_tablet : R.layout.store_item, null);				
 		else
-			rv = (LinearLayout) convertView;
+			rv = (FrameLayout) convertView;
 					
 		if (rv == null)
 			{
@@ -121,7 +125,7 @@ public class StoreAdapter extends BaseAdapter
 			if (channel_id.equals ("+"))
 				{
 				/* store only, not for search */
-				rv = (LinearLayout) View.inflate (context, R.layout.store_item_more, null);		
+				rv = (FrameLayout) View.inflate (context, R.layout.store_item_more, null);		
 				if (!ms.outgoing_category_queries_pending())
 					ms.load_category (current_category_index, position);
 				}
@@ -149,6 +153,26 @@ public class StoreAdapter extends BaseAdapter
 					String txt_episodes = context.getResources().getString (R.string.episodes_lc);
 					
 					vMeta.setText (ago + " • " + icount + " " + (icount == 1 ? txt_episode : txt_episodes));
+					}
+				
+				ImageView vSpecialTag = (ImageView) rv.findViewById (R.id.special_tag);
+				if (vSpecialTag != null && category_id != null)
+					{
+					String tag = config.get_special_tag (channel_id, "store", category_id);
+					Log.i ("vtest", "tag: " + tag + " category: " + category_id + " channel: " + channel_id);
+					if (tag != null && !tag.equals (""))
+						{
+						int resource = 0;
+						if (tag.equals ("recommended") || tag.equals ("best"))
+							resource = R.drawable.app_tag_best_en;
+						else if (tag.equals ("hot"))
+							resource = R.drawable.app_tag_hot_en;
+						vSpecialTag.setVisibility (resource != 0 ? View.VISIBLE : View.GONE);
+						if (resource != 0)
+							vSpecialTag.setImageResource (resource);
+						}
+					else
+						vSpecialTag.setVisibility (View.GONE);
 					}
 				
 				if (vEpisodeicon != null)

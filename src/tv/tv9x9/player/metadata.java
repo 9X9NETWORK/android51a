@@ -100,7 +100,7 @@ public class metadata
 	
 	/* last_visited_seek might be updated in the past, so we need to remember which episode it's attached to */
 	String last_visited_episode_id_for_seek = null;
-	int last_visited_seek = 0;
+	long last_visited_seek = 0;
 	
 	String grid_virtual_channel = null;
 	
@@ -1328,16 +1328,22 @@ public class metadata
 			}
 		}
 	
-	public void add_runt_episode (String player_real_channel, String episode_id)
+	public void add_runt_episode (String channel_id, String episode_id)
 		{
-		Hashtable <String, String> program = new Hashtable <String, String> ();
+		String url = "http://www.youtube.com/watch?v=" + episode_id;
+		add_runt_episode (channel_id, episode_id, url);		
+		}
+	
+	public void add_runt_episode (String channel_id, String episode_id, String url)
+		{
+		Hashtable <String, String> program = new Hashtable <String, String> ();		
 		
 		program.put ("sort", "0");
-		program.put ("channel", player_real_channel);
+		program.put ("channel", channel_id);
 		program.put ("name", episode_id);
 		program.put ("desc", "");
 		program.put ("thumb", "");
-		program.put ("url1", "http://www.youtube.com/watch?v=" + episode_id);
+		program.put ("url1", url);
 		program.put ("url2", "");
 		program.put ("url3", "");
 		program.put ("url4", "");

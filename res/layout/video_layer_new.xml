@@ -234,6 +234,16 @@
 					android:text="@string/on_chromecast"
 					/>	
 			</FrameLayout>
+   				
+			<fragment
+			    class="tv.tv9x9.player.PlayerFragment"
+			    android:id="@+id/player_fragment_container"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			   	android:layout_gravity="center"
+			   	android:gravity="bottom|center_horizontal"
+			    android:background="#000000"
+			    />		
 	      	<fragment
 			    class="tv.tv9x9.player.VideoFragment"
 			    android:id="@+id/video_fragment_container"
@@ -243,6 +253,7 @@
 			   	android:gravity="bottom|center_horizontal"
 			    android:background="#000000"
 			    />
+	      	
 	  	</tv.tv9x9.player.SpecialFrameLayout>
 	  	
 		<LinearLayout
@@ -439,7 +450,7 @@
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginTop="-5dip"
-					android:textSize="30sp"
+					android:textSize="26sp"
 					android:textColor="#FFFFFF"
 					android:paddingLeft="10dip"
 					android:paddingRight="10dip"
@@ -457,7 +468,7 @@
 						android:layout_height="wrap_content"
 						android:layout_weight="1"
 						android:layout_marginTop="-5dip"
-						android:textSize="18sp"
+						android:textSize="16sp"
 						android:textColor="#C0C0C0"
 						android:paddingLeft="10dip"
 						android:paddingRight="10dip"
@@ -505,6 +516,12 @@
 					    android:layout_weight="1"
 					    android:orientation="horizontal"					    
 					    android:background="#1D1D1D">
+						<FrameLayout
+						    android:layout_width="match_parent"
+						    android:layout_height="match_parent"				    
+						    android:background="#1D1D1D"
+						    />	
+						    						
 					    <!-- TextView		     
 					        android:id="@+id/playback_episode_description"   
 							android:layout_width="wrap_content"
@@ -518,11 +535,22 @@
 							android:textColor="#C0C0C0"							
 							android:ellipsize="end"					
 					    	/ -->
-						<FrameLayout
+				    	<ScrollView
 						    android:layout_width="match_parent"
-						    android:layout_height="match_parent"				    
-						    android:background="#1D1D1D"
-						    />					    	
+						    android:layout_height="match_parent"
+						    android:layout_marginLeft="10dip"
+						    android:layout_marginRight="10dip"
+						    android:layout_marginBottom="10dip"				    
+						    android:background="#1D1D1D">
+				    	    <LinearLayout
+				    	        android:id="@+id/desc_scroll"
+							    android:layout_width="match_parent"
+							    android:layout_height="wrap_content"				    
+							    android:background="#1D1D1D"
+							    android:orientation="vertical"
+							    />	
+				    	</ScrollView>
+						
 					    <WebView	
 					        android:id="@+id/playback_episode_description"   
 							android:layout_width="match_parent"
@@ -536,7 +564,8 @@
 							android:paddingLeft="0dip"
 							android:paddingRight="0dip"																					
 							android:gravity="top"					
-							android:background="#1D1D1D"					
+							android:background="#1D1D1D"				
+							android:visibility="gone"	
 							/>				        					    
 					</FrameLayout>
 					
@@ -567,7 +596,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:layout_gravity="center_vertical|left"
-							android:textSize="24sp"
+							android:textSize="16sp"
 							android:textColor="#777777"
 							android:paddingLeft="10dip"
 							android:paddingRight="10dip"							
@@ -590,7 +619,7 @@
 							android:layout_height="wrap_content"							
 							android:layout_weight="1"
 							android:layout_gravity="center_vertical|left"							
-							android:textSize="24sp"
+							android:textSize="22sp"
 							android:textColor="#FFFFFF"
 							android:paddingLeft="10dip"
 							android:gravity="center_vertical|left"

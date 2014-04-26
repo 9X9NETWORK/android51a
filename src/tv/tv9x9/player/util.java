@@ -68,7 +68,7 @@ public class util
 			}
 	    }
     
-   	public static String seconds_to_string (int seconds)
+   	public static String seconds_to_string (long seconds)
 		{
 		if (seconds < 60)
 			return (String.format ("0:%02d", seconds));
@@ -76,8 +76,8 @@ public class util
 			return (String.format ("%02d:%02d", (seconds / 60), seconds % 60));
 		else
 			{
-			int hours = seconds / 3600;
-			int minutes = (seconds - (hours * 3600)) / 60;
+			long hours = seconds / 3600;
+			long minutes = (seconds - (hours * 3600)) / 60;
 			return String.format ("%d:%02d:%02d", hours, minutes, seconds % 60);
 			}
 		}

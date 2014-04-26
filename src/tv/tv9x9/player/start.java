@@ -1,5 +1,7 @@
 package tv.tv9x9.player;
 
+import io.vov.vitamio.LibsChecker;
+
 import java.net.URI;
 
 import tv.tv9x9.player.switchboard.LocalBinder;
@@ -59,7 +61,13 @@ public class start extends Activity
 	public void onCreate (Bundle savedInstanceState)
 		{
 		super.onCreate (savedInstanceState);
-
+    	
+		if (!LibsChecker.checkVitamioLibs (this))
+			{
+			log ("Vitamio library check failed!");
+			return;
+			}
+		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
 		device_parameters();
 
@@ -98,33 +106,36 @@ public class start extends Activity
 	    
 	    Uri uri = intent.getData();
 	    
-	    if (action.equals (Intent.ACTION_VIEW) && uri != null)
-	    	{
-	    	if (uri.getScheme().contains ("flipr") || uri.getPath().contains ("redirect"))
+	    if (action != null)
+		    {
+		    if (action.equals (Intent.ACTION_VIEW) && uri != null)
 		    	{
-		    	URI_for_launch = uri;
-		    	log ("URL host: " + uri.getHost());
-		    	log ("URL path: " + uri.getPath());
-		    	log ("URL query: " + uri.getQuery());
+		    	if (uri.getScheme().contains ("flipr") || uri.getPath().contains ("redirect"))
+			    	{
+			    	URI_for_launch = uri;
+			    	log ("URL host: " + uri.getHost());
+			    	log ("URL path: " + uri.getPath());
+			    	log ("URL query: " + uri.getQuery());
+			    	}
 		    	}
-	    	}
-	    else if (action.equals ("tv.tv9x9.player.notify"))
-    		{
-    		// http://ddtv.9x9.tv/view?ch=28718&ep=yt6yBESVVU_ec
-    	
-    		Bundle extras = intent.getExtras();
-    		String channel = extras.getString ("channel");
-    		String episode = extras.getString ("episode");
-    		String url = null;
-    		if (episode != null)
-    			url = "http://www.flipr.tv/view?ch=" + channel + "&ep=" + episode;
-    		else
-    			url = "http://www.flipr.tv/view?ch=" + channel;
-    		
-    		URI_for_launch = Uri.parse (url);
-    		channel_for_launch = channel;
-    		episode_for_launch = episode;
-    		}
+		    else if (action.equals ("tv.tv9x9.player.notify"))
+	    		{
+	    		// http://ddtv.9x9.tv/view?ch=28718&ep=yt6yBESVVU_ec
+	    	
+	    		Bundle extras = intent.getExtras();
+	    		String channel = extras.getString ("channel");
+	    		String episode = extras.getString ("episode");
+	    		String url = null;
+	    		if (episode != null)
+	    			url = "http://www.flipr.tv/view?ch=" + channel + "&ep=" + episode;
+	    		else
+	    			url = "http://www.flipr.tv/view?ch=" + channel;
+	    		
+	    		URI_for_launch = Uri.parse (url);
+	    		channel_for_launch = channel;
+	    		episode_for_launch = episode;
+	    		}
+		    }
 		}
 	
 	@Override

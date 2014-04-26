@@ -1,8 +1,5 @@
 package tv.tv9x9.player;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +12,9 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -215,7 +215,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     	}    
     
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    protected void onActivityResult (int requestCode, int resultCode, Intent data)
     	{
         super.onActivityResult (requestCode, resultCode, data);
         if (uiHelper != null)
@@ -353,7 +353,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			/* video_layer_new.xml */
 			TextView vEpisodeAge = (TextView) findViewById (R.id.episode_age);
-			vEpisodeAge.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			vEpisodeAge.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 			
 			// TextView vNumCommentsHeader = (TextView) findViewById (R.id.num_comments_header);
 			// vNumCommentsHeader.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
@@ -443,9 +443,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		else
 			{
 			/* this is messy. Can't use onPaused because that will probably occur after analytics */
-			if (!videoFragment.is_paused())
-				videoFragment.add_to_time_played();
+			if (!player.is_paused())
+				player.add_to_time_played();
 			pause_video();
+			playerFragment.stop();
 			}
 		player_real_channel = "?UNDEFINED";    			
 		analytics ("back");
@@ -700,6 +701,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			vTerm.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
 			vTerm.setPadding (pixels_6, pixels_6, pixels_6, pixels_6);
 			}
+		
+		ImageView vLogo = (ImageView) v.findViewById (R.id.logo);	
+		vLogo.setOnClickListener (new OnClickListener()
+			{
+	        @Override
+	        public void onClick (View v)
+	        	{
+	        	log ("click on: logo");
+	        	// play_vitamio();
+	        	}
+			});	
 		}
 	
 	public void activate_layer (toplayer layer)
@@ -1369,7 +1381,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	@Override
 	public void fixup_pause_or_play_button()
 		{
-		if (videoFragment != null && !chromecasted)
+		if (player != null && !chromecasted)
 			{
 			/* if in main thread */
 			if (Looper.myLooper() == Looper.getMainLooper())
@@ -1393,7 +1405,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		if (!chromecasted)
 			{
-			boolean is_playing = videoFragment.is_playing();
+			boolean is_playing = player.is_playing();
 			ImageView vPausePlay = (ImageView) findViewById (R.id.pause_or_play);
 			if (vPausePlay != null)
 				vPausePlay.setImageResource (is_playing ? R.drawable.pause_tablet : R.drawable.play_tablet);
@@ -1401,7 +1413,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		}
 	
 	@Override
-	public void onVideoActivityProgress (boolean is_playing, int offset, int duration, float pct)
+	public void onVideoActivityProgress (boolean is_playing, long offset, long duration, float pct)
 		{
 		videoActivityUpdateProgressBar (offset, duration);
 		
@@ -1795,7 +1807,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		TextView vEpisodeTitle = (TextView) findViewById (R.id.episode_title);
 		vEpisodeTitle.setText (episode_name);
 		
-		fill_episode_description (episode_desc);
+		NEW_fill_episode_description (episode_desc);
 		
 		/*
 		vEpisodeTitle.setOnClickListener (new OnClickListener()
@@ -1962,13 +1974,85 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		}
 	
+	public void NEW_fill_episode_description (String episode_desc)
+		{
+		Pattern pattern = android.util.Patterns.WEB_URL;
+		
+		LinearLayout vDesc = (LinearLayout) findViewById (R.id.desc_scroll);
+		vDesc.removeAllViews();
+		
+		if (episode_desc != null)
+			{
+			String lines[] = episode_desc.split ("\n");
+			for (String line: lines)
+				{
+				View append_view = null;
+				Matcher matcher = pattern.matcher (line);
+				if (matcher.find (0))
+					{
+					/* create a LinearLayout */
+					int match_start = matcher.start(1);
+					int match_end = matcher.end();
+					
+					String text_to_left = match_start > 0 ? line.substring (0, match_start - 1) : "";
+					final String text = line.substring (match_start, match_end);					
+					String text_to_right = line.substring (match_end);
+					
+					LinearLayout linear = new LinearLayout (this);	
+					
+					TextView v1 = new TextView (this);
+					v1.setText (text_to_left);
+					v1.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
+					v1.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+					linear.addView (v1);
+					
+					TextView v2 = new TextView (this);
+					v2.setText (text);
+					v2.setTextColor (Color.rgb (0xFF, 0xFF, 0xFF));
+					v2.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);					
+					linear.addView (v2);
+					v2.setOnClickListener (new OnClickListener()
+							{
+					        @Override
+					        public void onClick (View v)
+					        	{
+					        	log ("description url click: " + text);
+					        	Intent wIntent = new Intent (Intent.ACTION_VIEW, Uri.parse (text));
+					        	startActivity (wIntent);
+					        	}
+							});
+					
+					TextView v3 = new TextView (this);
+					v3.setText (text_to_right);
+					v3.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
+					v3.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+					linear.addView (v3);
+				
+					append_view = linear;
+					}
+				else
+					{
+					/* create just a TextView */
+					TextView v = new TextView (this);
+				    v.setText (line);
+				    append_view = v;
+					}
+				
+				LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams (WRAP_CONTENT, WRAP_CONTENT);
+				append_view.setLayoutParams (layout);
+				
+				vDesc.addView (append_view);
+				}
+			}
+		}
+	
 	final Runnable go_halfscreen = new Runnable()
 		{
 		public void run()
 			{			
 			log ("go halfscreen");
 			update_metadata_inner();
-			videoFragment.set_full_screen (false);
+			player.set_full_screen (false);
 			}
 		};
 		
@@ -1977,7 +2061,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		public void run()
 			{			
 			log ("go fullscreen");
-			videoFragment.set_full_screen (true);
+			player.set_full_screen (true);
 			}
 		};		
 	
@@ -3895,13 +3979,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		frontpage_start = System.currentTimeMillis();
 		
-		String type = "portal"; // "portal"
+		String type = "portal"; // "portal", "whatson"
 		
-		new playerAPI (in_main_thread, config, "portal?time=" + hour + "&type=" + type)
+		new playerAPI (in_main_thread, config, "portal?time=" + hour + "&type=" + type + "&minimal=true")
 			{
 			public void success (String[] lines)
 				{
-				if (lines.length < 3)
+				if (lines.length < 1)
 					{
 					alert ("Frontpage failure");
 					}
@@ -3977,7 +4061,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				if (fields.length >= 6)
 					portal_stack_channel_thumbs [stack_count] = fields [5];
 				if (fields.length >= 9)
-					parse_special_tags (fields[8], fields[0]);
+					parse_special_tags ("set", fields[8], fields[0]);
 				stack_count++;
 				log ("frontpage :: " + fields[0] + ": " + fields[1]);
 				}
@@ -4028,7 +4112,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		// vRefresh.setVisibility (View.VISIBLE);
 		}	
 			
-	public void parse_special_tags (String tags, String set_id)
+	public void parse_special_tags (String type, String tags, String set_id)
 		{
 		if (tags != null && !tags.equals(""))
 			{
@@ -4042,7 +4126,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						{
 						String ids[] = tagkv[1].split (",");
 						for (String id: ids)
-							config.set_special_tag (id, "set", set_id, tagkv[0]);
+							config.set_special_tag (id, type, set_id, tagkv[0]);
 						}
 					}
 				}
@@ -4134,7 +4218,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			Calendar now = Calendar.getInstance();
 			int hour = now.get (Calendar.HOUR_OF_DAY);
 			String short_id = id.replaceAll ("^virtual:", "");
-			query = "setInfo?set=" + short_id + "&time=" + hour;
+			query = "setInfo?set=" + short_id + "&time=" + hour + "&programInfo=false";
 			}
 		
 		log (query);
@@ -4202,15 +4286,29 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			super (context, is_tablet() ? R.layout.channel_tablet : R.layout.channel, content);
 			this.context = context;
 			this.content = content;
+			this.sh = sh;
+			init_arrays();
+			
+			/* I think sometimes the main thread is too busy to get every update */
+			in_main_thread.postDelayed (new Runnable()
+				{
+				public void run()
+					{	
+					notifyDataSetChanged();
+					}
+				}, 15000);
+			}
+	
+		public void init_arrays()
+			{
 			requested_channel_load = new boolean [content.length];
 			Arrays.fill (requested_channel_load, Boolean.FALSE);
 			requested_channel_thumbs = new boolean [content.length];
 			Arrays.fill (requested_channel_thumbs, Boolean.FALSE);
-			this.sh = sh;
 			thumbits = new Bitmap [content.length];
 			Arrays.fill (thumbits, null);
 			}
-	
+		
 		@Override
 		public int getCount()
 			{
@@ -4253,14 +4351,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			int wanted_layout_type = is_tablet() ? (mini_mode ? R.layout.channel_mini : R.layout.channel_tablet) : R.layout.channel;
 			// wanted_layout_type = is_tablet() ? R.layout.channel_null : R.layout.channel;
-			int cached_layout_type = wanted_layout_type;
-								
-			/* determine what type of row this actually is */
-			if (row != null && is_tablet())
-				{
-				/* episode2 id only occurs in thumb mode */
-				cached_layout_type = (row.findViewById (R.id.episode2) != null) ? R.layout.channel_tablet : R.layout.channel_mini;
-				}
 
 			if (row == null)
 				{
@@ -4461,11 +4551,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							}
 						};
 					
+					int n_thumbs = is_tablet() ? 4 : 1;
+					log ("** request " + n_thumbs + " thumbs: " + channel_id + " (position: " + position + ")");
+						
 					thumbnail.download_first_n_episode_thumbs
-							(main.this, config, channel_id, is_tablet() ? 4 : 1, in_main_thread, triple_update_thumbs);
+							(main.this, config, channel_id, n_thumbs, in_main_thread, triple_update_thumbs);
 					}
 				else
-					log ("already requested first n thumbs for: " + channel_id);
+					log ("already requested first n thumbs for: " + channel_id + " (position: " + position + ")");
 				}
 			else
 				{
@@ -4553,7 +4646,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						}			
 					}
 				}
-
 			
 			return row;
 			}
@@ -4621,32 +4713,32 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				}
 			
 			if (1 == 2)
-			{
-			if (program_line.length >= 2)
 				{
-				if (is_tablet())
-					e1_found = fill_in_episode_thumb (program_line[1], parent, R.id.episode1, 0 /* R.id.episode1_title */);
-				}
-			if (program_line.length >= 3)
-				{
-				if (is_tablet())
-					e2_found = fill_in_episode_thumb (program_line[2], parent, R.id.episode2, 0 /* R.id.episode2_title */);
-				}
-			if (is_phone())
-				{
-				View vEpisode3 = parent.findViewById (R.id.episode3);
-				if (vEpisode3 != null)
-					vEpisode3.setVisibility (View.GONE);
-				}			
-			else
-				{
-				if (program_line.length >= 4)
+				if (program_line.length >= 2)
 					{
 					if (is_tablet())
-						e3_found = fill_in_episode_thumb (program_line[3], parent, R.id.episode3, 0 /* R.id.episode3_title */);
+						; // e1_found = fill_in_episode_thumb (program_line[1], parent, R.id.episode1, 0 /* R.id.episode1_title */);
+					}
+				if (program_line.length >= 3)
+					{
+					if (is_tablet())
+						; // e2_found = fill_in_episode_thumb (program_line[2], parent, R.id.episode2, 0 /* R.id.episode2_title */);
+					}
+				if (is_phone())
+					{
+					View vEpisode3 = null; // parent.findViewById (R.id.episode3);
+					if (vEpisode3 != null)
+						vEpisode3.setVisibility (View.GONE);
+					}			
+				else
+					{
+					if (program_line.length >= 4)
+						{
+						if (is_tablet())
+							; // e3_found = fill_in_episode_thumb (program_line[3], parent, R.id.episode3, 0 /* R.id.episode3_title */);
+						}
 					}
 				}
-			}
 			
 			if (1 == 2)
 			if (!e0_found || !e1_found || !e2_found || !e3_found)
@@ -4658,11 +4750,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		else
 			{
-			fill_in_episode_thumb (null, parent, R.id.episode1, 0 /* R.id.episode1_title */);
+			// fill_in_episode_thumb (null, parent, R.id.episode1, 0 /* R.id.episode1_title */);
 			if (is_tablet())
 				{
-				fill_in_episode_thumb (null, parent, R.id.episode2, 0 /* R.id.episode2_title */);
-				fill_in_episode_thumb (null, parent, R.id.episode3, 0 /* R.id.episode3_title */);
+				// fill_in_episode_thumb (null, parent, R.id.episode2, 0 /* R.id.episode2_title */);
+				// fill_in_episode_thumb (null, parent, R.id.episode3, 0 /* R.id.episode3_title */);
 				}
 			}
 		
@@ -5049,8 +5141,29 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			enable_player_layer();
 			setup_player_adapters (channel_id);
+			// setup_player_fragment (channel_id);
 			}
 		play_first (channel_id);
+		}
+	
+	public void play_vitamio()
+		{
+        String fake_set[] = null;
+        String vitamio_channel = "!vitamio";
+        
+        String name = config.pool_meta(vitamio_channel, "name");
+        if (name == null || name.equals(""))
+	        {
+	        // config.add_channel (position, id, name, desc, thumb, count, type, status, nature, extra)
+	        config.add_channel (1, vitamio_channel, "Vitamio Channel", "this is a Vitamio channel...", "", "1", "0", "0", "667", "vitamio");
+	        String url = "http://9x9ch2.goodtv.org/hls-live/livepkgr/_definst_/liveevent/live-ch1-2.m3u8";
+			config.add_runt_episode (vitamio_channel, "vitamio-episode-1", url);
+	        }
+        
+        /* a runt set of only one channel */
+        fake_set = new String[] { vitamio_channel };
+        		
+        launch_player (vitamio_channel, fake_set);
 		}
 	
 	public void play_episode_in_channel (String channel_id, String episode_id)
@@ -5152,7 +5265,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (vChannelName != null)
 				vChannelName.setText (channel_name);
 			
-			fill_episode_description (episode_desc);
+			NEW_fill_episode_description (episode_desc);
 			
 			update_episode_count (channel_id);
 			
@@ -5200,6 +5313,29 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			vEpisodePlural.setText (num_episodes == 1 ? txt_episode : txt_episodes);
 		}
 
+	/* minimized risk -- don't alter fragments unless we've switched to the player fragment */
+	boolean fragment_changed = false;
+	
+	public void setup_player_fragment (String channel_id)
+		{
+		String nature = config.pool_meta (channel_id, "nature");
+		if (nature.equals ("667"))
+			{
+			fragment_changed = true;
+			show_player_fragment();
+			hide_video_fragment();
+			}
+		else
+			{
+			if (fragment_changed)
+				{
+				show_video_fragment();
+				hide_player_fragment();
+				fragment_changed = false;
+				}
+			}
+		}
+	
 	EpisodeSlider playback_episode_pager = null;
 	
 	public void setup_player_adapters (String channel_id)
@@ -6406,6 +6542,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					if (content != null)
 						episode = base + i < content.length ? content [base + i] : null;
 					episodes [i] = episode;
+					if (title_id != 0)
+						{
+						TextView vTitle = (TextView) hrow.findViewById (title_id);
+						if (vTitle != null)
+							vTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
+						}
 					if (!fill_in_episode_thumb (episode, hrow, resource_id, title_id))
 						all_thumbs_found = false;
 					View vBorder = hrow.findViewById (resource_id);
@@ -7377,7 +7519,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			store_initialized = true;
 			AbsListView vStore = (AbsListView) findViewById (is_tablet() ? R.id.store_list_tablet : R.id.store_list_phone);
-			store_adapter = new StoreAdapter (this, (StoreAdapter.mothership) this, config, current_category_index, category_channels);
+			// String category_id = category_list [current_category_index];
+			// store_adapter = new StoreAdapter (this, (StoreAdapter.mothership) this, config, current_category_index, category_id, category_channels);
+			store_adapter = new StoreAdapter (this, (StoreAdapter.mothership) this, config, -1, null, new String [0]);
 			vStore.setAdapter (store_adapter);
 			}
 		}
@@ -7611,10 +7755,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				{
 				log ("KV: " + line);
 				String fields[] = line.split ("\t");
-				if (fields[0].equals ("count"))					
-					/* category_stride = Integer.parseInt (fields[1]) */ ;
-				else if (fields[0].equals ("total"))
-					category_total_channels = Integer.parseInt (fields[1]);
+				if (fields.length >= 2)
+					{
+					if (fields[0].equals ("count"))					
+						/* category_stride = Integer.parseInt (fields[1]) */ ;
+					else if (fields[0].equals ("total"))
+						category_total_channels = Integer.parseInt (fields[1]);
+					else if (fields[0].equals ("channeltag"))
+						parse_special_tags ("store", fields[1], category_id);
+					}
 				}
 			else if (section == 2)
 				{
@@ -7670,7 +7819,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		for (int i = 0; i < category_channels.length; i++)
 			log ("CATCH load_cat" + i + ": " + category_channels [i]);
 
-		store_adapter.set_content (current_category_index, category_channels);	
+		store_adapter.set_content (current_category_index, category_id, category_channels);	
 		redraw_store_list();
 		
 		thumbnail.stack_thumbs (main.this, config, category_channels, in_main_thread, store_channel_thumb_updated);
@@ -7868,7 +8017,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (!search_initialized)
 			{
 			search_initialized = true;
-			search_adapter = new StoreAdapter (this, (StoreAdapter.mothership) this, config, -1, search_channels);
+			search_adapter = new StoreAdapter (this, (StoreAdapter.mothership) this, config, -1, null, search_channels);
 			AbsListView vSearch = (AbsListView) findViewById (is_tablet() ? R.id.search_list_tablet : R.id.search_list_phone);
 			vSearch.setAdapter (search_adapter);
 			}
@@ -8068,7 +8217,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				search_channels = search_channels_new;
 				}
 			
-			search_adapter.set_content (-1, search_channels);
+			search_adapter.set_content (-1, null, search_channels);
 			search_adapter.notifyDataSetChanged();
 			
 			redraw_search_list();

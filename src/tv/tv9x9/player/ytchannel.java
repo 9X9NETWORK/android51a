@@ -273,7 +273,12 @@ public class ytchannel
 						return;
 						}
 					
-					if (config.is_youtube (channel_id))
+					if (nature.equals ("667"))
+						{
+						Log.i ("vtest", "will not extend special channel with nature " + nature);
+						return;
+						}
+					else if (config.is_youtube (channel_id))
 						{
 						String username = config.pool_meta (channel_id, "extra");
 						Log.i ("vtest", "extending youtube channel \"" + channel_id + "\": " + username + " (at: " + extent + ")");

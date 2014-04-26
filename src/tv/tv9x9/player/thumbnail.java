@@ -498,7 +498,7 @@ public class thumbnail
 		}
 	
 	public static void download_first_n_episode_thumbs
-		(final Context ctx, final metadata m, final String channel, final int n, final Handler in_main_thread, final Runnable update)
+		(final Context ctx, final metadata m, final String channel, final int n, final Handler h, final Runnable update)
 		{
 		Thread t = new Thread()
 			{
@@ -523,13 +523,13 @@ public class thumbnail
 						for (int i = 0; i < true_n; i++)
 							{					
 							String episode = program_line [i];
-							download_single_episode_thumb (m, ctx, channel, episode, in_main_thread, update);
+							download_single_episode_thumb (m, ctx, channel, episode, h, update);
 							}
 						}
 					else
 						Log.i ("vtest", "download episode thumbnails: no episodes in channel: " + channel);
 					
-					in_main_thread.post (update);
+					h.post (update);
 					}				
 				catch (Exception ex)
 					{

@@ -15,7 +15,7 @@ import com.google.android.youtube.player.YouTubePlayer.ErrorReason;
 import com.google.android.youtube.player.YouTubePlayer.OnInitializedListener;
 import com.google.android.youtube.player.YouTubePlayer.Provider;
 
-public final class VideoFragment extends YouTubePlayerSupportFragment implements OnInitializedListener
+public final class VideoFragment extends YouTubePlayerSupportFragment implements OnInitializedListener, Player
 	{
 	boolean paused = false;
 
@@ -25,6 +25,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	final String devkey = "AI39si5HrNx2gxiCnGFlICK4Bz0YPYzGDBdJHfZQnf-fClL2i7H_A6Fxz6arDBriAMmnUayBoxs963QLxfo-5dLCO9PCX-DTrA";
 	
 	private VideoBaseActivity ctx = null;
+	private OnPlayerListener mCallback = null;
 	
 	private int most_recent_offset = 0;
 	
@@ -33,7 +34,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	private Handler handler = null;
 	private Runnable startup_function = null;
 	
-	public void log (String text)
+	private void log (String text)
 		{
 		Log.i ("vtest", "[videoFragment] " + text);
 		}
@@ -108,13 +109,16 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	public void set_context (VideoBaseActivity ctx)
 		{
 		this.ctx = ctx;
+		this.mCallback = (OnPlayerListener) ctx;
 		}
 	
-	public boolean ready()
+	@Override
+	public boolean is_ready()
 		{
 		return player != null;
 		}
 	
+	@Override
 	public boolean is_paused()
 		{
 		return paused;
@@ -123,7 +127,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	public void setVideoId (String videoId)
 		{
 		log ("setVideoId: " + videoId);
-		if (videoId != null && !videoId.equals(this.videoId))
+		if (videoId != null && !videoId.equals (this.videoId))
 			{
 			this.videoId = videoId;
 			if (player != null)
@@ -145,6 +149,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		return videoId;
 		}
 	
+	@Override
 	public void pause()
 		{
 		if (player != null)
@@ -160,9 +165,10 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			}
 		}
 
+	@Override
 	public void play()
 		{
-		if (!ctx.chromecasted)
+		if (!mCallback.is_chromecasted())
 			{
 			if (player != null)
 				{
@@ -178,22 +184,22 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			}
 		}
 	
-	public void load_video (String id, int start_msec)
+	public void load_video (String id, long start_msec)
 		{
-		if (!ctx.chromecasted)
+		if (!mCallback.is_chromecasted())
 			{
 			videoId = id;
 			if (player != null)
 				{
 				log ("load video " + id + ", start: " + start_msec);
-				try { player.loadVideo (id, start_msec); } catch (Exception ex) { ex.printStackTrace(); }
+				try { player.loadVideo (id, (int) start_msec); } catch (Exception ex) { ex.printStackTrace(); }
 				}
 			}
 		}
 
 	public void load_video (String id)
 		{
-		if (!ctx.chromecasted)
+		if (!mCallback.is_chromecasted())
 			{
 			videoId = id;
 			if (player != null)
@@ -204,13 +210,15 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			}
 		}
 
+	@Override
 	public void set_manage_audio_focus (boolean focus)
 		{
 		if (player != null)
 			try { player.setManageAudioFocus (false); } catch (Exception ex) { ex.printStackTrace(); }
 		}
 
-	public int get_offset()
+	@Override
+	public long get_offset()
 		{
 		int offset = 0;
 		if (player != null)
@@ -218,7 +226,8 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		return offset;
 		}
 
-	public int get_duration()
+	@Override
+	public long get_duration()
 		{
 		int duration = 0;
 		if (player != null)
@@ -226,13 +235,21 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		return duration;
 		}
 	
-	public void seek (int offset)
+	@Override
+	public void seek (long offset)
 		{
-		if (!ctx.chromecasted)
+		if (!mCallback.is_chromecasted())
 			if (player != null)
-				try { player.seekToMillis (offset); } catch (Exception ex) {};
+				try { player.seekToMillis ((int) offset); } catch (Exception ex) {};
 		}
 	
+	@Override
+	public void stop()
+		{
+		/* astonishingly, this is lacking in the YouTube API */
+		}
+	
+	@Override
 	public boolean is_playing()
 		{
 		boolean is_playing = true;
@@ -241,12 +258,14 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		return is_playing;
 		}
 	
+	@Override
 	public void set_full_screen (boolean flag)
 		{
 		if (player != null)
 			try { player.setFullscreen (flag); } catch (Exception ex) {};
 		}
 	
+	@Override
 	public void set_listeners()
 		{
 		set_playback_event_listener();
@@ -255,23 +274,27 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			
 	long video_time_counter = 0L;
 	
+	@Override
 	public void add_to_time_played()
 		{
 		long now = System.currentTimeMillis();
-		ctx.cumulative_episode_time += (now - video_time_counter);
+		mCallback.accumulate_episode_time (now - video_time_counter);
 		video_time_counter = now;	
 		}
 	
+	@Override
 	public void reset_time_played()
 		{
 		video_time_counter = System.currentTimeMillis();
 		}
 	
-	public int get_most_recent_offset()
+	@Override
+	public long get_most_recent_offset()
 		{
 		return most_recent_offset;
 		}	
 	
+	@Override
 	public void set_startup_function (Handler h, Runnable r)
 		{
 		handler = h;
@@ -293,9 +316,9 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 				public void onBuffering (boolean isBuffering)
 					{
 					log ("video event: onBuffering=" + isBuffering);
-					ctx.set_video_visibility (View.VISIBLE);
-					ctx.set_video_alpha (255);
-					ctx.mService.relay_post ("REPORT BUFFERING");
+					mCallback.set_video_visibility (View.VISIBLE);
+					mCallback.set_video_alpha (255);
+					mCallback.relay_post ("REPORT BUFFERING");
 					}
 		
 				@Override
@@ -307,17 +330,17 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					log ("video event: onPaused");
 					paused = true;
 					
-					ctx.in_main_thread.post (new Runnable()
+					mCallback.main_thread_handler().post (new Runnable()
 						{
 						public void run()
 							{
-							ctx.onVideoActivityPauseOrPlay (true);
-							ctx.in_main_thread.post (ctx.redraw_control_bar);
+							mCallback.onVideoActivityPauseOrPlay (true);
+							mCallback.redraw_control_bar_in_thread();
 							}
 						});
 					// in_main_thread.post (go_halfscreen);
-					ctx.mService.relay_post ("REPORT PAUSED");
-					ctx.submit_track_eof();
+					mCallback.relay_post ("REPORT PAUSED");
+					mCallback.submit_track_eof();
 					
 					add_to_time_played();					
 					}
@@ -328,10 +351,9 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					log ("video event: onPlaying");
 					paused = false;
 					
-					ctx.set_video_visibility (View.VISIBLE);
-					ctx.set_video_alpha (255);
-					// ImageView knob = (ImageView) findViewById (R.id.knob);
-					ImageView knob = (ImageView) ctx.findViewById (R.id.knob);
+					mCallback.set_video_visibility (View.VISIBLE);
+					mCallback.set_video_alpha (255);
+					ImageView knob = (ImageView) mCallback.findViewById (R.id.knob);
 					if (knob != null)
 						knob.setVisibility (View.VISIBLE);
 					if (false && ctx.video_has_started)
@@ -339,21 +361,20 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 						/* presume this is resuming from a pause */
 			        	long offset = player.getCurrentTimeMillis();
 			        	if (offset > 0)
-			        		ctx.in_main_thread.post (ctx.go_fullscreen);
+			        		mCallback.main_thread_handler().post (ctx.go_fullscreen);
 						}
 					ctx.video_has_started = true;
 					ctx.video_play_pending = false;
 					ctx.pending_restart = false;
-					ctx.mService.relay_post ("REPORT PLAYING");
-					ctx.readout_volume();
-					ctx.in_main_thread.post (new Runnable()
+					mCallback.relay_post ("REPORT PLAYING");
+					mCallback.readout_volume();
+					mCallback.main_thread_handler().post (new Runnable()
 						{
 						public void run()
 							{
-							ctx.onVideoActivityPauseOrPlay (false);
+							mCallback.onVideoActivityPauseOrPlay (false);
 							}
 						});
-					// ctx.submit_track_unpause();
 					
 					reset_time_played();
 					}
@@ -362,7 +383,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 				public void onSeekTo (int newPositionMillis)
 					{
 					log ("video event: onSeekTo: " + newPositionMillis);
-					ctx.invalidate_progress_bar();
+					mCallback.invalidate_progress_bar();
 					}
 		
 				@Override
@@ -374,12 +395,12 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					add_to_time_played();	
 					
 					log ("pending_restart is: " + ctx.pending_restart);
-					ctx.reset_progress_bar();
+					mCallback.reset_progress_bar();
 					// video_cutoff_time = -1;
 					// video_next_trigger = video_release_trigger = -1;
-					ctx.set_video_alpha (0);
-					ctx.submit_track_eof();
-					if (ctx.chromecasted)
+					mCallback.set_video_alpha (0);
+					mCallback.submit_track_eof();
+					if (mCallback.is_chromecasted())
 						{
 						log ("onStopped: chromecast is active, won't move to next episode");
 						return;
@@ -414,7 +435,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 						log ("onStopped: playing end titlecard, won't move to next episode");
 						return;
 						}
-					else if (!ctx.able_to_play_video())
+					else if (!mCallback.able_to_play_video())
 						{	
 						log ("onStopped: incorrect mode to play another video");
 						return;
@@ -423,13 +444,13 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 						{
 						log ("onStopped: pending_restart, re-kicking the video");
 						ctx.pending_restart = false;
-						ctx.start_playing();
+						mCallback.start_playing();
 						return;
 						}					
 					else if (ctx.video_has_started)
 						{
-						if (ctx.screen_is_on())
-							ctx.next_episode_with_rules();
+						if (mCallback.screen_is_on())
+							mCallback.next_episode_with_rules();
 						else
 							log ("onStopped: screen is off, won't move to next episode");
 						}
@@ -478,9 +499,9 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					if (1 == 2)
 						{
 						if (reason.toString().equals ("USER_DECLINED_RESTRICTED_CONTENT"))
-							ctx.alert ("Restricted content -- probably age restriction");
+							mCallback.alert ("Restricted content -- probably age restriction");
 						else if (reason.toString().equals ("INTERNAL_ERROR"))
-							ctx.alert ("Internal error -- probably this video is private");
+							mCallback.alert ("Internal error -- probably this video is private");
 						else if (reason.toString().equals ("UNAUTHORIZED_OVERLAY"))
 							ctx.video_systemic_error = true;
 						else if (reason.toString().equals ("PLAYER_VIEW_TOO_SMALL"))
@@ -488,7 +509,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 						else if (reason.toString().equals ("UNKNOWN"))
 							/* API bug? -- do nothing */;
 						else
-							ctx.alert (reason.toString());
+							mCallback.alert (reason.toString());
 						}
 					else
 						{
@@ -500,18 +521,18 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					
 					/* this behavior requested by PMs is idiotic */
 					if (!ctx.exit_in_progress && !ctx.playing_begin_titlecard 
-							&& !ctx.playing_end_titlecard && ctx.screen_is_on() && ctx.able_to_play_video())
+							&& !ctx.playing_end_titlecard && mCallback.screen_is_on() && mCallback.able_to_play_video())
 						{
 						/* add extra time to minimize catastrophe caused by requested, idiotic behavior */
-						ctx.in_main_thread.postDelayed (new Runnable()
+						mCallback.main_thread_handler().postDelayed (new Runnable()
 							{	
 							@Override
 							public void run()
 								{
-								if (ctx.screen_is_on() && ctx.able_to_play_video())
+								if (mCallback.screen_is_on() && mCallback.able_to_play_video())
 									{
 									log ("video onError; playing next episode");
-									ctx.next_episode();
+									mCallback.next_episode();
 									}
 								}
 							}, 200);
@@ -528,7 +549,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 				public void onLoading()
 					{
 					log ("[video state] onLoading");
-					ctx.set_video_visibility (View.VISIBLE);
+					mCallback.set_video_visibility (View.VISIBLE);
 					}
 		
 				@Override
@@ -544,10 +565,10 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					{
 					log ("[video state] onVideoStarted");
 					most_recent_offset = 0;
-					ctx.set_poi_trigger (false);
-					ctx.set_video_visibility (View.VISIBLE);
-					ctx.onVideoActivityVideoStarted (player);
-					ctx.setup_progress_bar();
+					mCallback.set_poi_trigger (false);
+					mCallback.set_video_visibility (View.VISIBLE);
+					mCallback.onVideoActivityVideoStarted();
+					mCallback.setup_progress_bar();
 					reset_time_played();
 					}
 				});
@@ -567,7 +588,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		
 		log ("YouTube initialized successfully");
 		
-		SpecialFrameLayout yt_wrapper = (SpecialFrameLayout) ctx.findViewById (R.id.ytwrapper2);
+		SpecialFrameLayout yt_wrapper = (SpecialFrameLayout) mCallback.findViewById (R.id.ytwrapper2);
 		yt_wrapper.setOnVideoResize (new Callback()
 			{
 			@Override
@@ -630,7 +651,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			}
 			
 		if (!was_restored)
-			ctx.ready();		
+			mCallback.ready();		
 		
 		if (startup_function != null)
 			{
@@ -651,6 +672,6 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		{
 		super.onConfigurationChanged (newConfig);
 		log ("CONFIGURATION CHANGED IN VIDEO FRAGMENT!");
-		ctx.onVideoActivityLayout();
+		mCallback.onVideoActivityLayout();
 		}
 	}
