@@ -35,8 +35,7 @@
 		android:layout_height="wrap_content"	
 		android:layout_marginLeft="12dip"
 		android:layout_marginRight="6dip"
-		android:layout_gravity="center"
-		android:src="@drawable/logo_signin_vice"						
+		android:layout_gravity="center"					
 		/>		
     <LinearLayout  
         android:id="@+id/gossamer"    
@@ -110,6 +109,8 @@
 				    android:layout_marginRight="30dip"				        
 			        android:layout_marginTop="30dp"
 			        fb:fetch_user_info="false"
+		        	fb:login_text="@string/fb_btn_login"
+    				fb:logout_text="@string/fb_btn_logout"			        
 					android:nextFocusDown="@+id/sign_in_email"					        
 					android:nextFocusForward="@+id/sign_in_email"					        
 			        />   
@@ -137,7 +138,7 @@
 						android:gravity="left|center_vertical"
 						android:textSize="22sp"
 						android:textColor="#FFFFFF"
-						android:hint="@string/si_sign_in_with_email"		
+						android:hint="@string/sign_in_with_email"		
 						android:textColorHint="#FFFFFF"						
 		    			android:inputType="textEmailAddress"								
 						android:paddingLeft="3sp"

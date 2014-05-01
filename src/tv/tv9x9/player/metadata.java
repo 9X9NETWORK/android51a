@@ -740,6 +740,22 @@ public class metadata
 		return count;
 		}
 
+	public int display_channel_count (String channel_id)
+		{
+		int true_count = programs_in_real_channel (channel_id);
+		int server_count = 0;
+		
+		String server_count_string = pool_meta (channel_id, "server-count");
+		if (server_count_string != null && !server_count_string.equals (""))
+			server_count = Integer.parseInt (server_count_string);
+		
+		int count = server_count > true_count ? server_count : true_count;
+		if (count > 200)
+			count = 200;
+		
+		return count;
+		}
+	
 	public int highest_sort (String real_channel)
 		{
 		int highest = 0;
@@ -1178,12 +1194,14 @@ public class metadata
 				episode_thumb = thumbs[1];
 			}
 		
-		if (pool_meta (fields[1], "id") != null)
+		final String channel_id = fields [1];
+		
+		if (pool_meta (channel_id, "id") != null)
 			{
-			Log.i ("vtest", "parse_channel_info_line: channel " + fields[1] + " already known");
+			Log.i ("vtest", "parse_channel_info_line: channel " + channel_id + " already known");
 			if (!fields[0].equals ("0"))
 				{
-				Hashtable <String, String> meta = channel_hash_by_id (fields[1]);
+				Hashtable <String, String> meta = channel_hash_by_id (channel_id);
 				try
 					{
 					channel_lock.lock();
@@ -1194,14 +1212,17 @@ public class metadata
 					channel_lock.unlock();
 					}
 				}
-			return fields[1];
+			return channel_id;
 			}
 		
-		channel.put ("id", fields[1]);
+		Log.i ("vtest", "parse channel info line: channel " + channel_id + " count: " + fields[5]);
+		
+		channel.put ("id", channel_id);
 		channel.put ("name", fields[2]);
 		channel.put ("desc", fields[3]);
 		channel.put ("thumb", thumb);
 		channel.put ("count", fields[5]);
+		channel.put ("server-count", fields[5]);
 		channel.put ("type", fields[6]);
 		channel.put ("status", fields[7]);
 		channel.put ("nature", fields[8]);
@@ -1211,14 +1232,14 @@ public class metadata
 		if (virtual_channel != null)
 			{
 			channel.put ("#" + virtual_channel, Integer.toString (count));
-			Log.i ("vtest", "parse channel line: virtual #" + virtual_channel + " <= " + fields[1]);
+			Log.i ("vtest", "parse channel line: virtual #" + virtual_channel + " <= " + channel_id);
 			}
 		
 		if (episode_thumb != null)
 			{
 			/* v3.2+ only */
 			channel.put ("episode_thumb", episode_thumb);
-			Log.i ("vtest", "episode thumb " + fields[1] + ": " + episode_thumb);
+			Log.i ("vtest", "episode thumb " + channel_id + ": " + episode_thumb);
 			}
 		
 		/* have not fetched from youtube */
@@ -1239,12 +1260,12 @@ public class metadata
 				}
 			}
 		else
-			Log.i ("vtest", "offgrid channel: " + fields[1] + "=" + fields[2]);
+			Log.i ("vtest", "offgrid channel: " + channel_id + "=" + fields[2]);
 		
 		try
 			{
 			channel_lock.lock();
-			channel_pool.put (fields[1], channel);
+			channel_pool.put (channel_id, channel);
 			if (fields[8].equals ("3") || fields[8].equals ("4"))
 				channels_by_youtube.put (fields[9], channel);
 			}
@@ -1253,7 +1274,7 @@ public class metadata
 			channel_lock.unlock();
 			}
 		
-		return fields[1];
+		return channel_id;
 		}
 
 	public void add_channel (int position, String id, String name, String desc, 
@@ -1261,6 +1282,8 @@ public class metadata
 		{
 		Hashtable <String, String> channel = new Hashtable <String, String> ();
 
+		Log.i ("vtest", "add channel: " + id);
+		
 		if (thumb.contains ("|"))
 			{
 			String thumbs[] = thumb.split ("\\|");
@@ -1290,7 +1313,7 @@ public class metadata
 			if (position > 0)
 				channelgrid.put (position, channel);
 			channel_pool.put (id, channel);
-			if (nature.equals ("3") || nature.equals("4"))
+			if (nature.equals ("3") || nature.equals ("4"))
 				channels_by_youtube.put (extra, channel);
 			}
 		finally
@@ -1303,6 +1326,8 @@ public class metadata
 		{
 		Hashtable <String, String> channel = new Hashtable <String, String> ();
 
+		Log.i ("vtest", "add temporary channel: " + id);
+		
 		channel.put ("id", id);
 		channel.put ("name", "");
 		channel.put ("desc", "");
@@ -1328,17 +1353,17 @@ public class metadata
 			}
 		}
 	
-	public void add_runt_episode (String channel_id, String episode_id)
+	public void add_runt_episode (int sort, String channel_id, String episode_id)
 		{
 		String url = "http://www.youtube.com/watch?v=" + episode_id;
-		add_runt_episode (channel_id, episode_id, url);		
+		add_runt_episode (sort, channel_id, episode_id, url);		
 		}
 	
-	public void add_runt_episode (String channel_id, String episode_id, String url)
+	public void add_runt_episode (int sort, String channel_id, String episode_id, String url)
 		{
 		Hashtable <String, String> program = new Hashtable <String, String> ();		
 		
-		program.put ("sort", "0");
+		program.put ("sort", Integer.toString (sort));
 		program.put ("channel", channel_id);
 		program.put ("name", episode_id);
 		program.put ("desc", "");

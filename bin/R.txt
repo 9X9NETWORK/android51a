@@ -1527,6 +1527,8 @@ int string episodescolon 0x7f0800f0
 int string error_email_taken 0x7f080087
 int string exit_9x9 0x7f080100
 int string fb_app_id 0x7f08005f
+int string fb_btn_login 0x7f080142
+int string fb_btn_logout 0x7f080143
 int string follow 0x7f080065
 int string following_paginated 0x7f0800bd
 int string following_pile 0x7f080064
@@ -1592,6 +1594,7 @@ int string no_personal_history 0x7f080103
 int string no_results_found 0x7f080069
 int string no_tv_found 0x7f0800b9
 int string not_linked 0x7f0800ba
+int string nothing_changed 0x7f080144
 int string now_playing 0x7f080117
 int string now_playing_dash 0x7f080118
 int string ok 0x7f080071
@@ -1653,6 +1656,7 @@ int string sign_in_sign_up_botton 0x7f08008d
 int string sign_in_successful 0x7f0800b0
 int string sign_in_tease_1 0x7f0800ae
 int string sign_in_tease_2 0x7f0800af
+int string sign_in_with_email 0x7f080141
 int string sign_out 0x7f08011d
 int string sign_up_a_new_account 0x7f080130
 int string sign_up_button 0x7f08008c

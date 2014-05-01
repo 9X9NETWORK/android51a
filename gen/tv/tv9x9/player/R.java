@@ -1136,198 +1136,7 @@ Enable automatic activity tracking
         /** Enable automatic exception tracking
          */
         public static final int ga_reportUncaughtExceptions=0x7f0c0007;
-        /**  Joey Graceffa 
- 
-    <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/joeygraceffa_launch_logo</string>
-    <string name="white_label">joeygraceffa</string>
-    <string name="mso">joeygraceffa</string>
-    <string name="default_region">en</string>
-    <string name="logo">joeygraceffa_logo</string>
-    <string name="splash_background">joeygraceffa_bg_open</string>
-    <string name="splash_foreground">joeygraceffa_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">joeygraceffa_logo_signin</string>
-    <string name="signin_bg">joeygraceffa_bg_open</string>
-    <string name="set_banner">joeygraceffa_banner01</string>
-    <string name="fb_app_id">595235090571267</string>
-    
- Spinnin' Records 
- 
-    <string name="app_name">SpinninRec on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/spinninrec_launch_logo</string>
-    <string name="white_label">spinninrec</string>
-    <string name="mso">spinninrec</string>
-    <string name="default_region">en</string>
-    <string name="logo">spinninrec_logo</string>
-    <string name="splash_background">spinninrec_bg_open</string>
-    <string name="splash_foreground">spinninrec_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">spinninrec_logo_signin</string>
-    <string name="signin_bg">spinninrec_bg_open</string>
-    <string name="set_banner">spinninrec_banner01</string>
-    <string name="fb_app_id">1468306366724948</string>
-    
- The Fine Bros 
- 
-    <string name="app_name">The Fine Bros on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/thefinebros_launch_logo</string>
-    <string name="white_label">thefinebros</string>
-    <string name="mso">thefinebros</string>
-    <string name="default_region">en</string>
-    <string name="logo">thefinebros_logo</string>
-    <string name="splash_background">thefinebros_bg_open</string>
-    <string name="splash_foreground">thefinebros_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">thefinebros_logo_signin</string>
-    <string name="signin_bg">thefinebros_bg_open</string>
-    <string name="set_banner">thefinebros_banner01</string>
-    <string name="fb_app_id">1468306366724948</string>
-	
- History 
- 
-    <string name="app_name">History Channel on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/history_launch_logo</string>
-    <string name="white_label">history</string>
-    <string name="mso">history</string>
-    <string name="default_region">en</string>
-    <string name="logo">history_logo</string>
-    <string name="splash_background">history_bg_open</string>
-    <string name="splash_foreground">history_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">history_logo_signin</string>
-    <string name="signin_bg">history_bg_open</string>
-    <string name="set_banner">history_banner01</string>
-    <string name="fb_app_id">1423211814590720</string>
-    
- NBA 
- 
-    <string name="app_name">NBA on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/nba_launch_logo</string>
-    <string name="white_label">nba</string>
-    <string name="mso">nba</string>
-    <string name="default_region">en</string>
-    <string name="logo">nba_logo</string>
-    <string name="splash_background">nba_bg_open</string>
-    <string name="splash_foreground">nba_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">nba_logo_signin</string>
-    <string name="signin_bg">nba_bg_open</string>
-    <string name="set_banner">nba_banner01</string>
-    <string name="fb_app_id">277020789128327</string>
-    
- Smosh 
- 
-    <string name="app_name">Smosh on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/smosh_launch_logo</string>
-    <string name="white_label">smosh</string>
-    <string name="mso">smosh</string>
-    <string name="default_region">en</string>
-    <string name="logo">smosh_logo</string>
-    <string name="splash_background">smosh_bg_open</string>
-    <string name="splash_foreground">smosh_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">smosh_logo_signin</string>
-    <string name="signin_bg">smosh_bg_open</string>
-    <string name="set_banner">smosh_banner01</string>
-    <string name="fb_app_id">492773477497848</string>
-    
- Shane 
- 
-    <string name="app_name">Shane on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/shane_launch_logo</string>
-    <string name="white_label">shane</string>
-    <string name="mso">shane</string>
-    <string name="default_region">en</string>
-    <string name="logo">shane_logo</string>
-    <string name="splash_background">shane_bg_open</string>
-    <string name="splash_foreground">shane_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">shane_logo_signin</string>
-    <string name="signin_bg">shane_bg_open</string>
-    <string name="set_banner">shane_banner01</string>
-    <string name="fb_app_id">359889977487152</string>
-    
- College Humor 
- 
-    <string name="app_name">Collegehumor on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/collegehumor_launch_logo</string>
-    <string name="white_label">collegehumor</string>
-    <string name="mso">collegehumor</string>
-    <string name="default_region">en</string>
-    <string name="logo">collegehumor_logo</string>
-    <string name="splash_background">collegehumor_bg_open</string>
-    <string name="splash_foreground">collegehumor_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">collegehumor_logo_signin</string>
-    <string name="signin_bg">collegehumor_bg_open</string>
-    <string name="set_banner">collegehumor_banner01</string>
-    <string name="fb_app_id">613862398667500</string>
-    
- Network_A 
- 
-    <string name="app_name">Network_A on FLIPr</string>
-    <string name="app_icon">@drawable/networka_launch_logo</string>
-    <string name="white_label">networka</string>
-    <string name="mso">networka</string>
-    <string name="default_region">en</string>
-    <string name="logo">logo_networka</string>
-    <string name="splash_background">bg_open_networka</string>
-    <string name="splash_foreground">open_logo_networka</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">logo_networka</string>
-    <string name="signin_bg">bg_open_networka</string>
-    <string name="set_banner">banner_networka</string>
-    <string name="fb_app_id">450168698417667</string>
-    
- crash course 
- 
-    <string name="app_name">Crash Course on FLIPr</string>
-    <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
-    <string name="white_label">crashcourse</string>     
-    <string name="mso">crashcourse</string>
-    <string name="default_region">en</string>               
-    <string name="logo">logo_crashcourse</string>
-    <string name="splash_background">bg_open_crashcourse</string>
-    <string name="splash_foreground">open_logo_crashcourse</string>    
-    <string name="splash_slogan"></string>    
-    <string name="signin_logo">logo_crashcourse</string>        
-    <string name="signin_bg">bg_open_crashcourse</string>  
-    <string name="set_banner">banner_crashcourse</string>      	
-    <string name="fb_app_id">1414438248794640</string>
-    
- EchoMusic 
- 
-    <string name="app_name">EchoMusic</string>
-    <string name="app_icon">@drawable/ic_launcher_hdpi_echomusic</string>
-    <string name="white_label">echomusic</string>
-    <string name="mso">echomusic</string>
-    <string name="default_region">zh</string>
-    <string name="logo">logo_topbar_echomusic</string>
-    <string name="splash_background">splash_bg_echomusic</string>
-    <string name="splash_foreground">splash_logo_echomusic</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_bg">bgnew</string>     
-    <string name="set_banner">banner_9x9</string>   
-	<string name="fb_app_id">212239432317755</string>
-    
- cts 
-
-    <string name="app_name">CTS</string>
-    <string name="app_icon">@drawable/cts_icon_new</string>    
-    <string name="white_label">cts</string>     
-    <string name="mso">cts</string>
-    <string name="default_region">zh</string>               
-    <string name="logo">cts_logo</string>
-    <string name="splash_background">bg_open_cts</string>
-    <string name="splash_foreground">open_logo_cts</string>    
-    <string name="splash_slogan"></string>    
-    <string name="signin_logo">logo_cts</string>        
-    <string name="signin_bg">bg_open_cts</string>
-    <string name="set_banner">banner_cts</string>            
-	<string name="fb_app_id">1429057570658015</string>       
-    
- goodtv 
+        /**  goodtv 
  
     <string name="app_name">GOODTV</string>
  	<string name="app_icon">@drawable/goodtv_launch_logo</string>         
@@ -1455,199 +1264,22 @@ Enable automatic activity tracking
     <string name="set_banner">banner_newsflipr</string>            
 	<string name="fb_app_id">756691711022525</string>
 	
- Joey Graceffa 
-   
-    <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/joeygraceffa_launch_logo</string>
-    <string name="white_label">joeygraceffa</string>
-    <string name="mso">joeygraceffa</string>
+ ktsf26 
+  
+    <string name="app_name">KTSF26</string>
+    <string name="app_icon">@drawable/ktsf_launch_logo</string>
+    <string name="white_label">ktsf26</string>
+    <string name="mso">ktsf26</string>
     <string name="default_region">en</string>
-    <string name="logo">joeygraceffa_logo</string>
-    <string name="splash_background">joeygraceffa_bg_open</string>
-    <string name="splash_foreground">joeygraceffa_open_logo</string>
+    <string name="logo">ktsf_logo</string>
+    <string name="splash_background">ktsf_bg_open</string>
+    <string name="splash_foreground">ktsf_open_logo</string>
     <string name="splash_slogan"></string>
-    <string name="signin_logo">joeygraceffa_logo_signin</string>
-    <string name="signin_bg">joeygraceffa_bg_open</string>
-    <string name="set_banner">joeygraceffa_banner01</string>
-    <string name="fb_app_id">595235090571267</string>
-    
- Spinnin' Records 
-   
-    <string name="app_name">SpinninRec on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/spinninrec_launch_logo</string>
-    <string name="white_label">spinninrec</string>
-    <string name="mso">spinninrec</string>
-    <string name="default_region">en</string>
-    <string name="logo">spinninrec_logo</string>
-    <string name="splash_background">spinninrec_bg_open</string>
-    <string name="splash_foreground">spinninrec_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">spinninrec_logo_signin</string>
-    <string name="signin_bg">spinninrec_bg_open</string>
-    <string name="set_banner">spinninrec_banner01</string>
-    <string name="fb_app_id">1468306366724948</string>
-    
- The Fine Bros 
- 
-    <string name="app_name">The Fine Bros on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/thefinebros_launch_logo</string>
-    <string name="white_label">thefinebros</string>
-    <string name="mso">thefinebros</string>
-    <string name="default_region">en</string>
-    <string name="logo">thefinebros_logo</string>
-    <string name="splash_background">thefinebros_bg_open</string>
-    <string name="splash_foreground">thefinebros_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">thefinebros_logo_signin</string>
-    <string name="signin_bg">thefinebros_bg_open</string>
-    <string name="set_banner">thefinebros_banner01</string>
-    <string name="fb_app_id">361253423962738</string>
-    
- History 
- 
-    <string name="app_name">History Channel on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/history_launch_logo</string>
-    <string name="white_label">history</string>
-    <string name="mso">history</string>
-    <string name="default_region">en</string>
-    <string name="logo">history_logo</string>
-    <string name="splash_background">history_bg_open</string>
-    <string name="splash_foreground">history_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">history_logo_signin</string>
-    <string name="signin_bg">history_bg_open</string>
-    <string name="set_banner">history_banner01</string>
-    <string name="fb_app_id">361253423962738</string>
- 	
- NBA 
- 
-    <string name="app_name">NBA on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/nba_launch_logo</string>
-    <string name="white_label">nba</string>
-    <string name="mso">nba</string>
-    <string name="default_region">en</string>
-    <string name="logo">nba_logo</string>
-    <string name="splash_background">nba_bg_open</string>
-    <string name="splash_foreground">nba_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">nba_logo_signin</string>
-    <string name="signin_bg">nba_bg_open</string>
-    <string name="set_banner">nba_banner01</string>
-    <string name="fb_app_id">277020789128327</string>
-    
- Smosh 
- 
-    <string name="app_name">Smosh on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/smosh_launch_logo</string>
-    <string name="white_label">smosh</string>
-    <string name="mso">smosh</string>
-    <string name="default_region">en</string>
-    <string name="logo">smosh_logo</string>
-    <string name="splash_background">smosh_bg_open</string>
-    <string name="splash_foreground">smosh_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">smosh_logo_signin</string>
-    <string name="signin_bg">smosh_bg_open</string>
-    <string name="set_banner">smosh_banner01</string>
-    <string name="fb_app_id">492773477497848</string>
+    <string name="signin_logo">ktsf_logo_signin</string>
+    <string name="signin_bg">ktsf_bg_open</string>
+    <string name="set_banner">ktsf_banner01</string>
+    <string name="fb_app_id">496791563769983</string>
 	
- Shane 
- 
-    <string name="app_name">Shane on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/shane_launch_logo</string>
-    <string name="white_label">shane</string>
-    <string name="mso">shane</string>
-    <string name="default_region">en</string>
-    <string name="logo">shane_logo</string>
-    <string name="splash_background">shane_bg_open</string>
-    <string name="splash_foreground">shane_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">shane_logo_signin</string>
-    <string name="signin_bg">shane_bg_open</string>
-    <string name="set_banner">shane_banner01</string>
-    <string name="fb_app_id">359889977487152</string>
-	
- College Humor 
- 
-    <string name="app_name">Collegehumor on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/collegehumor_launch_logo</string>
-    <string name="white_label">collegehumor</string>
-    <string name="mso">collegehumor</string>
-    <string name="default_region">en</string>
-    <string name="logo">collegehumor_logo</string>
-    <string name="splash_background">collegehumor_bg_open</string>
-    <string name="splash_foreground">collegehumor_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">collegehumor_logo_signin</string>
-    <string name="signin_bg">collegehumor_bg_open</string>
-    <string name="set_banner">collegehumor_banner01</string>
-    <string name="fb_app_id">613862398667500</string>
-    
- Network_A 
- 
-    <string name="app_name">Network_A on FLIPr</string>
-    <string name="app_icon">@drawable/networka_launch_logo</string>
-    <string name="white_label">networka</string>
-    <string name="mso">networka</string>
-    <string name="default_region">en</string>
-    <string name="logo">logo_networka</string>
-    <string name="splash_background">bg_open_networka</string>
-    <string name="splash_foreground">open_logo_networka</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">logo_networka</string>
-    <string name="signin_bg">bg_open_networka</string>
-    <string name="set_banner">banner_networka</string>
-    <string name="fb_app_id">450168698417667</string>
-    
- crash course 
-
-    <string name="app_name">Crash Course on FLIPr</string>
-    <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
-    <string name="white_label">crashcourse</string>     
-    <string name="mso">crashcourse</string>
-    <string name="default_region">en</string>               
-    <string name="logo">logo_crashcourse</string>
-    <string name="splash_background">bg_open_crashcourse</string>
-    <string name="splash_foreground">open_logo_crashcourse</string>    
-    <string name="splash_slogan"></string>    
-    <string name="signin_logo">logo_crashcourse</string>        
-    <string name="signin_bg">bg_open_crashcourse</string>   
-    <string name="set_banner">banner_crashcourse</string>      	  
-    <string name="fb_app_id">1414438248794640</string>
-    
- EchoMusic 
-
-    <string name="app_name">音樂圖書館</string>
-    <string name="app_icon">@drawable/ic_launcher_hdpi_echomusic</string>
-    <string name="white_label">echomusic</string>
-    <string name="mso">echomusic</string>
-    <string name="default_region">zh</string>
-    <string name="logo">logo_topbar_echomusic</string>
-    <string name="splash_background">splash_bg_echomusic</string>
-    <string name="splash_foreground">splash_logo_echomusic</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">logo_signin_vice</string>        
-    <string name="signin_bg">splash_vice</string>           
-	<string name="fb_app_id">361253423962738</string>       
-    
- string name="app_name">華視</string 
- cts original 
- cts festival 
-     
-    <string name="app_name">華視 FLIPr</string>
-    <string name="app_icon">@drawable/cts_icon_new</string>
-    <string name="white_label">cts</string>
-    <string name="mso">cts</string>    
-    <string name="default_region">zh</string>    
-    <string name="logo">cts_logo</string>  
-    <string name="splash_background">bg_open_cts</string>
-    <string name="splash_foreground">open_logo_cts</string>    
-    <string name="splash_slogan"></string>            
-    <string name="signin_logo">logo_cts</string>        
-    <string name="signin_bg">bg_open_cts</string> 
-    <string name="set_banner">banner_cts</string>           
-	<string name="fb_app_id">1429057570658015</string>              
-    
  thenewslens 
  
     <string name="app_name">關鍵評論網 FLIPr</string>
@@ -1775,6 +1407,22 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_newsflipr</string>
     <string name="set_banner">banner_newsflipr</string>            
 	<string name="fb_app_id">756691711022525</string>    
+	
+ ktsf26 
+  
+    <string name="app_name">KTSF26</string>
+    <string name="app_icon">@drawable/ktsf_launch_logo</string>
+    <string name="white_label">ktsf26</string>
+    <string name="mso">ktsf26</string>
+    <string name="default_region">en</string>
+    <string name="logo">ktsf_logo</string>
+    <string name="splash_background">ktsf_bg_open</string>
+    <string name="splash_foreground">ktsf_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">ktsf_logo_signin</string>
+    <string name="signin_bg">ktsf_bg_open</string>
+    <string name="set_banner">ktsf_banner01</string>
+    <string name="fb_app_id">496791563769983</string>
 	
          */
         public static final int uses_chromecast=0x7f0c0008;
@@ -3155,7 +2803,391 @@ Enable automatic activity tracking
         public static final int and=0x7f0800e4;
         public static final int app_icon=0x7f080054;
         /**  9x9
+ 
+    <string name="app_name">9x9.tv</string>
+	<string name="app_icon">@drawable/tt_icon_new</string>         
+    <string name="white_label">portal</string>
+    <string name="mso">9x9</string>
+    <string name="default_region">en</string>    
+    <string name="logo">tvlogo</string>   
+    <string name="splash_background">bgnew</string>
+    <string name="splash_foreground">splash_generic_logo</string>   
+    <string name="splash_slogan">Empowering Cloud TV</string>
+    <string name="signin_logo">tvlogo</string>    
+    <string name="signin_bg">bgnew</string>     
+    <string name="set_banner">banner_9x9</string>   
+	<string name="fb_app_id">361253423962738</string>
+	
+ Joey Graceffa 
+ 
+    <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/joeygraceffa_launch_logo</string>
+    <string name="white_label">joeygraceffa</string>
+    <string name="mso">joeygraceffa</string>
+    <string name="default_region">en</string>
+    <string name="logo">joeygraceffa_logo</string>
+    <string name="splash_background">joeygraceffa_bg_open</string>
+    <string name="splash_foreground">joeygraceffa_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">joeygraceffa_logo_signin</string>
+    <string name="signin_bg">joeygraceffa_bg_open</string>
+    <string name="set_banner">joeygraceffa_banner01</string>
+    <string name="fb_app_id">595235090571267</string>
+    
+ Spinnin' Records 
+ 
+    <string name="app_name">SpinninRec on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/spinninrec_launch_logo</string>
+    <string name="white_label">spinninrec</string>
+    <string name="mso">spinninrec</string>
+    <string name="default_region">en</string>
+    <string name="logo">spinninrec_logo</string>
+    <string name="splash_background">spinninrec_bg_open</string>
+    <string name="splash_foreground">spinninrec_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">spinninrec_logo_signin</string>
+    <string name="signin_bg">spinninrec_bg_open</string>
+    <string name="set_banner">spinninrec_banner01</string>
+    <string name="fb_app_id">1468306366724948</string>
+    
+ The Fine Bros 
+ 
+    <string name="app_name">The Fine Bros on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/thefinebros_launch_logo</string>
+    <string name="white_label">thefinebros</string>
+    <string name="mso">thefinebros</string>
+    <string name="default_region">en</string>
+    <string name="logo">thefinebros_logo</string>
+    <string name="splash_background">thefinebros_bg_open</string>
+    <string name="splash_foreground">thefinebros_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">thefinebros_logo_signin</string>
+    <string name="signin_bg">thefinebros_bg_open</string>
+    <string name="set_banner">thefinebros_banner01</string>
+    <string name="fb_app_id">1468306366724948</string>
+	
+ History 
+ 
+    <string name="app_name">History Channel on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/history_launch_logo</string>
+    <string name="white_label">history</string>
+    <string name="mso">history</string>
+    <string name="default_region">en</string>
+    <string name="logo">history_logo</string>
+    <string name="splash_background">history_bg_open</string>
+    <string name="splash_foreground">history_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">history_logo_signin</string>
+    <string name="signin_bg">history_bg_open</string>
+    <string name="set_banner">history_banner01</string>
+    <string name="fb_app_id">1423211814590720</string>
+    
+ NBA 
+ 
+    <string name="app_name">NBA on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/nba_launch_logo</string>
+    <string name="white_label">nba</string>
+    <string name="mso">nba</string>
+    <string name="default_region">en</string>
+    <string name="logo">nba_logo</string>
+    <string name="splash_background">nba_bg_open</string>
+    <string name="splash_foreground">nba_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">nba_logo_signin</string>
+    <string name="signin_bg">nba_bg_open</string>
+    <string name="set_banner">nba_banner01</string>
+    <string name="fb_app_id">277020789128327</string>
+    
+ Smosh 
+ 
+    <string name="app_name">Smosh on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/smosh_launch_logo</string>
+    <string name="white_label">smosh</string>
+    <string name="mso">smosh</string>
+    <string name="default_region">en</string>
+    <string name="logo">smosh_logo</string>
+    <string name="splash_background">smosh_bg_open</string>
+    <string name="splash_foreground">smosh_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">smosh_logo_signin</string>
+    <string name="signin_bg">smosh_bg_open</string>
+    <string name="set_banner">smosh_banner01</string>
+    <string name="fb_app_id">492773477497848</string>
+    
+ Shane 
+ 
+    <string name="app_name">Shane on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/shane_launch_logo</string>
+    <string name="white_label">shane</string>
+    <string name="mso">shane</string>
+    <string name="default_region">en</string>
+    <string name="logo">shane_logo</string>
+    <string name="splash_background">shane_bg_open</string>
+    <string name="splash_foreground">shane_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">shane_logo_signin</string>
+    <string name="signin_bg">shane_bg_open</string>
+    <string name="set_banner">shane_banner01</string>
+    <string name="fb_app_id">359889977487152</string>
+    
+ College Humor 
+ 
+    <string name="app_name">Collegehumor on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/collegehumor_launch_logo</string>
+    <string name="white_label">collegehumor</string>
+    <string name="mso">collegehumor</string>
+    <string name="default_region">en</string>
+    <string name="logo">collegehumor_logo</string>
+    <string name="splash_background">collegehumor_bg_open</string>
+    <string name="splash_foreground">collegehumor_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">collegehumor_logo_signin</string>
+    <string name="signin_bg">collegehumor_bg_open</string>
+    <string name="set_banner">collegehumor_banner01</string>
+    <string name="fb_app_id">613862398667500</string>
+    
+ Network_A 
+ 
+    <string name="app_name">Network_A on FLIPr</string>
+    <string name="app_icon">@drawable/networka_launch_logo</string>
+    <string name="white_label">networka</string>
+    <string name="mso">networka</string>
+    <string name="default_region">en</string>
+    <string name="logo">logo_networka</string>
+    <string name="splash_background">bg_open_networka</string>
+    <string name="splash_foreground">open_logo_networka</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">logo_networka</string>
+    <string name="signin_bg">bg_open_networka</string>
+    <string name="set_banner">banner_networka</string>
+    <string name="fb_app_id">450168698417667</string>
+    
+ crash course 
+ 
+    <string name="app_name">Crash Course on FLIPr</string>
+    <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
+    <string name="white_label">crashcourse</string>     
+    <string name="mso">crashcourse</string>
+    <string name="default_region">en</string>               
+    <string name="logo">logo_crashcourse</string>
+    <string name="splash_background">bg_open_crashcourse</string>
+    <string name="splash_foreground">open_logo_crashcourse</string>    
+    <string name="splash_slogan"></string>    
+    <string name="signin_logo">logo_crashcourse</string>        
+    <string name="signin_bg">bg_open_crashcourse</string>  
+    <string name="set_banner">banner_crashcourse</string>      	
+    <string name="fb_app_id">1414438248794640</string>
+    
+ EchoMusic 
+ 
+    <string name="app_name">EchoMusic</string>
+    <string name="app_icon">@drawable/ic_launcher_hdpi_echomusic</string>
+    <string name="white_label">echomusic</string>
+    <string name="mso">echomusic</string>
+    <string name="default_region">zh</string>
+    <string name="logo">logo_topbar_echomusic</string>
+    <string name="splash_background">splash_bg_echomusic</string>
+    <string name="splash_foreground">splash_logo_echomusic</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_bg">bgnew</string>     
+    <string name="set_banner">banner_9x9</string>   
+	<string name="fb_app_id">212239432317755</string>
+    
+ cts 
  9x9 
+ 
+   	<string name="app_name">9x9.tv</string>
+	<string name="app_icon">@drawable/tt_icon_new</string>       	
+    <string name="white_label">portal</string>
+    <string name="mso">9x9</string>
+    <string name="default_region">en</string>
+    <string name="logo">tvlogo</string>
+    <string name="splash_background">bgnew</string>
+    <string name="splash_foreground">splash_generic_logo</string>        
+    <string name="splash_slogan">Empowering Cloud TV</string>     
+    <string name="signin_logo">tvlogo</string>    
+    <string name="signin_bg">bgnew</string>      
+    <string name="set_banner">banner_9x9</string>     
+	<string name="fb_app_id">361253423962738</string>
+    
+ Joey Graceffa 
+   
+    <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/joeygraceffa_launch_logo</string>
+    <string name="white_label">joeygraceffa</string>
+    <string name="mso">joeygraceffa</string>
+    <string name="default_region">en</string>
+    <string name="logo">joeygraceffa_logo</string>
+    <string name="splash_background">joeygraceffa_bg_open</string>
+    <string name="splash_foreground">joeygraceffa_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">joeygraceffa_logo_signin</string>
+    <string name="signin_bg">joeygraceffa_bg_open</string>
+    <string name="set_banner">joeygraceffa_banner01</string>
+    <string name="fb_app_id">595235090571267</string>
+    
+ Spinnin' Records 
+   
+    <string name="app_name">SpinninRec on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/spinninrec_launch_logo</string>
+    <string name="white_label">spinninrec</string>
+    <string name="mso">spinninrec</string>
+    <string name="default_region">en</string>
+    <string name="logo">spinninrec_logo</string>
+    <string name="splash_background">spinninrec_bg_open</string>
+    <string name="splash_foreground">spinninrec_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">spinninrec_logo_signin</string>
+    <string name="signin_bg">spinninrec_bg_open</string>
+    <string name="set_banner">spinninrec_banner01</string>
+    <string name="fb_app_id">1468306366724948</string>
+    
+ The Fine Bros 
+ 
+    <string name="app_name">The Fine Bros on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/thefinebros_launch_logo</string>
+    <string name="white_label">thefinebros</string>
+    <string name="mso">thefinebros</string>
+    <string name="default_region">en</string>
+    <string name="logo">thefinebros_logo</string>
+    <string name="splash_background">thefinebros_bg_open</string>
+    <string name="splash_foreground">thefinebros_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">thefinebros_logo_signin</string>
+    <string name="signin_bg">thefinebros_bg_open</string>
+    <string name="set_banner">thefinebros_banner01</string>
+    <string name="fb_app_id">361253423962738</string>
+    
+ History 
+ 
+    <string name="app_name">History Channel on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/history_launch_logo</string>
+    <string name="white_label">history</string>
+    <string name="mso">history</string>
+    <string name="default_region">en</string>
+    <string name="logo">history_logo</string>
+    <string name="splash_background">history_bg_open</string>
+    <string name="splash_foreground">history_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">history_logo_signin</string>
+    <string name="signin_bg">history_bg_open</string>
+    <string name="set_banner">history_banner01</string>
+    <string name="fb_app_id">361253423962738</string>
+ 	
+ NBA 
+ 
+    <string name="app_name">NBA on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/nba_launch_logo</string>
+    <string name="white_label">nba</string>
+    <string name="mso">nba</string>
+    <string name="default_region">en</string>
+    <string name="logo">nba_logo</string>
+    <string name="splash_background">nba_bg_open</string>
+    <string name="splash_foreground">nba_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">nba_logo_signin</string>
+    <string name="signin_bg">nba_bg_open</string>
+    <string name="set_banner">nba_banner01</string>
+    <string name="fb_app_id">277020789128327</string>
+    
+ Smosh 
+ 
+    <string name="app_name">Smosh on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/smosh_launch_logo</string>
+    <string name="white_label">smosh</string>
+    <string name="mso">smosh</string>
+    <string name="default_region">en</string>
+    <string name="logo">smosh_logo</string>
+    <string name="splash_background">smosh_bg_open</string>
+    <string name="splash_foreground">smosh_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">smosh_logo_signin</string>
+    <string name="signin_bg">smosh_bg_open</string>
+    <string name="set_banner">smosh_banner01</string>
+    <string name="fb_app_id">492773477497848</string>
+	
+ Shane 
+ 
+    <string name="app_name">Shane on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/shane_launch_logo</string>
+    <string name="white_label">shane</string>
+    <string name="mso">shane</string>
+    <string name="default_region">en</string>
+    <string name="logo">shane_logo</string>
+    <string name="splash_background">shane_bg_open</string>
+    <string name="splash_foreground">shane_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">shane_logo_signin</string>
+    <string name="signin_bg">shane_bg_open</string>
+    <string name="set_banner">shane_banner01</string>
+    <string name="fb_app_id">359889977487152</string>
+	
+ College Humor 
+ 
+    <string name="app_name">Collegehumor on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/collegehumor_launch_logo</string>
+    <string name="white_label">collegehumor</string>
+    <string name="mso">collegehumor</string>
+    <string name="default_region">en</string>
+    <string name="logo">collegehumor_logo</string>
+    <string name="splash_background">collegehumor_bg_open</string>
+    <string name="splash_foreground">collegehumor_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">collegehumor_logo_signin</string>
+    <string name="signin_bg">collegehumor_bg_open</string>
+    <string name="set_banner">collegehumor_banner01</string>
+    <string name="fb_app_id">613862398667500</string>
+    
+ Network_A 
+ 
+    <string name="app_name">Network_A on FLIPr</string>
+    <string name="app_icon">@drawable/networka_launch_logo</string>
+    <string name="white_label">networka</string>
+    <string name="mso">networka</string>
+    <string name="default_region">en</string>
+    <string name="logo">logo_networka</string>
+    <string name="splash_background">bg_open_networka</string>
+    <string name="splash_foreground">open_logo_networka</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">logo_networka</string>
+    <string name="signin_bg">bg_open_networka</string>
+    <string name="set_banner">banner_networka</string>
+    <string name="fb_app_id">450168698417667</string>
+    
+ crash course 
+
+    <string name="app_name">Crash Course on FLIPr</string>
+    <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
+    <string name="white_label">crashcourse</string>     
+    <string name="mso">crashcourse</string>
+    <string name="default_region">en</string>               
+    <string name="logo">logo_crashcourse</string>
+    <string name="splash_background">bg_open_crashcourse</string>
+    <string name="splash_foreground">open_logo_crashcourse</string>    
+    <string name="splash_slogan"></string>    
+    <string name="signin_logo">logo_crashcourse</string>        
+    <string name="signin_bg">bg_open_crashcourse</string>   
+    <string name="set_banner">banner_crashcourse</string>      	  
+    <string name="fb_app_id">1414438248794640</string>
+    
+ EchoMusic 
+
+    <string name="app_name">音樂圖書館</string>
+    <string name="app_icon">@drawable/ic_launcher_hdpi_echomusic</string>
+    <string name="white_label">echomusic</string>
+    <string name="mso">echomusic</string>
+    <string name="default_region">zh</string>
+    <string name="logo">logo_topbar_echomusic</string>
+    <string name="splash_background">splash_bg_echomusic</string>
+    <string name="splash_foreground">splash_logo_echomusic</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>           
+	<string name="fb_app_id">361253423962738</string>       
+    
+ string name="app_name">華視</string 
+ cts original 
+ cts festival 
          */
         public static final int app_name=0x7f080053;
         public static final int at_first_episode=0x7f080110;
@@ -3336,6 +3368,8 @@ Enable automatic activity tracking
         public static final int error_email_taken=0x7f080087;
         public static final int exit_9x9=0x7f080100;
         public static final int fb_app_id=0x7f08005f;
+        public static final int fb_btn_login=0x7f080142;
+        public static final int fb_btn_logout=0x7f080143;
         public static final int follow=0x7f080065;
         public static final int following_paginated=0x7f0800bd;
         public static final int following_pile=0x7f080064;
@@ -3413,6 +3447,7 @@ Enable automatic activity tracking
         public static final int no_results_found=0x7f080069;
         public static final int no_tv_found=0x7f0800b9;
         public static final int not_linked=0x7f0800ba;
+        public static final int nothing_changed=0x7f080144;
         public static final int now_playing=0x7f080117;
         public static final int now_playing_dash=0x7f080118;
         public static final int ok=0x7f080071;
@@ -3477,6 +3512,7 @@ Enable automatic activity tracking
         public static final int sign_in_successful=0x7f0800b0;
         public static final int sign_in_tease_1=0x7f0800ae;
         public static final int sign_in_tease_2=0x7f0800af;
+        public static final int sign_in_with_email=0x7f080141;
         public static final int sign_out=0x7f08011d;
         public static final int sign_up_a_new_account=0x7f080130;
         public static final int sign_up_button=0x7f08008c;

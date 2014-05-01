@@ -152,8 +152,10 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	@Override
 	public void pause()
 		{
+		log ("[video pause]");
 		if (player != null)
 			{
+			log ("pause");
 			try
 				{
 				player.pause();
@@ -173,7 +175,8 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			if (player != null)
 				{
 				try
-					{										
+					{		
+					log ("play");
 					player.play();
 					}
 				catch (Exception ex)
@@ -405,6 +408,11 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 						log ("onStopped: chromecast is active, won't move to next episode");
 						return;
 						}
+					else if (!mCallback.active_player().equals ("video"))
+						{
+						log ("onStopped: other player is active, won't move to next episode");
+						return;
+						}					
 					else if (ctx.video_systemic_error)
 						{
 						/* don't want to start videos -- problem with a layout or view */
@@ -528,8 +536,8 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 							{	
 							@Override
 							public void run()
-								{
-								if (mCallback.screen_is_on() && mCallback.able_to_play_video())
+								{									
+								if (mCallback.screen_is_on() && mCallback.able_to_play_video() && mCallback.active_player().equals ("video"))
 									{
 									log ("video onError; playing next episode");
 									mCallback.next_episode();

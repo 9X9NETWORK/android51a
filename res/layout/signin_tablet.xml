@@ -58,8 +58,7 @@
 				android:layout_height="wrap_content"	
 				android:layout_marginLeft="12dip"
 				android:layout_marginRight="6dip"
-				android:layout_gravity="center"
-				android:src="@drawable/logo_signin_vice"						
+				android:layout_gravity="center"					
 				/>	
 	        <com.facebook.widget.LoginButton
 		        xmlns:fb="http://schemas.android.com/apk/res-auto"
@@ -70,6 +69,8 @@
 		        android:layout_marginTop="30dp"
 				android:layout_marginBottom="20dip"		        
 		        fb:fetch_user_info="false"
+		        fb:login_text="@string/fb_btn_login"
+    			fb:logout_text="@string/fb_btn_logout"
 		        />
 		    <Button     
 		        android:id="@+id/sign_in_choice"
@@ -79,7 +80,7 @@
 				android:layout_gravity="bottom|center_horizontal"
 				android:textSize="18sp"
 				android:textColor="#FFFFFF"
-				android:text="@string/si_sign_in_with_email"
+				android:text="@string/sign_in_with_email"
 				android:background="@drawable/btn_sign"		
 				/>	
 		    <Button     

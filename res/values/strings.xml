@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9-->
-    <!-- 
+     
     <string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>         
     <string name="white_label">portal</string>
@@ -15,7 +15,7 @@
     <string name="signin_bg">bgnew</string>     
     <string name="set_banner">banner_9x9</string>   
 	<string name="fb_app_id">361253423962738</string>
-	-->
+	
 		 
     <!-- Joey Graceffa -->
     <!-- 
@@ -204,6 +204,7 @@
     -->
 	
     <!-- cts -->
+    <!--
     <string name="app_name">CTS</string>
     <string name="app_icon">@drawable/cts_icon_new</string>    
     <string name="white_label">cts</string>     
@@ -217,7 +218,8 @@
     <string name="signin_bg">bg_open_cts</string>
     <string name="set_banner">banner_cts</string>            
 	<string name="fb_app_id">1429057570658015</string>       
-
+	-->
+	
     <!-- goodtv -->
     <!-- 
     <string name="app_name">GOODTV</string>
@@ -597,5 +599,9 @@
 	<string name="year">year</string>
 	<string name="years">years</string>
 	<string name="long_ago">long ago</string>
-        <string name="pull_to_refresh">Pull to refresh</string>
+    <string name="pull_to_refresh">Pull to refresh</string>
+    <string name="sign_in_with_email">Sign in with Email</string>
+    <string name="fb_btn_login">Log in with Facebook</string>
+    <string name="fb_btn_logout">Log out</string>    
+    <string name="nothing_changed">Nothing changed!</string>    
 </resources>

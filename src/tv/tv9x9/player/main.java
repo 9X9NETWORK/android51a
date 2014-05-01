@@ -128,6 +128,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	/* the traveling window uses this as its right and bottom margin */
 	int MARGINALIA = pixels_20;
 	
+	/* style for home page, with 4 thumbs (false), or just 1 (true) */
+	boolean mini_mode = true;
+	
 	@Override
 	public void onCreate (Bundle savedInstanceState)
 		{
@@ -709,7 +712,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        public void onClick (View v)
 	        	{
 	        	log ("click on: logo");
-	        	// play_vitamio();
+	        	play_vitamio();
 	        	}
 			});	
 		}
@@ -1405,10 +1408,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		if (!chromecasted)
 			{
-			boolean is_playing = player.is_playing();
+			boolean is_paused = player.is_paused();
 			ImageView vPausePlay = (ImageView) findViewById (R.id.pause_or_play);
 			if (vPausePlay != null)
-				vPausePlay.setImageResource (is_playing ? R.drawable.pause_tablet : R.drawable.play_tablet);
+				vPausePlay.setImageResource (is_paused ? R.drawable.play_tablet : R.drawable.pause_tablet);
 			}
 		}
 	
@@ -2876,6 +2879,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		if (email != null)
 			futil.write_file (main.this, "email@" + config.api_server, email);
+		
+		zero_signin_data();
 		}	
 
 	/*** TERMS *****************************************************************************************************/
@@ -3214,6 +3219,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					}
 				};
 	    	}
+		}
+	
+	@Override
+	public void signout()
+		{
+		super.signout();
+		zero_signin_data();
 		}
 	
 	public void facebook_logout()
@@ -3641,6 +3653,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 			FrameLayout home_page = (FrameLayout) View.inflate (main.this, R.layout.home_page, null);
 			
+			if (is_phone())
+				{
+				for (int id: new Integer[] { R.id.left_set_title, R.id.primary_set_title, R.id.right_set_title })
+					{
+					TextView v = (TextView) home_page.findViewById (id);
+					v.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
+					}
+				}
+			
 			View vTabletPreamble = home_page.findViewById (R.id.tablet_preamble);
 			vTabletPreamble.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 
@@ -3662,7 +3683,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				}
 			
 			if (is_tablet() && sh.channel_adapter != null)
-				set_mini_mode_thumbs (sh.channel_adapter.mini_mode, sh.home_page);
+				set_mini_mode_thumbs (sh.home_page);
 			
 			diminish_side_titles (home_page, true);
 			
@@ -3712,9 +3733,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        public void onClick (View v)
 			        	{
 			        	log ("click on: thumb mode");
-			        	sh.channel_adapter.mini_mode = false;
+			        	mini_mode = false;
 			        	sh.channel_adapter.notifyDataSetChanged();
-			        	set_mini_mode_thumbs (sh.channel_adapter.mini_mode, sh.home_page);
+			        	set_mini_mode_thumbs (sh.home_page);
 			        	}
 					});	
 			
@@ -3726,9 +3747,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        public void onClick (View v)
 			        	{
 			        	log ("click on: list mode");
-			        	sh.channel_adapter.mini_mode = true;
+			        	mini_mode = true;
 			        	sh.channel_adapter.notifyDataSetChanged();
-			        	set_mini_mode_thumbs (sh.channel_adapter.mini_mode, sh.home_page);
+			        	set_mini_mode_thumbs (sh.home_page);
 			        	}
 					});				
 			
@@ -3748,14 +3769,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		@Override
 		public void setPrimaryItem (ViewGroup container, int position, Object object)
 			{
+			Swaphome sh = (Swaphome) object;
 			log ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% primary 3x3: " + position);
 			diminish_side_titles (current_home_page, true);
-			current_swap_object = (Swaphome) object;
-			current_home_page = ((Swaphome) object).home_page;
+			current_swap_object = sh;
+			current_home_page = sh.home_page;
 			diminish_side_titles (current_home_page, false);
+			/* the mini mode might have changed */
+			if (sh.channel_adapter != null)
+				sh.channel_adapter.reset_mini_mode();
 			}
 
-		public void set_mini_mode_thumbs (boolean mini_mode, View v)
+		public void set_mini_mode_thumbs (View v)
 			{
 			if (is_tablet())
 				{
@@ -3774,7 +3799,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		
 		public void load_data (final Swaphome sh)
-			{
+			{			
 			query_pile (portal_stack_ids [sh.set], new Callback()
 				{
 				public void run_string (String id)
@@ -3825,7 +3850,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				    		sh.vChannels.addFooterView (shim);
 				    		sh.shim_added = true;
 				    		}
-			    		set_mini_mode_thumbs (sh.channel_adapter.mini_mode, sh.home_page);
+			    		set_mini_mode_thumbs (sh.home_page);
 						}
 					
 					Runnable channel_thumberino = new Runnable()
@@ -4209,6 +4234,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		String query = null;
 		
+		log ("query set info: " + id);
+		
 		if (id.equals ("virtual:shared"))
 			{
 			// query = "shareInChannelList?channel=" + shared_channel;
@@ -4278,8 +4305,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		boolean requested_channel_load[] = null;
 		boolean requested_channel_thumbs[] = null;
 		Swaphome sh = null;
-		boolean mini_mode = true;
 		Bitmap thumbits[] = null;
+		
+		boolean saved_mini_mode = false;
 		
 		ChannelAdapter (Activity context, String content[], Swaphome sh)
 			{
@@ -4287,6 +4315,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			this.context = context;
 			this.content = content;
 			this.sh = sh;
+			saved_mini_mode = mini_mode;
 			init_arrays();
 			
 			/* I think sometimes the main thread is too busy to get every update */
@@ -4321,6 +4350,19 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			return 2;
 			}
 	
+		public void reset_mini_mode()
+			{
+			if (saved_mini_mode != mini_mode)
+				notifyDataSetChanged();
+			}
+		
+		@Override
+		public void notifyDataSetChanged()
+			{
+			saved_mini_mode = mini_mode;
+			super.notifyDataSetChanged();
+			}
+		
 		@Override
 		public int getItemViewType (int position)
 			{
@@ -4599,17 +4641,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				vChannelName.setText (name != null ? name : "?");
 			
 			int num_episodes = config.programs_in_real_channel (channel_id);
-
+			int display_episodes = config.display_channel_count (channel_id);
+			
 			String txt_episode = getResources().getString (R.string.episode_lc);
 			String txt_episodes = getResources().getString (R.string.episodes_lc);
 			
 			TextView vEpisodeCount = (TextView) row.findViewById (R.id.episode_count);
 			if (vEpisodeCount != null)
-				vEpisodeCount.setText ("" + num_episodes);
+				vEpisodeCount.setText ("" + display_episodes);
 			
 			TextView vEpisodePlural = (TextView) row.findViewById (R.id.episode_plural);
 			if (vEpisodePlural != null)
-				vEpisodePlural.setText (num_episodes == 1 ? txt_episode : txt_episodes);
+				vEpisodePlural.setText (display_episodes == 1 ? txt_episode : txt_episodes);
 			
 			TextView vAgo = (TextView) row.findViewById (R.id.ago);
 			if (vAgo != null)
@@ -4656,36 +4699,36 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				{				
 				TextView vFirstEpisodeTitle = (TextView) row.findViewById (R.id.first_episode_title);
 				if (vFirstEpisodeTitle != null)
-					vFirstEpisodeTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 24);
+					vFirstEpisodeTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 20);
 				
 				TextView vAgo = (TextView) row.findViewById (R.id.ago);
 				if (vAgo != null)
-					vAgo.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+					vAgo.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 				
 				View vSmallChannelIcon = row.findViewById (R.id.small_channel_icon);
 				if (vSmallChannelIcon != null)
 					{
 					LinearLayout.LayoutParams layout6 = (LinearLayout.LayoutParams) vSmallChannelIcon.getLayoutParams();
-					layout6.height = pixels_40;
-					layout6.width = pixels_40;
+					layout6.height = pixels_32;
+					layout6.width = pixels_32;
 					vSmallChannelIcon.setLayoutParams (layout6);
 					}
 				
 				TextView vChannelFromHeader = (TextView) row.findViewById (R.id.channel_from_header);
 				if (vChannelFromHeader != null)
-					vChannelFromHeader.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+					vChannelFromHeader.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 				
 				TextView vChannelName = (TextView) row.findViewById (R.id.channel_name);
 				if (vChannelName != null)
-					vChannelName.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
+					vChannelName.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 				
 				TextView vEpisodeCount = (TextView) row.findViewById (R.id.episode_count);
 				if (vEpisodeCount != null)
-					vEpisodeCount.setTextSize (TypedValue.COMPLEX_UNIT_SP, 20);
+					vEpisodeCount.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
 				
 				TextView vEpisodePlural = (TextView) row.findViewById (R.id.episode_plural);
 				if (vEpisodePlural != null)
-					vEpisodePlural.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+					vEpisodePlural.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 				}
 			}
 		}
@@ -4764,10 +4807,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (vSubTitle != null)
 				{
 				long ts = config.get_most_appropriate_timestamp (channel_id);
+				int display_episodes = config.display_channel_count (channel_id);
 				String ago = util.ageof (main.this, ts);
 				String txt_episode = getResources().getString (R.string.episode_lc);
 				String txt_episodes = getResources().getString (R.string.episodes_lc);
-				String subtitle = ago + " • " + program_line.length + " " + (program_line.length == 1 ? txt_episode : txt_episodes);
+				String subtitle = ago + " • " + display_episodes + " " + (display_episodes == 1 ? txt_episode : txt_episodes);
 				vSubTitle.setText (subtitle);
 				}
 			}
@@ -5156,8 +5200,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        {
 	        // config.add_channel (position, id, name, desc, thumb, count, type, status, nature, extra)
 	        config.add_channel (1, vitamio_channel, "Vitamio Channel", "this is a Vitamio channel...", "", "1", "0", "0", "667", "vitamio");
+	        // config.add_runt_episode (1, vitamio_channel, "DWbXfkNuupM");
+	        
 	        String url = "http://9x9ch2.goodtv.org/hls-live/livepkgr/_definst_/liveevent/live-ch1-2.m3u8";
-			config.add_runt_episode (vitamio_channel, "vitamio-episode-1", url);
+	        // url = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"; /* this one works */
+	        url = "http://live.3gv.ifeng.com/live/zixun.m3u8?fmt=x264_0k_mpegts&size=320x240";
+	        url = "http://9x9ch1.streamingfast.net/9x9livech1.m3u8";
+
+			config.add_runt_episode (2, vitamio_channel, "vitamio-episode-1", url);
+			
+	        // config.add_runt_episode (3, vitamio_channel, "TRVaU9X0rOs");			
 	        }
         
         /* a runt set of only one channel */
@@ -5299,18 +5351,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 	public void update_episode_count (String channel_id)
 		{
-		int num_episodes = config.programs_in_real_channel (channel_id);
+		int display_episodes = config.programs_in_real_channel (channel_id);
 				
 		String txt_episode = getResources().getString (R.string.episode_lc);
 		String txt_episodes = getResources().getString (R.string.episodes_lc);
 		
 		TextView vEpisodeCount = (TextView) findViewById (R.id.playback_episode_count);
 		if (vEpisodeCount != null)
-			vEpisodeCount.setText ("" + num_episodes);
+			vEpisodeCount.setText ("" + display_episodes);
 		
 		TextView vEpisodePlural = (TextView) findViewById (R.id.playback_episode_plural);
 		if (vEpisodePlural != null)
-			vEpisodePlural.setText (num_episodes == 1 ? txt_episode : txt_episodes);
+			vEpisodePlural.setText (display_episodes == 1 ? txt_episode : txt_episodes);
 		}
 
 	/* minimized risk -- don't alter fragments unless we've switched to the player fragment */
@@ -5453,6 +5505,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 		View video = findViewById (R.id.video_fragment_container);
 		SpecialFrameLayout.LayoutParams layout = (SpecialFrameLayout.LayoutParams) video.getLayoutParams();
+		View video2 = findViewById (R.id.player_fragment_container);
+		SpecialFrameLayout.LayoutParams layout2 = (SpecialFrameLayout.LayoutParams) video2.getLayoutParams();		
 		SpecialFrameLayout yt_wrapper = (SpecialFrameLayout) findViewById (R.id.ytwrapper2);
 		LinearLayout.LayoutParams wrapper_layout = (LinearLayout.LayoutParams) yt_wrapper.getLayoutParams();
 		View vControls = findViewById (R.id.controls);
@@ -5472,6 +5526,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			layout.width = (landscape ? screen_height : fully_expanded_width) - 2 * inset;
 			layout.height = (landscape ? screen_width : fully_expanded_height) - 2 * (int) (inset * aspect);	
 			video.setLayoutParams (layout);
+			// set_reasonable_player_size(); /* for video2 */ MAY BE WRONG TODO
 			// vControls.setVisibility (landscape ? View.VISIBLE : View.GONE);
 			vControls.setVisibility (View.VISIBLE);
 			vTopControls.setVisibility (View.VISIBLE);
@@ -6041,6 +6096,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View vVideoLayer = video_layer();
 		View vPlaybackBody = findViewById (R.id.playbackbody);
 		View vContainer = findViewById (R.id.video_fragment_container);
+		View vContainer2 = findViewById (R.id.player_fragment_container);
 		View vBacking = findViewById (R.id.backing_controls);
 		View vControls = findViewById (R.id.controls);
 		View vTitlecard = findViewById (R.id.titlecard);
@@ -6051,6 +6107,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		FrameLayout.LayoutParams video_layout = (FrameLayout.LayoutParams) vVideoLayer.getLayoutParams();			
 		LinearLayout.LayoutParams wrapper_layout = (LinearLayout.LayoutParams) yt_wrapper.getLayoutParams();
 		SpecialFrameLayout.LayoutParams container_layout = (SpecialFrameLayout.LayoutParams) vContainer.getLayoutParams();
+		SpecialFrameLayout.LayoutParams container2_layout = (SpecialFrameLayout.LayoutParams) vContainer2.getLayoutParams();		
 		FrameLayout.LayoutParams backing_layout = (FrameLayout.LayoutParams) vBacking.getLayoutParams();
 		FrameLayout.LayoutParams chromecast_layout = (FrameLayout.LayoutParams) vChromecast.getLayoutParams();
 		
@@ -6109,6 +6166,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		vContainer.setLayoutParams (container_layout);
 		
+		container2_layout.width = minimized_width; 
+		container2_layout.height = minimized_height;
+		container2_layout.topMargin = 0;
+		container2_layout.bottomMargin = MARGINALIA;
+		container2_layout.leftMargin = 0;
+		container2_layout.rightMargin = MARGINALIA;
+		container2_layout.gravity = Gravity.BOTTOM | Gravity.RIGHT;	
+		
+		vContainer2.setLayoutParams (container2_layout);
 		
 		video_layout.width = screen_width;
 		video_layout.height = minimized_height + 2 * pixels_60;
@@ -6199,6 +6265,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View vVideoLayer = video_layer();
 		View vPlaybackBody = findViewById (R.id.playbackbody);
 		View vContainer = findViewById (R.id.video_fragment_container);		
+		View vContainer2 = findViewById (R.id.player_fragment_container);		
 		View vBacking = findViewById (R.id.backing_controls);
 		View vControls = findViewById (R.id.controls);		
 		View vTitlecard = findViewById (R.id.titlecard);
@@ -6209,6 +6276,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		FrameLayout.LayoutParams video_layout = (FrameLayout.LayoutParams) vVideoLayer.getLayoutParams();			
 		LinearLayout.LayoutParams wrapper_layout = (LinearLayout.LayoutParams) yt_wrapper.getLayoutParams();
 		SpecialFrameLayout.LayoutParams container_layout = (SpecialFrameLayout.LayoutParams) vContainer.getLayoutParams();
+		SpecialFrameLayout.LayoutParams container2_layout = (SpecialFrameLayout.LayoutParams) vContainer2.getLayoutParams();		
 		FrameLayout.LayoutParams backing_layout = (FrameLayout.LayoutParams) vBacking.getLayoutParams();
 		FrameLayout.LayoutParams chromecast_layout = (FrameLayout.LayoutParams) vChromecast.getLayoutParams();
 		
@@ -6252,6 +6320,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		container_layout.gravity = Gravity.CENTER;
 		
 		vContainer.setLayoutParams (container_layout);
+				
+		container2_layout.width = screen_width;
+		container2_layout.height = (int) (screen_width / 1.77);
+		container2_layout.topMargin = 0;
+		container2_layout.bottomMargin = 0;
+		container2_layout.leftMargin = 0;
+		container2_layout.rightMargin = 0;
+		container2_layout.gravity = Gravity.CENTER;
+		vContainer2.setLayoutParams (container2_layout);
 		
 		chromecast_layout.width = MATCH_PARENT;
 		chromecast_layout.height = (int) (screen_width / 1.77);
@@ -6364,6 +6441,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	public boolean onVideoHorizontal (int deltaX)
 		{
 		View vContainer = findViewById (R.id.video_fragment_container);
+		View vContainer2 = findViewById (R.id.player_fragment_container);		
 		View vBacking = findViewById (R.id.backing_controls);
 		View vChromecast = findViewById (R.id.chromecast_window);				
 		
@@ -6372,11 +6450,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (deltaX >= 0 && deltaX < max_drag)
 			{
 			SpecialFrameLayout.LayoutParams container_layout = (SpecialFrameLayout.LayoutParams) vContainer.getLayoutParams();	
+			SpecialFrameLayout.LayoutParams container2_layout = (SpecialFrameLayout.LayoutParams) vContainer2.getLayoutParams();
 			FrameLayout.LayoutParams backing_layout = (FrameLayout.LayoutParams) vBacking.getLayoutParams();
 			FrameLayout.LayoutParams chromecast_layout = (FrameLayout.LayoutParams) vChromecast.getLayoutParams();
 			
 			container_layout.rightMargin = MARGINALIA + deltaX;			
 			vContainer.setLayoutParams (container_layout);
+			
+			container2_layout.rightMargin = MARGINALIA + deltaX;			
+			vContainer2.setLayoutParams (container2_layout);
 			
 			backing_layout.rightMargin = MARGINALIA + deltaX;
 			vBacking.setLayoutParams (backing_layout);
@@ -7006,12 +7088,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
     public void highlight_3x3_square_inner_inner (String channel_id)
     	{
-    	// android:text="1 hour ago · 15 episodes"
-		int count = config.programs_in_real_channel (channel_id);
+		int display_count = config.display_channel_count (channel_id);
 		TextView vLargeMeta = (TextView) findViewById (R.id.guide_meta);
-		String txt_episode = getResources().getString (R.string.episode_lc);		
-		String txt_episodes = getResources().getString (R.string.episodes_lc);
-		vLargeMeta.setText ("" + count + " " + (count == 1 ? txt_episode : txt_episodes));
+		if (vLargeMeta != null)
+			{
+			String txt_episode = getResources().getString (R.string.episode_lc);		
+			String txt_episodes = getResources().getString (R.string.episodes_lc);
+			vLargeMeta.setText ("" + display_count + " " + (display_count == 1 ? txt_episode : txt_episodes));
+			}
     	}
     
 	public void redraw_3x3 (FrameLayout v, int set_position)
@@ -7831,7 +7915,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		String txt_category_colon = getResources().getString (R.string.categorycolon);
 		
 		TextView vCategoryName = (TextView) findViewById (R.id.category_name);
-		vCategoryName.setText (txt_category_colon + " " + name);
+		if (vCategoryName != null)
+			{
+			vCategoryName.setText (txt_category_colon + " " + name);
+			if (is_phone())
+				vCategoryName.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
+			}
 		}
 
 	final Runnable store_channel_thumb_updated = new Runnable()
@@ -8389,6 +8478,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		
 		if (config != null && config.usertoken != null && kk != null && !kk.equals (""))
+			{
 			new playerAPI (in_main_thread, config, "setUserProfile?user=" + config.usertoken + "&key=" + kk + "&value=" + vv)
 				{
 				public void success (String[] lines)
@@ -8403,6 +8493,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						alert ("Failure saving your changes: " + errtext);
 					}
 				};
+			}
+		else
+			toast_by_resource (R.string.nothing_changed);
 		}
 	
 	boolean finger_is_down = false;

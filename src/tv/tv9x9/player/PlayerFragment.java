@@ -181,6 +181,7 @@ public class PlayerFragment extends Fragment implements Player
     	{
     	if (mMediaPlayer != null)
     		{
+    		log ("stop");
     		try { mMediaPlayer.stop(); } catch (Exception ex) {};
         	release_media_player();
     		}
@@ -190,8 +191,10 @@ public class PlayerFragment extends Fragment implements Player
     @Override
     public void pause()
     	{
+    	log ("[player pause]");
     	if (mMediaPlayer != null)
     		{
+    		log ("pause");
     		try { mMediaPlayer.pause(); } catch (Exception ex) {};
     		paused = true;
     		}
@@ -202,6 +205,7 @@ public class PlayerFragment extends Fragment implements Player
 		{
 		if (mMediaPlayer != null)
 			{
+    		log ("play");
 			try { mMediaPlayer.start(); } catch (Exception ex) {};
 			paused = false;
 			}
@@ -219,7 +223,7 @@ public class PlayerFragment extends Fragment implements Player
 		boolean is_playing = true;
 		if (mMediaPlayer != null)
 			try { is_playing = mMediaPlayer.isPlaying(); } catch (Exception ex) {};
-		return is_playing;
+		return is_playing && !paused;
 		}
 	
     @Override
@@ -227,7 +231,10 @@ public class PlayerFragment extends Fragment implements Player
 		{
 		if (!mCallback.is_chromecasted())
 			if (mMediaPlayer != null)
+				{
+				log ("seek: " + offset);
 				try { mMediaPlayer.seekTo (offset); } catch (Exception ex) {};
+				}
 		}
 	
     @Override
@@ -305,6 +312,7 @@ public class PlayerFragment extends Fragment implements Player
     	{
 		if (mMediaPlayer != null)
 			{
+			log ("release");
 			mMediaPlayer.release();
 			mMediaPlayer = null;
 			}

@@ -235,6 +235,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	static int pixels_20 = 20;
 	static int pixels_25 = 25;	
 	static int pixels_30 = 30;
+	static int pixels_32 = 32;
 	static int pixels_35 = 35;
 	static int pixels_40 = 40;	
 	static int pixels_50 = 50;		
@@ -282,6 +283,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    player = videoFragment;
 	    
 	    playerFragment = (PlayerFragment) getSupportFragmentManager().findFragmentById (R.id.player_fragment_container);
+	    
+	    set_reasonable_player_size();
+        
 	    hide_player_fragment();
 	    
 		if (mBound)
@@ -427,6 +431,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    pixels_20  = (int) (20  * dm.density); 
 	    pixels_25  = (int) (25  * dm.density); 	    
 	    pixels_30  = (int) (30  * dm.density); 
+	    pixels_32  = (int) (32  * dm.density); 	    
 	    pixels_35  = (int) (35  * dm.density); 	    
 	    pixels_40  = (int) (40  * dm.density); 	 	    
 	    pixels_50  = (int) (50  * dm.density); 	    
@@ -472,6 +477,17 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{
 			/* nothing */
 			}
+		}
+	
+	public void set_reasonable_player_size()
+		{
+        View vPlayerFragment = findViewById (R.id.player_fragment_container);
+        if (vPlayerFragment != null)
+	        {
+        	FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vPlayerFragment.getLayoutParams();
+        	layout.height = (int) (screen_width / 1.77);
+        	vPlayerFragment.setLayoutParams (layout);	
+	        }
 		}
 	
 	public void flurry_log (String event)
@@ -586,7 +602,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		super.dispatchTouchEvent (event);
 		
 		int action = event.getAction();
-		View vContainer = findViewById (chromecasted ? R.id.chromecast_window : R.id.video_fragment_container);
+		int fragment_container = (player == playerFragment) ? R.id.player_fragment_container : R.id.video_fragment_container;
+		
+		View vContainer = findViewById (chromecasted ? R.id.chromecast_window : fragment_container);
 				
 		if (action == MotionEvent.ACTION_DOWN)
 			{
@@ -934,15 +952,15 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		else
 			{
-			if (player.is_playing())
-				{
-				log ("pause_or_play: pause");
-				player.pause();
-				}
-			else
+			if (player.is_paused())
 				{
 				log ("pause_or_play: play");
 				player.play();
+				}
+			else
+				{
+				log ("pause_or_play: pause");
+				player.pause();
 				}
 			fixup_pause_or_play_button();
 			}
@@ -1031,7 +1049,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		/* if the channel is known but without episodes */
 		
-		String name = config.pool_meta(channel_id, "name");
+		String name = config.pool_meta (channel_id, "name");
 		if (name != null && !name.equals (""))
 			{
 			log ("load channel " + channel_id + " then: known, but no programs");
@@ -1100,7 +1118,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{
 			/* fallback behavior -- create a fake episode that can be played, for YouTube channels or playlists only */
 			log ("creating fake episode: " + episode_id);
-			config.add_runt_episode (player_real_channel, episode_id);
+			config.add_runt_episode (1, player_real_channel, episode_id);
 			play_specified_episode (episode_id);
 			}
 		else
@@ -1304,7 +1322,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					log ("episode \"" + episode_id + "\" has no subepisodes, url is: " + url);
 					if (url == null)
 						config.dump_episode_details (episode_id);
-					if (url.endsWith (".m3u8"))
+					if (url.endsWith (".m3u8") || url.contains (".m3u8?"))
 						play_vitamio_url (url, start_msec, -1);
 					else
 						play_youtube_url (url, start_msec, -1);
@@ -1965,6 +1983,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				});
 			}
 			*/
+		}
+	
+	public String active_player()
+		{
+		return (player == playerFragment ? "player" : "video");
 		}
 	
 	public void switch_players (final Player p, final Runnable callback)
@@ -2805,9 +2828,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		config.forget_programs_in_channel ("virtual:following");
 		config.forget_subscriptions();
-	
-		String txt_signed_out = getResources().getString (R.string.signed_out_successfully);
-		alert (txt_signed_out);
+		
+		toast_by_resource (R.string.signed_out_successfully);
 		
 		onVideoActivitySignout();
 		}	
@@ -3214,6 +3236,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         catch (Exception ex)
         	{
         	alert ("There is an error with Chromecast");
+        	log ("CCX stack trace:");
         	ex.printStackTrace();
         	if (gcast_media_route_button != null)
     			((ViewManager) gcast_media_route_button.getParent()).removeView (gcast_media_route_button);
@@ -3225,10 +3248,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         gcast_media_router_callback = new MyMediaRouterCallback();
         
         if (gcast_media_route_button != null)
+        	{
+        	log ("CCX setting selector for playback MediaRouteButton");
         	gcast_media_route_button.setRouteSelector (gcast_media_route_selector);
-     
+        	}
+        
         if (gcast_media_route_button_main != null)
+        	{
+        	log ("CCX setting selector for main MediaRouteButton");
         	gcast_media_route_button_main.setRouteSelector (gcast_media_route_selector);
+        	}
         
         gcast_created = true;        
         if (gcast_start_pending)
@@ -3355,12 +3384,14 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	            	}
 	        	}
             else
-            	log ("CCX does not seem to be a JSON message");
+            	log ("CCX does not seem to be a JSON message: " + message);
         	}
     	}
 
     private void teardown()
     	{
+    	log ("CCX teardown");
+    	
         if (gcast_api_client != null)
         	{
             if (gcast_application_started)
@@ -3707,8 +3738,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        	// v.setVisibility (View.VISIBLE);
 		        	}
 		        View vPlayerSurface = findViewById (R.id.player_fragment_container).findViewById (R.id.surface);
-		        if (vPlayerSurface != null)
+		        if (vPlayerSurface != null)		        	
 		        	vPlayerSurface.setVisibility (View.GONE);
+
 		        /*
 		        int count = vVideo.getChildCount();
 		        for (i = 0; i <= count; i++) {
@@ -3717,6 +3749,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		                ...
 		            }
 		        */
+		        player = videoFragment;
 		    	}
 	    	}
 	    catch (Exception ex)
@@ -3746,9 +3779,18 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        	ft.hide (videoFragment);
 		        ft.commit();
 		        // set_video_alpha (0);
-		        View vPlayerSurface = findViewById (R.id.player_fragment_container).findViewById (R.id.surface);
-		        if (vPlayerSurface != null)
-		        	vPlayerSurface.setVisibility (View.VISIBLE);
+		        View vPlayerFragment = findViewById (R.id.player_fragment_container);
+		        if (vPlayerFragment != null)
+			        {
+		        	// FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vPlayerFragment.getLayoutParams();
+		        	// layout.height = (int) (screen_width / 1.77);
+		        	// vPlayerFragment.setLayoutParams (layout);	
+			        View vPlayerSurface = vPlayerFragment.findViewById (R.id.surface);
+			        if (vPlayerSurface != null)
+			        	{
+			        	vPlayerSurface.setVisibility (View.VISIBLE);
+			        	}		        	
+			        }
 		        View vVideo = videoFragment.getView();
 		        if (vVideo != null)
 		        	{
@@ -3759,7 +3801,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        	log ("***** CHILD IS TYPE: " + v.getClass().getName());
 		        	// v.setVisibility (View.GONE);
 		        	}
-
+		        player = playerFragment;
 		    	}
 	    	}
 	    catch (Exception ex)
@@ -3992,6 +4034,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		JSONObject payload = new JSONObject();
 	    JSONObject data = new JSONObject();
 	    JSONArray channel_arena = new JSONArray();
+	    JSONArray episode_arena = new JSONArray();
 	    JSONObject mso = new JSONObject();
 	    try
 	    	{
@@ -4023,6 +4066,41 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    	        	}
 		        	}
 		        data.put ("channelArena", channel_arena);
+		        
+		        String episodes[] = config.program_line_by_id (channel_id);
+		        for (String arena_episode_id: episodes)
+		        	{
+		        	log ("arena episode: " + arena_episode_id);
+		        	JSONObject episode_structure = new JSONObject();
+		        	
+		        	String name = config.program_meta (arena_episode_id, "name");
+		        	String timestamp = config.program_meta (arena_episode_id, "timestamp");
+		        	
+		        	if (timestamp == null)
+		        		timestamp = "";
+		        	
+		        	String url = config.best_url (arena_episode_id);			        	
+		        	if (url == null || url.equals (""))
+		        		url = config.program_meta (arena_episode_id, "sub-1-url");
+		        	
+		        	log ("arena episode url: " + url);
+		        	
+		        	episode_structure.put ("id", arena_episode_id);
+		        	episode_structure.put ("name", name);
+		        	episode_structure.put ("published", timestamp);
+		        	
+		    	    JSONArray videos = new JSONArray();		    	    
+		    	    JSONObject video_structure = new JSONObject();		    	    
+		    	    if (!url.contains ("youtube.com"))
+		    	    	video_structure.put ("url", url);
+		    	    else
+			    	    video_structure.put ("id", video_id_of (url));
+		    	    videos.put (video_structure);
+		    	    episode_structure.put ("videos", videos);		    	    
+		        	episode_arena.put (episode_structure);
+		        	}
+		        
+		        data.put ("episodeArena", episode_arena);
 	        	}
 	        else
 	        	Log.i ("vtest", "json: no channel arena");

@@ -370,6 +370,19 @@ public class ytchannel
 				Log.i ("vtest", "JSON: no dataObject! channel: " + channel_id);
 				return;
 				}
+			
+			int total_count = 0;
+			try
+				{
+				JSONObject countObject = dataObject.getJSONObject("openSearch$totalResults");
+				total_count = countObject.getInt ("$t");
+				Log.i ("vtest", "YouTube count for " + channel_id + ": " + total_count);
+				}
+			catch (Exception ex)
+				{
+				Log.i ("vtest", "no openSearch$totalResults for channel: " + channel_id);
+				}
+			
 			JSONArray entries = null;
 			try
 				{
@@ -605,6 +618,7 @@ public class ytchannel
 				}
 
 			config.set_channel_meta_by_id (channel_id, "fetched", "1");
+			config.set_channel_meta_by_id (channel_id, "count", Integer.toString (total_count));
 			}
 		catch (JSONException e)
 			{
@@ -776,7 +790,8 @@ public class ytchannel
 		Calendar now = Calendar.getInstance();
 		int hour = now.get (Calendar.HOUR_OF_DAY);
 		
-		String query = "programInfo?channel=" + channel + "&user=" + config.usertoken + "&start=" + start + "&count=50" + "&time=" + hour;
+		String userstuff = config.usertoken == null ? "" : ("&user=" + config.usertoken); 
+		String query = "programInfo?channel=" + channel + userstuff + "&start=" + start + "&count=50" + "&time=" + hour;
 		
 		new playerAPI (h, config, query)
 			{

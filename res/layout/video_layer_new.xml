@@ -239,7 +239,7 @@
 			    class="tv.tv9x9.player.PlayerFragment"
 			    android:id="@+id/player_fragment_container"
 			    android:layout_width="match_parent"
-			    android:layout_height="wrap_content"
+			    android:layout_height="200dip"
 			   	android:layout_gravity="center"
 			   	android:gravity="bottom|center_horizontal"
 			    android:background="#000000"
