@@ -1136,7 +1136,198 @@ Enable automatic activity tracking
         /** Enable automatic exception tracking
          */
         public static final int ga_reportUncaughtExceptions=0x7f0c0007;
-        /**  goodtv 
+        /**  Joey Graceffa 
+ 
+    <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/joeygraceffa_launch_logo</string>
+    <string name="white_label">joeygraceffa</string>
+    <string name="mso">joeygraceffa</string>
+    <string name="default_region">en</string>
+    <string name="logo">joeygraceffa_logo</string>
+    <string name="splash_background">joeygraceffa_bg_open</string>
+    <string name="splash_foreground">joeygraceffa_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">joeygraceffa_logo_signin</string>
+    <string name="signin_bg">joeygraceffa_bg_open</string>
+    <string name="set_banner">joeygraceffa_banner01</string>
+    <string name="fb_app_id">595235090571267</string>
+    
+ Spinnin' Records 
+ 
+    <string name="app_name">SpinninRec on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/spinninrec_launch_logo</string>
+    <string name="white_label">spinninrec</string>
+    <string name="mso">spinninrec</string>
+    <string name="default_region">en</string>
+    <string name="logo">spinninrec_logo</string>
+    <string name="splash_background">spinninrec_bg_open</string>
+    <string name="splash_foreground">spinninrec_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">spinninrec_logo_signin</string>
+    <string name="signin_bg">spinninrec_bg_open</string>
+    <string name="set_banner">spinninrec_banner01</string>
+    <string name="fb_app_id">1468306366724948</string>
+    
+ The Fine Bros 
+ 
+    <string name="app_name">The Fine Bros on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/thefinebros_launch_logo</string>
+    <string name="white_label">thefinebros</string>
+    <string name="mso">thefinebros</string>
+    <string name="default_region">en</string>
+    <string name="logo">thefinebros_logo</string>
+    <string name="splash_background">thefinebros_bg_open</string>
+    <string name="splash_foreground">thefinebros_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">thefinebros_logo_signin</string>
+    <string name="signin_bg">thefinebros_bg_open</string>
+    <string name="set_banner">thefinebros_banner01</string>
+    <string name="fb_app_id">1468306366724948</string>
+	
+ History 
+ 
+    <string name="app_name">History Channel on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/history_launch_logo</string>
+    <string name="white_label">history</string>
+    <string name="mso">history</string>
+    <string name="default_region">en</string>
+    <string name="logo">history_logo</string>
+    <string name="splash_background">history_bg_open</string>
+    <string name="splash_foreground">history_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">history_logo_signin</string>
+    <string name="signin_bg">history_bg_open</string>
+    <string name="set_banner">history_banner01</string>
+    <string name="fb_app_id">1423211814590720</string>
+    
+ NBA 
+ 
+    <string name="app_name">NBA on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/nba_launch_logo</string>
+    <string name="white_label">nba</string>
+    <string name="mso">nba</string>
+    <string name="default_region">en</string>
+    <string name="logo">nba_logo</string>
+    <string name="splash_background">nba_bg_open</string>
+    <string name="splash_foreground">nba_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">nba_logo_signin</string>
+    <string name="signin_bg">nba_bg_open</string>
+    <string name="set_banner">nba_banner01</string>
+    <string name="fb_app_id">277020789128327</string>
+    
+ Smosh 
+ 
+    <string name="app_name">Smosh on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/smosh_launch_logo</string>
+    <string name="white_label">smosh</string>
+    <string name="mso">smosh</string>
+    <string name="default_region">en</string>
+    <string name="logo">smosh_logo</string>
+    <string name="splash_background">smosh_bg_open</string>
+    <string name="splash_foreground">smosh_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">smosh_logo_signin</string>
+    <string name="signin_bg">smosh_bg_open</string>
+    <string name="set_banner">smosh_banner01</string>
+    <string name="fb_app_id">492773477497848</string>
+    
+ Shane 
+ 
+    <string name="app_name">Shane on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/shane_launch_logo</string>
+    <string name="white_label">shane</string>
+    <string name="mso">shane</string>
+    <string name="default_region">en</string>
+    <string name="logo">shane_logo</string>
+    <string name="splash_background">shane_bg_open</string>
+    <string name="splash_foreground">shane_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">shane_logo_signin</string>
+    <string name="signin_bg">shane_bg_open</string>
+    <string name="set_banner">shane_banner01</string>
+    <string name="fb_app_id">359889977487152</string>
+    
+ College Humor 
+ 
+    <string name="app_name">Collegehumor on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/collegehumor_launch_logo</string>
+    <string name="white_label">collegehumor</string>
+    <string name="mso">collegehumor</string>
+    <string name="default_region">en</string>
+    <string name="logo">collegehumor_logo</string>
+    <string name="splash_background">collegehumor_bg_open</string>
+    <string name="splash_foreground">collegehumor_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">collegehumor_logo_signin</string>
+    <string name="signin_bg">collegehumor_bg_open</string>
+    <string name="set_banner">collegehumor_banner01</string>
+    <string name="fb_app_id">613862398667500</string>
+    
+ Network_A 
+ 
+    <string name="app_name">Network_A on FLIPr</string>
+    <string name="app_icon">@drawable/networka_launch_logo</string>
+    <string name="white_label">networka</string>
+    <string name="mso">networka</string>
+    <string name="default_region">en</string>
+    <string name="logo">logo_networka</string>
+    <string name="splash_background">bg_open_networka</string>
+    <string name="splash_foreground">open_logo_networka</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">logo_networka</string>
+    <string name="signin_bg">bg_open_networka</string>
+    <string name="set_banner">banner_networka</string>
+    <string name="fb_app_id">450168698417667</string>
+    
+ crash course 
+ 
+    <string name="app_name">Crash Course on FLIPr</string>
+    <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
+    <string name="white_label">crashcourse</string>     
+    <string name="mso">crashcourse</string>
+    <string name="default_region">en</string>               
+    <string name="logo">logo_crashcourse</string>
+    <string name="splash_background">bg_open_crashcourse</string>
+    <string name="splash_foreground">open_logo_crashcourse</string>    
+    <string name="splash_slogan"></string>    
+    <string name="signin_logo">logo_crashcourse</string>        
+    <string name="signin_bg">bg_open_crashcourse</string>  
+    <string name="set_banner">banner_crashcourse</string>      	
+    <string name="fb_app_id">1414438248794640</string>
+    
+ EchoMusic 
+ 
+    <string name="app_name">EchoMusic</string>
+    <string name="app_icon">@drawable/ic_launcher_hdpi_echomusic</string>
+    <string name="white_label">echomusic</string>
+    <string name="mso">echomusic</string>
+    <string name="default_region">zh</string>
+    <string name="logo">logo_topbar_echomusic</string>
+    <string name="splash_background">splash_bg_echomusic</string>
+    <string name="splash_foreground">splash_logo_echomusic</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_bg">bgnew</string>     
+    <string name="set_banner">banner_9x9</string>   
+	<string name="fb_app_id">212239432317755</string>
+    
+ cts 
+
+    <string name="app_name">CTS</string>
+    <string name="app_icon">@drawable/cts_icon_new</string>    
+    <string name="white_label">cts</string>     
+    <string name="mso">cts</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">cts_logo</string>
+    <string name="splash_background">bg_open_cts</string>
+    <string name="splash_foreground">open_logo_cts</string>    
+    <string name="splash_slogan"></string>    
+    <string name="signin_logo">logo_cts</string>        
+    <string name="signin_bg">bg_open_cts</string>
+    <string name="set_banner">banner_cts</string>            
+	<string name="fb_app_id">1429057570658015</string>       
+	
+ goodtv 
  
     <string name="app_name">GOODTV</string>
  	<string name="app_icon">@drawable/goodtv_launch_logo</string>         
@@ -2229,8 +2420,8 @@ Enable automatic activity tracking
         public static final int appslayer=0x7f0a0044;
         public static final int author=0x7f0a0074;
         public static final int backbutton=0x7f0a010c;
-        public static final int backing=0x7f0a0182;
-        public static final int backing_controls=0x7f0a0171;
+        public static final int backing=0x7f0a0185;
+        public static final int backing_controls=0x7f0a0174;
         public static final int banner1=0x7f0a010e;
         public static final int banner2=0x7f0a0110;
         public static final int banner_set_title=0x7f0a00b2;
@@ -2242,7 +2433,6 @@ Enable automatic activity tracking
         public static final int bgsquare=0x7f0a0091;
         public static final int border=0x7f0a0076;
         public static final int bottom_bar=0x7f0a0043;
-        public static final int by_creating=0x7f0a013d;
         public static final int c1=0x7f0a0087;
         public static final int c2=0x7f0a0088;
         public static final int c3=0x7f0a0089;
@@ -2253,10 +2443,10 @@ Enable automatic activity tracking
         public static final int c8=0x7f0a008e;
         public static final int c9=0x7f0a008f;
         public static final int cancel=0x7f0a00e5;
-        public static final int category_handle=0x7f0a014e;
-        public static final int category_layer=0x7f0a0152;
-        public static final int category_list=0x7f0a0153;
-        public static final int category_name=0x7f0a014f;
+        public static final int category_handle=0x7f0a014f;
+        public static final int category_layer=0x7f0a0153;
+        public static final int category_list=0x7f0a0154;
+        public static final int category_name=0x7f0a0150;
         public static final int chanicon=0x7f0a00df;
         public static final int channel_frame=0x7f0a0049;
         public static final int channel_from_header=0x7f0a004e;
@@ -2270,8 +2460,8 @@ Enable automatic activity tracking
         public static final int chevron=0x7f0a0047;
         public static final int chevronselect=0x7f0a0048;
         public static final int chicon=0x7f0a0095;
-        public static final int chromecast_message=0x7f0a0177;
-        public static final int chromecast_window=0x7f0a0176;
+        public static final int chromecast_message=0x7f0a017a;
+        public static final int chromecast_window=0x7f0a0179;
         public static final int collapseActionView=0x7f0a0011;
         public static final int com_facebook_login_activity_progress_bar=0x7f0a005d;
         public static final int com_facebook_picker_activity_circle=0x7f0a005c;
@@ -2295,13 +2485,13 @@ Enable automatic activity tracking
         public static final int com_facebook_usersettingsfragment_profile_name=0x7f0a006e;
         public static final int comment=0x7f0a0075;
         public static final int container=0x7f0a0086;
-        public static final int controls=0x7f0a017a;
+        public static final int controls=0x7f0a017d;
         public static final int copyright=0x7f0a00f0;
         public static final int count=0x7f0a00c4;
         public static final int createbutton=0x7f0a010a;
         public static final int default_activity_button=0x7f0a002d;
         public static final int desc=0x7f0a0042;
-        public static final int desc_scroll=0x7f0a018d;
+        public static final int desc_scroll=0x7f0a0190;
         public static final int devtype=0x7f0a00f2;
         public static final int dialog=0x7f0a0012;
         public static final int disableHome=0x7f0a000c;
@@ -2321,7 +2511,7 @@ Enable automatic activity tracking
         public static final int download=0x7f0a00c5;
         public static final int download_button=0x7f0a0041;
         public static final int dropdown=0x7f0a0013;
-        public static final int duration=0x7f0a0186;
+        public static final int duration=0x7f0a0189;
         public static final int edit_query=0x7f0a0035;
         public static final int email=0x7f0a00ff;
         public static final int emailrq=0x7f0a00fe;
@@ -2336,26 +2526,26 @@ Enable automatic activity tracking
         public static final int ep3=0x7f0a0084;
         public static final int ep3_box=0x7f0a0083;
         public static final int epicon=0x7f0a0092;
-        public static final int episode_age=0x7f0a018a;
+        public static final int episode_age=0x7f0a018d;
         public static final int episode_count=0x7f0a0051;
         public static final int episode_desc=0x7f0a0070;
         public static final int episode_plural=0x7f0a0052;
-        public static final int episode_title=0x7f0a0189;
+        public static final int episode_title=0x7f0a018c;
         public static final int eptitle=0x7f0a0078;
         public static final int eptitle0=0x7f0a007c;
         public static final int eptitle1=0x7f0a007f;
         public static final int eptitle2=0x7f0a0082;
         public static final int eptitle3=0x7f0a0085;
         public static final int existing=0x7f0a00fd;
-        public static final int expand=0x7f0a0187;
+        public static final int expand=0x7f0a018a;
         public static final int expand_activities_button=0x7f0a002b;
         public static final int expanded_menu=0x7f0a0031;
         public static final int fblogin=0x7f0a012d;
         public static final int first_episode_title=0x7f0a004c;
-        public static final int flip_down=0x7f0a0175;
-        public static final int flip_left=0x7f0a0173;
-        public static final int flip_right=0x7f0a0174;
-        public static final int flip_up=0x7f0a0172;
+        public static final int flip_down=0x7f0a0178;
+        public static final int flip_left=0x7f0a0176;
+        public static final int flip_right=0x7f0a0177;
+        public static final int flip_up=0x7f0a0175;
         public static final int follow=0x7f0a0057;
         public static final int follow_icon=0x7f0a0058;
         public static final int follow_progress=0x7f0a0059;
@@ -2384,22 +2574,22 @@ Enable automatic activity tracking
         public static final int image=0x7f0a002c;
         public static final int infobutton=0x7f0a00ed;
         public static final int infolayer=0x7f0a00e9;
-        public static final int knob=0x7f0a0185;
-        public static final int landscape_channel_name=0x7f0a017e;
-        public static final int landscape_episode_name=0x7f0a016b;
-        public static final int landscape_from=0x7f0a017c;
-        public static final int landscape_titles=0x7f0a017b;
+        public static final int knob=0x7f0a0188;
+        public static final int landscape_channel_name=0x7f0a0181;
+        public static final int landscape_episode_name=0x7f0a016e;
+        public static final int landscape_from=0x7f0a017f;
+        public static final int landscape_titles=0x7f0a017e;
         public static final int large=0x7f0a001e;
         public static final int left_set_title=0x7f0a00ad;
         public static final int listMode=0x7f0a0005;
         public static final int list_item=0x7f0a002e;
         public static final int login=0x7f0a00fa;
         public static final int loginbutton=0x7f0a0102;
-        public static final int logo=0x7f0a0149;
+        public static final int logo=0x7f0a014a;
         public static final int main=0x7f0a00bb;
         public static final int mask=0x7f0a00d9;
-        public static final int media_route_button=0x7f0a016e;
-        public static final int media_route_button_main=0x7f0a0164;
+        public static final int media_route_button=0x7f0a0171;
+        public static final int media_route_button_main=0x7f0a0167;
         public static final int media_route_control_frame=0x7f0a00cf;
         public static final int media_route_disconnect_button=0x7f0a00d0;
         public static final int media_route_list=0x7f0a00cc;
@@ -2414,12 +2604,12 @@ Enable automatic activity tracking
         public static final int menu_layer=0x7f0a00c6;
         public static final int menu_list=0x7f0a00cb;
         public static final int menu_name=0x7f0a00c9;
-        public static final int menubutton=0x7f0a015f;
+        public static final int menubutton=0x7f0a0162;
         public static final int message=0x7f0a00e4;
         public static final int messagelayer=0x7f0a00e7;
-        public static final int meta=0x7f0a014b;
+        public static final int meta=0x7f0a014c;
         public static final int middle=0x7f0a0015;
-        public static final int minify=0x7f0a016f;
+        public static final int minify=0x7f0a0172;
         public static final int mode_list=0x7f0a00b4;
         public static final int mode_thumbs=0x7f0a00b3;
         public static final int movecross=0x7f0a0096;
@@ -2437,60 +2627,62 @@ Enable automatic activity tracking
         public static final int paragraph2=0x7f0a00eb;
         public static final int paragraph3=0x7f0a00ec;
         public static final int password=0x7f0a0101;
-        public static final int pause_or_play=0x7f0a017f;
+        public static final int pause_or_play=0x7f0a0182;
         public static final int pic=0x7f0a0077;
         public static final int picker_subtitle=0x7f0a006a;
-        public static final int playback_back=0x7f0a0169;
-        public static final int playback_channel=0x7f0a0193;
-        public static final int playback_channel_icon=0x7f0a0192;
-        public static final int playback_channel_icon_landscape=0x7f0a017d;
-        public static final int playback_channel_list=0x7f0a019a;
-        public static final int playback_collapser=0x7f0a018f;
-        public static final int playback_ephide=0x7f0a0190;
-        public static final int playback_episode_count=0x7f0a0195;
-        public static final int playback_episode_description=0x7f0a018e;
-        public static final int playback_episode_plural=0x7f0a0196;
-        public static final int playback_episodes=0x7f0a0199;
-        public static final int playback_follow=0x7f0a0194;
-        public static final int playback_follow_landscape=0x7f0a016d;
-        public static final int playback_from_prefix=0x7f0a0191;
-        public static final int playback_horiz=0x7f0a0197;
-        public static final int playback_share=0x7f0a018b;
-        public static final int playback_share_landscape=0x7f0a016c;
-        public static final int playbackbody=0x7f0a0188;
-        public static final int playbackbody_normal_view=0x7f0a018c;
+        public static final int playback_back=0x7f0a016c;
+        public static final int playback_channel=0x7f0a0196;
+        public static final int playback_channel_icon=0x7f0a0195;
+        public static final int playback_channel_icon_landscape=0x7f0a0180;
+        public static final int playback_channel_list=0x7f0a019d;
+        public static final int playback_collapser=0x7f0a0192;
+        public static final int playback_ephide=0x7f0a0193;
+        public static final int playback_episode_count=0x7f0a0198;
+        public static final int playback_episode_description=0x7f0a0191;
+        public static final int playback_episode_plural=0x7f0a0199;
+        public static final int playback_episodes=0x7f0a019c;
+        public static final int playback_follow=0x7f0a0197;
+        public static final int playback_follow_landscape=0x7f0a0170;
+        public static final int playback_from_prefix=0x7f0a0194;
+        public static final int playback_horiz=0x7f0a019a;
+        public static final int playback_share=0x7f0a018e;
+        public static final int playback_share_landscape=0x7f0a016f;
+        public static final int playbackbody=0x7f0a018b;
+        public static final int playbackbody_normal_view=0x7f0a018f;
         public static final int playball=0x7f0a0093;
-        public static final int played=0x7f0a0184;
+        public static final int played=0x7f0a0187;
         public static final int player=0x7f0a00dd;
-        public static final int player_fragment_container=0x7f0a0178;
+        public static final int player_fragment_container=0x7f0a017b;
         public static final int poi_h=0x7f0a00d4;
         public static final int poi_h_button=0x7f0a00d6;
         public static final int poi_h_message=0x7f0a00d5;
         public static final int popupclose=0x7f0a00e3;
-        public static final int position=0x7f0a0180;
+        public static final int position=0x7f0a0183;
         public static final int primary_set_title=0x7f0a00ae;
-        public static final int privacy_content=0x7f0a015c;
-        public static final int privacy_content_html=0x7f0a015d;
-        public static final int privacy_tab=0x7f0a0159;
+        public static final int privacy_button=0x7f0a013e;
+        public static final int privacy_content=0x7f0a015f;
+        public static final int privacy_content_html=0x7f0a0160;
+        public static final int privacy_tab=0x7f0a015b;
+        public static final int privacy_tab_text=0x7f0a015c;
         public static final int profile_thumbnail=0x7f0a0073;
         public static final int progress=0x7f0a0079;
         public static final int progress_circular=0x7f0a001b;
         public static final int progress_horizontal=0x7f0a001c;
-        public static final int progressbar=0x7f0a0183;
-        public static final int progresscontainer=0x7f0a0181;
+        public static final int progressbar=0x7f0a0186;
+        public static final int progresscontainer=0x7f0a0184;
         public static final int pull_to_refresh=0x7f0a00b5;
         public static final int pwrq=0x7f0a0100;
         public static final int radio=0x7f0a0034;
-        public static final int right_buttons=0x7f0a0163;
+        public static final int right_buttons=0x7f0a0166;
         public static final int right_set_title=0x7f0a00af;
         public static final int rightprogress=0x7f0a010b;
         public static final int satellite=0x7f0a0002;
         public static final int search_badge=0x7f0a0037;
         public static final int search_bar=0x7f0a0036;
         public static final int search_button=0x7f0a0038;
-        public static final int search_cancel=0x7f0a0162;
+        public static final int search_cancel=0x7f0a0165;
         public static final int search_close_btn=0x7f0a003d;
-        public static final int search_container=0x7f0a0160;
+        public static final int search_container=0x7f0a0163;
         public static final int search_edit_frame=0x7f0a0039;
         public static final int search_go_btn=0x7f0a003f;
         public static final int search_list_phone=0x7f0a0114;
@@ -2500,7 +2692,7 @@ Enable automatic activity tracking
         public static final int search_src_text=0x7f0a003c;
         public static final int search_term_used=0x7f0a0113;
         public static final int search_voice_btn=0x7f0a0040;
-        public static final int searchbutton=0x7f0a0165;
+        public static final int searchbutton=0x7f0a0168;
         public static final int searchlayer=0x7f0a0112;
         public static final int set_banner=0x7f0a00b1;
         public static final int set_title=0x7f0a0116;
@@ -2524,16 +2716,16 @@ Enable automatic activity tracking
         public static final int showHome=0x7f0a0008;
         public static final int showTitle=0x7f0a000a;
         public static final int sign_in_button=0x7f0a0132;
-        public static final int sign_in_choice=0x7f0a0140;
+        public static final int sign_in_choice=0x7f0a0141;
         public static final int sign_in_content=0x7f0a012c;
         public static final int sign_in_email=0x7f0a012e;
         public static final int sign_in_email_container=0x7f0a012f;
         public static final int sign_in_password=0x7f0a0130;
         public static final int sign_in_password_container=0x7f0a0131;
         public static final int sign_in_tab=0x7f0a012a;
-        public static final int sign_in_tab_text=0x7f0a0143;
+        public static final int sign_in_tab_text=0x7f0a0144;
         public static final int sign_up_button=0x7f0a013c;
-        public static final int sign_up_choice=0x7f0a0141;
+        public static final int sign_up_choice=0x7f0a0142;
         public static final int sign_up_content=0x7f0a0133;
         public static final int sign_up_email=0x7f0a0136;
         public static final int sign_up_email_container=0x7f0a0137;
@@ -2542,82 +2734,84 @@ Enable automatic activity tracking
         public static final int sign_up_password=0x7f0a0138;
         public static final int sign_up_password_container=0x7f0a0139;
         public static final int sign_up_tab=0x7f0a012b;
-        public static final int sign_up_tab_text=0x7f0a0144;
+        public static final int sign_up_tab_text=0x7f0a0145;
         public static final int sign_up_verify=0x7f0a013a;
         public static final int sign_up_verify_container=0x7f0a013b;
         public static final int signin_back=0x7f0a0127;
         public static final int signin_button=0x7f0a00c7;
-        public static final int signin_choices=0x7f0a013f;
+        public static final int signin_choices=0x7f0a0140;
         public static final int signin_logo=0x7f0a0128;
-        public static final int signin_or_signup=0x7f0a0142;
-        public static final int signin_signup_button=0x7f0a0145;
-        public static final int signin_signup_cancel=0x7f0a0146;
+        public static final int signin_or_signup=0x7f0a0143;
+        public static final int signin_signup_button=0x7f0a0146;
+        public static final int signin_signup_cancel=0x7f0a0147;
         public static final int signinlayer=0x7f0a0125;
         public static final int signinlayer_phone=0x7f0a0126;
-        public static final int signinlayer_tablet=0x7f0a013e;
+        public static final int signinlayer_tablet=0x7f0a013f;
         public static final int sliding_top_bar=0x7f0a00bd;
         public static final int slidingpanel=0x7f0a00bc;
-        public static final int slogan=0x7f0a014a;
+        public static final int slogan=0x7f0a014b;
         public static final int small=0x7f0a001d;
         public static final int small_channel_icon=0x7f0a004f;
-        public static final int spacer=0x7f0a016a;
+        public static final int spacer=0x7f0a016d;
         public static final int spacer1=0x7f0a00fc;
         public static final int spacer2=0x7f0a0103;
         public static final int special_tag=0x7f0a0053;
-        public static final int splash=0x7f0a0148;
+        public static final int splash=0x7f0a0149;
         public static final int split_action_bar=0x7f0a0023;
         public static final int square=0x7f0a0090;
-        public static final int squarebg=0x7f0a014c;
+        public static final int squarebg=0x7f0a014d;
         public static final int stackicon=0x7f0a010d;
         public static final int standardvideo=0x7f0a00d2;
         public static final int step1=0x7f0a00f5;
         public static final int step2=0x7f0a00f6;
         public static final int stepmessage=0x7f0a00f4;
         public static final int steps=0x7f0a00f3;
-        public static final int store_list_phone=0x7f0a0150;
-        public static final int store_list_tablet=0x7f0a0151;
-        public static final int storelayer=0x7f0a014d;
+        public static final int store_list_phone=0x7f0a0151;
+        public static final int store_list_tablet=0x7f0a0152;
+        public static final int storelayer=0x7f0a014e;
         public static final int subepisodetitle=0x7f0a00d7;
         public static final int submit_area=0x7f0a003e;
         public static final int subtitle=0x7f0a0055;
         public static final int surface=0x7f0a00d3;
         public static final int tabMode=0x7f0a0006;
         public static final int tablet_preamble=0x7f0a00b0;
-        public static final int term=0x7f0a0161;
-        public static final int terms_back=0x7f0a0155;
-        public static final int terms_content=0x7f0a015a;
-        public static final int terms_content_html=0x7f0a015b;
-        public static final int terms_gossamer=0x7f0a0157;
-        public static final int terms_logo=0x7f0a0156;
-        public static final int terms_tab=0x7f0a0158;
-        public static final int termslayer=0x7f0a0154;
+        public static final int term=0x7f0a0164;
+        public static final int terms_back=0x7f0a0156;
+        public static final int terms_button=0x7f0a013d;
+        public static final int terms_content=0x7f0a015d;
+        public static final int terms_content_html=0x7f0a015e;
+        public static final int terms_gossamer=0x7f0a0158;
+        public static final int terms_logo=0x7f0a0157;
+        public static final int terms_tab=0x7f0a0159;
+        public static final int terms_tab_text=0x7f0a015a;
+        public static final int termslayer=0x7f0a0155;
         public static final int terrain=0x7f0a0003;
         public static final int thumbnail=0x7f0a0124;
         public static final int title=0x7f0a0030;
         public static final int title_row=0x7f0a004b;
         public static final int titlecard=0x7f0a00db;
-        public static final int titlecardbg=0x7f0a0170;
+        public static final int titlecardbg=0x7f0a0173;
         public static final int titlecardtext=0x7f0a00dc;
         public static final int top3x3pager=0x7f0a0098;
         public static final int top_action_bar=0x7f0a0025;
-        public static final int top_bar_resizable=0x7f0a015e;
-        public static final int top_controls=0x7f0a0168;
+        public static final int top_bar_resizable=0x7f0a0161;
+        public static final int top_controls=0x7f0a016b;
         public static final int triple_thumb=0x7f0a005a;
         public static final int triplebar=0x7f0a0111;
         public static final int tunedchannel=0x7f0a00e0;
         public static final int two_title_lines=0x7f0a0054;
         public static final int ui=0x7f0a00de;
         public static final int up=0x7f0a0026;
-        public static final int upgrade=0x7f0a0166;
+        public static final int upgrade=0x7f0a0169;
         public static final int useLogo=0x7f0a0007;
         public static final int version=0x7f0a00ef;
-        public static final int video_fragment_container=0x7f0a0179;
-        public static final int video_layer_new=0x7f0a0167;
-        public static final int video_layer_old=0x7f0a0198;
+        public static final int video_fragment_container=0x7f0a017c;
+        public static final int video_layer_new=0x7f0a016a;
+        public static final int video_layer_old=0x7f0a019b;
         public static final int visit=0x7f0a00f1;
         public static final int withText=0x7f0a0010;
         public static final int youtubeconnect=0x7f0a00fb;
-        public static final int ytwrapper=0x7f0a0147;
+        public static final int ytwrapper=0x7f0a0148;
         public static final int ytwrapper2=0x7f0a00da;
     }
     public static final class integer {
@@ -2803,197 +2997,6 @@ Enable automatic activity tracking
         public static final int and=0x7f0800e4;
         public static final int app_icon=0x7f080054;
         /**  9x9
- 
-    <string name="app_name">9x9.tv</string>
-	<string name="app_icon">@drawable/tt_icon_new</string>         
-    <string name="white_label">portal</string>
-    <string name="mso">9x9</string>
-    <string name="default_region">en</string>    
-    <string name="logo">tvlogo</string>   
-    <string name="splash_background">bgnew</string>
-    <string name="splash_foreground">splash_generic_logo</string>   
-    <string name="splash_slogan">Empowering Cloud TV</string>
-    <string name="signin_logo">tvlogo</string>    
-    <string name="signin_bg">bgnew</string>     
-    <string name="set_banner">banner_9x9</string>   
-	<string name="fb_app_id">361253423962738</string>
-	
- Joey Graceffa 
- 
-    <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/joeygraceffa_launch_logo</string>
-    <string name="white_label">joeygraceffa</string>
-    <string name="mso">joeygraceffa</string>
-    <string name="default_region">en</string>
-    <string name="logo">joeygraceffa_logo</string>
-    <string name="splash_background">joeygraceffa_bg_open</string>
-    <string name="splash_foreground">joeygraceffa_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">joeygraceffa_logo_signin</string>
-    <string name="signin_bg">joeygraceffa_bg_open</string>
-    <string name="set_banner">joeygraceffa_banner01</string>
-    <string name="fb_app_id">595235090571267</string>
-    
- Spinnin' Records 
- 
-    <string name="app_name">SpinninRec on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/spinninrec_launch_logo</string>
-    <string name="white_label">spinninrec</string>
-    <string name="mso">spinninrec</string>
-    <string name="default_region">en</string>
-    <string name="logo">spinninrec_logo</string>
-    <string name="splash_background">spinninrec_bg_open</string>
-    <string name="splash_foreground">spinninrec_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">spinninrec_logo_signin</string>
-    <string name="signin_bg">spinninrec_bg_open</string>
-    <string name="set_banner">spinninrec_banner01</string>
-    <string name="fb_app_id">1468306366724948</string>
-    
- The Fine Bros 
- 
-    <string name="app_name">The Fine Bros on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/thefinebros_launch_logo</string>
-    <string name="white_label">thefinebros</string>
-    <string name="mso">thefinebros</string>
-    <string name="default_region">en</string>
-    <string name="logo">thefinebros_logo</string>
-    <string name="splash_background">thefinebros_bg_open</string>
-    <string name="splash_foreground">thefinebros_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">thefinebros_logo_signin</string>
-    <string name="signin_bg">thefinebros_bg_open</string>
-    <string name="set_banner">thefinebros_banner01</string>
-    <string name="fb_app_id">1468306366724948</string>
-	
- History 
- 
-    <string name="app_name">History Channel on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/history_launch_logo</string>
-    <string name="white_label">history</string>
-    <string name="mso">history</string>
-    <string name="default_region">en</string>
-    <string name="logo">history_logo</string>
-    <string name="splash_background">history_bg_open</string>
-    <string name="splash_foreground">history_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">history_logo_signin</string>
-    <string name="signin_bg">history_bg_open</string>
-    <string name="set_banner">history_banner01</string>
-    <string name="fb_app_id">1423211814590720</string>
-    
- NBA 
- 
-    <string name="app_name">NBA on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/nba_launch_logo</string>
-    <string name="white_label">nba</string>
-    <string name="mso">nba</string>
-    <string name="default_region">en</string>
-    <string name="logo">nba_logo</string>
-    <string name="splash_background">nba_bg_open</string>
-    <string name="splash_foreground">nba_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">nba_logo_signin</string>
-    <string name="signin_bg">nba_bg_open</string>
-    <string name="set_banner">nba_banner01</string>
-    <string name="fb_app_id">277020789128327</string>
-    
- Smosh 
- 
-    <string name="app_name">Smosh on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/smosh_launch_logo</string>
-    <string name="white_label">smosh</string>
-    <string name="mso">smosh</string>
-    <string name="default_region">en</string>
-    <string name="logo">smosh_logo</string>
-    <string name="splash_background">smosh_bg_open</string>
-    <string name="splash_foreground">smosh_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">smosh_logo_signin</string>
-    <string name="signin_bg">smosh_bg_open</string>
-    <string name="set_banner">smosh_banner01</string>
-    <string name="fb_app_id">492773477497848</string>
-    
- Shane 
- 
-    <string name="app_name">Shane on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/shane_launch_logo</string>
-    <string name="white_label">shane</string>
-    <string name="mso">shane</string>
-    <string name="default_region">en</string>
-    <string name="logo">shane_logo</string>
-    <string name="splash_background">shane_bg_open</string>
-    <string name="splash_foreground">shane_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">shane_logo_signin</string>
-    <string name="signin_bg">shane_bg_open</string>
-    <string name="set_banner">shane_banner01</string>
-    <string name="fb_app_id">359889977487152</string>
-    
- College Humor 
- 
-    <string name="app_name">Collegehumor on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/collegehumor_launch_logo</string>
-    <string name="white_label">collegehumor</string>
-    <string name="mso">collegehumor</string>
-    <string name="default_region">en</string>
-    <string name="logo">collegehumor_logo</string>
-    <string name="splash_background">collegehumor_bg_open</string>
-    <string name="splash_foreground">collegehumor_open_logo</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">collegehumor_logo_signin</string>
-    <string name="signin_bg">collegehumor_bg_open</string>
-    <string name="set_banner">collegehumor_banner01</string>
-    <string name="fb_app_id">613862398667500</string>
-    
- Network_A 
- 
-    <string name="app_name">Network_A on FLIPr</string>
-    <string name="app_icon">@drawable/networka_launch_logo</string>
-    <string name="white_label">networka</string>
-    <string name="mso">networka</string>
-    <string name="default_region">en</string>
-    <string name="logo">logo_networka</string>
-    <string name="splash_background">bg_open_networka</string>
-    <string name="splash_foreground">open_logo_networka</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_logo">logo_networka</string>
-    <string name="signin_bg">bg_open_networka</string>
-    <string name="set_banner">banner_networka</string>
-    <string name="fb_app_id">450168698417667</string>
-    
- crash course 
- 
-    <string name="app_name">Crash Course on FLIPr</string>
-    <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
-    <string name="white_label">crashcourse</string>     
-    <string name="mso">crashcourse</string>
-    <string name="default_region">en</string>               
-    <string name="logo">logo_crashcourse</string>
-    <string name="splash_background">bg_open_crashcourse</string>
-    <string name="splash_foreground">open_logo_crashcourse</string>    
-    <string name="splash_slogan"></string>    
-    <string name="signin_logo">logo_crashcourse</string>        
-    <string name="signin_bg">bg_open_crashcourse</string>  
-    <string name="set_banner">banner_crashcourse</string>      	
-    <string name="fb_app_id">1414438248794640</string>
-    
- EchoMusic 
- 
-    <string name="app_name">EchoMusic</string>
-    <string name="app_icon">@drawable/ic_launcher_hdpi_echomusic</string>
-    <string name="white_label">echomusic</string>
-    <string name="mso">echomusic</string>
-    <string name="default_region">zh</string>
-    <string name="logo">logo_topbar_echomusic</string>
-    <string name="splash_background">splash_bg_echomusic</string>
-    <string name="splash_foreground">splash_logo_echomusic</string>
-    <string name="splash_slogan"></string>
-    <string name="signin_bg">bgnew</string>     
-    <string name="set_banner">banner_9x9</string>   
-	<string name="fb_app_id">212239432317755</string>
-    
- cts 
  9x9 
  
    	<string name="app_name">9x9.tv</string>
@@ -3399,6 +3402,7 @@ Enable automatic activity tracking
         public static final int lonely_2=0x7f08008a;
         public static final int long_ago=0x7f08013f;
         public static final int mediacontroller_play_pause=0x7f08000c;
+        public static final int middot=0x7f080145;
         public static final int minute=0x7f080135;
         public static final int minutes=0x7f080136;
         public static final int mode_3x3=0x7f080104;

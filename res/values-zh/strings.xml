@@ -603,4 +603,5 @@
     <string name="fb_btn_login">Facebook 帳號登入</string>
     <string name="fb_btn_logout">Facebook 登出</string>
     <string name="nothing_changed">Nothing changed!</string>
+    <string name="middot">&#183;</string>    
 </resources>

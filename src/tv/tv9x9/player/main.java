@@ -42,6 +42,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.hardware.Sensor;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
@@ -182,6 +183,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							{
 							log ("video restore startup function");
 							restore_location();
+							if (video_is_minimized)
+								video_minimize (false);
 							}						
 					});
 				}
@@ -408,6 +411,23 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			layout5.height = pixels_30;
 			layout5.width = pixels_30;
 			vPlaybackFollow.setLayoutParams (layout5);
+			
+			/* terms_layer.xml */
+			View vTermsGossamer = findViewById (R.id.terms_gossamer);
+			LinearLayout.LayoutParams layout5a = (LinearLayout.LayoutParams) vTermsGossamer.getLayoutParams();
+			layout5a.leftMargin = pixels_20;
+			layout5a.rightMargin = pixels_20;
+			layout5a.topMargin = pixels_40;
+			layout5a.bottomMargin = pixels_40;
+			vTermsGossamer.setLayoutParams (layout5a);
+			
+			/* terms_layer.xml */
+			TextView vTermsTabText = (TextView) findViewById (R.id.terms_tab_text);
+			vTermsTabText.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
+			
+			/* terms_layer.xml */
+			TextView vPrivacyTabText = (TextView) findViewById (R.id.privacy_tab_text);
+			vPrivacyTabText.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
 			}
 		
 		/* remove the phone/tablet sublayer which we won't use */
@@ -2561,17 +2581,34 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	}
 				});
 
-		View vByCreating = findViewById (R.id.by_creating);
-		if (vByCreating != null)
-			vByCreating.setOnClickListener (new OnClickListener()
+		TextView vTermsButton = (TextView) findViewById (R.id.terms_button);
+		if (vTermsButton != null)
+			{
+			vTermsButton.setPaintFlags (vTermsButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+			vTermsButton.setOnClickListener (new OnClickListener()
 				{
 		        @Override
 		        public void onClick (View v)
 		        	{
-		        	log ("click on: by creating");
+		        	log ("click on: terms");
 		        	slide_in_terms();
 		        	}
 				});
+			}
+		TextView vPrivacyButton = (TextView) findViewById (R.id.privacy_button);
+		if (vPrivacyButton != null)
+			{
+			vPrivacyButton.setPaintFlags (vPrivacyButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+			vPrivacyButton.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: privacy");
+		        	slide_in_privacy();
+		        	}
+				});
+			}
 		
 		if (!is_phone())
 			{
@@ -2701,7 +2738,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void zero_signin_data()
 		{
-		int editables[] = { R.id.sign_in_email, R.id.sign_in_password, R.id.sign_up_name, R.id.sign_up_password, R.id.sign_up_verify };
+		int editables[] = { R.id.sign_in_email, R.id.sign_in_password, R.id.sign_up_name, R.id.sign_up_email, R.id.sign_up_password, R.id.sign_up_verify };
 		for (int editable: editables)
 			{
 			EditText v = (EditText) findViewById (editable);
@@ -2974,6 +3011,20 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	public void run()
 	    		{
 	    		enable_terms_layer();
+	    		terms_tab();
+	    		toggle_menu();
+	    		}
+	    	});
+		}
+	
+	public void slide_in_privacy()
+		{
+		toggle_menu (new Callback()
+	    	{
+	    	public void run()
+	    		{
+	    		enable_terms_layer();
+	    		privacy_tab();
 	    		toggle_menu();
 	    		}
 	    	});
@@ -5642,12 +5693,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							@Override
 							public void run()
 								{
-								video_minimize();
+								video_minimize (true);
 								}		        		
 		        			}, 50);
 		        		}
 		        	else
-		        		video_minimize();
+		        		video_minimize (true);
 		        	}
 				});	
 		
@@ -5717,14 +5768,32 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View vPlaybackFollow = findViewById (R.id.playback_follow);
 		if (vPlaybackFollow != null)
 			{
-			vPlaybackFollow.setVisibility (config.usertoken != null ? View.VISIBLE : View.GONE);
+			// vPlaybackFollow.setVisibility (config.usertoken != null ? View.VISIBLE : View.GONE);
 			vPlaybackFollow.setOnClickListener (new OnClickListener()
 				{
 		        @Override
-		        public void onClick (View v)
+		        public void onClick (final View v)
 		        	{
 		        	log ("click on: playback follow/unfollow");
-		        	follow_or_unfollow (player_real_channel, v);
+		        	
+		        	if (config.usertoken == null)
+		        		{
+		        		remember_location();
+		        		enable_signin_layer (new Runnable()
+		        			{
+			        		@Override
+			        		public void run()
+				        		{
+			        			if (config.usertoken != null)
+			        				{
+			        				follow_or_unfollow (player_real_channel, v);
+			        				restore_location();
+			        				}
+				        		}
+		        			});
+		        		}
+		        	else
+		        		follow_or_unfollow (player_real_channel, v);
 		        	}
 				});	
 			}
@@ -6083,7 +6152,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	int minimized_height = 0;
 	int minimized_width = 0;
 	
-	public void video_minimize()
+	public void video_minimize (boolean perform_unlaunch)
 		{
 		log ("video minimize");
 		
@@ -6246,7 +6315,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		// vVideoLayer.setBackgroundColor (Color.argb (0x40, 0xFF, 0x00, 0x00));
 		vVideoLayer.setBackgroundColor (Color.argb (0x00, 0x00, 0x00, 0x00));
 		
-		unlaunch_player();
+		if (perform_unlaunch)
+			unlaunch_player();
+		
 		vVideoLayer.postInvalidate();
 		
 		if (chromecasted)
