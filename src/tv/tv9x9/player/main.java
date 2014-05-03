@@ -2738,7 +2738,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void zero_signin_data()
 		{
-		int editables[] = { R.id.sign_in_email, R.id.sign_in_password, R.id.sign_up_name, R.id.sign_up_email, R.id.sign_up_password, R.id.sign_up_verify };
+		/* and settings */
+		int editables[] = { R.id.sign_in_email, R.id.sign_in_password, R.id.sign_up_name, R.id.sign_up_email,
+				R.id.sign_up_password, R.id.sign_up_verify, R.id.settings_old_password, R.id.settings_new_password, R.id.settings_verify_password };
 		for (int editable: editables)
 			{
 			EditText v = (EditText) findViewById (editable);
@@ -8428,6 +8430,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	public void enable_settings_layer()
 		{
 		disable_video_layer();
+		zero_signin_data();
 		set_layer (toplayer.SETTINGS);
 		redraw_settings();
 		setup_settings_buttons();
