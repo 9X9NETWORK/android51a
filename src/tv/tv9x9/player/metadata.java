@@ -39,6 +39,8 @@ public class metadata
 	public String region = "en";
 	public String supported_region = null;
 	
+	public String about_us_url = null;
+	
 	/* dongle mode only */
 	public String guidemode = "3x3";
 	

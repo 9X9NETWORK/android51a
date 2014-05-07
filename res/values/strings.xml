@@ -542,7 +542,7 @@
 	<string name="move_failure">Move failure!</string>
 	<string name="moved" formatted="false">Program moved from %1 to %2</string>	
 	<string name="categorycolon">Category:</string>
-	<string name="streaming_portal">Back to Home</string>
+	<string name="back_to_home">Back to Home</string>
 	<string name="quit">Quit</string>
 	<string name="retry">Retry</string>
 	<string name="personal_history">Personal History</string>
@@ -620,4 +620,5 @@
     <string name="fb_btn_logout">Log out</string>    
     <string name="nothing_changed">Nothing changed!</string>    
     <string name="middot">&#183;</string> 
+    <string name="about_us">About Us</string>     
 </resources>

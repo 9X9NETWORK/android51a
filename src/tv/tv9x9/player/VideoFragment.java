@@ -29,11 +29,15 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	
 	private int most_recent_offset = 0;
 	
+	/* loadVideo will sometimes ignore a start offset! if so, issue a seekTo() */
+	private long start_time_workaround = 0;
+	
 	/* send a play command as soon as possible. This is because it's now necessary to re-initialize the YouTube api when
 	   onPaused is called. Before Google made that change, it just worked and this nastiness was not required */
 	private Handler handler = null;
 	private Runnable startup_function = null;
 	
+
 	private void log (String text)
 		{
 		Log.i ("vtest", "[videoFragment] " + text);
@@ -195,6 +199,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			if (player != null)
 				{
 				log ("load video " + id + ", start: " + start_msec);
+				start_time_workaround = start_msec;
 				try { player.loadVideo (id, (int) start_msec); } catch (Exception ex) { ex.printStackTrace(); }
 				}
 			}
@@ -208,6 +213,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			if (player != null)
 				{
 				log ("load video " + id + ", in its entirety");
+				start_time_workaround = 0;
 				try { player.loadVideo (id); } catch (Exception ex) { ex.printStackTrace(); }
 				}
 			}
@@ -578,6 +584,19 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					mCallback.onVideoActivityVideoStarted();
 					mCallback.setup_progress_bar();
 					reset_time_played();
+					
+					/* during restart, start_msec will be ignored by loadVideo, though in simple test programs this is not the case.
+					   perform a seek if the video started close to zero and not where we thought. Also, restart videos entirely if the
+					   start_msec was near the beginning anyway */
+
+					long offset = get_offset();
+					boolean perform_extra_seek = start_time_workaround > 6000 && offset < 4000;
+					start_time_workaround = 0;
+					if (perform_extra_seek)
+						{
+						log ("extra start time seek (workaround for YouTube bug): " + start_time_workaround + " (we are at offset: " + offset + ")");
+						seek (start_time_workaround);
+						}
 					}
 				});
 			}

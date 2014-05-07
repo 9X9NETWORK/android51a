@@ -117,7 +117,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		}
 	
 	/* note, SIGNOUT, HELP, CATEGORY_ITEM and APP_ITEM are not real layers, but menu items */
-	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, HELP, CATEGORY_ITEM, APP_ITEM, SHAKE };
+	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT };
 	
 	toplayer current_layer = toplayer.HOME;
 	toplayer layer_before_signin = toplayer.HOME;
@@ -178,14 +178,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				{
 				videoFragment.set_startup_function (in_main_thread, new Runnable()
 					{
-						@Override
-						public void run()
-							{
-							log ("video restore startup function");
-							restore_location();
-							if (video_is_minimized)
-								video_minimize (false);
-							}						
+					@Override
+					public void run()
+						{
+						log ("video restore startup function");
+						restore_location();
+						if (video_is_minimized)
+							video_minimize (false);
+						}						
 					});
 				}
 			else
@@ -322,7 +322,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    		zero_signin_data();
 	    		}
 	    	else if (current_layer == toplayer.GUIDE || current_layer == toplayer.SEARCH 
-	    				|| current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS || current_layer == toplayer.SHAKE)
+	    				|| current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS
+	    				|| current_layer == toplayer.SHAKE || current_layer == toplayer.ABOUT)
 	    		toggle_menu();
 	    	return true;
 	    	}
@@ -768,7 +769,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			case SETTINGS:
 				track_screen ("settings");
 				break;
-			
+				
+			case ABOUT:
+				track_screen ("about");
+				break;
+				
 			case APPS:
 				track_screen ("appDirectory");
 				break;
@@ -1062,6 +1067,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				items.push (new menuitem (a));
 			}
 		
+		if (config.about_us_url != null)
+			items.push (new menuitem (toplayer.ABOUT, R.string.about_us, R.drawable.icon_about, R.drawable.icon_about_press));
+		
 		if (config.usertoken != null)
 			items.push (new menuitem (toplayer.SIGNOUT, R.string.sign_out, R.drawable.icon_signout, R.drawable.icon_signout));
 		
@@ -1135,6 +1143,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        	log ("click on: menu shake");
 	        	close_menu();
 	        	enable_shake_layer();
+				break;
+			
+			case ABOUT:
+	        	log ("click on: menu about");
+	        	close_menu();
+	        	enable_about_layer();
 				break;
 				
 			case SETTINGS:
@@ -2427,7 +2441,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		View apps_layer = findViewById (R.id.appslayer);
 		apps_layer.setVisibility (layer == toplayer.APPS ? View.VISIBLE : View.GONE);
-
+		
+		View about_layer = findViewById (R.id.aboutlayer);
+		about_layer.setVisibility (layer == toplayer.ABOUT ? View.VISIBLE : View.GONE);
+		
 		View shake_layer = findViewById (R.id.shakelayer);
 		shake_layer.setVisibility (layer == toplayer.SHAKE ? View.VISIBLE : View.GONE);
 		
@@ -7630,7 +7647,52 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	}
 				});				
 		}
+  
+	/*** ABOUT **************************************************************************************************/
     
+    public void enable_about_layer()
+    	{
+		disable_video_layer();
+		set_layer (toplayer.ABOUT);
+		load_about_webview();
+    	}
+    
+	public void load_about_webview()
+		{
+		WebView vAbout = (WebView) findViewById (R.id.about_content);
+		if (vAbout != null)
+			{
+			vAbout.setWebViewClient (new WebViewClient()
+				{
+			    @Override
+			    public boolean shouldOverrideUrlLoading (WebView view, String url)
+			    	{
+			    	return false;
+			    	}
+				});
+			
+			if (config.about_us_url.startsWith ("http"))
+				vAbout.loadUrl (config.about_us_url);
+			else
+				vAbout.loadDataWithBaseURL ("http://www.flipr.tv/", config.about_us_url, "text/html", "utf-8", null);
+			}
+    	}
+    
+	public void setup_about_buttons()
+		{
+		View vAbout = findViewById (R.id.aboutlayer);		
+		if (vAbout != null)
+			vAbout.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	/* eat this */
+		        	log ("about layer ate my tap!");
+		        	}
+				});				
+		}	
+	
 	/*** STORE **************************************************************************************************/
     
     boolean store_initialized = false;

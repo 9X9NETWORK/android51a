@@ -29,7 +29,9 @@
 		<include layout="@layout/search_layer" />
 
 		<include layout="@layout/shake_layer" />
-				
+
+		<include layout="@layout/about_layer" />
+								
 		<include layout="@layout/settings_phone" />
 									    	    	    	    		
 	</LinearLayout>

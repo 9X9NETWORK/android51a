@@ -1262,6 +1262,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			play_first (player_real_channel);
 		}
 	
+	public boolean is_streamable_url (String url)
+		{
+		return url.endsWith (".m3u8") || url.contains (".m3u8?") || url.endsWith (".mp4") || url.endsWith (".MP4");
+		}
+	
 	public void try_to_play_episode (int episode)
 		{
 		try_to_play_episode (episode, 0);
@@ -1322,10 +1327,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					log ("episode \"" + episode_id + "\" has no subepisodes, url is: " + url);
 					if (url == null)
 						config.dump_episode_details (episode_id);
-					if (url.endsWith (".m3u8") || url.contains (".m3u8?"))
-						play_vitamio_url (url, start_msec, -1);
-					else
-						play_youtube_url (url, start_msec, -1);
+					play_video_url (url, start_msec, -1);
 					}
 				else
 					{
@@ -1710,10 +1712,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				
 				log ("start_msec: " + start_msec + ", duration_msec: " + duration_msec + ", percent: " + percent + ", extra offset: " + extra_offset);
 				
-				if (url.endsWith (".m3u8"))
-					play_vitamio_url (url, start_msec + extra_offset, end_msec);
-				else
-					play_youtube_url (url, start_msec + extra_offset, end_msec);
+				play_video_url (url, start_msec + extra_offset, end_msec);
 				}
 			}
 		else
@@ -1722,6 +1721,14 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			current_subepisode = 0;
 			next_episode_with_rules();
 			}
+		}
+	
+	public void play_video_url (String url, long start_msec, long end_msec)
+		{
+		if (is_streamable_url (url))
+			play_vitamio_url (url, start_msec, end_msec);
+		else
+			play_youtube_url (url, start_msec, end_msec);	
 		}
 	
 	public void after_begin_titlecard_inner (float abt_percent)
@@ -1890,25 +1897,18 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 
 	public void play_youtube_url (String url, long start_msec, long end_msec)
 		{
-		if (url != null && !url.equals (""))
+		if (url != null)
 			{
-			if (!url.contains ("youtube"))
-				{
-				log ("playvideo url: " + url);				
-				}
-			else if (url.contains ("youtube"))
-				{
-				String video_id = video_id_of (url);
-				log ("[playvideo] YouTube id: " + video_id);
-				set_poi_trigger (false);
-				play_youtube (video_id, start_msec, end_msec);
-				}
+			String video_id = video_id_of (url);
+			log ("[playvideo] YouTube id: " + video_id);
+			set_poi_trigger (false);
+			play_youtube (video_id, start_msec, end_msec);
 			}
 		}
 	
 	String video_id_of (String url)
 		{
-		String video_id = null;
+		String video_id = url;
 		int voffset = url.indexOf ("?v=");
 		if (voffset > 0)
 			{
@@ -1962,6 +1962,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				{
 				playerFragment.stop();
 				playerFragment.play_video (url);
+				
+				/* save these so that in case of interruption, we can restart */
+				restore_video_id = url;
 				}
 			});
 		
@@ -2404,7 +2407,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		set_video_visibility (restore_video_visibility);
 		if (restore_video_id != null && able_to_play_video() && restore_video_visibility == View.VISIBLE)
-			play_youtube (restore_video_id, restore_video_position, restore_video_end_msec);
+			play_video_url (restore_video_id, restore_video_position, restore_video_end_msec);
 		}
 	
 	public void launch_player_url (String url)

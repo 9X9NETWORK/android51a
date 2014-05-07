@@ -20,11 +20,12 @@
 <!-- package="tv.flipr.musicvideo" -->
 <!-- package="tv.flipr.newsflipr" -->
 <!-- package="tv.flipr.ktsf26" -->
+<!-- package="tv.flipr.pinoytv" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="98"
-      android:versionName="5.0.0.98">
+      android:versionCode="99"
+      android:versionName="5.0.0.99">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -62,7 +63,6 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -78,7 +78,6 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr" />        	       					   					
 			</intent-filter>
-			-->
 			 		
 			<!-- for Joey Graceffa -->
 			<!--		
@@ -181,12 +180,14 @@
 			 -->	
 								
 			<!-- for CTS -->
+			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-cts" />        	       					   					
 			</intent-filter>	
+			 -->	
 	
 			<!-- for GOODTV -->
 			<!-- 
@@ -265,6 +266,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" /> 
                 <data android:scheme="flipr-ktsf26" />                                
+			-->
+			
+            <!-- for Power ng Pinoy TV -->
+  			<!--  
+                <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" /> 
+                <data android:scheme="flipr-pinoytv" />                                
 			-->
                 																				
         </activity>
