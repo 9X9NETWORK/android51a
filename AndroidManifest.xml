@@ -21,6 +21,8 @@
 <!-- package="tv.flipr.newsflipr" -->
 <!-- package="tv.flipr.ktsf26" -->
 <!-- package="tv.flipr.pinoytv" -->
+<!-- package="tv.flipr.demo" -->
+<!-- package="tv.flipr.magazine" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
@@ -261,22 +263,44 @@
 
             <!-- for KTSF -->
 		    <!-- 
-                <intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" /> 
                 <data android:scheme="flipr-ktsf26" />                                
+            </intent-filter>
 			-->
 			
             <!-- for Power ng Pinoy TV -->
   			<!--  
-                <intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" /> 
                 <data android:scheme="flipr-pinoytv" />                                
+            </intent-filter>
 			-->
-                																				
+			
+            <!-- for Demo -->
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-demo" />
+            </intent-filter>
+            -->
+
+            <!-- for Magazine -->
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-magazine" />
+            </intent-filter>
+            -->
+            																				
         </activity>
 
 <!-- entire Manifest file as provided from RC company:
