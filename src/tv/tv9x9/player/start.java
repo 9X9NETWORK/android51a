@@ -513,8 +513,6 @@ public class start extends Activity
 					config.mso_title = fields[1];
 				else if (fields[0].equals ("preferredLangCode"))
 					config.mso_preferred_lang_code = fields[1];				
-				else if (fields[0].equals ("video"))
-					config.tutorial_video = fields[1];
 				else if (fields[0].equals ("ga"))
 					config.google_analytics = fields[1];
 				else if (fields[0].equals ("facebook-clientid"))

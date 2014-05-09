@@ -28,6 +28,8 @@
 
 		<include layout="@layout/search_layer" />
 
+		<include layout="@layout/message_layer" />
+				
 		<include layout="@layout/shake_layer" />
 
 		<include layout="@layout/about_layer" />

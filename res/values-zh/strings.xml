@@ -654,7 +654,13 @@
     <string name="sign_in_with_email">Email 帳號登入</string>
     <string name="fb_btn_login">Facebook 帳號登入</string>
     <string name="fb_btn_logout">Facebook 登出</string>
-    <string name="nothing_changed">Nothing changed!</string>
+    <string name="nothing_changed">內容無變動</string>
     <string name="middot">&#183;</string>   
-    <string name="about_us">About Us</string>     
+    <string name="about_us">關於我們</string>     
+  	<string name="messages">通知</string>    
+  	<string name="no_new_messages">沒有新的通知</string>
+	<string name="notifications">通知</string>
+	<string name="enable_notifications">啟用通知設定</string>
+	<string name="vibrate_when_notified">通知設定為振動</string>
+	<string name="sound_when_notified">通知設定為聲音</string> 	
 </resources>

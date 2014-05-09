@@ -656,4 +656,10 @@
     <string name="nothing_changed">Nothing changed!</string>    
     <string name="middot">&#183;</string> 
     <string name="about_us">About Us</string>     
+  	<string name="messages">Messages</string>
+  	<string name="no_new_messages">No new messages</string>  	
+	<string name="notifications">Notifications</string>
+	<string name="enable_notifications">Enable notifications</string>
+	<string name="vibrate_when_notified">Vibrate when notified</string>
+	<string name="sound_when_notified">Sound when notified</string>  	
 </resources>

@@ -1,6 +1,9 @@
 package tv.tv9x9.player;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -50,7 +53,6 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.os.Vibrator;
@@ -85,7 +87,6 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridView;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -117,7 +118,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		}
 	
 	/* note, SIGNOUT, HELP, CATEGORY_ITEM and APP_ITEM are not real layers, but menu items */
-	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT };
+	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES };
 	
 	toplayer current_layer = toplayer.HOME;
 	toplayer layer_before_signin = toplayer.HOME;
@@ -131,6 +132,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	/* style for home page, with 4 thumbs (false), or just 1 (true) */
 	boolean mini_mode = true;
+	
+	/* number of messages for the Messages layer */
+	int messages_count = 0;
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState)
@@ -323,7 +327,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    		}
 	    	else if (current_layer == toplayer.GUIDE || current_layer == toplayer.SEARCH 
 	    				|| current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS
-	    				|| current_layer == toplayer.SHAKE || current_layer == toplayer.ABOUT)
+	    				|| current_layer == toplayer.SHAKE || current_layer == toplayer.ABOUT
+	    				|| current_layer == toplayer.MESSAGES)
 	    		toggle_menu();
 	    	return true;
 	    	}
@@ -456,6 +461,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		/* this is a GridView */
 		View vStoreListTablet = findViewById (R.id.store_list_tablet);
 		vStoreListTablet.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
+		
+		/* this is a ListView */
+		View vMessageListPhone = findViewById (R.id.message_list_phone);
+		vMessageListPhone.setVisibility (is_tablet() ? View.GONE : View.VISIBLE);
+		
+		/* this is a GridView */
+		View vMessageListTablet = findViewById (R.id.message_list_tablet);
+		vMessageListTablet.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 		}
 	
 	public void player_full_stop()
@@ -606,7 +619,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			ex.printStackTrace();
 			}
 		
+		/* this will create notification settings */
+		load_notification_settings();
+		
 		gcm_register();
+		
+		/* ui needs the notification count for the Message layer */
+		messages_count = messages_gather (true).size();
 		
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();	
@@ -780,6 +799,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				
 			case SHAKE:
 				track_screen ("shake");
+				break;
+				
+			case MESSAGES:
+				track_screen ("messages");
 				break;
 				
 			case HELP:
@@ -1050,11 +1073,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				}
 			}
 		
+		items.push (new menuitem (toplayer.MESSAGES, R.string.messages, R.drawable.icon_notification, R.drawable.icon_notification_press));
+		
 		if (config.shake_and_discover_feature)
 			items.push (new menuitem (toplayer.SHAKE, R.string.shake, R.drawable.icon_shake_black, R.drawable.icon_shake_black));
 		
-		if (!is_facebook)
-			items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
+		// if (!is_facebook)
+		items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
 		
 		/* no help screen has been provided yet */
 		// items.push (new menuitem (toplayer.HELP, R.string.help, R.drawable.icon_help, R.drawable.icon_help));
@@ -1098,6 +1123,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		else
 			menu_adapter.set_content (item_list);
+		
+		/* the triple button in the top bar, not really in the menu but needs to sync with it */
+		TextView vMenuNotifyCount = (TextView) findViewById (R.id.menu_notify_count);
+		if (vMenuNotifyCount != null)
+			{
+			vMenuNotifyCount.setText ("" + messages_count);
+			vMenuNotifyCount.setVisibility (messages_count < 1 ? View.GONE : View.VISIBLE);
+			}
 		}
 	
 	public void close_menu()
@@ -1154,8 +1187,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			case SETTINGS:
 	        	log ("click on: menu settings");		        	
 	        	close_menu();
-	        	if (config.usertoken != null)
+	        	// if (config.usertoken != null)
 	        		enable_settings_layer();
+	        	/*
 	        	else
 	        		{
 	        		enable_signin_layer (new Runnable()
@@ -1168,8 +1202,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        		}
 	        			});
 	        		}
+	        	*/
 	        	break;
 	        	
+			case MESSAGES:
+				log ("click on: menu messages");
+				close_menu();
+				enable_messages_layer();
+				break;
+				
 			case HELP:
 				log ("click on: menu help");
 				break;
@@ -1297,9 +1338,22 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			TextView vCount = (TextView) rv.findViewById (R.id.count);
 			if (vCount != null)
 				{
-				vCount.setVisibility (menu [position].type == toplayer.APPS ? View.VISIBLE : View.GONE);
+				boolean count_visible = menu [position].type == toplayer.APPS;
+				if (menu [position].type == toplayer.MESSAGES && messages_count > 0)
+					count_visible = true;
+				vCount.setVisibility (count_visible ? View.VISIBLE : View.GONE);
 				if (menu [position].type == toplayer.APPS)					
-					vCount.setText (apps == null ? "0" : ("" + apps.length));							
+					{
+					vCount.setText (apps == null ? "0" : ("" + apps.length));
+					vCount.setBackgroundResource (R.drawable.menu_number_bg);	
+					vCount.setTextColor (Color.BLACK);
+					}
+				else if (menu [position].type == toplayer.MESSAGES)
+					{
+					vCount.setText ("" + messages_count);
+					vCount.setBackgroundResource (R.drawable.menu_number_bg_red);
+					vCount.setTextColor (Color.WHITE);
+					}
 				}
 		
 			if (menu [position].type == toplayer.CATEGORY_ITEM && current_category_index >= 0)
@@ -1377,6 +1431,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				signout();
 			}
 		zero_signin_data();
+		
+		/* the settings view might be in the slider */
+		redraw_settings();
 		}
 	
 	@Override
@@ -1385,6 +1442,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		redraw_menu();
 		setup_menu_buttons();
 		zero_signin_data();
+		/* the settings view might be in the slider */
+		redraw_settings();
 		}
 	
 	@Override
@@ -2441,6 +2500,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		View apps_layer = findViewById (R.id.appslayer);
 		apps_layer.setVisibility (layer == toplayer.APPS ? View.VISIBLE : View.GONE);
+
+		View messages_layer = findViewById (R.id.messagelayer);
+		messages_layer.setVisibility (layer == toplayer.MESSAGES ? View.VISIBLE : View.GONE);
 		
 		View about_layer = findViewById (R.id.aboutlayer);
 		about_layer.setVisibility (layer == toplayer.ABOUT ? View.VISIBLE : View.GONE);
@@ -2809,6 +2871,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					public void run()
 						{
 						zero_signin_data();
+						/* the settings view might be in the slider */
+						redraw_settings();
 						activate_layer (layer_before_signin);
 						if (callback != null)
 							callback.run();
@@ -2882,6 +2946,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					public void run()
 						{
 						zero_signin_data();
+						/* the settings view might be in the slider */
+						redraw_settings();
 						activate_layer (layer_before_signin);
 						if (callback != null)
 							callback.run();
@@ -2937,6 +3003,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			futil.write_file (main.this, "email@" + config.api_server, email);
 		
 		zero_signin_data();
+		/* the settings view might be in the slider */
+		redraw_settings();
 		}	
 
 	/*** TERMS *****************************************************************************************************/
@@ -5367,7 +5435,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (playback_episode_adapter != null)
 				playback_episode_adapter.set_channel_id (channel_id);
 			if (playback_episode_pager != null)
-				playback_episode_pager.notifyDataSetChanged();
+				{
+				String content[] = config.program_line_by_id (channel_id);
+				playback_episode_pager.set_content (channel_id, content);
+				// playback_episode_pager.notifyDataSetChanged();
+				}
 			if (playback_channel_adapter != null)				
 				playback_channel_adapter.notifyDataSetChanged();
 						
@@ -6654,7 +6726,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	{
 	    	int per = is_phone() ? 3 : 4;
 	    	int length = content != null ? (content.length + per - 1) / per : 0;
-	    	log ("** HORIZ length: " + length);
+	    	log ("** HORIZ length (" + channel_id + "): " + length);
 	        return length;
 	    	}
 	
@@ -7544,8 +7616,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		if (current_layer != toplayer.PLAYBACK)
 			previous_layer = current_layer;
-		previous_arena = arena;
 		
+		previous_arena = arena;
+		set_arena (channels);
+		
+		if (episode_id != null)
+			play_episode_in_channel (channel_id, episode_id);
+		else
+			play_channel (channel_id);
+		}
+    
+    public void set_arena (String channels[])
+    	{
 		if (channels.length > 0 && channels [0] != null)
 			{
 			String new_channels[] = new String [channels.length + 1];
@@ -7555,12 +7637,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			channels = new_channels;
 			}
 		arena = channels;    	
-		
-		if (episode_id != null)
-			play_episode_in_channel (channel_id, episode_id);
-		else
-			play_channel (channel_id);
-		}
+    	}
     
     public void unlaunch_player()
     	{
@@ -7662,14 +7739,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		WebView vAbout = (WebView) findViewById (R.id.about_content);
 		if (vAbout != null)
 			{
+			/*
 			vAbout.setWebViewClient (new WebViewClient()
 				{
 			    @Override
 			    public boolean shouldOverrideUrlLoading (WebView view, String url)
 			    	{
-			    	return false;
+			    	return true;
 			    	}
 				});
+			*/
 			
 			if (config.about_us_url.startsWith ("http"))
 				vAbout.loadUrl (config.about_us_url);
@@ -8149,7 +8228,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			return row;
 			}
 		}
-	
+
 	/*** SEARCH **************************************************************************************************/
 	
 	boolean search_initialized = false;
@@ -8487,19 +8566,424 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		};
 		
+	/*** MESSAGES **************************************************************************************************/
+	    
+	boolean messages_initialized = false;
+	
+	AbsListView messages_view = null;
+	MessagesAdapter messages_adapter = null;
+	
+	public void enable_messages_layer()
+		{
+		disable_video_layer();
+		set_layer (toplayer.MESSAGES);
+		setup_messages_buttons();
+		messages_init();
+		messages_display_content();
+		track_layer (toplayer.MESSAGES);
+		}	
+	
+	public void messages_init()
+		{
+		if (!messages_initialized)
+			{
+			messages_initialized = true;
+			messages_view = (AbsListView) findViewById (is_tablet() ? R.id.message_list_tablet : R.id.message_list_phone);
+			messages_adapter = new MessagesAdapter (this, new message[] {});
+			messages_view.setAdapter (messages_adapter);
+					
+			if (is_phone())
+				{
+				/* ListView supports footer but GridView does not */
+	    		LayoutInflater inflater = main.this.getLayoutInflater();
+	    		View shim = inflater.inflate (R.layout.footer_shim, null);
+	    		((ListView) messages_view).addFooterView (shim);
+				}
+			}
+		}
+	
+	public void setup_messages_buttons()
+		{
+		View vStore = findViewById (R.id.messagelayer);		
+		if (vStore != null)
+			vStore.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	/* eat this */
+		        	log ("message layer ate my tap!");
+		        	}
+				});				
+		}
+	
+	public class message
+		{
+		String mso;
+		String title;
+		String description;
+		String channel;
+		String episode;
+		String timestamp;
+		}
+	
+	public message parse_notification_file (String ts)
+		{
+		message m = new message();
+    	File configfile = new File (getFilesDir(), "notifications/" + ts);
+    	try
+    		{
+    	    FileReader reader = new FileReader (configfile);
+    	    BufferedReader br = new BufferedReader (reader);
+    	    String line = br.readLine();    
+    	    while (line != null)
+    	    	{
+    	    	while (line != null)
+    	    		{
+    	    		String fields[] = line.split ("\t");
+    	    		if (fields.length >= 2)
+    	    			{
+    	    			log ("notification " + ts + " k: " + fields[0] + " v: " + fields[1]);
+    					if (fields[0].equals ("title"))
+    						m.title = fields [1];
+    					if (fields[0].equals ("mso"))
+    						m.mso = fields [1];    		
+    					if (fields[0].equals ("channel"))
+    						m.channel = fields [1];      
+    					if (fields[0].equals ("episode"))
+    						m.episode = fields [1];    
+    					if (fields[0].equals ("text"))
+    						m.description = fields [1];        					
+    	    			}
+    	    		line = br.readLine();    	    		
+    	    		}
+    	    	}
+    	    reader.close();
+    	    m.timestamp = ts.replaceAll ("\\.seen", "");
+    	    if (m.title == null)
+    	    	m.title = getResources().getString (R.string.app_name);
+    		}
+    	catch (IOException ex)
+    		{
+    	    ex.printStackTrace();
+    	    return null;
+    		}
+    	return m;
+		}
+	
+	public Stack <message> messages_gather (boolean unseen_only)
+		{
+		File dir = new File (getFilesDir(), "notifications");
+		
+		File[] files = dir.listFiles();
+		
+		if (files != null)
+			{
+			/* sort in the reverse of what we need, because of Stack */
+			Arrays.sort (files);
+			}
+		
+		final Stack <message> stack = new Stack <message> ();
+		
+		if (files != null)
+	        for (File f: files)
+	        	{
+	        	log ("file: " + f);
+	        	String parts[] = f.toString().split ("/");
+	        	/* last component of the filepath is mostly a timestamp */
+	        	String ts = parts [parts.length-1];
+	        	if (ts.endsWith (".seen"))
+	        		{
+	        		if (unseen_only)
+	        			continue;
+	        		}
+	        	else
+	        		{
+	        		if (!unseen_only)
+	        			{
+		        		f.renameTo (new File (f.toString() + ".seen"));
+		        		ts = ts + ".seen";
+	        			}
+	        		}
+	        	message m = parse_notification_file (ts);
+	        	if (m != null && m.title != null)
+	        		stack.push (m);
+	        	}
+
+		return stack;
+		}
+	
+	public void messages_display_content()
+		{
+		final Stack <message> stack = messages_gather (false);
+		
+		final Stack <String> channels = new Stack <String> ();
+		final Stack <String> unknown_channels = new Stack <String> ();
+       
+		/* for the UI badge */
+		messages_count = 0;
+		redraw_menu();
+		
+        int count = 0;
+        message messages[] = new message [stack.size()];
+        while (!stack.empty())
+        	{
+        	message m = stack.pop();
+    		if (m.channel != null)
+				{
+				channels.push (m.channel);
+				String id = config.pool_meta (m.channel, "id");
+				if (id == null || id.equals (""))
+					unknown_channels.push (m.channel);
+				}
+        	messages [count++] = m;
+        	}
+        
+		log ("[notifications] total messages: " + stack.size());
+		log ("[notifications] total channels: " + channels.size());
+		log ("[notifications] total unknown channels: " + unknown_channels.size());
+		
+		if (messages_adapter != null)
+			{
+			messages_adapter.set_content (messages);			
+			messages_view.setOnItemClickListener (new OnItemClickListener()
+				{
+				public void onItemClick (AdapterView parent, View v, int position, long id)
+					{
+					message m = messages_adapter.get_item (position);
+					if (m.channel != null)
+						{
+			            String fake_set[] = new String[] { m.channel };
+			            if (m.episode != null)
+			            	launch_player (m.channel, m.episode, fake_set);
+			            else
+			            	launch_player (m.channel, fake_set);
+						}
+					}
+				});
+			}
+		
+		final Runnable download_thumbs = new Runnable()
+			{
+			public void run()
+				{
+				if (channels.size() > 0)
+					{
+			        int count = 0;
+			        String channel_list[] = new String [channels.size()];
+			        while (!channels.empty())
+			        	channel_list [count++] = channels.pop();
+			    	
+			        final Runnable update_notify_thumbs = new Runnable()
+						{
+						public void run()
+							{
+							messages_adapter.notifyDataSetChanged();
+							}
+						};
+					
+			        thumbnail.stack_thumbs (main.this, config, channel_list, in_main_thread, update_notify_thumbs);
+					}
+				}
+			};
+		
+		if (messages.length > 0)
+			{
+			if (unknown_channels.size() > 0)
+				{
+		        int uncount = 0;
+		        String ids[] = new String [unknown_channels.size()];
+		        while (!unknown_channels.empty())
+		        	ids [uncount++] = unknown_channels.pop();
+		        
+		        String channel_ids = TextUtils.join (",", ids); 
+		        
+				new playerAPI (in_main_thread, config, "channelLineup?channel=" + channel_ids)
+					{
+					public void success (String[] chlines)
+						{
+						log ("load channel for notifications, lines received: " + chlines.length);
+						config.parse_channel_info (chlines);
+						download_thumbs.run();
+						}
+			
+					public void failure (int code, String errtext)
+						{
+						log ("ERROR! " + errtext);
+						}
+					};
+				}
+			else
+				download_thumbs.run();
+			}
+		}
+		
+	public class MessagesAdapter extends BaseAdapter
+		{
+		private Context context;
+		private message messages[] = null;
+		
+		public MessagesAdapter (Context context, message messages[])
+			{
+			this.context = context;
+			this.messages = messages;
+			}
+
+		public void set_content (message messages[])
+			{
+			this.messages = messages;
+			notifyDataSetChanged();
+			}
+		
+		public message get_item (int position)
+			{
+			return messages [position];
+			}
+			
+		@Override
+		public int getCount()
+			{			
+			log ("getcount: " + messages.length);
+			return messages == null ? 0 : messages.length;
+			}
+		
+		@Override
+		public Object getItem (int position)
+			{
+			return position;
+			}
+	
+		@Override
+		public long getItemId (int position)
+			{
+			return position;
+			}
+		
+		@Override
+		public View getView (final int position, View convertView, ViewGroup parent)
+			{
+			LinearLayout rv = null;
+					
+			log ("messages getView: " + position + " (of " + getCount() + ")");
+			
+			if (convertView == null)
+				rv = (LinearLayout) View.inflate (main.this, R.layout.message_item, null);				
+			else
+				rv = (LinearLayout) convertView;
+						
+			if (rv == null)
+				{
+				log ("getView: [position " + position + "] rv is null!");
+				return null;
+				}
+			
+			TextView vTitle = (TextView) rv.findViewById (R.id.title);
+			if (vTitle != null)
+				vTitle.setText (messages [position].title);
+			
+			TextView vDesc = (TextView) rv.findViewById (R.id.desc);
+			if (vDesc != null)
+				vDesc.setText (messages [position].description);
+
+			TextView vAgo = (TextView) rv.findViewById (R.id.message_ago);
+			if (vAgo != null)
+				{
+				String ago = util.ageof (main.this, Long.parseLong (messages [position].timestamp) / 1000);
+				vAgo.setText (ago);
+				}
+			
+			boolean icon_found = false;
+			String channel_id = messages [position].channel;
+			
+			ImageView vIcon = (ImageView) rv.findViewById (R.id.icon); 	
+			if (vIcon != null)
+				{
+				if (channel_id != null)
+					{
+					log ("[notify] channel: " + channel_id);
+					
+					String filename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + channel_id + ".png";
+						
+					File f = new File (filename);
+					if (f.exists())
+						{
+						Bitmap bitmap = BitmapFactory.decodeFile (filename);
+						if (bitmap != null)
+							{
+							icon_found = true;
+							vIcon.setImageBitmap (bitmap);
+							}
+						}
+					else
+						log ("channel icon for " + channel_id + " not found");
+					}
+				else
+					{
+					icon_found = true;
+					vIcon.setImageResource (R.drawable.home_channel);
+					}
+				}
+			
+			/* default should not be home_channel though */
+			if (!icon_found)
+				vIcon.setImageResource (R.drawable.home_channel);		
+			
+			if (is_tablet())
+				{
+				View vMessageBlock = rv.findViewById (R.id.message_block);
+				if (vMessageBlock != null)
+					{
+					LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vMessageBlock.getLayoutParams(); 
+					layout.rightMargin = pixels_4;
+					layout.leftMargin = pixels_4;
+					vMessageBlock.setLayoutParams (layout);
+					}
+				}
+			return rv;
+			}	
+		}	
+
 	/*** SETTINGS **************************************************************************************************/
 		
+	boolean original_notify_setting = false;
+	boolean original_sound_setting = false;
+	boolean original_vibrate_setting = false;
+	
 	public void enable_settings_layer()
 		{
 		disable_video_layer();
 		zero_signin_data();
 		set_layer (toplayer.SETTINGS);
+		
+		load_notification_settings();
+		remember_notification_settings();
+
 		redraw_settings();
 		setup_settings_buttons();
 		}	
 	
+	public void remember_notification_settings()
+		{
+		original_notify_setting = config.notifications_enabled;
+		original_sound_setting = config.notify_with_sound;
+		original_vibrate_setting = config.notify_with_vibrate;
+		}
+
+	public void restore_notification_settings()
+		{
+		config.notifications_enabled = original_notify_setting;
+		config.notify_with_sound = original_sound_setting;
+		config.notify_with_vibrate = original_vibrate_setting;
+		}
+	
 	public void redraw_settings()
 		{
+		View vAccountSection = findViewById (R.id.account_section);
+		vAccountSection.setVisibility ((config.usertoken == null || config.email.equals ("[via Facebook]")) ? View.GONE : View.VISIBLE);
+		
+		View vPasswordSection = findViewById (R.id.password_section);
+		vPasswordSection.setVisibility ((config.usertoken == null || config.email.equals ("[via Facebook]")) ? View.GONE : View.VISIBLE);
+
 		TextView vVersion = (TextView) findViewById (R.id.version);
 		if (vVersion != null)
 			{
@@ -8518,13 +9002,93 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		
 		TextView vNameReadonly = (TextView) findViewById (R.id.settings_name_readonly);
-		vNameReadonly.setText (config.username);
+		vNameReadonly.setText (config.usertoken == null ? "" : config.username);
 
 		TextView vEmailReadonly = (TextView) findViewById (R.id.settings_email_readonly);
-		vEmailReadonly.setText (config.email);
+		vEmailReadonly.setText (config.usertoken == null ? "" : config.email);
 		
 		TextView vSettingsEmail = (TextView) findViewById (R.id.settings_email);
-		vSettingsEmail.setText (config.email);
+		vSettingsEmail.setText (config.usertoken == null ? "" : config.email);
+		
+		String vService = Context.VIBRATOR_SERVICE;
+		Vibrator vibrator = (Vibrator) getSystemService (vService);
+
+		View vSoundSection = findViewById (R.id.sound_when_notified);
+		vSoundSection.setVisibility (config.notifications_enabled ? View.VISIBLE : View.GONE);
+		
+		View vSoundDivider = findViewById (R.id.sound_notifications_divider);
+		vSoundDivider.setVisibility (config.notifications_enabled ? View.VISIBLE : View.GONE);
+		
+		View vVibrateSection = findViewById (R.id.vibrate_when_notified);
+		vVibrateSection.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
+		
+		View vVibrateDivider = findViewById (R.id.vibrate_notifications_divider);
+		vVibrateDivider.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
+		
+		ImageView vNotify = (ImageView) findViewById (R.id.enable_notifications_image);
+		if (vNotify != null)
+			vNotify.setImageResource (config.notifications_enabled ? R.drawable.check_checked_52 : R.drawable.check_unchecked_52);
+		
+		ImageView vVibrateWhen = (ImageView) findViewById (R.id.vibrate_when_notified_image);
+		if (vVibrateWhen != null)
+			vVibrateWhen.setImageResource (config.notify_with_vibrate ? R.drawable.check_checked_52 : R.drawable.check_unchecked_52);
+		
+		ImageView vSoundWhen = (ImageView) findViewById (R.id.sound_when_notified_image);
+		if (vSoundWhen != null)
+			vSoundWhen.setImageResource (config.notify_with_sound ? R.drawable.check_checked_52 : R.drawable.check_unchecked_52);
+		}
+	
+	public void save_notification_settings()
+		{
+		log ("save notification_settings");
+		String filedata = "notifications" + "\t" + (config.notifications_enabled ? "on" : "off") + "\n"
+				+ "notify-with-sound" + "\t" + (config.notify_with_sound ? "on" : "off") + "\n"
+				+ "notify-with-vibrate" + "\t" + (config.notify_with_vibrate ? "on" : "off") + "\n";
+        futil.write_file (main.this, "config.notifications", filedata);
+        log_notification_settings();
+		}
+	
+	public void load_notification_settings()
+		{
+		String config_data = futil.read_file (this, "config.notifications");
+		
+		/* initialize */
+		if (config_data.startsWith ("ERROR:"))
+			{
+			log ("initialize notifications file");
+			config.notifications_enabled = true;
+			config.notify_with_sound = false;
+			config.notify_with_vibrate = false;
+			log_notification_settings();
+			save_notification_settings();
+			return;
+			}
+		else
+			{
+			String lines[] = config_data.split ("\n");
+			for (String line: lines)
+				{
+				String fields[] = line.split ("\t");
+				if (fields.length >= 2)
+					{
+					log ("k: " + fields[0] + " v: " + fields[1]);
+					if (fields[0].equals ("notifications"))
+						config.notifications_enabled = fields[1].equals ("on");
+					if (fields[0].equals ("notify-with-sound"))
+						config.notify_with_sound = fields[1].equals ("on");
+					if (fields[0].equals ("notify-with-vibrate"))
+						config.notify_with_vibrate = fields[1].equals ("on");					
+					}
+				}
+			log_notification_settings();
+			}
+		}
+	
+	public void log_notification_settings()
+		{
+		log ("notifications enabled: " + config.notifications_enabled);
+		log ("notify_with_sound: " + config.notify_with_sound);				
+		log ("notify_with_vibrate: " + config.notify_with_vibrate);		
 		}
 	
 	public void setup_settings_buttons()
@@ -8538,6 +9102,45 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			layout.height = is_phone() ? pixels_60 : pixels_160;
 			vTopBar.setLayoutParams (layout);		
 			}
+
+		View vNotifications = findViewById (R.id.enable_notifications);
+		if (vNotifications != null)
+			vNotifications.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: settings enable notifications checkbox");
+		        	config.notifications_enabled = !config.notifications_enabled;
+		        	redraw_settings();;
+		        	}
+				});
+		
+		View vVibrateWhen = findViewById (R.id.vibrate_when_notified);
+		if (vVibrateWhen != null)
+			vVibrateWhen.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: settings vibrate checkbox");
+		        	config.notify_with_vibrate = !config.notify_with_vibrate;
+		        	redraw_settings();
+		        	}
+				});
+		
+		View vSoundWhen = findViewById (R.id.sound_when_notified);
+		if (vSoundWhen != null)
+			vSoundWhen.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: settings sound checkbox");
+		        	config.notify_with_sound = !config.notify_with_sound;
+		        	redraw_settings();
+		        	}
+				});	
 		
 		View vCancel = vLayer.findViewById (R.id.settings_cancel);
 		if (vCancel != null)
@@ -8547,6 +9150,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: settings cancel button");
+		        	restore_notification_settings();
 		        	if (is_tablet())
 		        		vLayer.setVisibility (View.GONE);
 		        	else
@@ -8580,6 +9184,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void save_settings()
 		{
+		boolean nothing_changed = true;
+		
 		String kk = null;
 		String vv = null;
 
@@ -8629,8 +9235,20 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						alert ("Failure saving your changes: " + errtext);
 					}
 				};
+			nothing_changed = false;
 			}
-		else
+			
+		if (original_notify_setting != config.notifications_enabled
+				|| original_sound_setting != config.notify_with_sound
+				|| original_vibrate_setting != config.notify_with_vibrate)
+			{
+			save_notification_settings();
+			remember_notification_settings();
+			toast_by_resource (R.string.saved);
+			nothing_changed = false;
+			}
+		
+		if (nothing_changed)
 			toast_by_resource (R.string.nothing_changed);
 		}
 	
@@ -8967,7 +9585,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
                 /* a runt set of only one channel */
                 fake_set = new String[] { shake_channel };
                 
+                set_arena (fake_set);
+                change_channel (shake_channel);
+                /*
                 launch_player (shake_channel, fake_set);
+
+                player_real_channel = shake_channel;
+        		program_line = config.program_line_by_id (shake_channel);        		
+        		if (playback_episode_pager != null)
+        			playback_episode_pager.set_content (shake_channel, program_line);
+        		update_metadata_inner();
+        		*/
             	}
         	});
 		}

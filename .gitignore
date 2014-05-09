@@ -1,0 +1,9 @@
+R.*
+R.txt
+*.class
+*.dex
+*.jar
+.svn
+bin/dexedLibs/*
+bin/R.*
+gen/*
