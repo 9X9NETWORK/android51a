@@ -1266,7 +1266,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public boolean is_streamable_url (String url)
 		{
-		return url.endsWith (".m3u8") || url.contains (".m3u8?") || url.endsWith (".mp4") || url.endsWith (".MP4");
+		return url.contains (".m3u8") || url.endsWith (".mp4") || url.endsWith (".MP4");
 		}
 	
 	public void try_to_play_episode (int episode)
@@ -1943,8 +1943,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			switch_players (playerFragment, play_youtube_runnable);
 		}
 
-	void play_vitamio_url (final String url, long start_msec, long end_msec)
+	void play_vitamio_url (String url, long start_msec, long end_msec)
 		{
+		if (url.contains (";"))
+			url = url.replaceAll (";.*$", "");
+		
+		final String final_url = url;
+		
 		log ("play vitamio url: " + url);
 		
 		View vTitlecard = findViewById (R.id.titlecard);
@@ -1963,10 +1968,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			public void run()
 				{
 				playerFragment.stop();
-				playerFragment.play_video (url);
+				playerFragment.play_video (final_url);
 				
 				/* save these so that in case of interruption, we can restart */
-				restore_video_id = url;
+				restore_video_id = final_url;
 				}
 			});
 		

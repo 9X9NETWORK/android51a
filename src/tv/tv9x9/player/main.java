@@ -752,7 +752,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        public void onClick (View v)
 	        	{
 	        	log ("click on: logo");
-	        	play_vitamio();
+	        	// play_vitamio();
 	        	}
 			});	
 		}
