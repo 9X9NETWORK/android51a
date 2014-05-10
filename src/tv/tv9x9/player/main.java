@@ -8442,9 +8442,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			public void run_string_array (String a[])
 				{
-				for (String channel: a)
+				if (a != null)
 					{
-					log ("__search channel: " + channel);
+					for (String channel: a)
+						{
+						log ("__search channel: " + channel);
+						}
 					}
 				search_youtube_done = true;
 				channel_ids_youtube = a;
