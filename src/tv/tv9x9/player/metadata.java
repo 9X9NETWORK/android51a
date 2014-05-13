@@ -75,6 +75,9 @@ public class metadata
 	public boolean notifications_enabled = false;
 	public boolean notify_with_sound = false;
 	public boolean notify_with_vibrate = false;	
+
+	public boolean notify_with_sound_default = false;
+	public boolean notify_with_vibrate_default = false;
 	
 	/* title captions in the 9x9 grid, one above each 3x3 set */
 	String[] set_titles = null;

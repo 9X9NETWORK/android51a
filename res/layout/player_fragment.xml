@@ -12,4 +12,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center" >
     </SurfaceView>
+    <ProgressBar
+	    android:id="@+id/vitamio_spinner"          
+    	android:layout_width="60dip"
+    	android:layout_height="60dip"
+    	android:layout_gravity="center"
+    	android:gravity="center"
+    	style="@android:style/Widget.ProgressBar.Inverse"
+    	android:visibility="gone"
+    	/>    
 </io.vov.vitamio.widget.CenterLayout>

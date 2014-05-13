@@ -300,11 +300,11 @@ public final class R {
 		public static final int image = 0x7f0a002c;
 		public static final int listMode = 0x7f0a0005;
 		public static final int list_item = 0x7f0a002e;
-		public static final int media_route_control_frame = 0x7f0a00d7;
-		public static final int media_route_disconnect_button = 0x7f0a00d8;
-		public static final int media_route_list = 0x7f0a00d4;
-		public static final int media_route_volume_layout = 0x7f0a00d5;
-		public static final int media_route_volume_slider = 0x7f0a00d6;
+		public static final int media_route_control_frame = 0x7f0a00d8;
+		public static final int media_route_disconnect_button = 0x7f0a00d9;
+		public static final int media_route_list = 0x7f0a00d5;
+		public static final int media_route_volume_layout = 0x7f0a00d6;
+		public static final int media_route_volume_slider = 0x7f0a00d7;
 		public static final int middle = 0x7f0a0015;
 		public static final int never = 0x7f0a000d;
 		public static final int none = 0x7f0a0000;

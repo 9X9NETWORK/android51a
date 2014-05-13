@@ -17,6 +17,7 @@ import io.vov.vitamio.LibsChecker;
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.MediaPlayer.OnBufferingUpdateListener;
 import io.vov.vitamio.MediaPlayer.OnCompletionListener;
+import io.vov.vitamio.MediaPlayer.OnInfoListener;
 import io.vov.vitamio.MediaPlayer.OnPreparedListener;
 import io.vov.vitamio.MediaPlayer.OnVideoSizeChangedListener;
 
@@ -381,6 +382,24 @@ public class PlayerFragment extends Fragment implements Player
 					}
 				});
 		
+			mMediaPlayer.setOnInfoListener (new OnInfoListener()
+				{
+                @Override
+                public boolean onInfo (MediaPlayer mp, int what, int extra)
+                	{
+                	View vProgress = getView().findViewById (R.id.vitamio_spinner);
+                    if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START)
+                    	{
+                        vProgress.setVisibility (View.VISIBLE);
+                    	}
+                    else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END)
+                    	{
+                        vProgress.setVisibility (View.GONE);
+                    	}
+                    return false;
+                	}
+				});
+			
 			// setVolumeControlStream (AudioManager.STREAM_MUSIC);
 			} 
 		catch (Exception ex)

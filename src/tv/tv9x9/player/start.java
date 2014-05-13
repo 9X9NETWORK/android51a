@@ -526,7 +526,25 @@ public class start extends Activity
 				else if (fields[0].equals ("shake-discover"))
 					config.shake_and_discover_feature = fields[1].equals ("on");
 				else if (fields[0].equals ("aboutus"))
-					config.about_us_url = fields[1];			
+					config.about_us_url = fields[1];
+				else if (fields[0].equals ("notification-sound-vibration"))
+					{
+					// sound off;vibration off
+					String subfields[] = fields[1].split (";");
+					for (String subfield: subfields)
+						{
+						String kv[] = subfield.replaceAll("\\s+", " ").split (" ");
+						if (kv.length >= 2)
+							{
+							String opt = kv[0].trim();
+							String arg = kv[1].trim();
+							if (opt.equals ("sound"))
+								config.notify_with_sound_default = (arg.equals ("on"));
+							if (opt.equals ("vibration"))
+								config.notify_with_vibrate_default = (arg.equals ("on"));
+							}
+						}
+					}
 				}
 			}
 		}

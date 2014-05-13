@@ -8679,6 +8679,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		File dir = new File (getFilesDir(), "notifications");
 		
 		File[] files = dir.listFiles();
+	
+		/* to allow filtering out duplicates */
+		HashSet <String> message_de_duper = new HashSet <String> ();
 		
 		if (files != null)
 			{
@@ -8710,7 +8713,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        		}
 	        	message m = parse_notification_file (ts);
 	        	if (m != null && m.title != null)
-	        		stack.push (m);
+	        		{
+	        		String ident = m.title + "\t" + m.description + "\t" + m.channel + "\t" + m.episode;
+	        		if (!message_de_duper.contains (ident))
+	        			{
+	        			stack.push (m);
+	        			message_de_duper.add (ident);
+	        			}
+	        		else
+	        			log ("a very similar notification already exists -- filtered out");
+	        		}
 	        	}
 
 		return stack;
@@ -8746,6 +8758,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		log ("[notifications] total channels: " + channels.size());
 		log ("[notifications] total unknown channels: " + unknown_channels.size());
 		
+		View vNo = findViewById (R.id.no_new_messages);
+		vNo.setVisibility (messages == null || messages.length == 0 ? View.VISIBLE : View.GONE);
+		messages_view.setVisibility (messages == null || messages.length == 0 ? View.GONE : View.VISIBLE);
+
 		if (messages_adapter != null)
 			{
 			messages_adapter.set_content (messages);			
@@ -9060,8 +9076,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			log ("initialize notifications file");
 			config.notifications_enabled = true;
-			config.notify_with_sound = false;
-			config.notify_with_vibrate = false;
+			config.notify_with_sound = config.notify_with_sound_default;
+			config.notify_with_vibrate = config.notify_with_vibrate_default;
 			log_notification_settings();
 			save_notification_settings();
 			return;

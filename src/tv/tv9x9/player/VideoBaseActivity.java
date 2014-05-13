@@ -4102,7 +4102,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		    	    JSONArray videos = new JSONArray();		    	    
 		    	    JSONObject video_structure = new JSONObject();		    	    
 		    	    if (!url.contains ("youtube.com"))
+		    	    	{
+		    			if (url.contains (";"))
+		    				url = url.replaceAll (";.*$", "");
 		    	    	video_structure.put ("url", url);
+		    	    	}
 		    	    else
 			    	    video_structure.put ("id", video_id_of (url));
 		    	    videos.put (video_structure);
