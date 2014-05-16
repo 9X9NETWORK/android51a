@@ -792,6 +792,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     	
     	if (layer == toplayer.GUIDE)
     		enable_guide_layer();
+    	else if (layer == toplayer.HOME)
+    		enable_home_layer();
     	else
     		track_layer (layer);
 		}
@@ -2560,7 +2562,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		disable_video_layer();
 		
 		/* terms layer can only be started from signin, so ignore it */
-		if (current_layer != toplayer.TERMS && current_layer != toplayer.SIGNIN)
+		if (current_layer != toplayer.TERMS && current_layer != toplayer.SIGNIN && current_layer != toplayer.NAG)
 			layer_before_signin = current_layer;
 		
 		set_layer (toplayer.SIGNIN);		
@@ -3403,8 +3405,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	}
 	    else
 	    	{
-			if (current_layer == toplayer.NAG)
-				enable_home_layer();
+	    	log ("fell through: enable home layer");
+			enable_home_layer();
 	    	}
 		}
 	
