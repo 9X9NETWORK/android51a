@@ -283,14 +283,19 @@ public class StoreAdapter extends BaseAdapter
 			}
 		else
 			{
-			vChannelicon.setImageResource (R.drawable.unavailable);		
-			vEpisodeicon.setImageResource (R.drawable.store_unavailable);
+			if (vChannelicon != null)
+				vChannelicon.setImageResource (R.drawable.unavailable);
+			if (vEpisodeicon != null)
+				vEpisodeicon.setImageResource (R.drawable.store_unavailable);
 			vTitle.setText ("");
 			}
 		
-		FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vEpisodeicon.getLayoutParams();
-		layout.height = (int) ((float) (ms.screen_width() - ms.actual_pixels (40)) / 1.77 * 0.55);
-		vEpisodeicon.setLayoutParams (layout);
+		if (vEpisodeicon != null)
+			{
+			FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vEpisodeicon.getLayoutParams();
+			layout.height = (int) ((float) (ms.screen_width() - ms.actual_pixels (40)) / 1.77 * 0.55);
+			vEpisodeicon.setLayoutParams (layout);
+			}
 		
 		return rv;
 		}	

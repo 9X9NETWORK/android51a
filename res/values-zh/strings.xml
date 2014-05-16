@@ -663,4 +663,10 @@
 	<string name="enable_notifications">啟用通知設定</string>
 	<string name="vibrate_when_notified">通知設定為振動</string>
 	<string name="sound_when_notified">通知設定為聲音</string> 	
+	<string name="nag1">在大屏幕上，搖搖「看」最夯的節目</string>
+	<string name="nag2">您可以隨時隨地觀看和管理自己喜愛的節目</string>
+	<string name="nag3">註冊新帳號就可以觀看最夯的節目</string>
+	<string name="supports_chromecast">(支援 Chromecast)</string>
+	<string name="skip_this_step">略過此步驟</string>
+	<string name="welcome">歡迎！</string>
 </resources>

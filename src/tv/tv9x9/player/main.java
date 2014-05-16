@@ -118,7 +118,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		}
 	
 	/* note, SIGNOUT, HELP, CATEGORY_ITEM and APP_ITEM are not real layers, but menu items */
-	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES };
+	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG };
 	
 	toplayer current_layer = toplayer.HOME;
 	toplayer layer_before_signin = toplayer.HOME;
@@ -283,6 +283,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	
 	    	if (current_layer == toplayer.PLAYBACK)
 	    		{
+	    		track_event ("navigation", "back", "back", 0);
 	    		player_full_stop();
 	    		}
 	    	else if (current_layer == toplayer.HOME)
@@ -516,6 +517,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							}
 						});
 					}
+				track_event ("navigation", "swipePG", "swipePG", 0);
 				next_channel();
 				}
 			}
@@ -542,6 +544,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							}
 						});
 					}
+				track_event ("navigation", "swipePG", "swipePG", 0);
 				previous_channel();
 				}
 			}
@@ -552,6 +555,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		if (current_layer == toplayer.PLAYBACK)
 			{
+			track_event ("navigation", "swipeEP", "swipeEP", 0);
 			perform_fling_left();
 			if (playback_episode_adapter != null)
 				{
@@ -571,6 +575,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		if (current_layer == toplayer.PLAYBACK)
 			{
+			track_event ("navigation", "swipeEP", "swipeEP", 0);
 			previous_episode();
 			if (playback_episode_adapter != null)
 				{
@@ -631,6 +636,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		Bundle extras = intent.getExtras();	
 		if (extras != null)
 			{
+			String message = extras.getString ("tv.9x9.message");
+			if (message != null)
+				track_event ("notification", "toLaunchApp", message, 0);
+			
 			String channel = extras.getString ("tv.9x9.channel");
 			if (channel != null)
 				{
@@ -641,6 +650,24 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
                 else
                 	log ("launch channel: " + channel);
                 launch_player (channel, episode, fake_set);
+				}
+			}
+
+		File nagged = new File (getFilesDir(), "nagged");
+		if (!nagged.exists())
+			{
+			try
+				{
+				nagged.createNewFile();
+				}
+			catch (Exception ex)
+				{
+				ex.printStackTrace();
+				}
+			if (config.usertoken == null)
+				{
+				if (config.signup_nag.equals ("once") || config.signup_nag.equals ("always"))
+					enable_nag_layer();
 				}
 			}
 		}
@@ -1059,6 +1086,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		Stack <menuitem> items = new Stack <menuitem> ();
 
+		// FAKE items.push (new menuitem (toplayer.NAG, R.string.skip_this_step, R.drawable.icon_store, R.drawable.icon_store_press));
+		
 		items.push (new menuitem (toplayer.HOME, R.string.home, R.drawable.icon_home, R.drawable.icon_home_press));
 		items.push (new menuitem (toplayer.GUIDE, R.string.my_following, R.drawable.icon_heart_black, R.drawable.icon_heart_press));
 		items.push (new menuitem (toplayer.STORE, R.string.store, R.drawable.icon_store, R.drawable.icon_store_press));
@@ -1230,6 +1259,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        	log ("click on: menu signout");
 	        	signout_from_app_or_facebook();
 	        	break;
+	        	
+			case NAG:
+				log ("click on: nag");
+				close_menu();
+				enable_nag_layer();
+				break;
 			}
 		}
 	
@@ -2509,6 +2544,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		View shake_layer = findViewById (R.id.shakelayer);
 		shake_layer.setVisibility (layer == toplayer.SHAKE ? View.VISIBLE : View.GONE);
+
+		View nag_layer = findViewById (R.id.nag_layer);
+		nag_layer.setVisibility (layer == toplayer.NAG ? View.VISIBLE : View.GONE);
 		
 		current_layer = layer;
 		
@@ -2756,7 +2794,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	}
 				});
 		
-		fezbuk2();
+		View vMain = findViewById (R.id.main);
+		fezbuk2 (vMain);
 		}
 
 	public void sign_in_tab()
@@ -3193,7 +3232,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	private Session session = null;
 	private String access_token = "";
 	
-	LoginButton loginButton = null;
 	public GraphUser user = null;
 	
     private UiLifecycleHelper uiHelper = null;
@@ -3261,22 +3299,25 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		}
 	
-	public void fezbuk2()
+	public void fezbuk2 (View parent)
 		{
-	    loginButton = (LoginButton) findViewById (R.id.fblogin);
-	    if (loginButton != null)
-		    {
-		    loginButton.setReadPermissions (Arrays.asList ("email", "user_location", "user_birthday"));
-		    loginButton.setUserInfoChangedCallback (new LoginButton.UserInfoChangedCallback()
-		    	{
-		        @Override
-		        public void onUserInfoFetched (final GraphUser user)
-		        	{
-		        	log ("FACEBOOK LOGIN BUTTON CALLBACK!");
-		        	process_fb_user (user);
-		        	}
-		    	});
-		    }
+		for (int button: new int[] { R.id.fblogin, R.id.nag2_fblogin, R.id.nag3_fblogin })
+			{
+			LoginButton vButton = (LoginButton) parent.findViewById (button);
+		    if (vButton != null)
+			    {
+		    	vButton.setReadPermissions (Arrays.asList ("email", "user_location", "user_birthday"));
+		    	vButton.setUserInfoChangedCallback (new LoginButton.UserInfoChangedCallback()
+			    	{
+			        @Override
+			        public void onUserInfoFetched (final GraphUser user)
+			        	{
+			        	log ("FACEBOOK LOGIN BUTTON CALLBACK!");
+			        	process_fb_user (user);
+			        	}
+			    	});
+			    }
+			}
 		}
 
 	public void process_fb_user (final GraphUser user)
@@ -3345,7 +3386,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						@Override
 						public void run()
 							{
-							activate_layer (layer_before_signin);
+							if (current_layer == toplayer.NAG)
+								enable_home_layer();
+							else
+								activate_layer (layer_before_signin);
 							}		        	
 			        	});
 					}
@@ -3356,6 +3400,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					alert ("FACEBOOK LOGIN FAILURE!");
 					}
 				};
+	    	}
+	    else
+	    	{
+			if (current_layer == toplayer.NAG)
+				enable_home_layer();
 	    	}
 		}
 	
@@ -3708,6 +3757,167 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}	
 		}	
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*** NAG **************************************************************************************************/
+	
+	NagSlider nag_slider = null;
+	
+	public void enable_nag_layer()
+		{
+		disable_video_layer();
+		set_layer (toplayer.NAG);
+		
+		layer_before_signin = toplayer.HOME;
+		
+        nag_slider = new NagSlider();
+        StoppableViewPager vHomePager = (StoppableViewPager) findViewById (R.id.nagpager);
+        vHomePager.setAdapter (nag_slider);
+		}
+	
+	class Swapnag
+		{
+		int page_number = 0;
+		LinearLayout page = null;
+		public Swapnag (int page_number)
+			{
+			this.page_number = page_number;
+			}
+		};
+
+	/* this is implemented using the base class! */
+		
+	public class NagSlider extends PagerAdapter
+		{
+		boolean first_time = true;
+		
+		Swaphome current_swap_object = null;
+		LinearLayout current_home_page = null;
+		
+	    @Override
+	    public int getCount()
+	    	{
+	        return 3;
+	    	}
+	
+		@Override
+		public boolean isViewFromObject (View view, Object object)
+			{
+			return (((Swapnag) object).page) == (LinearLayout) view;
+			}
+		
+		@Override
+		public Object instantiateItem (final ViewGroup container, final int position)
+			{
+			log ("[NAG] instantiate: " + position);
+			
+			final Swapnag sh = new Swapnag (position);			
+	
+			int layout_resource = 0;
+			switch (position)
+				{
+				case 0: layout_resource = R.layout.nag1; break;
+				case 1: layout_resource = R.layout.nag2; break;
+				case 2: layout_resource = R.layout.nag3; break;				
+				}
+			
+			LinearLayout page = (LinearLayout) View.inflate (main.this, layout_resource, null);
+			sh.page = page;
+			
+			((StoppableViewPager) container).addView (page, 0);
+			
+			String signin_logo = getResources().getString (R.string.signin_logo);
+			if (signin_logo != null)
+				{
+				int logo_id = getResources().getIdentifier (signin_logo, "drawable", getPackageName());
+				
+				ImageView vLogo = (ImageView) page.findViewById (R.id.nag_logo);
+				if (vLogo != null)
+					vLogo.setImageResource (logo_id);
+				}
+			
+			TextView vSkip = (TextView) page.findViewById (R.id.skip_this_step);
+			if (vSkip != null)
+				{
+				vSkip.setPaintFlags (Paint.UNDERLINE_TEXT_FLAG);
+				vSkip.setOnClickListener (new OnClickListener()
+					{
+			        @Override
+			        public void onClick (View v)
+			        	{
+			        	log ("click on: nag skip");
+			        	enable_home_layer();
+			        	}
+					});	
+				}
+			
+			TextView vSignUp = (TextView) page.findViewById (R.id.nag3_sign_up);
+			if (vSignUp != null)
+				{
+				vSignUp.setPaintFlags (Paint.UNDERLINE_TEXT_FLAG);
+				vSignUp.setOnClickListener (new OnClickListener()
+					{
+			        @Override
+			        public void onClick (View v)
+			        	{
+			        	log ("click on: nag sign up");
+		        		enable_signin_layer (new Runnable()
+			    			{
+			        		@Override
+			        		public void run()
+				        		{
+			        			enable_home_layer();
+				        		}
+			    			});
+			        	}
+					});	
+				}
+			
+			/* disable facebook buttons if there is no facebook app on this device */
+			if (!has_facebook())
+				{
+				for (int button: new int[] { R.id.nag2_fblogin, R.id.nag3_fblogin })
+					{
+					LoginButton vButton = (LoginButton) page.findViewById (button);
+				    if (vButton != null)
+					    vButton.setVisibility (View.GONE);
+					}
+				}
+			else
+				fezbuk2 (page);
+			
+			return sh;
+			}
+		
+		@Override
+		public void destroyItem (ViewGroup container, int position, Object object)
+			{
+			log ("[NAG] destroy: " + position);
+			Swapnag sh = (Swapnag) object;
+			((StoppableViewPager) container).removeView (sh.page);
+			}
+		
+		@Override
+		public void setPrimaryItem (ViewGroup container, int position, Object object)
+			{
+			Swapnag sh = (Swapnag) object;
+			ImageView vDot1 = (ImageView) findViewById (R.id.nag_dot1);
+			ImageView vDot2 = (ImageView) findViewById (R.id.nag_dot2);
+			ImageView vDot3 = (ImageView) findViewById (R.id.nag_dot3);			
+			vDot1.setImageResource (position == 0 ? R.drawable.walkthrough_dot_active : R.drawable.walkthrough_dot);
+			vDot2.setImageResource (position == 1 ? R.drawable.walkthrough_dot_active : R.drawable.walkthrough_dot);
+			vDot3.setImageResource (position == 2 ? R.drawable.walkthrough_dot_active : R.drawable.walkthrough_dot);			
+			}
+		}   
+
 	/*** HOME **************************************************************************************************/
 
 	LineItemAdapter channel_overlay_adapter = null;
@@ -3769,6 +3979,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     	
     	Swaphome current_swap_object = null;
     	FrameLayout current_home_page = null;
+    	
+    	int primary_counter = 0;
     	
         @Override
         public int getCount()
@@ -3916,6 +4128,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			/* the mini mode might have changed */
 			if (sh.channel_adapter != null)
 				sh.channel_adapter.reset_mini_mode();
+			if (primary_counter++ > 0)
+				track_event ("navigation", "swipeCH", "swipeCH", 0);
 			}
 
 		public void set_mini_mode_thumbs (View v)
@@ -4161,7 +4375,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					frontpage_start = System.currentTimeMillis() / 1000L;
 					process_portal_frontpage_data (lines);
 					
-					if (current_layer != toplayer.PLAYBACK)
+					if (current_layer != toplayer.PLAYBACK && current_layer != toplayer.NAG)
 						{
 						/* only if we haven't gone to playback, such as a share or notify */
 						enable_home_layer();
@@ -5058,6 +5272,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			public void onItemClick (AdapterView <?> parent, View v, int position, long id)
 				{
 				Log.i ("vtest", "playback click: " + position);
+				track_event ("navigation", "selectEP", "selectEP", 0);
 				play_nth_episode_in_channel (horiz_adapter.get_channel_id(), position + 1);
 				}
 			});
@@ -5747,6 +5962,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: back");
+		        	track_event ("navigation", "back", "back", 0);
 		        	playback_back();
 		        	}
 				});	
@@ -5772,6 +5988,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: video minimize");
+		        	
+		        	track_event ("function", "minimizeVideo", "minimizeVideo", 0);
 		        	
 		        	int orientation = getRequestedOrientation();
 		        	boolean landscape = orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
@@ -7040,6 +7258,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     public class GridSlider extends PagerAdapter
     	{
     	boolean first_time = true;
+
+    	int primary_count = 0;
     	
         @Override
         public int getCount()
@@ -7125,6 +7345,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			  
 		    select (position);
 			download_grid_thumbs_for_this_3x3 (sg.box);
+			
+			if (primary_count++ > 0)
+				track_event ("navigation", "swipeCH", "swipeCH", 0);
 			}
 
 		public void select (int num)
@@ -8376,6 +8599,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		channel_ids_9x9 = null;
 		channel_ids_youtube = null;
 		
+		track_event ("function", "submitSearch", term, 0);
+				
 		new playerAPI (in_main_thread, config, "search?text=" + encoded_term)
 			{
 			public void success (String[] chlines)

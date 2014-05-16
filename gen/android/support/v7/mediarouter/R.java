@@ -266,7 +266,7 @@ public final class R {
 		public static final int mr_ic_media_route_on_2_holo_light = 0x7f0201ef;
 		public static final int mr_ic_media_route_on_holo_dark = 0x7f0201f0;
 		public static final int mr_ic_media_route_on_holo_light = 0x7f0201f1;
-		public static final int old_mr_ic_media_route_off_holo_dark = 0x7f020201;
+		public static final int old_mr_ic_media_route_off_holo_dark = 0x7f020204;
 	}
 	public static final class id {
 		public static final int action_bar = 0x7f0a0021;
@@ -365,7 +365,7 @@ public final class R {
 		public static final int mr_media_route_chooser_dialog = 0x7f030041;
 		public static final int mr_media_route_controller_dialog = 0x7f030042;
 		public static final int mr_media_route_list_item = 0x7f030043;
-		public static final int support_simple_spinner_dropdown_item = 0x7f03005b;
+		public static final int support_simple_spinner_dropdown_item = 0x7f03005f;
 	}
 	public static final class string {
 		public static final int abc_action_bar_home_description = 0x7f080028;

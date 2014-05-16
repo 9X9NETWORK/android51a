@@ -662,4 +662,10 @@
 	<string name="enable_notifications">Enable notifications</string>
 	<string name="vibrate_when_notified">Vibrate when notified</string>
 	<string name="sound_when_notified">Sound when notified</string>  	
+	<string name="nag1">Flip &amp; discover great online programs on the big screen!</string>
+	<string name="nag2">Manage your own favorite programs. Watch them anytime, anywhere.</string>
+	<string name="nag3">Sign up to get all the goodies.</string>
+	<string name="supports_chromecast">(Supports Chromecast)</string>
+	<string name="skip_this_step">Skip this step</string>	
+	<string name="welcome">Welcome!</string>
 </resources>

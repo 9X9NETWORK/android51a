@@ -38,6 +38,8 @@
 									    	    	    	    		
 	</LinearLayout>
 	
+	<include layout="@layout/nag_layer" />
+		
 	<include layout="@layout/settings_tablet" />
 			
 	<!-- either video_layer_old or video_layer_new gets added here -->

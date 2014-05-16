@@ -197,7 +197,10 @@ public class GcmIntentService extends IntentService
 	        
 	        if (episode_id != null)
 	        	start_intent.putExtra ("episode", episode_id);
-	                
+	     
+	        if (text != null)
+	        	start_intent.putExtra ("message", text);
+	        
 	        log ("start_intent mso=" + mso + " channel=" + channel_id + " episode=" + episode_id);
 	        
 	        PendingIntent pi = PendingIntent.getActivity (this, 0, start_intent, PendingIntent.FLAG_CANCEL_CURRENT);

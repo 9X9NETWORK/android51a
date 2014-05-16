@@ -3,6 +3,7 @@ package tv.tv9x9.player;
 import io.vov.vitamio.LibsChecker;
 
 import java.net.URI;
+import java.util.Locale;
 
 import tv.tv9x9.player.switchboard.LocalBinder;
 
@@ -49,6 +50,7 @@ public class start extends Activity
 	Uri URI_for_launch = null;
 	String channel_for_launch = null;
 	String episode_for_launch = null;
+	String message_for_launch = null;
 	
 	String identity = "start";
 	
@@ -125,15 +127,11 @@ public class start extends Activity
 	    		Bundle extras = intent.getExtras();
 	    		String channel = extras.getString ("channel");
 	    		String episode = extras.getString ("episode");
-	    		String url = null;
-	    		if (episode != null)
-	    			url = "http://www.flipr.tv/view?ch=" + channel + "&ep=" + episode;
-	    		else
-	    			url = "http://www.flipr.tv/view?ch=" + channel;
+	    		String message = extras.getString ("message");
 	    		
-	    		URI_for_launch = Uri.parse (url);
 	    		channel_for_launch = channel;
 	    		episode_for_launch = episode;
+	    		message_for_launch = message;
 	    		}
 		    }
 		}
@@ -330,13 +328,39 @@ public class start extends Activity
 	    	String url = URI_for_launch.getScheme() + "://"
 	    		+ URI_for_launch.getHost() + URI_for_launch.getPath() + "?" + URI_for_launch.getQuery();
 	    	log ("LAUNCH URL: " + url);
-	    	wIntent.putExtra ("tv.9x9.url", url);
+	    	
+	    	/*
+	    	 * possible launch URL syntaxes
+	    	 * http://(host)/view/pCCCC/
+	    	 * http://(host)/view/pCCCC/ytXXXX/
+	    	 * http://(host)/view/pCCCC/ZZZZ/
+	    	 * 
+	    	 */
+	    	
+	    	String path = URI_for_launch.getPath();
+	    	if (path != null)
+	    		{
+	    		path = path.replaceAll ("^/", "");	    	
+	    		String fields[] = path.split ("/");
+	    		if (fields.length >= 1)
+	    			{
+		    		if (fields[0].equals ("view"))
+		    			{
+		    			if (fields.length >= 2)
+		    				channel_for_launch = fields[1].replaceAll ("^p",  "");
+		    			if (fields.length >= 3)
+		    				episode_for_launch = fields[1].replaceAll ("^yt",  "");
+		    			}
+	    			}
+	    		}
 			}
 		
     	if (channel_for_launch != null)
     		wIntent.putExtra ("tv.9x9.channel", channel_for_launch);
     	if (episode_for_launch != null)
     		wIntent.putExtra ("tv.9x9.episode", episode_for_launch);
+    	if (message_for_launch != null)
+    		wIntent.putExtra ("tv.9x9.message", message_for_launch);
     	
 		startActivity (wIntent);
 		}
@@ -356,8 +380,6 @@ public class start extends Activity
 						config.api_server = fields[1];
 					if (fields[0].equals ("region"))
 						config.region = fields[1];
-					// if (fields[0].equals ("supported-region"))
-					//		config.supported_region = fields[1];
 					}
 				}
 			}
@@ -527,6 +549,8 @@ public class start extends Activity
 					config.shake_and_discover_feature = fields[1].equals ("on");
 				else if (fields[0].equals ("aboutus"))
 					config.about_us_url = fields[1];
+				else if (fields[0].equals ("signup-enforce"))
+						config.signup_nag = fields[1];
 				else if (fields[0].equals ("notification-sound-vibration"))
 					{
 					// sound off;vibration off
@@ -547,6 +571,12 @@ public class start extends Activity
 					}
 				}
 			}
+		
+		/* don't allow nag page in the US even if the server is configured that way */
+		String lang = Locale.getDefault().getLanguage();
+		if (config.mso.equals ("9x9") && lang.equals ("en"))
+			config.signup_nag = "never";
+		// YiWen says they won't do this, so this code won't be necessary...
 		}
 	
 	public void launch()

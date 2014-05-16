@@ -79,6 +79,9 @@ public class metadata
 	public boolean notify_with_sound_default = false;
 	public boolean notify_with_vibrate_default = false;
 	
+	/* always, once, never */
+	public String signup_nag = "never";
+	
 	/* title captions in the 9x9 grid, one above each 3x3 set */
 	String[] set_titles = null;
 	

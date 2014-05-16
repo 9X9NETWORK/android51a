@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"    
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_gravity="center"
+	android:gravity="center"
+	android:orientation="vertical"
+	android:background="#FFFFFF">	   
+	<FrameLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+		android:layout_gravity="center"
+		android:gravity="center"        
+	    android:orientation="vertical"
+	    android:background="#FFFFFF">
+	    
+	    <LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:layout_gravity="center"
+		    android:gravity="center"
+		    android:orientation="vertical"
+		    android:background="#FFFFFF">
+		    
+		    <ImageView 
+		        android:id="@+id/nag_logo"
+		        android:layout_width="60dip"
+		        android:layout_height="60dip"
+		    	android:layout_gravity="center"
+		    	android:gravity="center"    
+		    	android:adjustViewBounds="true"
+		    	android:scaleType="fitXY"    
+		        />
+		        
+		    <TextView
+		    	android:layout_width="wrap_content"
+		    	android:layout_height="wrap_content"      
+		    	android:layout_marginTop="20dip"  
+		    	android:layout_gravity="center"
+		    	android:gravity="center"
+		        android:textColor="#242424"
+		        android:textSize="20sp"
+		        android:textStyle="bold"
+		        android:text="@string/welcome"
+		       	/>
+		        
+		    <TextView
+		    	android:layout_width="wrap_content"
+		    	android:layout_height="wrap_content"
+		    	android:layout_marginTop="20dip"	    	        
+		    	android:layout_gravity="center"
+		    	android:gravity="center"
+		        android:textColor="#555555"
+		        android:textSize="18sp"
+		        android:text="@string/nag1"
+		       	/>
+		    
+		    <ImageView 
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="20dip"
+		    	android:layout_gravity="center"
+		    	android:gravity="center"        
+		        android:src="@drawable/nag1"
+		        />
+		    
+		    <TextView
+		    	android:layout_width="wrap_content"
+		    	android:layout_height="wrap_content"      
+		    	android:layout_marginTop="30dip"  
+		    	android:layout_gravity="center"
+		    	android:gravity="center"
+		        android:textColor="#555555"
+		        android:textSize="14sp"
+		        android:text="@string/supports_chromecast"
+		       	/>
+		
+		</LinearLayout>
+	</FrameLayout>	
+</LinearLayout>
