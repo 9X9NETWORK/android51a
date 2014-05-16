@@ -18,11 +18,12 @@
 <!-- package="tv.flipr.thenewslens" -->
 <!-- package="tv.flipr.superstar" -->
 <!-- package="tv.flipr.musicvideo" -->
-<!-- package="tv.flipr.newsflipr" -->
+<!-- package="tv.flipr.news" -->
 <!-- package="tv.flipr.ktsf26" -->
 <!-- package="tv.flipr.pinoytv" -->
 <!-- package="tv.flipr.demo" -->
 <!-- package="tv.flipr.magazine" -->
+<!-- package="tv.flipr.test" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
@@ -182,24 +183,24 @@
 			 -->	
 								
 			<!-- for CTS -->
-			<!-- 
+			<!--   
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-cts" />        	       					   					
 			</intent-filter>	
-			 -->	
+			--> 	
 	
 			<!-- for GOODTV -->
-			<!-- 
+			 <!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-goodtv" />        	       					   					
 			</intent-filter>
-			-->	
+			 -->	
 
 			<!-- for DDTV -->
 			<!-- 
@@ -212,7 +213,7 @@
 			 -->	
 
 			<!-- for FCU -->
-			<!--
+			<!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -222,17 +223,17 @@
 			-->
 			
 			<!-- for THENEWSLENS -->
-			<!-- 
+			<!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-thenewslens" />        	       					   					
 			</intent-filter>	
-		 	-->
+		 	 -->
 		 	 
 		 	<!-- for SUPERSTAR -->
-			<!--
+			<!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -249,17 +250,17 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-musicvideo" />        	       					   					
 			</intent-filter>	
-			-->
+			 --> 
 			
 			<!-- for NEWSFLIPR -->
-		    <!-- 
+		    <!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
-    			<data android:scheme="flipr-newsflipr" />        	       					   					
+    			<data android:scheme="flipr-news" />        	       					   					
 			</intent-filter>
-		 	-->				 
+		 	 -->				 
 
             <!-- for KTSF -->
 		    <!-- 
@@ -282,14 +283,14 @@
 			-->
 			
             <!-- for Demo -->
-            <!--
+  			<!--  
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="flipr-demo" />
             </intent-filter>
-            -->
+			-->
 
             <!-- for Magazine -->
             <!--
@@ -299,6 +300,16 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="flipr-magazine" />
             </intent-filter>
+            -->
+            
+            <!-- for test -->
+            <!--
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-test" />        	       					   					
+			</intent-filter>	
             -->
             																				
         </activity>
