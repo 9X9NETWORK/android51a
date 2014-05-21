@@ -24,9 +24,11 @@
 <!-- package="tv.flipr.demo" -->
 <!-- package="tv.flipr.magazine" -->
 <!-- package="tv.flipr.test" -->
+<!-- package="tv.flipr.gametube" -->
+<!-- package="tv.flipr.daaitv" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.tv9x9.player"
+      package="tv.flipr.daaitv"
       android:versionCode="102"
       android:versionName="5.0.1.102">
           
@@ -66,6 +68,7 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
+			<!--		
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -81,6 +84,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr" />        	       					   					
 			</intent-filter>
+			-->
 			 		
 			<!-- for Joey Graceffa -->
 			<!--		
@@ -103,14 +107,14 @@
 			-->
 
 			<!-- for The Fine Bros -->
-			<!--		
+			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-thefinebros" />        	       					   					
-			</intent-filter>	
-			-->		
+			</intent-filter>
+			 -->	
 					
 			<!-- for History -->
 			<!-- 
@@ -293,7 +297,7 @@
 			-->
 
             <!-- for Magazine -->
-            <!--
+            <!-- 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -301,6 +305,7 @@
                 <data android:scheme="flipr-magazine" />
             </intent-filter>
             -->
+            
             
             <!-- for test -->
             <!--
@@ -311,6 +316,25 @@
     			<data android:scheme="flipr-test" />        	       					   					
 			</intent-filter>	
             -->
+            
+            <!-- for Gametube -->
+            <!-- 
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-gametube" />
+            </intent-filter>
+             -->
+             
+            <!-- for daaitv -->
+            
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-daaitv" />
+            </intent-filter>
             																				
         </activity>
 
