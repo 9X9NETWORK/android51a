@@ -8588,7 +8588,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (fields.length >= 2)
 				{
 				signout_from_app_or_facebook();
-				config.api_server = fields[1] + ".9x9.tv";
+				config.api_server = fields[1] + ".flipr.tv";
 				log ("switching API server to: " + fields[1]);
 				String filedata = "api-server\t" + config.api_server + "\n" + "region\t" + config.region + "\n";
                 futil.write_file (main.this, "config", filedata);
