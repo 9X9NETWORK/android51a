@@ -168,6 +168,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		super.onStop();
 		if (flurry_id_sent)
 			FlurryAgent.onEndSession (this);
+		if (config != null)
+			config.interrupt_with_notification  = null;
 		}
 		
 	@Override
@@ -198,7 +200,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		shake_resume();
 		if (uiHelper != null)
-			uiHelper.onResume();		
+			uiHelper.onResume();
 		}
 	
     @Override
@@ -670,6 +672,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					enable_nag_layer();
 				}
 			}
+		
+		config.interrupt_with_notification = interrupt_with_notification;
 		}
 	
 	public void home_configure_white_label()
@@ -3982,8 +3986,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     	Swaphome current_swap_object = null;
     	FrameLayout current_home_page = null;
     	
-    	int primary_counter = 0;
-    	
         @Override
         public int getCount()
         	{
@@ -4130,8 +4132,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			/* the mini mode might have changed */
 			if (sh.channel_adapter != null)
 				sh.channel_adapter.reset_mini_mode();
-			if (primary_counter++ > 0)
-				track_event ("navigation", "swipeCH", "swipeCH", 0);
 			}
 
 		public void set_mini_mode_thumbs (View v)
@@ -4302,7 +4302,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	public void refresh_home()
 		{
 		log ("refresh home");
-		vc_cache = new Hashtable < String, String[] > ();
+		config.query_cache = new Hashtable < String, String[] > ();
 		if (home_slider != null)
 			home_slider.reload_data();
 		}
@@ -4353,6 +4353,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 	public void portal_frontpage()
 		{
+		/* the start activity may have already one this network retrieval */
+		if (config.portal_api_cache != null)
+			{
+			log ("using prefetched portal API");
+			process_portal_frontpage_data (config.portal_api_cache);
+			config.portal_api_cache = null;
+			portal_frontpage_ii();
+			return;
+			}
+		
 		Calendar now = Calendar.getInstance();
 		int hour = now.get (Calendar.HOUR_OF_DAY);
 		
@@ -4376,12 +4386,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 					frontpage_start = System.currentTimeMillis() / 1000L;
 					process_portal_frontpage_data (lines);
-					
-					if (current_layer != toplayer.PLAYBACK && current_layer != toplayer.NAG)
-						{
-						/* only if we haven't gone to playback, such as a share or notify */
-						enable_home_layer();
-						}
+					portal_frontpage_ii();
 					}
 				}
 			public void failure (int code, String errtext)
@@ -4397,6 +4402,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			};
 		}
 
+	public void portal_frontpage_ii()
+		{
+		if (current_layer != toplayer.PLAYBACK && current_layer != toplayer.NAG)
+			{
+			/* only if we haven't gone to playback, such as a share or notify */
+			enable_home_layer();
+			}
+		}
+	
 	String portal_stack_ids[] = null;
 	String portal_stack_names[] = null;
 	String portal_stack_episode_thumbs[] = null;
@@ -4531,10 +4545,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		final String query = "channelLineup?user=" + config.usertoken + "&setInfo=true";
 		
-		if (vc_cache.get (query) != null)
+		if (config.query_cache.get (query) != null)
 			{
 			log ("using cached value");
-			config.parse_channel_info_with_setinfo (vc_cache.get (query));
+			config.parse_channel_info_with_setinfo (config.query_cache.get (query));
 			if (callback != null)
 				callback.run_string ("virtual:following");
 			return;
@@ -4582,8 +4596,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		};
 	
-	Hashtable < String, String[] > vc_cache = new Hashtable < String, String[] > ();
-	
 	void query_set_info (final String id, final Callback callback)
 		{
 		String query = null;
@@ -4604,10 +4616,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		log (query);
 		
-		if (vc_cache.get (query) != null)
+		if (config.query_cache.get (query) != null)
 			{
 			log ("using cached value");
-			config.parse_setinfo (id, vc_cache.get (query));
+			config.parse_setinfo (id, config.query_cache.get (query));
 			callback.run_string (id);
 			return;
 			}
@@ -4624,7 +4636,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					long vc_end = System.currentTimeMillis();
 					long elapsed = (vc_end - vc_start) / 1000L;
 					log ("[" + final_query + "] lines received: " + chlines.length + ", elapsed: " + elapsed);
-					vc_cache.put (final_query, chlines);
+					config.query_cache.put (final_query, chlines);
 					if (id.equals ("virtual:shared"))
 						{
 						// shared_set_owner = config.parse_setinfo (id, chlines);
@@ -7028,6 +7040,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				        	{
 				        	int index = 1 + swap.position * per + i_final;
 				        	log ("playback click: " + index);
+							track_event ("navigation", "selectEP", "selectEP", 0);
 				        	play_nth_episode_in_channel (channel_id, index);
 				        	}
 						});					
@@ -7260,8 +7273,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     public class GridSlider extends PagerAdapter
     	{
     	boolean first_time = true;
-
-    	int primary_count = 0;
     	
         @Override
         public int getCount()
@@ -7347,9 +7358,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			  
 		    select (position);
 			download_grid_thumbs_for_this_3x3 (sg.box);
-			
-			if (primary_count++ > 0)
-				track_event ("navigation", "swipeCH", "swipeCH", 0);
 			}
 
 		public void select (int num)
@@ -9005,6 +9013,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			            else
 			            	launch_player (m.channel, fake_set);
 						}
+					else
+						enable_home_layer();
 					}
 				});
 			}
@@ -9397,10 +9407,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	{
 		        	log ("click on: settings cancel button");
 		        	restore_notification_settings();
-		        	if (is_tablet())
-		        		vLayer.setVisibility (View.GONE);
-		        	else
-		        		toggle_menu();
+		        	settings_exit();
 		        	}
 				});	
 
@@ -9465,6 +9472,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			vv = util.encodeURIComponent (old_password) + "," + util.encodeURIComponent (new_password);
 			}
 		
+		/* if true the final result of the "save" won't be known immediately */
+		boolean will_background = true;
+		
 		if (config != null && config.usertoken != null && kk != null && !kk.equals (""))
 			{
 			new playerAPI (in_main_thread, config, "setUserProfile?user=" + config.usertoken + "&key=" + kk + "&value=" + vv)
@@ -9472,6 +9482,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				public void success (String[] lines)
 					{
 					toast_by_resource (R.string.saved);
+					settings_exit();
 					}
 				public void failure (int code, String errtext)
 					{
@@ -9483,6 +9494,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				};
 			nothing_changed = false;
 			}
+		else
+			will_background = false;		
 			
 		if (original_notify_setting != config.notifications_enabled
 				|| original_sound_setting != config.notify_with_sound
@@ -9496,6 +9509,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		if (nothing_changed)
 			toast_by_resource (R.string.nothing_changed);
+		else if (!will_background)
+			settings_exit();
+		}
+	
+	public void settings_exit()
+		{
+		final View vLayer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
+    	if (is_tablet())
+    		vLayer.setVisibility (View.GONE);
+    	else
+    		toggle_menu();
 		}
 	
 	boolean finger_is_down = false;
@@ -9933,4 +9957,19 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        	}
 	    	});
 		}    
+	
+	final Runnable interrupt_with_notification = new Runnable()
+		{
+		public void run()
+			{
+			in_main_thread.post (new Runnable()
+				{
+				@Override
+				public void run()
+					{
+					log ("INTERRUPT WITH NOTIFICATION!");
+					}
+				});
+			}
+		};
 	}

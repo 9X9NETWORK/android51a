@@ -5,6 +5,7 @@ import android.graphics.PixelFormat;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import io.vov.vitamio.LibsChecker;
 import io.vov.vitamio.MediaPlayer;
@@ -316,6 +318,7 @@ public class PlayerFragment extends Fragment implements Player
 			log ("release");
 			mMediaPlayer.release();
 			mMediaPlayer = null;
+			getActivity().getWindow().clearFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 			}
     	}
     
@@ -329,6 +332,7 @@ public class PlayerFragment extends Fragment implements Player
 		
 		try
 			{
+			getActivity().getWindow().addFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 			mMediaPlayer.setDataSource (url);
 			mMediaPlayer.setDisplay (holder);
 			mMediaPlayer.prepareAsync();

@@ -3,11 +3,17 @@ package tv.tv9x9.player;
 import io.vov.vitamio.LibsChecker;
 
 import java.net.URI;
+import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
+import tv.tv9x9.player.main.toplayer;
 import tv.tv9x9.player.switchboard.LocalBinder;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -123,7 +129,7 @@ public class start extends Activity
 		    else if (action.equals ("tv.tv9x9.player.notify"))
 	    		{
 	    		// http://ddtv.9x9.tv/view?ch=28718&ep=yt6yBESVVU_ec
-	    	
+		    	
 	    		Bundle extras = intent.getExtras();
 	    		String channel = extras.getString ("channel");
 	    		String episode = extras.getString ("episode");
@@ -188,13 +194,7 @@ public class start extends Activity
 			Log.i ("vtest", "EXECUTING FUTURE ACTION: " + future_action);
 						
 			if (future_action.equals ("tv"))
-				launch_tv();
-			else if (future_action.equals ("tvportal"))
-				launch_tvportal();			
-			else if (future_action.equals ("tablet"))
-				launch_tablet();
-			else if (future_action.equals ("portal") || future_action.equals ("portola"))
-				launch_portal();
+				launch_tv();		
 			else if (future_action.equals ("restart"))
 				launch();
 			}
@@ -298,23 +298,6 @@ public class start extends Activity
 		// launch_inner (tvgrid.class);
 		}
 	
-	public void launch_tablet()
-		{
-		// launch_inner (home.class);
-		}
-
-	public void launch_portal()
-		{
-		}
-	
-	public void launch_portola()
-		{
-		}
-	
-	public void launch_tvportal()
-		{
-		}
-
 	public void launch_home()
 		{
 		launch_inner (main.class);
@@ -363,6 +346,11 @@ public class start extends Activity
     		wIntent.putExtra ("tv.9x9.message", message_for_launch);
     	
 		startActivity (wIntent);
+		
+		if (config.interrupt_with_notification != null)
+			{
+			in_main_thread.post (config.interrupt_with_notification);
+			}
 		}
 	
 	public void read_config_file()
@@ -482,7 +470,7 @@ public class start extends Activity
 			public void success (String[] chlines)
 				{
 				process_brandinfo (chlines);
-				delayed_launch();
+				early_portal();
 				}
 
 			public void failure (int code, String errtext)
@@ -493,13 +481,96 @@ public class start extends Activity
 			};
 		}
 
+	/* this should be done in main, but do it here for speed optimization */
+	public void early_portal()
+		{
+		Calendar now = Calendar.getInstance();
+		int hour = now.get (Calendar.HOUR_OF_DAY);
+		
+		final long frontpage_start = System.currentTimeMillis();
+		
+		String type = "portal"; // "portal", "whatson"
+		
+		new playerAPI (in_main_thread, config, "portal?time=" + hour + "&type=" + type + "&minimal=true")
+			{
+			public void success (String[] lines)
+				{
+				if (lines.length < 1)
+					{
+					alert ("Frontpage failure");
+					}
+				else
+					{
+					long frontpage_end = System.currentTimeMillis();
+					log ("portal API took: " + ((frontpage_start - frontpage_end) / 1000) + " seconds");
+					config.portal_api_cache = lines;
+					early_portal_ii();
+					}
+				}
+			public void failure (int code, String errtext)
+				{
+				// when our server was taken down by YiWen once:
+				// org.apache.http.client.HttpResponseException: Service Temporarily Unavailable
+				log ("frontpage error: " + errtext);
+				alert ("Frontpage failure: " + errtext.replaceAll ("^ERROR:", ""));
+				finish();
+				}
+			};
+		}
+	
+	public void early_portal_ii()
+		{
+		long end_time = System.currentTimeMillis();
+		long remaining = end_time - start_time;
+		
+		if (remaining < 300)
+			{
+			log ("only " + remaining + " milliseconds left, won't prefetch setinfo");
+			delayed_launch();
+			return;
+			}
+
+		if (config.portal_api_cache != null && config.portal_api_cache.length >= 1)
+			{
+			String fields[] = config.portal_api_cache [0].split ("\t");
+			if (fields.length >= 2)
+				{
+				Calendar now = Calendar.getInstance();
+				int hour = now.get (Calendar.HOUR_OF_DAY);
+				String short_id = fields [0];
+				/* this MUST match the query in main *exactly* or there is no point to this */
+				final String query = "setInfo?set=" + short_id + "&time=" + hour + "&programInfo=false";
+				new playerAPI (in_main_thread, config, query)
+					{
+					public void success (String[] lines)
+						{
+						/* only save this if subsequent query from main has not overwritten it */
+						if (config.query_cache.get (query) == null)
+							{
+							log ("saving portal api query in cache");
+							config.query_cache.put (query,  lines);
+							}
+						}
+					public void failure (int code, String errtext)
+						{
+						}
+					};
+				}
+			}
+		else
+			log ("don't have portal_api_cache, won't fetch setInfo query");
+		
+		/* for perception, do the delayed launch anyway, even if above query has not completed and must be thrown away */
+		delayed_launch();
+		}
+	
 	public void delayed_launch()
 		{
 		long end_time = System.currentTimeMillis();
 		
-		if (end_time - start_time < 3000)
+		if (end_time - start_time < 2500)
 			{
-			long delay = 3000 - (end_time - start_time);
+			long delay = 2500 - (end_time - start_time);
 			Log.i ("vtest", "delayed launch: " + delay + " milliseconds");
 			in_main_thread.postDelayed (new Runnable()
 				{
@@ -582,18 +653,6 @@ public class start extends Activity
 	public void launch()
 		{
 		launch_home();
-		}
-	
-	public void OLD_launch()
-		{
-		if (util.is_a_tv (getBaseContext()))
-			launch_tvportal();
-		else if (config.white_label.equals ("tvportal") || config.white_label.endsWith ("-portal"))
-			launch_tvportal();
-		else if (config.white_label.equals ("original-style"))
-			launch_tablet();
-		else
-			launch_portola();
 		}
 	
 	final static Handler in_main_thread = new Handler();

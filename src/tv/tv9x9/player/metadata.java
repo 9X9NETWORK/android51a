@@ -79,8 +79,13 @@ public class metadata
 	public boolean notify_with_sound_default = false;
 	public boolean notify_with_vibrate_default = false;
 	
+	public Runnable interrupt_with_notification = null;
+	
 	/* always, once, never */
 	public String signup_nag = "never";
+	
+	/* the portal API may be called from start activity, and consumed by the main activity */
+	public String portal_api_cache[] = null;
 	
 	/* title captions in the 9x9 grid, one above each 3x3 set */
 	String[] set_titles = null;
@@ -98,10 +103,7 @@ public class metadata
 	Hashtable  <String,  Hashtable <String, Comment>>  comments;
 	
 	/* kept here because activities come and go */
-	Hashtable < String, String[] > query_cache;
-	
-	/* channels watched locally */
-	Set <String> local_personal_history_set = new HashSet <String> ();
+	Hashtable < String, String[] > query_cache = new Hashtable < String, String[] > ();
 		
 	String last_visited_channel = null;
 	String last_visited_episode = null;

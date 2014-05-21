@@ -3018,7 +3018,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (config != null && config.usertoken == null)
 			{
 			log ("onVideoWatched channel: " + channel_id);
-			config.local_personal_history_set.add (channel_id);
+			// config.local_personal_history_set.add (channel_id);
 			}
 		}
 

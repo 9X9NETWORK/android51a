@@ -29,8 +29,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.flipr.daaitv"
-      android:versionCode="102"
-      android:versionName="5.0.1.102">
+      android:versionCode="103"
+      android:versionName="5.0.1.103">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
