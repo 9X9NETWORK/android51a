@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9-->
+    <!--   
     <string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>         
     <string name="white_label">portal</string>
@@ -14,6 +15,7 @@
     <string name="signin_bg">bgnew</string>     
     <string name="set_banner">banner_9x9</string>   
 	<string name="fb_app_id">361253423962738</string>
+    -->
 		 
     <!-- Joey Graceffa -->
     <!-- 
@@ -64,8 +66,8 @@
     <string name="signin_bg">thefinebros_bg_open</string>
     <string name="set_banner">thefinebros_banner01</string>
     <string name="fb_app_id">1468306366724948</string>
-	-->		
-    
+     -->
+     
     <!-- History -->
     <!-- 
     <string name="app_name">History Channel on Flipr Unofficial</string>
@@ -439,6 +441,39 @@
     <string name="set_banner">banner_test</string>            
 	<string name="fb_app_id">390805357729394</string>
     -->
+    
+    <!-- Gametube -->
+    <!--   
+    <string name="app_name">GameTube</string>
+    <string name="app_icon">@drawable/gametube_launch_logo</string>
+    <string name="white_label">gametube</string>
+    <string name="mso">gametube</string>
+    <string name="default_region">zh</string>
+    <string name="logo">gametube_logo</string>
+    <string name="splash_background">gametube_bg_open</string>
+    <string name="splash_foreground">gametube_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">gametube_logo_signin</string>
+    <string name="signin_bg">gametube_bg_open</string>
+    <string name="set_banner">gametube_banner</string>
+    <string name="fb_app_id">708083305909248</string>
+    -->
+    
+    <!-- Daaitv -->
+     
+    <string name="app_name">Daaitv FLIPr</string>
+    <string name="app_icon">@drawable/daaitv_launch_logo</string>
+    <string name="white_label">daaitv</string>
+    <string name="mso">daaitv</string>
+    <string name="default_region">zh</string>
+    <string name="logo">daaitv_logo</string>
+    <string name="splash_background">daaitv_bg_open</string>
+    <string name="splash_foreground">daaitv_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">daaitv_logo_signin</string>
+    <string name="signin_bg">daaitv_bg_open</string>
+    <string name="set_banner">daaitv_banner</string>
+    <string name="fb_app_id">252273138293802</string>
 
 		         
     <bool name="uses_chromecast">true</bool>
