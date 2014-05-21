@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
+    <!--   
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
@@ -14,7 +15,8 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">361253423962738</string>
-
+	-->
+	
 	<!-- Joey Graceffa -->
     <!--   
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -64,8 +66,8 @@
     <string name="signin_bg">thefinebros_bg_open</string>
     <string name="set_banner">thefinebros_banner01</string>
     <string name="fb_app_id">361253423962738</string>
-    -->
-	 
+	 -->
+	  
     <!-- History -->
     <!-- 
     <string name="app_name">History Channel on Flipr Unofficial</string>
@@ -407,7 +409,7 @@
 	-->	
     
     <!-- Magazine -->
-    <!-- 
+    <!--  
     <string name="app_name">癮雜誌</string>
     <string name="app_icon">@drawable/magazine_launch_logo</string>
     <string name="white_label">magazine</string>
@@ -439,6 +441,39 @@
     <string name="set_banner">banner_test</string>            
 	<string name="fb_app_id">390805357729394</string>
     -->
+    
+    <!-- Gametube -->
+    <!-- 
+    <string name="app_name">GameTube</string>
+    <string name="app_icon">@drawable/gametube_launch_logo</string>
+    <string name="white_label">gametube</string>
+    <string name="mso">gametube</string>
+    <string name="default_region">zh</string>
+    <string name="logo">gametube_logo</string>
+    <string name="splash_background">gametube_bg_open</string>
+    <string name="splash_foreground">gametube_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">gametube_logo_signin</string>
+    <string name="signin_bg">gametube_bg_open</string>
+    <string name="set_banner">gametube_banner</string>
+    <string name="fb_app_id">708083305909248</string>
+     -->
+     
+    <!-- Daaitv -->
+     
+    <string name="app_name">大愛電視 FLIPr</string>
+    <string name="app_icon">@drawable/daaitv_launch_logo</string>
+    <string name="white_label">daaitv</string>
+    <string name="mso">daaitv</string>
+    <string name="default_region">zh</string>
+    <string name="logo">daaitv_logo</string>
+    <string name="splash_background">daaitv_bg_open</string>
+    <string name="splash_foreground">daaitv_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">daaitv_logo_signin</string>
+    <string name="signin_bg">daaitv_bg_open</string>
+    <string name="set_banner">daaitv_banner</string>
+    <string name="fb_app_id">252273138293802</string>
 
     <bool name="uses_chromecast">true</bool>
     
@@ -463,7 +498,7 @@
     <string name="sorry_error">抱歉, 暫時發生錯誤.</string>   
     <string name="no_channel_desc">暫時無節目簡介.</string>
     <string name="select_youtube_account">選擇您要登入的 YouTube 帳號</string>
-    <string name="add_account">新增您的 YouTube 帳</string>
+    <string name="add_account">新增您的 YouTube 帳號</string>
     <string name="add_account_hint">在您成功新增 YouTube 帳號後, 請選擇 [使用 YouTube 帳號登入], 並以您新增的帳號來登入之。</string>
     <string name="si_sign_in_with_email">使用您的 email 登入</string>
     <string name="su_sign_up_with_email">使用您的 email 註冊</string>
@@ -498,8 +533,8 @@
     <string name="tlogin_your_9x9_password">您的 9x9 密碼</string>
     <string name="tlogin_login">登入</string>
     <string name="tlogin_dont_have">沒有帳號?</string>
-    <string name="tlogin_enter_a_pw">請輸入密碼</string>
-    <string name="tlogin_retype_pw">重新輸入密碼</string>
+    <string name="tlogin_enter_a_pw">輸入密碼</string>
+    <string name="tlogin_retype_pw">確認密碼</string>
     <string name="tlogin_create_account_button">建立帳號</string>
     <string name="tlogin_pw_no_match">輸入的密碼不一致</string>
     <string name="tlogin_pw_six">密碼至少需6碼或超過6碼</string>
@@ -593,7 +628,7 @@
 	<string name="no_channel">沒有節目</string>	
 	<string name="move_failure">移動失敗！</string>	
 	<string name="moved" formatted="false">節目已從%1 搬至 %2</string>	
-	<string name="categorycolon">目錄：</string>
+	<string name="categorycolon">類別：</string>
 	<string name="back_to_home">回到首頁</string>	
 	<string name="quit">中止</string>
 	<string name="retry">重試</string>
@@ -678,10 +713,10 @@
 	<string name="notifications">通知設定</string>
 	<string name="enable_notifications">啟用通知設定</string>
 	<string name="vibrate_when_notified">通知設定為振動</string>
-	<string name="sound_when_notified">通知設定為聲音</string> 	
-	<string name="nag1">在大屏幕上，搖搖「看」最夯的節目</string>
+	<string name="sound_when_notified">通知設定為提示音</string> 	
+	<string name="nag1">在大螢幕上，搖搖「看」最夯的節目</string>
     <string name="nag2">您可以隨時隨地觀看和管理自己喜愛的節目</string>
-    <string name="nag3">註冊新帳號就可以觀看最夯的節目</string>
+    <string name="nag3">註冊新帳號即可觀看最夯的節目</string>
     <string name="supports_chromecast">(支援 Chromecast)</string>
     <string name="skip_this_step">略過此步驟</string>
     <string name="welcome">歡迎！</string>
