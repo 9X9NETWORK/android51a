@@ -26,9 +26,11 @@
 <!-- package="tv.flipr.test" -->
 <!-- package="tv.flipr.gametube" -->
 <!-- package="tv.flipr.daaitv" -->
+<!-- package="tv.flipr.jennamarbles" -->
+<!-- package="tv.flipr.raywilliamjohnson" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.flipr.daaitv"
+      package="tv.flipr.raywilliamjohnson"
       android:versionCode="103"
       android:versionName="5.0.1.103">
           
@@ -95,6 +97,24 @@
     			<data android:scheme="flipr-joeygraceffa" />        	       					   					
 			</intent-filter>	
 			-->
+
+			<!-- for Jenna Marbles -->
+			<!--		
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-jennamarbles" />        	       					   					
+			</intent-filter>	
+			-->
+
+			<!-- for Ray William Johnson -->
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-raywilliamjohnson" />        	       					   					
+			</intent-filter>	
 
 			<!-- for Spinnin' Records -->
 			<!--		
@@ -328,13 +348,14 @@
              -->
              
             <!-- for daaitv -->
-            
+            <!-- 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="flipr-daaitv" />
             </intent-filter>
+			-->
             																				
         </activity>
 
