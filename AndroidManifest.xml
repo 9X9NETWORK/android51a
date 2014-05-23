@@ -30,9 +30,9 @@
 <!-- package="tv.flipr.raywilliamjohnson" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.flipr.raywilliamjohnson"
-      android:versionCode="103"
-      android:versionName="5.0.1.103">
+      package="tv.tv9x9.player"
+      android:versionCode="104"
+      android:versionName="5.0.1.104">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -70,7 +70,6 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!--		
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -86,7 +85,6 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr" />        	       					   					
 			</intent-filter>
-			-->
 			 		
 			<!-- for Joey Graceffa -->
 			<!--		
@@ -109,12 +107,14 @@
 			-->
 
 			<!-- for Ray William Johnson -->
+			<!--		
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-raywilliamjohnson" />        	       					   					
 			</intent-filter>	
+			-->
 
 			<!-- for Spinnin' Records -->
 			<!--		

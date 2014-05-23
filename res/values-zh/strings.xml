@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
-    <!--   
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
@@ -15,8 +14,7 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">361253423962738</string>
-	-->
-	
+		
 	<!-- Joey Graceffa -->
     <!--   
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -32,6 +30,40 @@
     <string name="signin_bg">joeygraceffa_bg_open</string>
     <string name="set_banner">joeygraceffa_banner01</string>
     <string name="fb_app_id">595235090571267</string>
+    -->
+
+    <!-- Jenna Marbles -->
+    <!--   
+    <string name="app_name">Flipr - Jenna Marbles Edition</string>
+    <string name="app_icon">@drawable/jennamarbles_launch_logo</string>
+    <string name="white_label">jennamarbles</string>
+    <string name="mso">jennamarbles</string>
+    <string name="default_region">en</string>
+    <string name="logo">jennamarbles_logo</string>
+    <string name="splash_background">jennamarbles_bg_open</string>
+    <string name="splash_foreground">jennamarbles_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">jennamarbles_logo_signin</string>
+    <string name="signin_bg">jennamarbles_bg_open</string>
+    <string name="set_banner">jennamarbles_banner01</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+
+    <!-- Ray William Johnson -->
+    <!--   
+    <string name="app_name">Flipr - Ray William Johnson Edition</string>
+    <string name="app_icon">@drawable/raywilliamjohnson_launch_logo</string>
+    <string name="white_label">raywilliamjohnson</string>
+    <string name="mso">raywilliamjohnson</string>
+    <string name="default_region">en</string>
+    <string name="logo">raywilliamjohnson_logo</string>
+    <string name="splash_background">raywilliamjohnson_bg_open</string>
+    <string name="splash_foreground">raywilliamjohnson_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">raywilliamjohnson_logo_signin</string>
+    <string name="signin_bg">raywilliamjohnson_bg_open</string>
+    <string name="set_banner">raywilliamjohnson_banner01</string>
+    <string name="fb_app_id">361253423962738</string>
     -->
 
     <!-- Spinnin' Records -->
@@ -460,7 +492,7 @@
      -->
      
     <!-- Daaitv -->
-     
+    <!-- 
     <string name="app_name">大愛電視 FLIPr</string>
     <string name="app_icon">@drawable/daaitv_launch_logo</string>
     <string name="white_label">daaitv</string>
@@ -474,7 +506,9 @@
     <string name="signin_bg">daaitv_bg_open</string>
     <string name="set_banner">daaitv_banner</string>
     <string name="fb_app_id">252273138293802</string>
-
+    -->
+    
+    
     <bool name="uses_chromecast">true</bool>
     
     <string name="guest">訪客</string>

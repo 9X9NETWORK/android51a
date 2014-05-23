@@ -573,8 +573,11 @@ public class metadata
 
 				String nature = pool_meta (real_channel, "nature");
 							
-				if (nature != null && (nature.equals ("3") || nature.equals ("4") || nature.equals ("5")))
+				if (nature != null && (nature.equals ("3") || nature.equals ("5")))
+					{
+					/* type 4, YouTube playlist, formerly used date, now uses position */
 					Arrays.sort (results, sort_by_date);
+					}
 				else
 					Arrays.sort (results, sort_by_position);		
 

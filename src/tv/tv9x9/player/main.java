@@ -53,6 +53,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.os.Vibrator;
@@ -3802,12 +3803,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	/* this is implemented using the base class! */
 		
 	public class NagSlider extends PagerAdapter
-		{
-		boolean first_time = true;
-		
-		Swaphome current_swap_object = null;
-		LinearLayout current_home_page = null;
-		
+		{		
 	    @Override
 	    public int getCount()
 	    	{
@@ -4004,7 +4000,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			log ("[PAGER] instantiate: " + position);
 			
 			final Swaphome sh = new Swaphome (position);			
-
+			sh.set_id = portal_stack_ids [position];
+			
 			FrameLayout home_page = (FrameLayout) View.inflate (main.this, R.layout.home_page, null);
 			
 			if (is_phone())
@@ -4021,10 +4018,34 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 			if (is_tablet())
 				{
+				boolean banner_found = false;
 				ImageView vSetBanner = (ImageView) home_page.findViewById (R.id.set_banner);
-				String set_banner = getResources().getString (R.string.set_banner);
-				int set_banner_id = getResources().getIdentifier (set_banner, "drawable", getPackageName());
-				vSetBanner.setBackgroundResource (set_banner_id);
+				
+				if (vSetBanner != null)
+					{
+					String filename = getFilesDir() + "/" + config.api_server + "/bthumbs/" + sh.set_id + ".png";				
+					File f = new File (filename);
+					if (f.exists())
+						{
+						Bitmap bitmap = BitmapFactory.decodeFile (filename);
+						if (bitmap != null)
+							{
+							banner_found = true;
+							vSetBanner.setImageBitmap (bitmap);
+							}
+						else
+							log ("set banner exists but bitmap is null: " + filename);
+						}
+					else
+						log ("set banner does not exist: " + sh.set_id);
+					
+					if (!banner_found)
+						{
+						String set_banner = getResources().getString (R.string.set_banner);
+						int set_banner_id = getResources().getIdentifier (set_banner, "drawable", getPackageName());
+						vSetBanner.setBackgroundResource (set_banner_id);
+						}
+					}
 				}
 			
 			if (is_tablet())
@@ -4043,7 +4064,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			home_page.setTag (R.id.container, position);			
 			sh.home_page = home_page;
-			sh.set_id = portal_stack_ids [position];
 			((StoppableViewPager) container).addView (home_page, 0);
 			
 			TextView vTitle = (TextView) sh.home_page.findViewById (R.id.primary_set_title);
@@ -4415,6 +4435,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	String portal_stack_names[] = null;
 	String portal_stack_episode_thumbs[] = null;
 	String portal_stack_channel_thumbs[] = null;	
+	String portal_stack_banners[] = null;
 	
 	public void process_portal_frontpage_data (String[] lines)
 		{
@@ -4432,6 +4453,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		portal_stack_names = new String [num_stacks];
 		portal_stack_episode_thumbs = new String [num_stacks];
 		portal_stack_channel_thumbs = new String [num_stacks];
+		portal_stack_banners = new String [num_stacks];
 		
 		int section = 0;		
 		int stack_count = 0;
@@ -4453,6 +4475,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					portal_stack_episode_thumbs [stack_count] = fields [3];
 				if (fields.length >= 6)
 					portal_stack_channel_thumbs [stack_count] = fields [5];
+				if (fields.length >= 7)
+					portal_stack_banners [stack_count] = fields [6];
 				if (fields.length >= 9)
 					parse_special_tags ("set", fields[8], fields[0]);
 				stack_count++;
@@ -4470,6 +4494,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				}
 			}
 		
+		String original_portal_stack_ids[] = portal_stack_ids;
+		String original_portal_stack_banners[] = portal_stack_banners;
+		
 		if (portal_stack_ids.length > 1)
 			{
 			/* makin' copies: the only sensible way to loop around the home pages is to use ViewPager with
@@ -4482,6 +4509,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			String new_portal_stack_names[] = new String [new_num_stacks];
 			String new_portal_stack_episode_thumbs[] = new String [new_num_stacks];
 			String new_portal_stack_channel_thumbs[] = new String [new_num_stacks];
+			String new_portal_stack_banners[] = new String [new_num_stacks];
 			
 			int count = 0;
 			
@@ -4492,17 +4520,33 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					new_portal_stack_names [count] = portal_stack_names [j];
 					new_portal_stack_episode_thumbs [count] = portal_stack_episode_thumbs [j];
 					new_portal_stack_channel_thumbs [count] = portal_stack_channel_thumbs [j];
+					new_portal_stack_banners [count] = portal_stack_banners [j];
 					count++;
 					}
 			
 			portal_stack_ids = new_portal_stack_ids;
 			portal_stack_names = new_portal_stack_names;
 			portal_stack_episode_thumbs = new_portal_stack_episode_thumbs;
-			portal_stack_channel_thumbs = new_portal_stack_channel_thumbs;			
+			portal_stack_channel_thumbs = new_portal_stack_channel_thumbs;		
+			portal_stack_banners = new_portal_stack_banners;
 			}
 		
-		// View vRefresh = findViewById (R.id.pull_to_refresh);
-		// vRefresh.setVisibility (View.VISIBLE);
+		final Runnable update = new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				if (home_slider != null)
+					home_slider.notifyDataSetChanged();
+				}
+			};
+		
+		if (is_tablet())
+			{
+			thumbnail.download_set_banners (main.this, config, 
+					original_portal_stack_ids, original_portal_stack_banners, 
+						in_main_thread, update);
+			}
 		}	
 			
 	public void parse_special_tags (String type, String tags, String set_id)
@@ -8588,13 +8632,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (fields.length >= 2)
 				{
 				signout_from_app_or_facebook();
-				config.api_server = fields[1] + ".9x9.tv";
+				config.api_server = fields[1] + ".flipr.tv";
 				log ("switching API server to: " + fields[1]);
 				String filedata = "api-server\t" + config.api_server + "\n" + "region\t" + config.region + "\n";
                 futil.write_file (main.this, "config", filedata);
 				alert_then_exit ("Please restart the app, to use API server " + config.api_server);
 				return;
 				}
+			}
+		else if (term.matches("^#\\d+"))
+			{
+			search_only_for_channel (term.replace ("#", ""));
+			return;
 			}
 		
 		String encoded_term = util.encodeURIComponent (term);
@@ -8767,6 +8816,31 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		else
 			log ("search_is_ready? search_9x9_done " + search_9x9_done + ", search_youtube_done " + search_youtube_done);
+		}
+	
+	public void search_only_for_channel (String channel_id)
+		{
+		log ("special search for channel: " + channel_id);
+		prepare_search_screen ("Channel " + channel_id);
+		search_channels = new String[] { channel_id };
+		redraw_search_list();
+		
+		final Callback search_channel_special_inner = new Callback()
+			{
+			public void run_string_and_object (String channel_id, Object o)
+				{
+				log ("search only loaded");
+				
+				search_adapter.set_content (-1, null, search_channels);
+				search_adapter.notifyDataSetChanged();
+				
+				redraw_search_list();
+				
+				thumbnail.stack_thumbs (main.this, config, search_channels, in_main_thread, search_channel_thumb_updated);
+				}
+			};
+		
+		load_channel_then (channel_id, search_channel_special_inner, channel_id, null);
 		}
 	
 	public void redraw_search_list()
