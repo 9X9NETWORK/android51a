@@ -1183,7 +1183,7 @@ Enable automatic activity tracking
     <string name="signin_bg">thefinebros_bg_open</string>
     <string name="set_banner">thefinebros_banner01</string>
     <string name="fb_app_id">1468306366724948</string>
-	
+     
  History 
  
     <string name="app_name">History Channel on Flipr Unofficial</string>
@@ -1312,7 +1312,7 @@ Enable automatic activity tracking
 	<string name="fb_app_id">212239432317755</string>
     
  cts 
-
+ 
     <string name="app_name">CTS</string>
     <string name="app_icon">@drawable/cts_icon_new</string>    
     <string name="white_label">cts</string>     
@@ -1326,24 +1326,24 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_cts</string>
     <string name="set_banner">banner_cts</string>            
 	<string name="fb_app_id">1429057570658015</string>       
-	
+	 
  goodtv 
  
     <string name="app_name">GOODTV</string>
- 	<string name="app_icon">@drawable/goodtv_launch_logo</string>         
+ 	<string name="app_icon">@drawable/launch_logo_goodtv</string>         
     <string name="white_label">goodtv</string>
     <string name="mso">goodtv</string>
     <string name="default_region">zh</string>    
-    <string name="logo">goodtv_on_white</string>   
+    <string name="logo">logo_goodtv</string>   
     <string name="logo_old">logo_goodtv</string>       
     <string name="splash_background">bg_open_goodtv</string>
     <string name="splash_foreground">open_logo_goodtv</string>   
     <string name="splash_slogan"></string>           
     <string name="signin_logo">logo_signin_goodtv</string>        
     <string name="signin_bg">bg_open_goodtv</string>        	
-    <string name="set_banner">goodtv_banner01</string>
+    <string name="set_banner">banner01_goodtv</string>
  	<string name="fb_app_id">555946694494117</string>       
- 	
+	  
  ddtv 
  
     <string name="app_name">DDTV</string>
@@ -1361,7 +1361,7 @@ Enable automatic activity tracking
     <string name="fb_app_id">496791563769983</string>
      
  fcu 
- 
+  
     <string name="app_name">FCU</string>
     <string name="app_icon">@drawable/launch_logo_fcu</string>    
     <string name="white_label">fcu</string>     
@@ -1375,7 +1375,7 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_fcu</string>
     <string name="set_banner">banner01_fcu</string>      
 	<string name="fb_app_id">180687745468145</string>           
-    
+     
  Tzu Chi 
     
     <string name="app_name">Tzu Chi</string>
@@ -1406,9 +1406,9 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_thenewslens</string>
     <string name="set_banner">banner_thenewslens</string>            
 	<string name="fb_app_id">436354623134686</string>
-	
+	 
  superstar  
- 
+  
     <string name="app_name">Superstar FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_superstar</string>    
     <string name="white_label">superstar</string>     
@@ -1422,9 +1422,9 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_superstar</string>
     <string name="set_banner">banner_superstar</string>            
 	<string name="fb_app_id">422631834537839</string>
-	
+	 
  musicvideo 
- 
+  
     <string name="app_name">Musicvideo FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_musicvideo</string>    
     <string name="white_label">musicvideo</string>     
@@ -1438,13 +1438,13 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_musicvideo</string>
     <string name="set_banner">banner01_musicvideo</string>            
 	<string name="fb_app_id">463854980410020</string>
-	
+	 
  newsflipr 
- 
+  
     <string name="app_name">News FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_newsflipr</string>    
-    <string name="white_label">newsflipr</string>     
-    <string name="mso">newsflipr</string>
+    <string name="white_label">news</string>     
+    <string name="mso">news</string>
     <string name="default_region">zh</string>               
     <string name="logo">logo_newsflipr</string>
     <string name="splash_background">bg_open_newsflipr</string>
@@ -1454,7 +1454,7 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_newsflipr</string>
     <string name="set_banner">banner_newsflipr</string>            
 	<string name="fb_app_id">756691711022525</string>
-	
+	 
  ktsf26 
   
     <string name="app_name">KTSF26</string>
@@ -1502,7 +1502,7 @@ Enable automatic activity tracking
     <string name="signin_bg">demo_bg_open</string>
     <string name="set_banner">demo_banner01</string>
     <string name="fb_app_id">361253423962738</string>
-    
+	
  Magazine 
  
     <string name="app_name">Magazine</string>
@@ -1519,6 +1519,54 @@ Enable automatic activity tracking
     <string name="set_banner">magazine_banner01</string>
     <string name="fb_app_id">535963343168975</string>
     
+ test 
+ 
+    <string name="app_name">test FLIPr</string>
+    <string name="app_icon">@drawable/launch_logo_test</string>    
+    <string name="white_label">test</string>     
+    <string name="mso">test</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_test</string>
+    <string name="splash_background">bg_open_test</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">open_logo_test</string>    
+    <string name="signin_logo">logo_signin_test</string>        
+    <string name="signin_bg">bg_open_test</string>
+    <string name="set_banner">banner_test</string>            
+	<string name="fb_app_id">390805357729394</string>
+    
+ Gametube 
+   
+    <string name="app_name">GameTube</string>
+    <string name="app_icon">@drawable/gametube_launch_logo</string>
+    <string name="white_label">gametube</string>
+    <string name="mso">gametube</string>
+    <string name="default_region">zh</string>
+    <string name="logo">gametube_logo</string>
+    <string name="splash_background">gametube_bg_open</string>
+    <string name="splash_foreground">gametube_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">gametube_logo_signin</string>
+    <string name="signin_bg">gametube_bg_open</string>
+    <string name="set_banner">gametube_banner</string>
+    <string name="fb_app_id">708083305909248</string>
+    
+ Daaitv 
+ 
+    <string name="app_name">Daaitv FLIPr</string>
+    <string name="app_icon">@drawable/daaitv_launch_logo</string>
+    <string name="white_label">daaitv</string>
+    <string name="mso">daaitv</string>
+    <string name="default_region">zh</string>
+    <string name="logo">daaitv_logo</string>
+    <string name="splash_background">daaitv_bg_open</string>
+    <string name="splash_foreground">daaitv_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">daaitv_logo_signin</string>
+    <string name="signin_bg">daaitv_bg_open</string>
+    <string name="set_banner">daaitv_banner</string>
+    <string name="fb_app_id">252273138293802</string>
+
  Joey Graceffa 
    
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -1566,7 +1614,7 @@ Enable automatic activity tracking
     <string name="signin_bg">thefinebros_bg_open</string>
     <string name="set_banner">thefinebros_banner01</string>
     <string name="fb_app_id">361253423962738</string>
-    
+	 
  History 
  
     <string name="app_name">History Channel on Flipr Unofficial</string>
@@ -1711,9 +1759,9 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_cts</string> 
     <string name="set_banner">banner_cts</string>           
 	<string name="fb_app_id">1429057570658015</string>              
-    
+     
  thenewslens 
- 
+  
     <string name="app_name">關鍵評論網 FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_thenewslens</string>    
     <string name="white_label">thenewslens</string>     
@@ -1727,24 +1775,24 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_thenewslens</string>
     <string name="set_banner">banner_thenewslens</string>            
 	<string name="fb_app_id">436354623134686</string>
-    
+     
  goodtv 
  
     <string name="app_name">GOODTV</string>
- 	<string name="app_icon">@drawable/goodtv_launch_logo</string>         
+ 	<string name="app_icon">@drawable/launch_logo_goodtv</string>         
     <string name="white_label">goodtv</string>
     <string name="mso">goodtv</string>
     <string name="default_region">zh</string>    
-    <string name="logo">goodtv_on_white</string>   
+    <string name="logo">logo_goodtv</string>   
     <string name="logo_old">logo_goodtv</string>       
     <string name="splash_background">bg_open_goodtv</string>
     <string name="splash_foreground">open_logo_goodtv</string>   
     <string name="splash_slogan"></string>           
     <string name="signin_logo">logo_signin_goodtv</string>        
     <string name="signin_bg">bg_open_goodtv</string>        	
-    <string name="set_banner">goodtv_banner01</string>
+    <string name="set_banner">banner01_goodtv</string>
  	<string name="fb_app_id">555946694494117</string>       
- 	
+     
  ddtv 
  
     <string name="app_name">丁丁電視</string>
@@ -1762,7 +1810,7 @@ Enable automatic activity tracking
     <string name="fb_app_id">496791563769983</string>
     
  fcu 
-    
+     
     <string name="app_name">逢甲影音</string>
     <string name="app_icon">@drawable/launch_logo_fcu</string>    
     <string name="white_label">fcu</string>     
@@ -1776,7 +1824,7 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_fcu</string>
     <string name="set_banner">banner01_fcu</string>      
 	<string name="fb_app_id">180687745468145</string>
-    
+     
  Tzu Chi 
     
     <string name="app_name">慈濟</string>
@@ -1793,7 +1841,7 @@ Enable automatic activity tracking
 	<string name="fb_app_id">361253423962738</string>           
 	
  superstar 
-  
+   
     <string name="app_name">網路大明星</string>
     <string name="app_icon">@drawable/launch_logo_superstar</string>    
     <string name="white_label">superstar</string>     
@@ -1807,9 +1855,9 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_superstar</string>
     <string name="set_banner">banner_superstar</string>            
 	<string name="fb_app_id">422631834537839</string>
- 	
+ 	 
  musicvideo 
-  
+   
     <string name="app_name">MV不解釋</string>
     <string name="app_icon">@drawable/launch_logo_musicvideo</string>    
     <string name="white_label">musicvideo</string>     
@@ -1825,11 +1873,11 @@ Enable automatic activity tracking
 	<string name="fb_app_id">463854980410020</string>
     
  newsflipr 
-  
+   
     <string name="app_name">喇新聞 FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_newsflipr</string>    
-    <string name="white_label">newsflipr</string>     
-    <string name="mso">newsflipr</string>
+    <string name="white_label">news</string>     
+    <string name="mso">news</string>
     <string name="default_region">zh</string>               
     <string name="logo">logo_newsflipr</string>
     <string name="splash_background">bg_open_newsflipr</string>
@@ -1839,7 +1887,7 @@ Enable automatic activity tracking
     <string name="signin_bg">bg_open_newsflipr</string>
     <string name="set_banner">banner_newsflipr</string>            
 	<string name="fb_app_id">756691711022525</string>    
-	
+	 
  ktsf26 
   
     <string name="app_name">KTSF26</string>
@@ -1887,9 +1935,9 @@ Enable automatic activity tracking
     <string name="signin_bg">demo_bg_open</string>
     <string name="set_banner">demo_banner01</string>
     <string name="fb_app_id">361253423962738</string>
-    
+	
  Magazine 
- 
+  
     <string name="app_name">癮雜誌</string>
     <string name="app_icon">@drawable/magazine_launch_logo</string>
     <string name="white_label">magazine</string>
@@ -1903,6 +1951,54 @@ Enable automatic activity tracking
     <string name="signin_bg">magazine_bg_open</string>
     <string name="set_banner">magazine_banner01</string>
     <string name="fb_app_id">535963343168975</string>
+    
+ test 
+ 
+    <string name="app_name">test FLIPr</string>
+    <string name="app_icon">@drawable/launch_logo_test</string>    
+    <string name="white_label">test</string>     
+    <string name="mso">test</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_test</string>
+    <string name="splash_background">bg_open_test</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">open_logo_test</string>    
+    <string name="signin_logo">logo_signin_test</string>        
+    <string name="signin_bg">bg_open_test</string>
+    <string name="set_banner">banner_test</string>            
+	<string name="fb_app_id">390805357729394</string>
+    
+ Gametube 
+ 
+    <string name="app_name">GameTube</string>
+    <string name="app_icon">@drawable/gametube_launch_logo</string>
+    <string name="white_label">gametube</string>
+    <string name="mso">gametube</string>
+    <string name="default_region">zh</string>
+    <string name="logo">gametube_logo</string>
+    <string name="splash_background">gametube_bg_open</string>
+    <string name="splash_foreground">gametube_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">gametube_logo_signin</string>
+    <string name="signin_bg">gametube_bg_open</string>
+    <string name="set_banner">gametube_banner</string>
+    <string name="fb_app_id">708083305909248</string>
+     
+ Daaitv 
+
+    <string name="app_name">大愛電視 FLIPr</string>
+    <string name="app_icon">@drawable/daaitv_launch_logo</string>
+    <string name="white_label">daaitv</string>
+    <string name="mso">daaitv</string>
+    <string name="default_region">zh</string>
+    <string name="logo">daaitv_logo</string>
+    <string name="splash_background">daaitv_bg_open</string>
+    <string name="splash_foreground">daaitv_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">daaitv_logo_signin</string>
+    <string name="signin_bg">daaitv_bg_open</string>
+    <string name="set_banner">daaitv_banner</string>
+    <string name="fb_app_id">252273138293802</string>
     
          */
         public static final int uses_chromecast=0x7f0c0008;

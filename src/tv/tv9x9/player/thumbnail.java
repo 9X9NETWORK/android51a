@@ -148,6 +148,51 @@ public class thumbnail
 	
 		t.start();
 		}
+
+	public static void download_set_banners (final Context ctx, final metadata m, 
+			final String set_ids[], final String set_banners[], final Handler in_main_thread, final Runnable update)
+		{
+		Thread t = new Thread()
+			{
+			public void run()
+				{
+				try
+					{
+					if (!make_app_dir (ctx, m, "bthumbs")) return;
+					
+					for (int i = 0; i < set_ids.length; i++)
+						{
+						String set_id = set_ids [i];
+						
+						if (!set_id.startsWith ("$"))
+							{
+							String set_banner = set_banners [i];
+							if (set_banner != null && !set_banner.equals(""))
+								{
+								String sfilename = ctx.getFilesDir() + "/" + m.api_server + "/bthumbs/" + "_" + set_id + ".png";	
+								String ffilename = ctx.getFilesDir() + "/" + m.api_server + "/bthumbs/"       + set_id + ".png";	
+								Log.i ("vtest", "---------------=====> " + set_id + " THUMBNAIL " + set_banner);
+								download (set_id, set_banner, sfilename, true);
+								File sf = new File (sfilename);
+								File ff = new File (ffilename);
+								sf.renameTo (ff);
+								if (update != null)
+									in_main_thread.post (update);
+								}
+							}
+						}
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					((Activity) ctx).finish();
+					}
+				}
+			};
+	
+		t.start();
+		}
+
 	
 	public static void download (String id, String url, String filename, boolean clobber)
 		{
