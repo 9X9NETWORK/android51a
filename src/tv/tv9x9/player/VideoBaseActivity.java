@@ -1156,6 +1156,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{
 			config = mService.get_metadata (identity);
 			
+			if (config.mso == null)
+				{
+				/* the background service has been killed and restarted, since there is no MSO and we know that if it had been handed to us
+				   properly from .start, we would be guaranteed a non-null MSO. Exit and have start re-start. */
+
+				config.future_action = "reload-and-restart";
+				finish();
+				return;
+				}
+			
 			if (config.flurry_id != null && !config.flurry_id.isEmpty())
 				FlurryAgent.onStartSession (this, config.flurry_id);
 			FlurryAgent.setLogEnabled (true);

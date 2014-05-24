@@ -197,6 +197,12 @@ public class start extends Activity
 				launch_tv();		
 			else if (future_action.equals ("restart"))
 				launch();
+			else if (future_action.equals ("reload-and-restart"))
+				{
+				log ("the background service was killed. Reload everything!");
+				URI_for_launch = null;
+				ready();
+				}		
 			}
 		
 		try
@@ -498,6 +504,7 @@ public class start extends Activity
 				if (lines.length < 1)
 					{
 					alert ("Frontpage failure");
+					early_portal_ii();
 					}
 				else
 					{

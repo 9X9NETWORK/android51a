@@ -581,6 +581,13 @@ public class metadata
 				else
 					Arrays.sort (results, sort_by_position);		
 
+				if (results.length >= 1)
+					{
+					String first_episode_id = results [0];
+					String first_episode_thumb = program_meta (first_episode_id, "thumb");
+					if (first_episode_thumb != null && !first_episode_thumb.equals (""))
+						set_channel_meta_by_id (real_channel, "episode_thumb", first_episode_thumb);
+					}
 				return results;
 				}
 			}

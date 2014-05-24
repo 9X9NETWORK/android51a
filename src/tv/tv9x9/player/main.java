@@ -496,7 +496,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (previous_layer == toplayer.SHAKE)
 			enable_shake_layer();
 		else
-			enable_home_layer();
+			unlaunch_player();
 		}
 	
 	@Override
@@ -784,7 +784,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        public void onClick (View v)
 	        	{
 	        	log ("click on: logo");
-	        	// play_vitamio();
 	        	}
 			});	
 		}
@@ -4235,6 +4234,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 								sh.channel_adapter.notifyDataSetChanged();
 							}
 						};
+					log ("thumbnailing: " + TextUtils.join (",", sh.arena));
 					thumbnail.stack_thumbs (main.this, config, sh.arena, in_main_thread, channel_thumberino);
 					}
 				});
@@ -4967,6 +4967,21 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (vTriple != null)
 				vTriple.setImageResource (R.drawable.canary);
 			
+			final Runnable triple_update_thumbs = new Runnable()
+				{
+				@Override
+				public void run()
+					{
+					log ("triple update thumbs: " + channel_id);
+					
+					/* force the first thumbnail into "episode_thumb" */
+					config.program_line_by_id (channel_id);
+					
+					thumbits [position] = null;
+					notifyDataSetChanged();
+					}
+				};
+			
 			String program_line[] = config.program_line_by_id (channel_id);
 			if (program_line != null && program_line.length > 0)
 				{
@@ -4991,17 +5006,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				if (!requested_channel_thumbs [position])
 					{
 					requested_channel_thumbs [position] = true;
-					
-					Runnable triple_update_thumbs = new Runnable()
-						{
-						@Override
-						public void run()
-							{
-							log ("triple update thumbs: " + channel_id);
-							thumbits [position] = null;
-							notifyDataSetChanged();
-							}
-						};
 					
 					int n_thumbs = is_tablet() ? 4 : 1;
 					log ("** request " + n_thumbs + " thumbs: " + channel_id + " (position: " + position + ")");
@@ -5032,6 +5036,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						// else
 							fill_in_four_episode_thumbs (channel_id, new_program_line, (View) row, sh, requested_channel_thumbs [position]);
 						*/
+						int n_thumbs = is_tablet() ? 4 : 1;
+						log ("** request " + n_thumbs + " thumbs: " + channel_id + " (position: " + position + ")");
+						
+						thumbnail.download_first_n_episode_thumbs
+							(main.this, config, channel_id, n_thumbs, in_main_thread, triple_update_thumbs);
+						
 						requested_channel_thumbs [position] = true;
 						notifyDataSetChanged();
 						}
@@ -5599,34 +5609,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			// setup_player_fragment (channel_id);
 			}
 		play_first (channel_id);
-		}
-	
-	public void play_vitamio()
-		{
-        String fake_set[] = null;
-        String vitamio_channel = "!vitamio";
-        
-        String name = config.pool_meta(vitamio_channel, "name");
-        if (name == null || name.equals(""))
-	        {
-	        // config.add_channel (position, id, name, desc, thumb, count, type, status, nature, extra)
-	        config.add_channel (1, vitamio_channel, "Vitamio Channel", "this is a Vitamio channel...", "", "1", "0", "0", "667", "vitamio");
-	        // config.add_runt_episode (1, vitamio_channel, "DWbXfkNuupM");
-	        
-	        String url = "http://9x9ch2.goodtv.org/hls-live/livepkgr/_definst_/liveevent/live-ch1-2.m3u8";
-	        // url = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"; /* this one works */
-	        url = "http://live.3gv.ifeng.com/live/zixun.m3u8?fmt=x264_0k_mpegts&size=320x240";
-	        url = "http://9x9ch1.streamingfast.net/9x9livech1.m3u8";
-
-			config.add_runt_episode (2, vitamio_channel, "vitamio-episode-1", url);
-			
-	        // config.add_runt_episode (3, vitamio_channel, "TRVaU9X0rOs");			
-	        }
-        
-        /* a runt set of only one channel */
-        fake_set = new String[] { vitamio_channel };
-        		
-        launch_player (vitamio_channel, fake_set);
 		}
 	
 	public void play_episode_in_channel (String channel_id, String episode_id)
