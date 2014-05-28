@@ -4154,19 +4154,22 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			log ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% primary 3x3: " + position);
 			diminish_side_titles (current_home_page, true);
 			current_swap_object = sh;
-			current_home_page = sh.home_page;
-			diminish_side_titles (current_home_page, false);
-
-			if (sh.channel_adapter != null)
+			if (sh != null)
 				{
-				/* the mini mode might have changed */
-				sh.channel_adapter.reset_mini_mode();
-				/* and someone might have subscribed to a channel since this was last redrawn */
-				if (subscription_changes_this_session != sh.subscription_change_count)
+				current_home_page = sh.home_page;
+				diminish_side_titles (current_home_page, false);
+	
+				if (sh.channel_adapter != null)
 					{
-					/* try to minimize expensive calls to notifyDataSetChanged */
-					sh.subscription_change_count = subscription_changes_this_session;
-					sh.channel_adapter.notifyDataSetChanged();
+					/* the mini mode might have changed */
+					sh.channel_adapter.reset_mini_mode();
+					/* and someone might have subscribed to a channel since this was last redrawn */
+					if (subscription_changes_this_session != sh.subscription_change_count)
+						{
+						/* try to minimize expensive calls to notifyDataSetChanged */
+						sh.subscription_change_count = subscription_changes_this_session;
+						sh.channel_adapter.notifyDataSetChanged();
+						}
 					}
 				}
 			}
