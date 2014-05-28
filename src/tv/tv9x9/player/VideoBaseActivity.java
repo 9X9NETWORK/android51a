@@ -325,6 +325,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			google_cast_start();
 		else
 			gcast_start_pending = true;
+		cumulative_episode_time = 0;
 		}
 	
 	@Override
@@ -364,6 +365,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		*/
 		launch_in_progress = false;
+		cumulative_episode_time = 0;
 		gcast_resume();
 		}
 		

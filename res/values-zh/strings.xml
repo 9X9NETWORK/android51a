@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 9x9 -->
+    <!-- 9x9 --> 
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>

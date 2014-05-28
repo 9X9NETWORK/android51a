@@ -218,7 +218,8 @@ public class GcmIntentService extends IntentService
 	        .setStyle (new NotificationCompat.BigTextStyle()
 	        .bigText (text))
 	        .setContentText (text)
-	        .setSmallIcon (icon_id);
+	        .setSmallIcon (icon_id)
+	        .setAutoCancel (true);
 	
 	        mBuilder.setContentIntent (pi);
 	        

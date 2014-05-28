@@ -503,7 +503,8 @@ public class start extends Activity
 				{
 				if (lines.length < 1)
 					{
-					alert ("Frontpage failure");
+					log ("got nothing from portal API, discarding");
+					config.portal_api_cache = lines;
 					early_portal_ii();
 					}
 				else
@@ -518,9 +519,9 @@ public class start extends Activity
 				{
 				// when our server was taken down by YiWen once:
 				// org.apache.http.client.HttpResponseException: Service Temporarily Unavailable
-				log ("frontpage error: " + errtext);
-				alert ("Frontpage failure: " + errtext.replaceAll ("^ERROR:", ""));
-				finish();
+				config.portal_api_cache = null;
+				log ("frontpage error: " + errtext + ", discarding");
+				early_portal_ii();
 				}
 			};
 		}

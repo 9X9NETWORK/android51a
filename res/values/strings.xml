@@ -4,7 +4,7 @@
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
-    <string name="mso">9x9</string>
+    <string name="mso">demo</string>
     <string name="default_region">en</string>
     <string name="logo">tvlogo</string>
     <string name="splash_background">bgnew</string>
@@ -14,7 +14,7 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">361253423962738</string>
-		 
+	
     <!-- Joey Graceffa -->
     <!-- 
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>

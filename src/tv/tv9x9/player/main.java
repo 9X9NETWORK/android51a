@@ -137,6 +137,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	/* number of messages for the Messages layer */
 	int messages_count = 0;
 	
+	/* a count of subscribes and unsubscribes, to optimize redrawing */
+	int subscription_changes_this_session = 0;
+	
 	@Override
 	public void onCreate (Bundle savedInstanceState)
 		{
@@ -2236,6 +2239,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					{
 					public void success (String[] lines)
 						{
+						subscription_changes_this_session++;
 						make_follow_icon_normal (v);
 						toast_by_resource (R.string.following_yay);
 						config.place_in_channel_grid (real_channel, position, true);
@@ -2287,6 +2291,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					{
 					public void success (String[] lines)
 						{
+						subscription_changes_this_session++;
 						make_follow_icon_normal (v);
 						toast_by_resource (R.string.unfollowing_yay);
 						config.place_in_channel_grid (real_channel, position, false);
@@ -2446,6 +2451,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        	String fields[] = lines[0].split ("\t");
 			        	if (fields[0].equals ("0"))
 			        		{
+							subscription_changes_this_session++;
 			        		/* first do a little dance to rename this fake channel */
 			        		fields = lines[2].split ("\t");
 			        		final String new_channel_id = fields[0];
@@ -3970,6 +3976,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			set = a_set;
 			}
 		boolean shim_added = false;
+		int subscription_change_count = 0;
 		};
 
 	/* this is implemented using the base class! */
@@ -4000,6 +4007,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			final Swaphome sh = new Swaphome (position);			
 			sh.set_id = portal_stack_ids [position];
+			sh.subscription_change_count = subscription_changes_this_session;
 			
 			FrameLayout home_page = (FrameLayout) View.inflate (main.this, R.layout.home_page, null);
 			
@@ -4148,9 +4156,19 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			current_swap_object = sh;
 			current_home_page = sh.home_page;
 			diminish_side_titles (current_home_page, false);
-			/* the mini mode might have changed */
+
 			if (sh.channel_adapter != null)
+				{
+				/* the mini mode might have changed */
 				sh.channel_adapter.reset_mini_mode();
+				/* and someone might have subscribed to a channel since this was last redrawn */
+				if (subscription_changes_this_session != sh.subscription_change_count)
+					{
+					/* try to minimize expensive calls to notifyDataSetChanged */
+					sh.subscription_change_count = subscription_changes_this_session;
+					sh.channel_adapter.notifyDataSetChanged();
+					}
+				}
 			}
 
 		public void set_mini_mode_thumbs (View v)
@@ -8683,8 +8701,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						}
 					if (section == 3)
 						{
-						Log.i ("vtest", "search CHLINE: " + s);
-						String[] fields = s.split ("\t");					
+						String[] fields = s.split ("\t");			
+						log ("__search channel (9x9): " + fields[1] + " == " + config.pool_meta(fields[1], "extra"));
 						channel_ids [count] = fields[1];
 						count++;
 						}
@@ -8712,7 +8730,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					{
 					for (String channel: a)
 						{
-						log ("__search channel: " + channel);
+						log ("__search channel (youtube): " + channel);
 						}
 					}
 				search_youtube_done = true;
@@ -8748,14 +8766,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				/* make a list of all the YouTube usernames in the 9x9 result portion */
 				for (String id: channel_ids_9x9)
 					{
-					if (config.is_youtube (id))
+					// if (config.is_youtube (id))  <-- Unfortunately some of the channels are mirrored, and show up as type 6 (a server bug?)
 						{
-						String extra = "=" + config.pool_meta (id, "extra");
-						if (extra != null && !extra.equals (""))
-							{
-							log ("9x9 channel " + id + " => " + extra);
-							youtubes.add (extra);
-							}
+						String extra = "=" + config.pool_meta (id, "extra").toLowerCase();
+						log ("9x9 youtube channel " + id + " => " + extra);
+						youtubes.add (extra);
 						}
 					}
 								
@@ -8764,7 +8779,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				/* how many YouTube channels are actually not in the 9x9 results */
 				for (String id: channel_ids_youtube)
 					{
-					if (!youtubes.contains (id))
+					if (!youtubes.contains (id.toLowerCase()))
 						true_num_youtubes++;
 					}
 				
@@ -8779,7 +8794,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					if (i < channel_ids_youtube.length)
 						{
 						String id = channel_ids_youtube [i];
-						if (!youtubes.contains (id))
+						if (!youtubes.contains (id.toLowerCase()))
 							search_channels_new [count++] = id;
 						else
 							log ("omitted because it is already a 9x9 channel: " + id);

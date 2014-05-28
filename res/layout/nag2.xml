@@ -26,9 +26,13 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_marginTop="20dip"
+		        android:layout_marginLeft="50dip"
+		        android:layout_marginRight="50dip"		      
 		    	android:layout_gravity="center"
 		    	android:gravity="center"        
 		        android:src="@drawable/nag2"
+		        android:adjustViewBounds="true"
+		        android:scaleType="centerInside"
 		        />
 		    
 		    <LinearLayout
@@ -39,7 +43,7 @@
 			    android:orientation="horizontal"
 			    android:background="#FFFFFF">	
 			    <TextView
-			        android:layout_weight="0.33"
+			        android:layout_weight="0.15"
 			    	android:layout_width="0dip"
 			    	android:layout_height="wrap_content"      
 			    	android:layout_marginTop="30dip"  
@@ -49,7 +53,7 @@
 			        android:textSize="18sp"
 			       	/>		       
 			    <LinearLayout
-				    android:layout_weight="0.67"		        
+				    android:layout_weight="0.70"		        
 				    android:layout_width="0dip"
 				    android:layout_height="wrap_content"		    
 				    android:layout_gravity="center"
@@ -77,7 +81,7 @@
 				        /> 		    
 		        </LinearLayout>
 			    <TextView
-			        android:layout_weight="0.33"		        
+			        android:layout_weight="0.15"		        
 			    	android:layout_width="0dip"
 			    	android:layout_height="wrap_content"      
 			    	android:layout_marginTop="30dip"  

@@ -47,7 +47,9 @@
 		    <TextView
 		    	android:layout_width="wrap_content"
 		    	android:layout_height="wrap_content"
-		    	android:layout_marginTop="20dip"	    	        
+		    	android:layout_marginTop="20dip"	    	 
+		    	android:layout_marginLeft="40dip"
+		        android:layout_marginRight="40dip"	
 		    	android:layout_gravity="center"
 		    	android:gravity="center"
 		        android:textColor="#555555"
@@ -59,9 +61,13 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_marginTop="20dip"
+		        android:layout_marginLeft="75dip"
+		        android:layout_marginRight="75dip"		        
 		    	android:layout_gravity="center"
 		    	android:gravity="center"        
 		        android:src="@drawable/nag1"
+		        android:adjustViewBounds="true"
+		        android:scaleType="centerInside"
 		        />
 		    
 		    <TextView

@@ -126,6 +126,7 @@ public class PlayerFragment extends Fragment implements Player
 	public void onResume()
 		{
 		log ("onResume");
+		reset_time_played();
 		super.onResume();
 		}
 	

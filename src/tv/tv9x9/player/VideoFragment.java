@@ -81,6 +81,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		{
 		log ("onResume");
 		initialize (devkey, this);
+		reset_time_played();
 		super.onResume();
 		}
 
