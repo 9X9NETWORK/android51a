@@ -3654,7 +3654,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         layout.height = (int) (screen_width / 1.77);
         vChromecastWindow.setLayoutParams (layout);
         
-        /* pause_video(); */
         player.pause();
         
         sendMessage ("hello hello!");
@@ -3977,6 +3976,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
                 	String episode = data.getString ("episode");
                 	String channel = data.getString ("channel");
                 	onChromecastPosition (channel, episode, position_int, duration_int);
+                	
+                	if (player != null)
+                		{
+                		/* sometimes the player has audio in the background. Send extra pauses every so often */
+                		if (player == playerFragment)
+                			player.pause();
+                		}
                 	
                 	if (current_chromecast_episode == null || !current_chromecast_episode.equals (episode))
                 		{
