@@ -2248,6 +2248,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						ytchannel.subscribe_on_youtube (config, youtube_username);
 						config.subscriptions_altered = config.grid_update_required = true;
 						track_event ("function", "follow", "follow", 0, real_channel);
+						if (grid_slider != null)
+							grid_slider.notifyDataSetChanged();
 						update_layer_after_subscribe (real_channel);
 						}
 					public void failure (int code, String errtext)
@@ -2300,6 +2302,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						ytchannel.delete_on_youtube (config, youtube_username);
 						config.subscriptions_altered = config.grid_update_required = true;
 						track_event ("function", "unfollow", "unfollow", 0, real_channel);
+						if (grid_slider != null)
+							grid_slider.notifyDataSetChanged();
 						update_layer_after_subscribe (real_channel);
 						}
 					public void failure (int code, String errtext)

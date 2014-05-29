@@ -20,7 +20,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	boolean paused = false;
 
 	private YouTubePlayer player = null;
-	private String videoId;
+	private String videoId = null;
 
 	final String devkey = "AI39si5HrNx2gxiCnGFlICK4Bz0YPYzGDBdJHfZQnf-fClL2i7H_A6Fxz6arDBriAMmnUayBoxs963QLxfo-5dLCO9PCX-DTrA";
 	
@@ -37,7 +37,8 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	private Handler handler = null;
 	private Runnable startup_function = null;
 	
-
+	int number_of_inits = 0;
+	
 	private void log (String text)
 		{
 		Log.i ("vtest", "[videoFragment] " + text);
@@ -224,7 +225,28 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	public void set_manage_audio_focus (boolean focus)
 		{
 		if (player != null)
-			try { player.setManageAudioFocus (false); } catch (Exception ex) { ex.printStackTrace(); }
+			{
+			try
+				{
+				player.setManageAudioFocus (false);
+				}
+			catch (IllegalStateException ex)
+				{
+				/* this is the first call to the YouTube player, so handle this re-init here */
+				if (number_of_inits++ < 16)
+					{
+					/* will mess up our context */
+					log ("Youtube is probably released, re-initializing");
+					initialize (devkey, this);
+					}
+				else
+					log ("Youtube init is " + number_of_inits + ", probably in some awful feedback loop, won't try to init");
+				}
+			catch (Exception ex)
+				{
+				ex.printStackTrace();
+				}
+			}
 		}
 
 	@Override
