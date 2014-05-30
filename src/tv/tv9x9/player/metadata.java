@@ -2037,6 +2037,9 @@ public class metadata
 				}
 			}		
 				
+		if (channel_ids == null)
+			return new String[] {};
+		
 		Log.i ("vtest", "set \"" + virtual_channel_id + "\" has " + count + " channels");
 		
 		Arrays.sort (channel_ids, new Comparator <String>()
