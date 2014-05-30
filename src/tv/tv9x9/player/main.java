@@ -3963,7 +3963,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		track_layer (toplayer.HOME);		
 		}
-
 	
 	class Swaphome
 		{
@@ -4197,11 +4196,33 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		
 		public void load_data (final Swaphome sh)
-			{			
+			{		
+			if (sh.home_page != null)
+				{
+				View vProgress = sh.home_page.findViewById (R.id.set_progress);
+				if (vProgress != null)
+					vProgress.setVisibility (View.VISIBLE);
+				
+				View vPull = sh.home_page.findViewById (R.id.pull_to_refresh);
+				if (vPull != null)
+					vPull.setVisibility (View.GONE);
+				}
+			
 			query_pile (portal_stack_ids [sh.set], new Callback()
 				{
 				public void run_string (String id)
 					{
+					if (sh.home_page != null)
+						{
+						View vProgress = sh.home_page.findViewById (R.id.set_progress);
+						if (vProgress != null)
+							vProgress.setVisibility (View.GONE);
+					
+						View vPull = sh.home_page.findViewById (R.id.pull_to_refresh);
+						if (vPull != null)
+							vPull.setVisibility (View.VISIBLE);
+						}
+					
 					sh.arena = config.list_of_channels_in_set (id);
 					
 					View vRefresh = sh.home_page.findViewById (R.id.pull_to_refresh);
@@ -4348,6 +4369,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		log ("refresh home");
 		config.query_cache = new Hashtable < String, String[] > ();
+		
 		if (home_slider != null)
 			home_slider.reload_data();
 		}

@@ -43,7 +43,7 @@ public class StoppableListView extends ListView
     	}
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent event)
+    public boolean onInterceptTouchEvent (MotionEvent event)
     	{
         if (this.isPagingEnabled)
         	{
@@ -74,13 +74,13 @@ public class StoppableListView extends ListView
 	@Override
     protected boolean overScrollBy
             (int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) 
-    	{
-		Log.i ("vtest", "deltaY: " + deltaY);
-		
+    	{		
 		int max_y_overscroll = deltaY < 0 ? max_overscroll_distance : maxOverScrollY;
-		
+				
 		if (finger_is_down_function != null && !finger_is_down_function.return_boolean())
 			max_y_overscroll = maxOverScrollY;
+		
+		Log.i ("vtest", "deltaY: " + deltaY + ", max_y_overscroll: " + max_y_overscroll);
 		
 		if (scrollY < (-max_y_overscroll / 2))
 			{
@@ -101,6 +101,8 @@ public class StoppableListView extends ListView
 						});
 					}
 				}
+			else
+				Log.i ("vtest", "refresh in progress");
 			}
 		
         return super.overScrollBy (deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX, max_y_overscroll, isTouchEvent);  

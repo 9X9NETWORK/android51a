@@ -2891,6 +2891,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			
 	public void submit_episode_analytics (String why)
 		{
+		if (cumulative_channel_id.equals ("?UNDEFINED"))
+			return;
+		
 		int duration = (int) (cumulative_episode_time / 1000);
 		
 		log ("submitting episode analytics (" + cumulative_channel_id + ", " 
@@ -2908,6 +2911,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void submit_channel_analytics (String why)
 		{
+		if (cumulative_channel_id.equals ("?UNDEFINED"))
+			return;
+		
 		int duration = (int) (cumulative_channel_time / 1000);
 		
 		log ("submitting channel analytics (" + cumulative_channel_id + "), duration: " + duration + ", reason: " + why);
@@ -3742,10 +3748,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        	vVideoContainer.setLayoutParams (layout);
 		        	}		
 		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        // if (videoFragment.isHidden())
-		        	ft.show (videoFragment);
-		        // if (!playerFragment.isHidden())
-		        	ft.hide (playerFragment);
+		        ft.show (videoFragment);
+		        ft.hide (playerFragment);
 		        ft.commit();
 		        // set_video_alpha (255);
 		        View vVideo = videoFragment.getView();
@@ -3762,14 +3766,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        if (vPlayerSurface != null)		        	
 		        	vPlayerSurface.setVisibility (View.GONE);
 
-		        /*
-		        int count = vVideo.getChildCount();
-		        for (i = 0; i <= count; i++) {
-		            View v = rootLinearLayout.getChildAt(i);
-		            if (v instanceof LinearLayout) {
-		                ...
-		            }
-		        */
 		        player = videoFragment;
 		    	}
 	    	}
@@ -3794,10 +3790,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        	vVideoContainer.setLayoutParams (layout);
 		        	}		        
 		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        // if (playerFragment.isHidden())
-		        	ft.show (playerFragment);
-		        // if (!videoFragment.isHidden())
-		        	ft.hide (videoFragment);
+		        ft.show (playerFragment);
+		        ft.hide (videoFragment);
 		        ft.commit();
 		        // set_video_alpha (0);
 		        View vPlayerFragment = findViewById (R.id.player_fragment_container);

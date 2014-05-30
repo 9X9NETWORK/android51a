@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="top|center_horizontal"
     android:gravity="top|center_horizontal"        
-    android:background="#FF0000"
+    android:background="#FFFFFF"
     android:orientation="vertical">
 			
 	<LinearLayout
@@ -15,15 +15,31 @@
 	    android:orientation="horizontal"
 	    />
 			
-	<tv.tv9x9.player.StoppableViewPager
-	    xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:id="@+id/homepager"			    
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-	    android:layout_gravity="top|center_horizontal"
-	    android:gravity="top|center_horizontal"
-		android:scrollbarSize="0dip"
-		android:background="#FFFFFF"		    
-	    />
-
+	<FrameLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+	    
+		<tv.tv9x9.player.StoppableViewPager
+		    xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:id="@+id/homepager"			    
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"
+		    android:layout_gravity="top|center_horizontal"
+		    android:gravity="top|center_horizontal"
+			android:scrollbarSize="0dip"
+			android:background="#FFFFFF"		    
+		    />
+	
+		<ProgressBar
+		    android:id="@+id/home_progress"          
+	    	android:layout_width="60dip"
+	    	android:layout_height="60dip"
+	    	android:layout_gravity="center"
+	    	android:gravity="center"
+	        android:padding="6dip"			    	
+	    	style="@android:style/Widget.ProgressBar.Inverse"
+	    	android:visibility="gone"
+	    	/>	
+    </FrameLayout>
+			    	
 </LinearLayout>
