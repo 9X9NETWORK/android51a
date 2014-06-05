@@ -14,7 +14,7 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">361253423962738</string>
-	
+			
     <!-- Joey Graceffa -->
     <!-- 
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -46,7 +46,7 @@
     <string name="signin_logo">jennamarbles_logo_signin</string>
     <string name="signin_bg">jennamarbles_bg_open</string>
     <string name="set_banner">jennamarbles_banner01</string>
-    <string name="fb_app_id">361253423962738</string>
+    <string name="fb_app_id">278438812338830</string>
     -->
 
     <!-- Ray William Johnson -->
@@ -63,8 +63,59 @@
     <string name="signin_logo">raywilliamjohnson_logo_signin</string>
     <string name="signin_bg">raywilliamjohnson_bg_open</string>
     <string name="set_banner">raywilliamjohnson_banner01</string>
-    <string name="fb_app_id">361253423962738</string>
+    <string name="fb_app_id">1419139305027309</string>
     -->
+    
+    <!-- The Ellen Show -->
+    <!-- 
+    <string name="app_name">Flipr - The Ellen Show Edition</string>
+    <string name="app_icon">@drawable/theellenshow_launch_logo</string>
+    <string name="white_label">theellenshow</string>
+    <string name="mso">theellenshow</string>
+    <string name="default_region">en</string>
+    <string name="logo">theellenshow_logo</string>
+    <string name="splash_background">theellenshow_bg_open</string>
+    <string name="splash_foreground">theellenshow_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">theellenshow_logo_signin</string>
+    <string name="signin_bg">theellenshow_bg_open</string>
+    <string name="set_banner">theellenshow_banner01</string>
+    <string name="fb_app_id">235033980039180</string>
+    -->
+    
+    <!-- The Rooster Teeth -->
+    <!-- 
+    <string name="app_name">Flipr - The Rooster Teeth Edition</string>
+    <string name="app_icon">@drawable/roosterteeth_launch_logo</string>
+    <string name="white_label">roosterteeth</string>
+    <string name="mso">roosterteeth</string>
+    <string name="default_region">en</string>
+    <string name="logo">roosterteeth_logo</string>
+    <string name="splash_background">roosterteeth_bg_open</string>
+    <string name="splash_foreground">roosterteeth_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">roosterteeth_logo_signin</string>
+    <string name="signin_bg">roosterteeth_bg_open</string>
+    <string name="set_banner">roosterteeth_banner01</string>
+    <string name="fb_app_id">1428431837427582</string>
+    -->
+       
+    <!-- Freddiew -->
+    <!-- 
+    <string name="app_name">Flipr - The Freddiew Edition</string>
+    <string name="app_icon">@drawable/freddiew_launch_logo</string>
+    <string name="white_label">freddiew</string>
+    <string name="mso">freddiew</string>
+    <string name="default_region">en</string>
+    <string name="logo">freddiew_logo</string>
+    <string name="splash_background">freddiew_bg_open</string>
+    <string name="splash_foreground">freddiew_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">freddiew_logo_signin</string>
+    <string name="signin_bg">freddiew_bg_open</string>
+    <string name="set_banner">freddiew_banner01</string>
+    <string name="fb_app_id">761677907197600</string>
+     -->
 
     <!-- Spinnin' Records -->
     <!-- 
@@ -98,7 +149,7 @@
     <string name="signin_bg">thefinebros_bg_open</string>
     <string name="set_banner">thefinebros_banner01</string>
     <string name="fb_app_id">1468306366724948</string>
-     -->
+    -->
      
     <!-- History -->
     <!-- 
@@ -222,18 +273,19 @@
     <!-- EchoMusic -->
     <!-- 
     <string name="app_name">EchoMusic</string>
-    <string name="app_icon">@drawable/ic_launcher_hdpi_echomusic</string>
+    <string name="app_icon">@drawable/launch_logo_echomusic</string>
     <string name="white_label">echomusic</string>
     <string name="mso">echomusic</string>
     <string name="default_region">zh</string>
-    <string name="logo">logo_topbar_echomusic</string>
-    <string name="splash_background">splash_bg_echomusic</string>
-    <string name="splash_foreground">splash_logo_echomusic</string>
+    <string name="logo">logo_echomusic</string>
+    <string name="splash_background">bg_open_echomusic</string>
+    <string name="splash_foreground">open_logo_echomusic</string>
     <string name="splash_slogan"></string>
-    <string name="signin_bg">bgnew</string>     
-    <string name="set_banner">banner_9x9</string>   
+    <string name="signin_logo">logo_signin_echomusic</string>
+    <string name="signin_bg">bg_open_echomusic</string>     
+    <string name="set_banner">banner_echomusic</string>   
 	<string name="fb_app_id">212239432317755</string>
-    -->
+     -->
 	
     <!-- cts -->
     <!-- 
@@ -250,10 +302,10 @@
     <string name="signin_bg">bg_open_cts</string>
     <string name="set_banner">banner_cts</string>            
 	<string name="fb_app_id">1429057570658015</string>       
-	 -->
+	 --> 
 	
     <!-- goodtv -->
-     <!-- 
+    <!--   
     <string name="app_name">GOODTV</string>
  	<string name="app_icon">@drawable/launch_logo_goodtv</string>         
     <string name="white_label">goodtv</string>
@@ -268,10 +320,10 @@
     <string name="signin_bg">bg_open_goodtv</string>        	
     <string name="set_banner">banner01_goodtv</string>
  	<string name="fb_app_id">555946694494117</string>       
-	  -->
+	 -->  
  	
     <!-- ddtv -->
-    <!-- 
+    <!--   
     <string name="app_name">DDTV</string>
     <string name="app_icon">@drawable/ddtv_launch_logo</string>    
     <string name="white_label">ddtv</string>     
@@ -285,10 +337,10 @@
     <string name="signin_bg">ddtv_bg_open</string>
     <string name="set_banner">ddtv_banner01</string>
     <string name="fb_app_id">496791563769983</string>
-     -->
+	 -->  
   
     <!-- fcu -->
-	<!--  
+	<!--    
     <string name="app_name">FCU</string>
     <string name="app_icon">@drawable/launch_logo_fcu</string>    
     <string name="white_label">fcu</string>     
@@ -302,7 +354,7 @@
     <string name="signin_bg">bg_open_fcu</string>
     <string name="set_banner">banner01_fcu</string>      
 	<string name="fb_app_id">180687745468145</string>           
-     -->
+     -->  
   	           
     <!-- Tzu Chi -->
     <!--    
@@ -321,7 +373,7 @@
     -->
     
     <!-- thenewslens -->
-    <!-- 
+    <!--    
     <string name="app_name">Thenewslens FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_thenewslens</string>    
     <string name="white_label">thenewslens</string>     
@@ -335,10 +387,10 @@
     <string name="signin_bg">bg_open_thenewslens</string>
     <string name="set_banner">banner_thenewslens</string>            
 	<string name="fb_app_id">436354623134686</string>
-	 --> 
+    -->
  
  	<!-- superstar  -->
-    <!--  
+    <!--   
     <string name="app_name">Superstar FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_superstar</string>    
     <string name="white_label">superstar</string>     
@@ -352,10 +404,10 @@
     <string name="signin_bg">bg_open_superstar</string>
     <string name="set_banner">banner_superstar</string>            
 	<string name="fb_app_id">422631834537839</string>
-	 -->	
+	 --> 	
     
     <!-- musicvideo -->
-    <!--  
+    <!--   
     <string name="app_name">Musicvideo FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_musicvideo</string>    
     <string name="white_label">musicvideo</string>     
@@ -369,10 +421,10 @@
     <string name="signin_bg">bg_open_musicvideo</string>
     <string name="set_banner">banner01_musicvideo</string>            
 	<string name="fb_app_id">463854980410020</string>
-	 -->	
+	  -->  	
 	
 	<!-- newsflipr -->
-    <!--  
+    <!--   
     <string name="app_name">News FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_newsflipr</string>    
     <string name="white_label">news</string>     
@@ -386,7 +438,7 @@
     <string name="signin_bg">bg_open_newsflipr</string>
     <string name="set_banner">banner_newsflipr</string>            
 	<string name="fb_app_id">756691711022525</string>
-	 -->	
+	 --> 	
 
     <!-- ktsf26 -->
     <!--  
@@ -422,7 +474,7 @@
     <string name="fb_app_id">361253423962738</string>
 	-->	
 		         
-    <!-- Demo -->
+    <!-- YuenFoongYu -->
     <!-- 
     <string name="app_name">Demo</string>
     <string name="app_icon">@drawable/demo_launch_logo</string>
@@ -438,9 +490,26 @@
     <string name="set_banner">demo_banner01</string>
     <string name="fb_app_id">361253423962738</string>
 	-->
-    
+
+    <!-- Demo -->
+    <!--  
+   	<string name="app_name">Demo</string>
+    <string name="app_icon">@drawable/ddtv_launch_logo</string>    
+	<string name="white_label">demo</string>
+    <string name="mso">demo</string>
+    <string name="default_region">en</string>
+    <string name="logo">ddtv_logo</string>
+    <string name="splash_background">ddtv_bg_open</string>
+    <string name="splash_foreground">ddtv_open_logo</string>    
+    <string name="splash_slogan"></string>     
+    <string name="signin_logo">ddtv_logo_signin</string>        
+    <string name="signin_bg">ddtv_bg_open</string>
+    <string name="set_banner">ddtv_banner01</string>
+	<string name="fb_app_id">361253423962738</string>
+	-->
+	
     <!-- Magazine -->
-    <!-- 
+    <!--  
     <string name="app_name">Magazine</string>
     <string name="app_icon">@drawable/magazine_launch_logo</string>
     <string name="white_label">magazine</string>
@@ -491,7 +560,7 @@
     -->
     
     <!-- Daaitv -->
-    <!-- 
+     <!-- 
     <string name="app_name">Daaitv FLIPr</string>
     <string name="app_icon">@drawable/daaitv_launch_logo</string>
     <string name="white_label">daaitv</string>

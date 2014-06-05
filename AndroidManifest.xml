@@ -28,6 +28,10 @@
 <!-- package="tv.flipr.daaitv" -->
 <!-- package="tv.flipr.jennamarbles" -->
 <!-- package="tv.flipr.raywilliamjohnson" -->
+<!-- package="tv.flipr.theellenshow" -->
+<!-- package="tv.flipr.roosterteeth" -->
+<!-- package="tv.flipr.freddiew" -->
+<!-- package="tv.flipr.echomusic" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
@@ -117,6 +121,36 @@
     			<data android:scheme="flipr-raywilliamjohnson" />        	       					   					
 			</intent-filter>	
 			-->
+			
+            <!-- for The Ellen Show -->
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-theellenshow" />                       
+            </intent-filter>
+            -->
+
+            <!-- for Rooster Teeth -->
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-roosterteeth" />                       
+            </intent-filter>
+            -->
+
+            <!-- for Freddiew -->
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-freddiew" />                           
+            </intent-filter>
+            -->
 
 			<!-- for Spinnin' Records -->
 			<!--		
@@ -328,7 +362,6 @@
             </intent-filter>
             -->
             
-            
             <!-- for test -->
             <!--
 			<intent-filter>
@@ -359,6 +392,16 @@
             </intent-filter>
 			-->
             																				
+            <!-- for echomusic -->
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-echomusic" />
+            </intent-filter>
+            -->                                                                                                                                                     
+
         </activity>
 
 <!-- entire Manifest file as provided from RC company:
