@@ -979,21 +979,21 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		player_real_channel = channel_id;
 		video_play_pending = true;
-		load_channel_then (channel_id, play_inner, "1", null);
+		load_channel_then (channel_id, false, play_inner, "1", null);
 		}
 	
 	public void play_nth (String channel_id, long position)
 		{
 		player_real_channel = channel_id;
 		video_play_pending = true;
-		load_channel_then (channel_id, play_inner, Long.toString (position), null);
+		load_channel_then (channel_id, false, play_inner, Long.toString (position), null);
 		}	
 
 	public void play_nth (String channel_id, long position, long start_msec)
 		{
 		player_real_channel = channel_id;
 		video_play_pending = true;
-		load_channel_then (channel_id, play_inner, Long.toString (position), new Long (start_msec));
+		load_channel_then (channel_id, false, play_inner, Long.toString (position), new Long (start_msec));
 		}
 	
 	final Callback play_inner = new Callback()
@@ -1025,7 +1025,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		playerFragment.stop();
 		
 		video_play_pending = true;
-		load_channel_then (channel_id, play_episode_inner, episode_id, null);
+		load_channel_then (channel_id, false, play_episode_inner, episode_id, null);
 		}
 	
 	final Callback play_episode_inner = new Callback()
@@ -1039,11 +1039,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		};
 		
-	public void load_channel_then (final String channel_id, final Callback callback, final String arg1, final Object arg2)
+	public void load_channel_then (final String channel_id, final boolean allow_cache, final Callback callback, final String arg1, final Object arg2)
 		{
 		/* if we already have episodes, done */
 		
-		if (config.programs_in_real_channel (channel_id) > 0)
+		if (config.channel_loaded (channel_id))
 			{
 			log ("load channel " + channel_id + " then: has episodes");
 			if (callback != null)
@@ -1056,14 +1056,17 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		String name = config.pool_meta (channel_id, "name");
 		if (name != null && !name.equals (""))
 			{
-			log ("load channel " + channel_id + " then: known, but no programs");
-			ytchannel.fetch_and_parse_by_id_in_thread (config, channel_id, in_main_thread, new Runnable()
+			log ("load channel " + channel_id + " then: known, but no programs (allow_cache: " + allow_cache + ")");
+			ytchannel.fetch_and_parse_by_id_in_thread (VideoBaseActivity.this, config, channel_id, allow_cache, in_main_thread, new Runnable()
 				{
 				@Override
 				public void run()
 					{
 					if (callback != null)
+						{
+						log ("native callback! arg1=" + arg1 + " arg2=" + arg2);
 						callback.run_string_and_object (arg1, arg2);
+						}
 					}				
 				});				
 			return;
@@ -1078,7 +1081,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				{
 				log ("load channel " + channel_id + ", lines received: " + chlines.length);
 				config.parse_channel_info (chlines);
-				ytchannel.fetch_and_parse_by_id_in_thread (config, channel_id, in_main_thread, callback, arg1, arg2);
+				ytchannel.fetch_and_parse_by_id_in_thread (VideoBaseActivity.this, config, channel_id, allow_cache, in_main_thread, callback, arg1, arg2);
 				return;
 				}
 	
@@ -2891,38 +2894,36 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			
 	public void submit_episode_analytics (String why)
 		{
-		if (cumulative_channel_id.equals ("?UNDEFINED"))
-			return;
-		
-		int duration = (int) (cumulative_episode_time / 1000);
-		
-		log ("submitting episode analytics (" + cumulative_channel_id + ", " 
-				+ cumulative_episode_id + "), duration: " + duration + ", reason: " + why);
-
-		String channel_name = config.pool_meta (cumulative_channel_id, "name");
-		String episode_name = config.program_meta (cumulative_episode_id, "name");			
-		
-		if (duration >= 6)
-			track_event ("p" + cumulative_channel_id + "/" + cumulative_episode_id, "epWatched", channel_name + "/" + episode_name, duration);	
-		
+		if (!cumulative_channel_id.equals ("?UNDEFINED"))
+			{
+			int duration = (int) (cumulative_episode_time / 1000);
+			
+			log ("submitting episode analytics (" + cumulative_channel_id + ", " 
+					+ cumulative_episode_id + "), duration: " + duration + ", reason: " + why);
+	
+			String channel_name = config.pool_meta (cumulative_channel_id, "name");
+			String episode_name = config.program_meta (cumulative_episode_id, "name");			
+			
+			if (duration >= 6)
+				track_event ("p" + cumulative_channel_id + "/" + cumulative_episode_id, "epWatched", channel_name + "/" + episode_name, duration);	
+			}
 		cumulative_episode_id = null;
 		cumulative_episode_time = 0;
 		}
 	
 	public void submit_channel_analytics (String why)
 		{
-		if (cumulative_channel_id.equals ("?UNDEFINED"))
-			return;
-		
-		int duration = (int) (cumulative_channel_time / 1000);
-		
-		log ("submitting channel analytics (" + cumulative_channel_id + "), duration: " + duration + ", reason: " + why);
-		
-		String channel_name = config.pool_meta (cumulative_channel_id, "name");		
-		
-		if (duration >= 6)
-			track_event ("p" + cumulative_channel_id, "pgWatched", channel_name, duration);
-		
+		if (!cumulative_channel_id.equals ("?UNDEFINED"))
+			{
+			int duration = (int) (cumulative_channel_time / 1000);
+			
+			log ("submitting channel analytics (" + cumulative_channel_id + "), duration: " + duration + ", reason: " + why);
+			
+			String channel_name = config.pool_meta (cumulative_channel_id, "name");		
+			
+			if (duration >= 6)
+				track_event ("p" + cumulative_channel_id, "pgWatched", channel_name, duration);
+			}
 		cumulative_channel_id = player_real_channel;
 		cumulative_channel_time = 0;
 		}
@@ -4092,7 +4093,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        String episodes[] = config.program_line_by_id (channel_id);
 		        for (String arena_episode_id: episodes)
 		        	{
-		        	log ("arena episode: " + arena_episode_id);
+		        	// log ("arena episode: " + arena_episode_id); // busy
 		        	JSONObject episode_structure = new JSONObject();
 		        	
 		        	String name = config.program_meta (arena_episode_id, "name");
@@ -4105,7 +4106,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        	if (url == null || url.equals (""))
 		        		url = config.program_meta (arena_episode_id, "sub-1-url");
 		        	
-		        	log ("arena episode url: " + url);
+		        	// log ("arena episode url: " + url); // busy
 		        	
 		        	episode_structure.put ("id", arena_episode_id);
 		        	episode_structure.put ("name", name);

@@ -60,6 +60,8 @@ public class start extends Activity
 	
 	String identity = "start";
 	
+	String first_setinfo_query = null;
+	
 	public void log (String text)
 		{
 		Log.i ("vtest", "[" + identity + "] " + text);
@@ -352,7 +354,8 @@ public class start extends Activity
     		wIntent.putExtra ("tv.9x9.message", message_for_launch);
     	
 		startActivity (wIntent);
-		
+    	overridePendingTransition (android.R.anim.fade_in, android.R.anim.fade_out);
+    	
 		if (config.interrupt_with_notification != null)
 			{
 			in_main_thread.post (config.interrupt_with_notification);
@@ -528,16 +531,6 @@ public class start extends Activity
 	
 	public void early_portal_ii()
 		{
-		long end_time = System.currentTimeMillis();
-		long remaining = end_time - start_time;
-		
-		if (remaining < 300)
-			{
-			log ("only " + remaining + " milliseconds left, won't prefetch setinfo");
-			delayed_launch();
-			return;
-			}
-
 		if (config.portal_api_cache != null && config.portal_api_cache.length >= 1)
 			{
 			String fields[] = config.portal_api_cache [0].split ("\t");
@@ -545,40 +538,51 @@ public class start extends Activity
 				{
 				Calendar now = Calendar.getInstance();
 				int hour = now.get (Calendar.HOUR_OF_DAY);
-				String short_id = fields [0];
+				final String short_id = fields [0];
 				/* this MUST match the query in main *exactly* or there is no point to this */
-				final String query = "setInfo?set=" + short_id + "&time=" + hour + "&programInfo=false";
-				new playerAPI (in_main_thread, config, query)
+				first_setinfo_query = "setInfo?set=" + short_id + "&time=" + hour + "&programInfo=false";
+				new playerAPI (in_main_thread, config, first_setinfo_query)
 					{
 					public void success (String[] lines)
 						{
 						/* only save this if subsequent query from main has not overwritten it */
-						if (config.query_cache.get (query) == null)
+						if (config.query_cache.get (first_setinfo_query) == null)
 							{
 							log ("saving portal api query in cache");
-							config.query_cache.put (query,  lines);
+							config.query_cache.put (first_setinfo_query,  lines);
+							preparse_first_set_info (short_id, lines);
+							delayed_launch();
 							}
 						}
 					public void failure (int code, String errtext)
 						{
+						delayed_launch();
 						}
 					};
 				}
 			}
 		else
+			{
 			log ("don't have portal_api_cache, won't fetch setInfo query");
+			delayed_launch();
+			}
 		
 		/* for perception, do the delayed launch anyway, even if above query has not completed and must be thrown away */
-		delayed_launch();
+		// delayed_launch();
 		}
 	
 	public void delayed_launch()
 		{
 		long end_time = System.currentTimeMillis();
+				
+		long delay = 2500 - (end_time - start_time);
+		Log.i ("vtest", "delay would be: " + delay + " milliseconds");
 		
-		if (end_time - start_time < 2500)
+		/* 3-Jun-2014 no delay ever */
+		delay = 0;
+		
+		if (delay > 0)
 			{
-			long delay = 2500 - (end_time - start_time);
 			Log.i ("vtest", "delayed launch: " + delay + " milliseconds");
 			in_main_thread.postDelayed (new Runnable()
 				{
@@ -763,4 +767,18 @@ public class start extends Activity
 			Log.i ("vtest", "start: relay received: " + s);
 			}
 		};
+		
+	public void preparse_first_set_info (String setid, String lines[])
+		{
+		config.parse_setinfo (setid, lines);
+		String channels[] = config.list_of_channels_in_set (setid);
+		for (String c: channels)
+			{
+			if (c != null)
+				{
+				log ("FIRST SET INFO: " + c);
+				ytchannel.return_any_cache (start.this, in_main_thread, null, config, c);
+				}
+			}
+		}
 	}

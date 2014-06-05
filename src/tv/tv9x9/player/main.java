@@ -181,6 +181,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		super.onResume();
 		
+		if (player != null)
+			player.reset_time_played();
+		
 		if (restore_video_location)
 			{
 			log ("will restore video");
@@ -215,11 +218,20 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
         if (uiHelper != null)
         	uiHelper.onPause();
         
-		if (video_is_minimized && !chromecasted)
-			{
-			log ("saving state of minimized video");
-			remember_location();
-			}
+        if (!chromecasted)
+        	{
+        	if (video_is_minimized)
+				{
+        		log ("saving state of minimized video");
+        		remember_location();
+				}
+
+        	if (video_is_minimized || current_layer == toplayer.PLAYBACK)
+        		{	
+        		if (player != null)
+        			player.add_to_time_played();
+        		}
+        	}
     	}
     
     @Override
@@ -465,7 +477,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View vStoreListPhone = findViewById (R.id.store_list_phone);
 		vStoreListPhone.setVisibility (is_tablet() ? View.GONE : View.VISIBLE);
 		
-		/* this is a GridView */
+		/* this is a GridonapView */
 		View vStoreListTablet = findViewById (R.id.store_list_tablet);
 		vStoreListTablet.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 		
@@ -635,9 +647,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		gcm_register();
 		
-		/* ui needs the notification count for the Message layer */
-		messages_count = messages_gather (true).size();
-		
+		in_main_thread.postDelayed (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				/* ui needs the notification count for the Message layer */
+				messages_count = messages_gather (true).size();
+				}
+			}, 4000);
+
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();	
 		if (extras != null)
@@ -1082,7 +1101,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (!initialized_app_menu)
 			{
 			initialized_app_menu = true;
-			init_apps();
+			in_main_thread.postDelayed(new Runnable()
+				{
+				@Override
+				public void run()
+					{
+					init_apps();
+					}
+				}, 15000);
 			}
 		
 		if (category_list == null && !initialized_app_menu)
@@ -1814,8 +1840,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	private void change_channel (String channel_id)
 		{
 		log ("change channel to: " + channel_id);
-		if (config.programs_in_real_channel (channel_id) < 1)
-			load_channel_then (channel_id, change_channel_inner_CB, channel_id, null);
+		if (!config.channel_loaded (channel_id))
+			load_channel_then (channel_id, false, change_channel_inner_CB, channel_id, null);
 		else
 			change_channel_inner_inner (channel_id);
 		}
@@ -4763,6 +4789,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		boolean requested_channel_thumbs[] = null;
 		Swaphome sh = null;
 		Bitmap thumbits[] = null;
+		String first_episode[] = null;
 		
 		boolean saved_mini_mode = false;
 		
@@ -4782,7 +4809,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					{	
 					notifyDataSetChanged();
 					}
-				}, 15000);
+				}, 10000);
 			}
 	
 		public void init_arrays()
@@ -4793,6 +4820,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			Arrays.fill (requested_channel_thumbs, Boolean.FALSE);
 			thumbits = new Bitmap [content.length];
 			Arrays.fill (thumbits, null);
+			first_episode = new String [content.length];
+			Arrays.fill (first_episode, null);
 			}
 		
 		@Override
@@ -4849,7 +4878,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			View row = convertView;			
 			
 			int wanted_layout_type = is_tablet() ? (mini_mode ? R.layout.channel_mini : R.layout.channel_tablet) : R.layout.channel;
-			// wanted_layout_type = is_tablet() ? R.layout.channel_null : R.layout.channel;
 
 			if (row == null)
 				{
@@ -4867,22 +4895,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			ImageView vChannelIcon = (ImageView) row.findViewById (R.id.channel_icon);
 			
 			boolean channel_thumbnail_found = false;
-			if (1 == 2)
-				{
-				String filename = getFilesDir() + "/" + config.api_server + "/xthumbs/" + channel_id + ".png";
-				
-				File f = new File (filename);
-				if (f.exists())
-					{
-					Bitmap bitmap = BitmapFactory.decodeFile (filename);
-					if (bitmap != null)
-						{
-						channel_thumbnail_found = true;
-						vChannelIcon.setImageBitmap (bitmap);
-						}
-					}
-				}
-			
 
 			View vChannelFrame = row.findViewById (R.id.channel_frame);
 			
@@ -4894,7 +4906,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				float factor = mini_mode ? 0.3f : 0.45f;
 				big_thumb_width = (int) ((screen_width - pixels_40) * factor);
 				big_thumb_height = (int) ((float) big_thumb_width / 1.77);
-				// FrameLayout.LayoutParams pic_layout = (FrameLayout.LayoutParams) vChannelIcon.getLayoutParams();
 				LinearLayout.LayoutParams pic_layout = (LinearLayout.LayoutParams) vChannelFrame.getLayoutParams();
 				pic_layout.height = big_thumb_height;
 				pic_layout.width = big_thumb_width;
@@ -4909,11 +4920,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				vChannelIcon.setLayoutParams (pic_layout);
 				}
 			
+			/*
 			if (!channel_thumbnail_found)
 				{
 				if (vChannelIcon != null)
 					vChannelIcon.setImageResource (R.drawable.store_unavailable);					
 				}	
+			*/
 			
 			if (vChannelFrame != null)
 				vChannelFrame.setOnClickListener (new OnClickListener()
@@ -5032,7 +5045,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			String program_line[] = config.program_line_by_id (channel_id);
 			if (program_line != null && program_line.length > 0)
 				{
-				//ImageView vTriple = (ImageView) parent.findViewById (R.id.triple_thumb);
 				if (vTriple != null)
 					{
 					Bitmap bm = null;
@@ -5047,8 +5059,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					if (bm != null)
 						vTriple.setImageBitmap (bm);
 					}
-				// else
-					fill_in_four_episode_thumbs (channel_id, program_line, row, sh, requested_channel_thumbs [position]);
+
+				fill_in_large_episode_thumb (position, channel_id, program_line, row);
 				
 				if (!requested_channel_thumbs [position])
 					{
@@ -5064,6 +5076,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					log ("already requested first n thumbs for: " + channel_id + " (position: " + position + ")");
 				}
 			else
+				{
+				TextView vSubTitle = (TextView) row.findViewById (R.id.subtitle);
+				if (vSubTitle != null)
+					vSubTitle.setText ("[...]");
+				}
+			
+			if (!config.channel_loaded (channel_id))
 				{
 				final int final_big_thumb_width = big_thumb_width;
 				Callback after_load = new Callback()
@@ -5093,13 +5112,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						notifyDataSetChanged();
 						}
 					};
-				TextView vSubTitle = (TextView) row.findViewById (R.id.subtitle);
-				if (vSubTitle != null)
-					vSubTitle.setText ("[...]");
+
 				if (!requested_channel_load [position])
 					{
 					requested_channel_load [position] = true;
-					load_channel_then (channel_id, after_load, channel_id, row);
+					load_channel_then (channel_id, true, after_load, channel_id, row);
 					}
 				}
 
@@ -5198,88 +5215,27 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					vEpisodePlural.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 				}
 			}
-		}
 		
-	public void fill_in_four_episode_thumbs (final String channel_id, String program_line[], View parent, final Swaphome sh, boolean requested_thumbs)
-		{
-		boolean e0_found = true, e1_found = true, e2_found = true, e3_found = true;
-		
-		Runnable triple_update_thumbs = new Runnable()
+		public void fill_in_large_episode_thumb (int position, final String channel_id, String program_line[], View parent)
 			{
-			@Override
-			public void run()
+			if (program_line != null && program_line.length >= 1)
 				{
-				log ("triple update thumbs: " + channel_id);
-				if (sh.channel_adapter != null)
-					sh.channel_adapter.notifyDataSetChanged();
-				}
-			};
-			
-		if (program_line != null)
-			{
-			if (program_line.length >= 1)
-				{	
-				e0_found = fill_in_episode_thumb (program_line[0], parent, R.id.channel_icon, is_phone() ? R.id.first_episode_title : 0);
-				}
-			
-			if (1 == 2)
-				{
-				if (program_line.length >= 2)
+				boolean use_blank = first_episode [position] == null;
+				fill_in_episode_thumb (program_line[0], parent, R.id.channel_icon, (is_phone() ? R.id.first_episode_title : 0), use_blank);
+				
+				first_episode [position] = program_line[0];
+				
+				TextView vSubTitle = (TextView) parent.findViewById (R.id.subtitle);
+				if (vSubTitle != null)
 					{
-					if (is_tablet())
-						; // e1_found = fill_in_episode_thumb (program_line[1], parent, R.id.episode1, 0 /* R.id.episode1_title */);
+					long ts = config.get_most_appropriate_timestamp (channel_id);
+					int display_episodes = config.display_channel_count (channel_id);
+					String ago = util.ageof (main.this, ts);
+					String txt_episode = getResources().getString (R.string.episode_lc);
+					String txt_episodes = getResources().getString (R.string.episodes_lc);
+					String subtitle = ago + " • " + display_episodes + " " + (display_episodes == 1 ? txt_episode : txt_episodes);
+					vSubTitle.setText (subtitle);
 					}
-				if (program_line.length >= 3)
-					{
-					if (is_tablet())
-						; // e2_found = fill_in_episode_thumb (program_line[2], parent, R.id.episode2, 0 /* R.id.episode2_title */);
-					}
-				if (is_phone())
-					{
-					View vEpisode3 = null; // parent.findViewById (R.id.episode3);
-					if (vEpisode3 != null)
-						vEpisode3.setVisibility (View.GONE);
-					}			
-				else
-					{
-					if (program_line.length >= 4)
-						{
-						if (is_tablet())
-							; // e3_found = fill_in_episode_thumb (program_line[3], parent, R.id.episode3, 0 /* R.id.episode3_title */);
-						}
-					}
-				}
-			
-			if (1 == 2)
-			if (!e0_found || !e1_found || !e2_found || !e3_found)
-				{
-				if (!requested_thumbs)
-					thumbnail.download_first_n_episode_thumbs
-							(main.this, config, channel_id, is_tablet() ? 4 : 1, in_main_thread, triple_update_thumbs);
-				}
-			}
-		else
-			{
-			// fill_in_episode_thumb (null, parent, R.id.episode1, 0 /* R.id.episode1_title */);
-			if (is_tablet())
-				{
-				// fill_in_episode_thumb (null, parent, R.id.episode2, 0 /* R.id.episode2_title */);
-				// fill_in_episode_thumb (null, parent, R.id.episode3, 0 /* R.id.episode3_title */);
-				}
-			}
-		
-		if (program_line != null && program_line.length >= 1)
-			{
-			TextView vSubTitle = (TextView) parent.findViewById (R.id.subtitle);
-			if (vSubTitle != null)
-				{
-				long ts = config.get_most_appropriate_timestamp (channel_id);
-				int display_episodes = config.display_channel_count (channel_id);
-				String ago = util.ageof (main.this, ts);
-				String txt_episode = getResources().getString (R.string.episode_lc);
-				String txt_episodes = getResources().getString (R.string.episodes_lc);
-				String subtitle = ago + " • " + display_episodes + " " + (display_episodes == 1 ? txt_episode : txt_episodes);
-				vSubTitle.setText (subtitle);
 				}
 			}
 		}
@@ -5309,7 +5265,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			return null;
 		}
 	
-	public boolean fill_in_episode_thumb (String episode_id, View parent, int resource_id, int title_resource_id)
+	public boolean fill_in_episode_thumb (String episode_id, View parent, int resource_id, int title_resource_id, boolean use_blank)
 		{	
 		boolean thumbnail_found = false;
 		
@@ -5330,35 +5286,23 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					{
 					if (f.length() > 0)
 						{
-						if (false && resource_id == R.id.channel_icon)
-							{
-							Bitmap bitmap = BitmapFactory.decodeFile (filename);
-							if (bitmap != null)
-								{
-								Bitmap bitmap2 = bitmappery.getRoundedTopTwoCorners (bitmap);
-								if (bitmap2 != null)
-									{
-									vThumb.setImageBitmap (bitmap2);
-									thumbnail_found = true;
-									}
-								}			
-							}
-						else
-							{
-							Bitmap bitmap = BitmapFactory.decodeFile (filename);
-							if (bitmap != null)
-								vThumb.setImageBitmap (bitmap);
-							}
+						Bitmap bitmap = BitmapFactory.decodeFile (filename);
+						if (bitmap != null)
+							vThumb.setImageBitmap (bitmap);
 						}
 					else
 						{
-						vThumb.setImageResource (R.drawable.store_unavailable);
+						if (use_blank)
+							vThumb.setImageResource (R.drawable.store_unavailable);
 						}
 					thumbnail_found = true;
 					}				
 				}
 			if (!thumbnail_found)
-				vThumb.setImageResource (R.drawable.store_unavailable);
+				{
+				if (use_blank)
+					vThumb.setImageResource (R.drawable.store_unavailable);
+				}
 			}
 		else
 			return true;
@@ -5410,7 +5354,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			});
 			
 			
-		load_channel_then (channel_id, setup_horiz_inner, channel_id, horiz);
+		load_channel_then (channel_id, false, setup_horiz_inner, channel_id, horiz);
 
 		return horiz_adapter;
 		}
@@ -5443,7 +5387,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			return null;
 		
 		horiz.setAdapter (horiz_adapter);						
-		load_channel_then (channel_id, NEW_setup_horiz_inner, channel_id, horiz);
+		load_channel_then (channel_id, false, NEW_setup_horiz_inner, channel_id, horiz);
 
 		return horiz_adapter;
 		}
@@ -7031,7 +6975,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	{
 	    	int per = is_phone() ? 3 : 4;
 	    	int length = content != null ? (content.length + per - 1) / per : 0;
-	    	log ("** HORIZ length (" + channel_id + "): " + length);
+	    	// log ("** HORIZ length (" + channel_id + "): " + length); // busy
 	        return length;
 	    	}
 	
@@ -7097,13 +7041,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						if (vTitle != null)
 							vTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 						}
-					if (!fill_in_episode_thumb (episode, hrow, resource_id, title_id))
+					if (!fill_in_episode_thumb (episode, hrow, resource_id, title_id, true))
 						all_thumbs_found = false;
 					View vBorder = hrow.findViewById (resource_id);
 					vBorder.setBackgroundColor (content != null && base + i == current_episode_index - 1 ? Color.WHITE : Color.BLACK);
 					View vBox = hrow.findViewById (box_id);
 					vBox.setVisibility (episode == null ? View.INVISIBLE : View.VISIBLE);
-					log ("[HORIZ] current: " + (current_episode_index - 1) + ", this one: " + (base + i));
+					// log ("[HORIZ] current: " + (current_episode_index - 1) + ", this one: " + (base + i)); // busy
 					
 					final int i_final = i;
 					vBox.setOnClickListener (new OnClickListener()
@@ -7125,7 +7069,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					if (content != null)
 						episode3 = base + 3 < content.length ? content [base+3] : null;
 					episodes [3] = episode3;
-					if (!fill_in_episode_thumb (episode3, hrow, R.id.ep3, 0))
+					if (!fill_in_episode_thumb (episode3, hrow, R.id.ep3, 0, true))
 						all_thumbs_found = false;
 					}
 				
@@ -7533,14 +7477,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			String name = config.pool_meta (channel_id, "name"); 
 			vLargeTitle.setText (name);
-			int count = config.programs_in_real_channel (channel_id);
-			if (count > 0)
+			if (config.channel_loaded (channel_id))
+				{	
 				highlight_3x3_square_inner_inner (channel_id);
+				}
 			else
 				{
 				String txt_wait = getResources().getString (R.string.wait);
 				vLargeMeta.setText (txt_wait);
-				load_channel_then (channel_id, highlight_3x3_square_inner, channel_id, null);
+				load_channel_then (channel_id, false, highlight_3x3_square_inner, channel_id, null);
 				}
 			}			
     	}	
@@ -8866,7 +8811,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				}
 			};
 		
-		load_channel_then (channel_id, search_channel_special_inner, channel_id, null);
+		load_channel_then (channel_id, false, search_channel_special_inner, channel_id, null);
 		}
 	
 	public void redraw_search_list()

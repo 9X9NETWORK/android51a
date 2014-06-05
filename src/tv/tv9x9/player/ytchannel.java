@@ -1,5 +1,11 @@
 package tv.tv9x9.player;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -33,7 +40,9 @@ import org.json.JSONObject;
 
 import tv.tv9x9.player.metadata.Comment;
 
+import android.content.Context;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class ytchannel
@@ -172,28 +181,40 @@ public class ytchannel
 		}
 	
 	public static void fetch_and_parse_by_id_in_thread 
-			(final metadata config, final String channel_id, final Handler handler, final Runnable update)
+			(final Context ctx, final metadata config, final String channel_id, final boolean allow_cache, final Handler handler, final Runnable update)
 		{
 		Thread t = new Thread()
 			{
 			@Override
 			public void run()
 				{
+				Callback call_my_runnable = new Callback()
+					{
+					public void run_string (String channel)
+						{
+						Log.i ("vtest", "BLORT runnable 1");
+						handler.post (update);
+						}
+					};
 				if (config.is_youtube (channel_id))
 					{
-					fetch_and_parse_by_id (config, channel_id);
+					Log.i ("vtest", "BLORT1: " + channel_id);
+					if (allow_cache)
+						return_any_cache (ctx, handler, call_my_runnable, config, channel_id);
+					String data = fetch_and_parse_by_id (config, channel_id);
+					store_in_cache (ctx, config, channel_id, data);
+					config.set_channel_meta_by_id (channel_id, "loaded", "yes");
 					handler.post (update);
 					}
 				else
 					{
-					Callback call_my_runnable = new Callback()
-						{
-						public void run_string (String channel)
-							{
-							handler.post (update);
-							}
-						};
-					fetch_and_parse_32 (handler, call_my_runnable, config, channel_id, 1);
+					if (allow_cache)
+						return_any_cache (ctx, handler, call_my_runnable, config, channel_id);
+					// if (config.programs_in_real_channel(channel_id) > 0)
+						// TODO: temp!
+						// return;
+					Log.i ("vtest", "BLORTX: " + channel_id + " is a 9x9 channel");
+					fetch_and_parse_32 (ctx, handler, call_my_runnable, config, channel_id, 1);
 					}
 				}
 			};
@@ -202,16 +223,41 @@ public class ytchannel
 		}
 
 	public static void fetch_and_parse_by_id_in_thread 
-			(final metadata config, final String channel_id, final Handler handler, final Callback update, final String arg1, final Object arg2)
+			(final Context ctx, final metadata config, final String channel_id, 
+					final boolean allow_cache, final Handler handler, final Callback update, final String arg1, final Object arg2)
 		{
 		Thread t = new Thread()
 			{
 			@Override
 			public void run()
 				{
+				/* want to callback with two arguments, not just one */
+				Callback call_my_callable = new Callback()
+					{
+					public void run_string (String channel)
+						{
+						handler.post (new Runnable()
+							{
+							public void run()
+								{
+								if (update != null)
+									{
+									Log.i ("vtest", "BLORT callback 2");
+									update.run_string_and_object (arg1, arg2);
+									}
+								}
+							});
+						}
+					};
+					
 				if (config.is_youtube (channel_id))
 					{
-					fetch_and_parse_by_id (config, channel_id);
+					Log.i ("vtest", "BLORT2: " + channel_id);
+					if (allow_cache)
+						return_any_cache (ctx, handler, call_my_callable, config, channel_id);
+					String data = fetch_and_parse_by_id (config, channel_id);
+					store_in_cache (ctx, config, channel_id, data);
+					config.set_channel_meta_by_id (channel_id, "loaded", "yes");
 					handler.post (new Runnable()
 						{
 						@Override
@@ -223,22 +269,13 @@ public class ytchannel
 					}
 				else
 					{
-					/* want to callback with two arguments, not just one */
-					Callback call_my_callable = new Callback()
-						{
-						public void run_string (String channel)
-							{
-							handler.post (new Runnable()
-								{
-								public void run()
-									{
-									if (update != null)
-										update.run_string_and_object (arg1, arg2);
-									}
-								});
-							}
-						};
-					fetch_and_parse_32 (handler, call_my_callable, config, channel_id, 1);
+					Log.i ("vtest", "BLORTX: " + channel_id + " is a 9x9 channel");
+					if (allow_cache)
+						return_any_cache (ctx, handler, call_my_callable, config, channel_id);					
+					if (config.programs_in_real_channel(channel_id) > 0)
+						// TODO: temp!
+						return;
+					fetch_and_parse_32 (ctx, handler, call_my_callable, config, channel_id, 1);
 					}
 				}
 			};
@@ -308,7 +345,7 @@ public class ytchannel
 									});
 								}
 							};
-						fetch_and_parse_32 (h, call_my_callable, config, channel_id, new_extent);
+						fetch_and_parse_32 (null, h, call_my_callable, config, channel_id, new_extent);
 						}		
 					}	
 				else
@@ -319,26 +356,37 @@ public class ytchannel
 		t.start();
 		}
 	
-	public static void fetch_and_parse_by_id (final metadata config, String channel_id)
+	public static String fetch_and_parse_by_id (final metadata config, String channel_id)
 		{
 		Log.i ("vtest", "fetch and parse by channel id: " + channel_id);
 		String nature = config.pool_meta (channel_id, "nature");
 		String extra = config.pool_meta (channel_id, "extra");
 		if (config.is_youtube (channel_id))
-			fetch_and_parse_youtube (config, channel_id, nature, extra);
+			{
+			String data = fetch_and_parse_youtube (config, channel_id, nature, extra);
+			return data;
+			}
 		else
 			{
 			Log.i ("vtest", "!! channel " + channel_id + " nature is: " + nature);
 			// fetch_and_parse_teltel (config, channel_id, nature, extra);
+			return null;
 			}
 		}
 	
-	public static void fetch_and_parse_youtube (metadata config, String channel_id, String nature, String username)
+	public static String fetch_and_parse_youtube (metadata config, String channel_id, String nature, String username)
 		{
 		Log.i ("vtest", "fetch_and_parse_youtube channel \"" + channel_id + "\": " + username);
 		String data = fetch_youtube (nature, username, 1);
-		config.set_channel_meta_by_id (channel_id, "extent", "1");
-		parse_youtube (config, channel_id, nature, username, data);
+		
+		if (data != null)
+			{
+			config.set_channel_meta_by_id (channel_id, "extent", "1");
+			parse_youtube (config, channel_id, nature, username, data);
+			}
+		
+		/* in case we want to cache the data */
+		return data;
 		}
 	
 	public static void parse_youtube (metadata config, String channel_id, String nature, String username, String data)
@@ -785,26 +833,42 @@ public class ytchannel
 		
 	/* 3.2 style channels with subepisodes */
 	
-	public static void fetch_and_parse_32 (final Handler h, final Callback callback, final metadata config, final String channel, final int start)
+	public static void fetch_and_parse_32
+			(final Context ctx, final Handler h, final Callback callback, final metadata config, final String channel_id, final int start)
 		{
 		Calendar now = Calendar.getInstance();
 		int hour = now.get (Calendar.HOUR_OF_DAY);
 		
 		String userstuff = config.usertoken == null ? "" : ("&user=" + config.usertoken); 
-		String query = "programInfo?channel=" + channel + userstuff + "&start=" + start + "&count=50" + "&time=" + hour;
+		String query = "programInfo?channel=" + channel_id + userstuff + "&start=" + start + "&count=50" + "&time=" + hour;
 		
 		new playerAPI (h, config, query)
 			{
 			public void success (String[] lines)
 				{
+				if (ctx != null && start == 1)
+					{
+					String data = null;
+					// String data = TextUtils.join ("\n", lines);
+					for (String line: lines)
+						{
+						if (data == null)
+							data = line;
+						else
+							data += "\n" + line;
+						}
+					
+					store_in_cache (ctx, config, channel_id, lines);
+					}
 				config.parse_program_info_32 (lines);
-				config.set_channel_meta_by_id (channel, "extent", "1");
+				config.set_channel_meta_by_id (channel_id, "extent", "1");
+				config.set_channel_meta_by_id (channel_id, "loaded", "yes");
 				h.post (new Runnable()
 					{
 					public void run()
 						{
 						if (callback != null)
-							callback.run_string (channel);
+							callback.run_string (channel_id);
 						}
 					});
 				}
@@ -839,7 +903,7 @@ public class ytchannel
 		final String verify_id = config.pool_meta (channel_id, "id");
 		if (verify_id != null && !verify_id.equals (""))
 			{
-			fetch_and_parse_by_id_in_thread (h, callback, config, channel_id);
+			fetch_and_parse_by_id_in_thread (null, h, callback, config, channel_id, false);
 			return;
 			}
 		
@@ -855,7 +919,7 @@ public class ytchannel
 							{
 							String id = config.parse_channel_info_line (lines [0]);
 							if (id.equals (channel_id))
-								fetch_and_parse_by_id_inner (h, callback, config, channel_id);
+								fetch_and_parse_by_id_inner (null, h, callback, config, channel_id);
 							else
 								Log.i ("vtest", "full channel fetch: channel not found");
 							}
@@ -874,7 +938,8 @@ public class ytchannel
 		t.start();
 		}
 	
-	public static void fetch_and_parse_by_id_in_thread (final Handler h, final Callback callback, final metadata config, final String channel_id)
+	public static void fetch_and_parse_by_id_in_thread 
+			(final Context ctx, final Handler h, final Callback callback, final metadata config, final String channel_id, final boolean allow_cache)
 		{
 		Log.i ("vtest", "fetch and parse by channel id: " + channel_id);
 		
@@ -882,14 +947,22 @@ public class ytchannel
 			{
 			public void run()
 				{
-				fetch_and_parse_by_id_inner (h, callback, config, channel_id);
+				if (allow_cache)
+					return_any_cache (ctx, h, callback, config, channel_id);
+				String data = fetch_and_parse_by_id_inner (ctx, h, callback, config, channel_id);
+				if (config.is_youtube (channel_id))
+					{
+					config.set_channel_meta_by_id (channel_id, "loaded", "yes");	
+					store_in_cache (ctx, config, channel_id, data);
+					}
 				}
 			};
 			
 		t.start();
 		}
 
-	public static void fetch_and_parse_by_id_inner (final Handler h, final Callback callback, final metadata config, final String channel_id)
+	public static String fetch_and_parse_by_id_inner
+			(Context ctx, final Handler h, final Callback callback, final metadata config, final String channel_id)
 		{
 		if (channel_id != null)
 			{
@@ -900,11 +973,11 @@ public class ytchannel
 				if (extra == null)
 					{
 					Log.i ("vtest", "channel " + channel_id + " has no \"extra\" field!");
-					return;
+					return null;
 					}	
 			
 				String nature = config.pool_meta (channel_id, "nature");
-				fetch_and_parse_youtube (config, channel_id, nature, extra);
+				String data = fetch_and_parse_youtube (config, channel_id, nature, extra);
 				
 				h.post (new Runnable()
 					{
@@ -914,11 +987,13 @@ public class ytchannel
 							callback.run_string (channel_id);
 						}
 					});
+				
+				return data;
 				}
 			else
 				{
 				/* must do the callback from within fetch_and_parse_32 */
-				fetch_and_parse_32 (h, callback, config, channel_id, 1);
+				fetch_and_parse_32 (ctx, h, callback, config, channel_id, 1);
 				}
 			}
 		else
@@ -926,6 +1001,150 @@ public class ytchannel
 			if (callback != null)
 				callback.run_string (channel_id);
 			}
+		
+		return null;
+		}
+	
+	public static void return_any_cache (Context ctx, final Handler h, final Callback callback, final metadata config, final String channel_id)
+		{
+		final String nature = config.pool_meta (channel_id, "nature");
+		final String extra = config.pool_meta (channel_id, "extra");
+		String dir = config.is_youtube (channel_id) ? "ch-youtube-cache" : "ch-flipr-cache";
+		if (extra != null)
+			{
+			if (!thumbnail.make_app_dir (ctx, config, dir)) return;
+			String filename = ctx.getFilesDir() + "/" + config.api_server + "/" + dir + "/" + channel_id + ".cache";
+			Log.i ("vtest", "** READING FROM " + dir + " CACHE: " + filename);
+			File f = new File (filename);
+			if (f.exists() && f.length() > 0)
+				{
+				String data = read_entire_file (ctx, f);
+				if (config.is_youtube (channel_id))
+					parse_youtube (config, channel_id, nature, extra, data);
+				else
+					{
+					String lines[] = data.split ("\n");
+					try
+						{
+						config.parse_program_info_32 (lines);
+						}
+					catch (Exception ex)
+						{
+						/* We don't want to crash just because a cache is bad */
+						ex.printStackTrace();
+						return;
+						}
+					}
+				if (callback != null)
+					{
+					Log.i ("vtest", "BLORT CALLBACK: " + channel_id);
+					callback.run_string (channel_id);
+					}
+				}
+			}
+
+		}
+	
+	public static void store_in_cache (Context ctx, metadata config, String channel_id, String data)
+		{	
+		if (data != null && channel_id != null)
+			{
+			String dir = config.is_youtube (channel_id) ? "ch-youtube-cache" : "ch-flipr-cache";
+			if (!thumbnail.make_app_dir (ctx, config, dir)) return;
+			String filename = ctx.getFilesDir() + "/" + config.api_server + "/" + dir + "/" + channel_id + ".cache";
+			Log.i ("vtest", "** WRITING TO " + dir + " CACHE: " + filename);
+			File f = new File (filename);
+			write_entire_file (ctx, f, data);
+			}
+		}
+
+	public static void store_in_cache (Context ctx, metadata config, String channel_id, String lines[])
+		{	
+		if (lines != null && channel_id != null)
+			{
+			String dir = config.is_youtube (channel_id) ? "ch-youtube-cache" : "ch-flipr-cache";
+			if (!thumbnail.make_app_dir (ctx, config, dir)) return;
+			String filename = ctx.getFilesDir() + "/" + config.api_server + "/" + dir + "/" + channel_id + ".cache";
+			Log.i ("vtest", "** WRITING TO " + dir + " CACHE: " + filename);
+			File f = new File (filename);
+			write_entire_file (ctx, f, lines);
+			}
+		}
+	
+	//
+	//public static String read_entire_file (Context ctx, File f)
+		//{
+		//String content = null;
+		//try
+			//{
+			///* oh nasty */
+			// content = new Scanner (f).useDelimiter ("\\Z").next();
+			//}
+		//catch (Exception ex)
+			//{
+			//ex.printStackTrace();
+			//}
+		//Log.i ("vtest", "read " + content.length() + " characters");
+		//return content;
+		//}
+	
+	public static String read_entire_file (Context ctx, File f)
+		{
+		StringBuffer stringBuffer = new StringBuffer();
+		
+		try
+		{
+		BufferedReader bufferedReader = new BufferedReader (new FileReader(f));
+		 
+		String line = null;
+		 
+		while ((line = bufferedReader.readLine()) != null)
+			{
+			stringBuffer.append(line).append("\n");
+			}
+		}
+		catch (Exception ex)
+		{	
+		ex.printStackTrace();
+		}
+		return stringBuffer.toString();
+		}
+	
+	public static void write_entire_file (Context ctx, File f, String data)
+		{
+	    try
+	        {
+	        BufferedWriter output = new BufferedWriter (new FileWriter (f));
+	        output.write (data);
+	        output.flush();
+	        output.close();
+	        }
+	    catch (IOException ex)
+	    	{
+	    	ex.printStackTrace();
+	    	}
+		}
+
+	public static void write_entire_file (Context ctx, File f, String lines[])
+		{
+	    try
+	        {
+	    	int count = 0;
+	        BufferedWriter output = new BufferedWriter (new FileWriter (f));
+	        for (String line: lines)
+	        	{
+	        	if (count++ > 0)
+	        		output.write ("\n" + line);
+	        	else
+	        		output.write (line);
+	        	}
+	        output.flush();
+	        output.close();
+	        }
+	    catch (IOException ex)
+	    	{
+	    	ex.printStackTrace();
+	    	}
 		}
 	
 	public static void fetch_youtube_comments_in_thread

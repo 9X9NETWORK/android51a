@@ -425,23 +425,6 @@ public class metadata
 					}
 				}
 		}
-	
-	/* add locking if going to re-use */
-	public String OBSOLETE_first_program_in (int channel)
-		{
-		String real_channel = channel_meta (channel, "id");
-
-		if (real_channel != null)
-			for (Entry <String, Hashtable <String, String>> entry : programgrid.entrySet ())
-				{
-				// entry.getKey() and entry.getValue()
-				String this_channel = program_meta_nolock (entry.getKey (), "channel");
-				if (this_channel != null && real_channel.equals (this_channel))
-					return entry.getKey ();
-				}
-
-		return null;
-		}
 
 	public Comparator <String> sort_by_date = new Comparator <String>()
 		{
@@ -500,48 +483,6 @@ public class metadata
 				return 0;
 			}
 		};
-				
-	public String[] program_line (int channel)
-		{
-		int count = programs_in_channel (channel);
-
-		if (count > 0)
-			{
-			String results[] = new String [count];
-			
-			String real_channel = channel_meta (channel, "id");
-			
-			int n = 0;
-
-			if (real_channel != null)
-				{
-				try
-					{
-					program_lock.lock();
-					for (Entry <String, Hashtable <String, String>> entry : programgrid.entrySet ())
-						{
-						// entry.getKey() and entry.getValue()
-						String this_channel = program_meta_nolock (entry.getKey(), "channel");
-						if (this_channel != null && real_channel.equals (this_channel))
-							results[n++] = entry.getKey ();
-						}
-					}
-				finally
-					{
-					program_lock.unlock();
-					}
-
-				if (is_youtube (real_channel))
-					Arrays.sort (results, sort_by_date);
-				else
-					Arrays.sort (results, sort_by_position);			
-
-				return results;
-				}
-			}
-
-		return null;
-		}
 
 	public String[] program_line_by_id (String real_channel)
 		{
@@ -685,6 +626,8 @@ public class metadata
 				{
 				program_lock.unlock();
 				}
+			
+			set_channel_meta_by_id (real_channel, "loaded", "no");
 			}
 		}
 	
@@ -709,31 +652,11 @@ public class metadata
 		init_subscription_pool();
 		}
 	
-	public int programs_in_channel (int channel)
+	public boolean channel_loaded (String channel_id)
 		{
-		int count = 0;
-		String real_channel = channel_meta (channel, "id");
-
-		if (real_channel != null)
-			{
-			try
-				{
-				program_lock.lock();
-				for (Entry <String, Hashtable <String, String>> entry : programgrid.entrySet ())
-					{
-					// entry.getKey() and entry.getValue()
-					String this_channel = program_meta_nolock (entry.getKey (), "channel");
-					if (this_channel != null && real_channel.equals (this_channel))
-						count++;
-					}
-				}
-			finally
-				{
-				program_lock.unlock();
-				}
-			}
-
-		return count;
+		String loaded = pool_meta (channel_id, "loaded");
+		return loaded != null && loaded.equals ("yes");
+		// return programs_in_real_channel (channel_id) > 0;
 		}
 	
 	public int programs_in_real_channel (String real_channel)
@@ -1498,6 +1421,13 @@ public class metadata
 		
 		Hashtable <String, String> program = new Hashtable <String, String> ();
 
+		if (fields.length < 9)
+			{
+			Log.i ("vtest", "BAD LINE FOR parse32: " + line);
+			for (int j = 0; j < fields.length; j++)
+				Log.i ("vtest", "FIELD " + j + ": " + fields[j]);
+			}
+		
 		String episode_id = fields [1];
 		String name = fields [2];
 		String duration = fields [5];
@@ -1749,15 +1679,6 @@ public class metadata
 			}
 		else
 			return null;
-		}
-
-	public void OBSOLETE_set_channel_meta (int channel, String field, String value)
-		{
-		if (occupied (channel))
-			{
-			Hashtable <String, String> meta = channelgrid.get (channel);
-			meta.put (field, value);
-			}
 		}
 
 	public void set_channel_meta_by_id (String channel_id, String field, String value)

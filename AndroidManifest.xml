@@ -31,8 +31,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="110"
-      android:versionName="5.0.1.110">
+      android:versionCode="111"
+      android:versionName="5.0.1.111">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -44,6 +44,8 @@
     	If you don't do this, all the R.'s will be broken. To be fixed later by using library project.
    	-->
    	
+   	<uses-sdk android:minSdkVersion="10" android:targetSdkVersion="17" />
+   			
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -460,7 +462,13 @@
         
         <service android:name="tv.tv9x9.player.switchboard" />
         
+        <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
+		<receiver android:name="com.google.android.gms.analytics.CampaignTrackingReceiver" android:exported="true">
+  			<intent-filter>
+    			<action android:name="com.android.vending.INSTALL_REFERRER" />
+  			</intent-filter>
+		</receiver>
+		
     </application>
-    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="17" />
 
 </manifest> 
