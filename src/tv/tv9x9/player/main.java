@@ -4190,15 +4190,26 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 				if (sh.channel_adapter != null)
 					{
+					boolean need_refresh = false;
+					
 					/* the mini mode might have changed */
-					sh.channel_adapter.reset_mini_mode();
+					if (sh.channel_adapter.mini_mode_was_reset())
+						need_refresh = true;
+					
+					/* if this is the first time we have been primary, do a refresh */
+					if (sh.channel_adapter.set_primary() == 1)
+						need_refresh = true;
+					
 					/* and someone might have subscribed to a channel since this was last redrawn */
 					if (subscription_changes_this_session != sh.subscription_change_count)
 						{
 						/* try to minimize expensive calls to notifyDataSetChanged */
 						sh.subscription_change_count = subscription_changes_this_session;
-						sh.channel_adapter.notifyDataSetChanged();
+						need_refresh = true;
 						}
+					
+					if (need_refresh)
+						sh.channel_adapter.notifyDataSetChanged();
 					}
 				}
 			}
@@ -4790,8 +4801,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		Swaphome sh = null;
 		Bitmap thumbits[] = null;
 		String first_episode[] = null;
-		
 		boolean saved_mini_mode = false;
+		
+		/* the number of times this has been front and center in its container */
+		int primary_count = 0;
 		
 		ChannelAdapter (Activity context, String content[], Swaphome sh)
 			{
@@ -4824,6 +4837,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			Arrays.fill (first_episode, null);
 			}
 		
+		public int set_primary ()
+			{
+			return ++primary_count;
+			}
+		
 		@Override
 		public int getCount()
 			{
@@ -4836,10 +4854,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			return 2;
 			}
 	
-		public void reset_mini_mode()
+		public boolean mini_mode_was_reset()
 			{
-			if (saved_mini_mode != mini_mode)
-				notifyDataSetChanged();
+			return saved_mini_mode != mini_mode;
 			}
 		
 		@Override
@@ -4875,15 +4892,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				return null;
 				}
 			
-			View row = convertView;			
-			
-			int wanted_layout_type = is_tablet() ? (mini_mode ? R.layout.channel_mini : R.layout.channel_tablet) : R.layout.channel;
-
-			if (row == null)
+			final View row;			
+			if (convertView == null)
 				{
+				int wanted_layout_type = is_tablet() ? (mini_mode ? R.layout.channel_mini : R.layout.channel_tablet) : R.layout.channel;
 				log ("ChannelAdapter inflate row type: " + wanted_layout_type);
 				row = inflater.inflate (wanted_layout_type, null);
 				}
+			else
+				row = convertView;
 			
 			if (is_phone())
 				adjust_for_device (row);			
@@ -5082,26 +5099,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					vSubTitle.setText ("[...]");
 				}
 			
+			int num_episodes = config.programs_in_real_channel (channel_id);
+			
 			if (!config.channel_loaded (channel_id))
 				{
-				final int final_big_thumb_width = big_thumb_width;
-				Callback after_load = new Callback()
+				final Callback after_load = new Callback()
 					{
 					@Override
 					public void run_string_and_object (final String channel_id, Object row)
 						{
-						/*
-						String new_program_line[] = config.program_line_by_id (channel_id);
-						ImageView vTriple = (ImageView) parent.findViewById (R.id.triple_thumb);
-						if (vTriple != null)
-							{
-							Bitmap bm = triple_thumbnail (channel_id, new_program_line, final_big_thumb_width);
-							if (bm != null)
-								vTriple.setImageBitmap (bm);
-							}
-						// else
-							fill_in_four_episode_thumbs (channel_id, new_program_line, (View) row, sh, requested_channel_thumbs [position]);
-						*/
 						int n_thumbs = is_tablet() ? 4 : 1;
 						log ("** request " + n_thumbs + " thumbs: " + channel_id + " (position: " + position + ")");
 						
@@ -5113,10 +5119,19 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						}
 					};
 
-				if (!requested_channel_load [position])
+				/* load channels only if this has been a primary display at least once -- keeps stuff from loading in the background and using up CPU */
+				if (primary_count > 0 && !requested_channel_load [position])
 					{
 					requested_channel_load [position] = true;
-					load_channel_then (channel_id, true, after_load, channel_id, row);
+					int urgency = 600 * (num_episodes > 0 ? 1 : 0);
+					in_main_thread.postDelayed (new Runnable()
+						{
+						@Override
+						public void run()
+							{
+							load_channel_then (channel_id, true, after_load, channel_id, row);
+							}
+						}, urgency * position * position);
 					}
 				}
 
@@ -5124,7 +5139,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (vChannelName != null)
 				vChannelName.setText (name != null ? name : "?");
 			
-			int num_episodes = config.programs_in_real_channel (channel_id);
 			int display_episodes = config.display_channel_count (channel_id);
 			
 			String txt_episode = getResources().getString (R.string.episode_lc);
