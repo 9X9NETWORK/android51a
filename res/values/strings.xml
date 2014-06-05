@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
+    <!-- 
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
@@ -14,7 +15,8 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">361253423962738</string>
-			
+	 -->
+	 		
     <!-- Joey Graceffa -->
     <!-- 
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -243,32 +245,30 @@
     <string name="white_label">networka</string>
     <string name="mso">networka</string>
     <string name="default_region">en</string>
-    <string name="logo">logo_networka</string>
-    <string name="splash_background">bg_open_networka</string>
-    <string name="splash_foreground">open_logo_networka</string>
+    <string name="logo">networka_logo</string>
+    <string name="splash_background">networka_bg_open</string>
+    <string name="splash_foreground">networka_open_logo</string>
     <string name="splash_slogan"></string>
-    <string name="signin_logo">logo_networka</string>
-    <string name="signin_bg">bg_open_networka</string>
-    <string name="set_banner">banner_networka</string>
+    <string name="signin_logo">networka_logo</string>
+    <string name="signin_bg">networka_bg_open</string>
+    <string name="set_banner">networka_banner</string>
     <string name="fb_app_id">450168698417667</string>
     -->
 
     <!-- crash course -->
-    <!-- 
     <string name="app_name">Crash Course on FLIPr</string>
     <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
     <string name="white_label">crashcourse</string>     
     <string name="mso">crashcourse</string>
     <string name="default_region">en</string>               
-    <string name="logo">logo_crashcourse</string>
-    <string name="splash_background">bg_open_crashcourse</string>
-    <string name="splash_foreground">open_logo_crashcourse</string>    
+    <string name="logo">crashcourse_logo</string>
+    <string name="splash_background">crashcourse_bg_open</string>
+    <string name="splash_foreground">crashcourse_open_logo</string>    
     <string name="splash_slogan"></string>    
-    <string name="signin_logo">logo_crashcourse</string>        
-    <string name="signin_bg">bg_open_crashcourse</string>  
-    <string name="set_banner">banner_crashcourse</string>      	
+    <string name="signin_logo">crashcourse_logo</string>        
+    <string name="signin_bg">crashcourse_bg_open</string>  
+    <string name="set_banner">crashcourse_banner</string>      	
     <string name="fb_app_id">1414438248794640</string>
-    -->    
 
     <!-- EchoMusic -->
     <!-- 
@@ -526,7 +526,7 @@
     -->
     
     <!-- test -->
-    <!-- 
+    <!--   
     <string name="app_name">test FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_test</string>    
     <string name="white_label">test</string>     
@@ -540,7 +540,7 @@
     <string name="signin_bg">bg_open_test</string>
     <string name="set_banner">banner_test</string>            
 	<string name="fb_app_id">390805357729394</string>
-    -->
+    --> 
     
     <!-- Gametube -->
     <!--   
@@ -560,7 +560,7 @@
     -->
     
     <!-- Daaitv -->
-     <!-- 
+    <!--   
     <string name="app_name">Daaitv FLIPr</string>
     <string name="app_icon">@drawable/daaitv_launch_logo</string>
     <string name="white_label">daaitv</string>
@@ -573,8 +573,8 @@
     <string name="signin_logo">daaitv_logo_signin</string>
     <string name="signin_bg">daaitv_bg_open</string>
     <string name="set_banner">daaitv_banner</string>
-    <string name="fb_app_id">252273138293802</string>
-    -->
+    <string name="fb_app_id">280807262096612</string>
+     -->
      
 		         
     <bool name="uses_chromecast">true</bool>
