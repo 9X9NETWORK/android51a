@@ -47,7 +47,7 @@ public class GcmIntentService extends IntentService
     	log ("GcmIntentService onHandleIntent");
         Bundle extras = intent.getExtras();
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
-        // The getMessageType() intent parafmeter must be the intent you received
+        // The getMessageType() intent parameter must be the intent you received
         // in your BroadcastReceiver.
         String messageType = gcm.getMessageType(intent);
 
@@ -61,19 +61,15 @@ public class GcmIntentService extends IntentService
              */
             if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType))
             	{
-            	// send error
-                sendNotification("error", extras);
+                sendNotification ("error", extras);
             	}
             else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType))
             	{
-            	// deleted messages on server
-                sendNotification("deleted", extras);
-                // If it's a regular GCM message, do some work.
+                sendNotification ("deleted", extras);
             	}
             else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType))
             	{
-                // This loop represents the service doing some work.
-                for (int i=0; i<5; i++)
+                for (int i = 0; i < 5; i++)
                 	{
                     log ("Working... " + (i+1) + "/5 @ " + SystemClock.elapsedRealtime());
                     try
@@ -86,7 +82,7 @@ public class GcmIntentService extends IntentService
                 	}
                 log ("Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
-                sendNotification("received", extras);
+                sendNotification ("received", extras);
                 log ("Received: " + extras.toString());
             	}
             else
@@ -124,12 +120,14 @@ public class GcmIntentService extends IntentService
     	String channel_id = null;
     	String episode_id = null;
         String title = null;
+        String logo = null;
         
     	String content = bundle.getString ("content");
     	log ("content=" + content);
     	if (content != null)
     		{
     		String fields[] = content.split (":");
+    		log ("# of content fields: " + fields.length);
     		if (fields.length >= 1)
     			mso = fields[0];
     		if (fields.length >= 2)
@@ -142,8 +140,16 @@ public class GcmIntentService extends IntentService
     		if (fields.length >= 4)
     			{
     			title = util.decodeURIComponent (fields[3]);
+    			log ("title: " + title);
     			if (title.equals (""))
     				title = null;
+    			}
+    		if (fields.length >= 5)
+    			{
+    			logo = fields[4];
+    			log ("logo: " + logo);
+    			if (logo.equals(""))
+    				logo = null;
     			}
     		}
     
@@ -265,7 +271,9 @@ public class GcmIntentService extends IntentService
         	note += "title" + "\t" + title + "\n";
         if (text != null)
         	note += "text" + "\t" + text + "\n";
-
+        if (logo != null)
+        	note += "logo" + "\t" + logo + "\n";
+        
         log ("NOTE: " + note);
         String filename = "" + new Date().getTime();
         

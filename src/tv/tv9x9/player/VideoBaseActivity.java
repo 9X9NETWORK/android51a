@@ -3770,6 +3770,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        player = videoFragment;
 		    	}
 	    	}
+		catch (IllegalStateException ex)
+			{
+			/* This is probably a bug in android. Not sure how to handle it! see: */
+			/* http://stackoverflow.com/questions/7469082/getting-exception-illegalstateexception-can-not-perform-this-action-after-onsa */
+	    	ex.printStackTrace();
+			}
 	    catch (Exception ex)
 	    	{
 	    	ex.printStackTrace();

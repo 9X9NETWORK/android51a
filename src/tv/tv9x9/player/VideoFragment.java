@@ -37,6 +37,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	private Handler handler = null;
 	private Runnable startup_function = null;
 	
+	private boolean restart_in_progress = false;
 	int number_of_inits = 0;
 	
 	private void log (String text)
@@ -53,7 +54,8 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	public void onCreate (Bundle savedInstanceState)
 		{
 		super.onCreate (savedInstanceState);
-		log ("onCreate");			
+		log ("onCreate");
+		restart_in_progress = true;
 		initialize (devkey, this);
 		reset_time_played();
 		}
@@ -195,28 +197,58 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	
 	public void load_video (String id, long start_msec)
 		{
-		if (!mCallback.is_chromecasted())
+		if (restart_in_progress)
+			{
+			log ("restart is in progress, won't load video!");
+			}
+		else if (!mCallback.is_chromecasted())
 			{
 			videoId = id;
 			if (player != null)
 				{
 				log ("load video " + id + ", start: " + start_msec);
 				start_time_workaround = start_msec;
-				try { player.loadVideo (id, (int) start_msec); } catch (Exception ex) { ex.printStackTrace(); }
+				try
+					{
+					player.loadVideo (id, (int) start_msec);
+					}
+				catch (IllegalStateException ex)
+					{
+					restart();
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					}
 				}
 			}
 		}
 
 	public void load_video (String id)
 		{
-		if (!mCallback.is_chromecasted())
+		if (restart_in_progress)
+			{
+			log ("restart is in progress, won't load video!");
+			}
+		else if (!mCallback.is_chromecasted())
 			{
 			videoId = id;
 			if (player != null)
 				{
 				log ("load video " + id + ", in its entirety");
 				start_time_workaround = 0;
-				try { player.loadVideo (id); } catch (Exception ex) { ex.printStackTrace(); }
+				try
+					{
+					player.loadVideo (id);
+					}
+				catch (IllegalStateException ex)
+					{
+					restart();
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					}
 				}
 			}
 		}
@@ -232,15 +264,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 				}
 			catch (IllegalStateException ex)
 				{
-				/* this is the first call to the YouTube player, so handle this re-init here */
-				if (number_of_inits++ < 16)
-					{
-					/* will mess up our context */
-					log ("Youtube is probably released, re-initializing");
-					initialize (devkey, this);
-					}
-				else
-					log ("Youtube init is " + number_of_inits + ", probably in some awful feedback loop, won't try to init");
+				restart();
 				}
 			catch (Exception ex)
 				{
@@ -249,6 +273,26 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			}
 		}
 
+	public void restart()
+		{
+		/* this is the first call to the YouTube player, so handle this re-init here */
+		if (!restart_in_progress)
+			{
+			if (number_of_inits++ < 16)
+				{
+				/* will mess up our context */
+				log ("Youtube is probably released, re-initializing");
+				restart_in_progress = true;
+				
+				initialize (devkey, this);
+				}
+			else
+				log ("Youtube init is " + number_of_inits + ", probably in some awful feedback loop, won't try to init");
+			}
+		else
+			log ("YouTube state error! but a re-initialization is in progress");
+		}
+	
 	@Override
 	public long get_offset()
 		{
@@ -335,13 +379,14 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	
 	public void set_playback_event_listener()
 		{
+		if (player == null)
+			{
+			log ("set_playback_event_listener: player is null!");
+			return;
+			}
+		
 		try
 			{
-			if (player == null)
-				{
-				log ("set_playback_event_listener: player is null!");
-				return;
-				}
 			player.setPlaybackEventListener (new YouTubePlayer.PlaybackEventListener()
 				{				
 				@Override
@@ -499,6 +544,10 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					}
 				});
 			}
+		catch (IllegalStateException ex)
+			{
+			restart();
+			}
 		catch (Exception ex)
 			{
 			ex.printStackTrace();
@@ -507,13 +556,13 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	
 	public void set_state_change_listener()
 		{	
+		if (player == null)
+			{
+			log ("set_state_change_listener: player is null!");
+			return;
+			}
 		try
 			{
-			if (player == null)
-				{
-				log ("set_state_change_listener: player is null!");
-				return;
-				}
 			player.setPlayerStateChangeListener (new YouTubePlayer.PlayerStateChangeListener()
 				{
 				@Override
@@ -525,7 +574,8 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 				@Override
 				public void onError (ErrorReason reason)
 					{
-					log ("[video state] onError: " + reason.toString());
+					String rString = reason.toString();
+					log ("[video state] onError: " + rString);
 	
 					most_recent_offset = 0;
 					
@@ -535,24 +585,31 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					/* not displaying errors is idiotic -- requested by PMs */
 					if (1 == 2)
 						{
-						if (reason.toString().equals ("USER_DECLINED_RESTRICTED_CONTENT"))
+						if (rString.equals ("USER_DECLINED_RESTRICTED_CONTENT"))
 							mCallback.alert ("Restricted content -- probably age restriction");
-						else if (reason.toString().equals ("INTERNAL_ERROR"))
+						else if (rString.equals ("INTERNAL_ERROR"))
 							mCallback.alert ("Internal error -- probably this video is private");
-						else if (reason.toString().equals ("UNAUTHORIZED_OVERLAY"))
+						else if (rString.equals ("UNAUTHORIZED_OVERLAY"))
 							ctx.video_systemic_error = true;
-						else if (reason.toString().equals ("PLAYER_VIEW_TOO_SMALL"))
+						else if (rString.equals ("PLAYER_VIEW_TOO_SMALL"))
 							ctx.video_systemic_error = true;		
-						else if (reason.toString().equals ("UNKNOWN"))
+						else if (rString.equals ("UNKNOWN"))
 							/* API bug? -- do nothing */;
 						else
-							mCallback.alert (reason.toString());
+							mCallback.alert (rString);
 						}
 					else
 						{
-						if (reason.toString().equals ("UNAUTHORIZED_OVERLAY"))
+						if (rString.equals ("UNEXPECTED_SERVICE_DISCONNECTION"))
+							{
 							ctx.video_systemic_error = true;
-						else if (reason.toString().equals ("PLAYER_VIEW_TOO_SMALL"))
+							mCallback.alert ("Problems with YouTube!");
+                            restart();
+                            return;
+							}
+						else if (rString.equals ("UNAUTHORIZED_OVERLAY"))
+							ctx.video_systemic_error = true;
+						else if (rString.equals ("PLAYER_VIEW_TOO_SMALL"))
 							ctx.video_systemic_error = true;
 						}
 					
@@ -623,6 +680,10 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					}
 				});
 			}
+		catch (IllegalStateException ex)
+			{
+			restart();
+			}
 		catch (Exception ex)
 			{
 			ex.printStackTrace();
@@ -634,8 +695,9 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	@Override
 	public void onInitializationSuccess (Provider provider, YouTubePlayer player, boolean was_restored)
 		{
+		restart_in_progress = false;
 		this.player = player;
-		
+
 		log ("YouTube initialized successfully");
 		
 		SpecialFrameLayout yt_wrapper = (SpecialFrameLayout) mCallback.findViewById (R.id.ytwrapper2);

@@ -477,7 +477,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View vStoreListPhone = findViewById (R.id.store_list_phone);
 		vStoreListPhone.setVisibility (is_tablet() ? View.GONE : View.VISIBLE);
 		
-		/* this is a GridonapView */
+		/* this is a GridView */
 		View vStoreListTablet = findViewById (R.id.store_list_tablet);
 		vStoreListTablet.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 		
@@ -866,6 +866,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				
 			case SIGNIN:
 				track_screen ("signIn");
+				break;
+				
+			default:
 				break;
 			}
 		}
@@ -1300,6 +1303,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				close_menu();
 				enable_nag_layer();
 				break;
+				
+			default:
+				break;
 			}
 		}
 	
@@ -1380,13 +1386,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (vDownload != null)
 				vDownload.setVisibility (menu [position].type == toplayer.APP_ITEM ? View.VISIBLE : View.GONE);
 			
-			boolean app_icon_found = false;
+			
 			
 			ImageView vAppIcon = (ImageView) rv.findViewById (R.id.app_icon); 	
 			if (vAppIcon != null)
-				{
-				if (menu [position].type == toplayer.APP_ITEM )
+				{		
+				if (menu [position].type == toplayer.APP_ITEM)
 					{
+					boolean app_icon_found = false;
 					String filename = getFilesDir() + "/" + config.api_server + "/apps/" + menu [position].app_item.basename + ".png";
 					
 					File f = new File (filename);
@@ -1400,10 +1407,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							vAppIcon.setImageBitmap (bitmap);
 							}
 						}
+					vAppIcon.setVisibility (app_icon_found ? View.VISIBLE : View.INVISIBLE);
 					}
-				vAppIcon.setVisibility (menu [position].type == toplayer.APP_ITEM ? View.VISIBLE : View.GONE);
+				else
+					vAppIcon.setVisibility (View.GONE);
 				}			
-			
 			
 			TextView vCount = (TextView) rv.findViewById (R.id.count);
 			if (vCount != null)
@@ -2411,18 +2419,21 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		else if (current_layer == toplayer.GUIDE)
 			{			
 			set_follow_icon_state (R.id.guide_follow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
-			redraw_3x3 (current_slider_view, current_set - 1);
+			grid_slider.notifyDataSetChanged();	
+			// redraw_3x3 (current_slider_view, current_set - 1);
 			}
 		else if (current_layer == toplayer.HOME)
 			{
-			if (home_slider != null)
-				home_slider.refresh();
+			/* see home_slider update below */
 			}
 		else if (current_layer == toplayer.PLAYBACK)
 			{
 			set_follow_icon_state (R.id.playback_follow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
 			set_follow_icon_state (R.id.playback_follow_landscape, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);		
 			}
+		
+		if (home_slider != null)
+			home_slider.refresh();
 		}
 
 	public void subscribe_via_post (final String real_channel, final int position, final View v)
@@ -7311,6 +7322,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
             return 9;
         	}
 
+        @Override
+        public void notifyDataSetChanged()
+        	{
+        	super.notifyDataSetChanged();
+        	if (current_slider_view != null)
+        		redraw_3x3 (current_slider_view, current_set - 1);
+        	}
+        
 		@Override
 		public boolean isViewFromObject (View view, Object object)
 			{
@@ -7389,6 +7408,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			  
 		    select (position);
 			download_grid_thumbs_for_this_3x3 (sg.box);
+			redraw_3x3 (current_slider_view, position);
 			}
 
 		public void select (int num)
@@ -8922,6 +8942,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		String channel;
 		String episode;
 		String timestamp;
+		String logo;
 		}
 	
 	public message parse_notification_file (String ts)
@@ -8942,15 +8963,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     	    			{
     	    			log ("notification " + ts + " k: " + fields[0] + " v: " + fields[1]);
     					if (fields[0].equals ("title"))
-    						m.title = fields [1];
+    						m.title = fields[1];
     					if (fields[0].equals ("mso"))
-    						m.mso = fields [1];    		
+    						m.mso = fields[1];    		
     					if (fields[0].equals ("channel"))
-    						m.channel = fields [1];      
+    						m.channel = fields[1];      
     					if (fields[0].equals ("episode"))
-    						m.episode = fields [1];    
+    						m.episode = fields[1];    
     					if (fields[0].equals ("text"))
-    						m.description = fields [1];        					
+    						m.description = fields[1];
+    					if (fields[0].equals ("logo"))
+    						m.logo = fields[1];
     	    			}
     	    		line = br.readLine();    	    		
     	    		}
