@@ -25,25 +25,20 @@ import com.google.analytics.tracking.android.MapBuilder;
 import com.google.analytics.tracking.android.Tracker;
 import com.flurry.android.FlurryAgent;
 
-import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.google.android.youtube.player.YouTubePlayer.OnInitializedListener;
-import com.google.android.youtube.player.YouTubePlayer.Provider;
-import com.google.android.youtube.player.YouTubePlayer.ErrorReason;
+
+import com.fireflycast.cast.ApplicationMetadata;
+import com.fireflycast.cast.Cast;
+import com.fireflycast.cast.Cast.ApplicationConnectionResult;
+import com.fireflycast.cast.Cast.MessageReceivedCallback;
+import com.fireflycast.cast.CastDevice;
+import com.fireflycast.cast.CastMediaControlIntent;
+import com.fireflycast.cast.ConnectionResult;
+import com.fireflycast.cast.FireflyApiClient;
+import com.fireflycast.cast.ResultCallback;
+import com.fireflycast.cast.Status;
 
 /*
-import com.google.cast.ApplicationChannel;
-import com.google.cast.ApplicationMetadata;
-import com.google.cast.ApplicationSession;
-import com.google.cast.CastContext;
-import com.google.cast.CastDevice;
-import com.google.cast.MediaRouteAdapter;
-import com.google.cast.MediaRouteHelper;
-import com.google.cast.MediaRouteStateChangeListener;
-import com.google.cast.SessionError;
-*/
-
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.Cast.ApplicationConnectionResult;
@@ -55,6 +50,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.common.GooglePlayServicesClient;
+*/
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -3241,7 +3237,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     private boolean gcast_application_started;
     private boolean gcast_waiting_for_reconnect;
     private Cast9x9Channel gcast_channel;
-    private GoogleApiClient gcast_api_client;
+    private FireflyApiClient gcast_api_client; /* FIREFLY */
+    /* private GoogleApiClient gcast_api_client; */
     private ConnectionCallbacks gcast_connection_callbacks;
     private ConnectionFailedListener gcast_connection_failed_listener;
     
@@ -3374,7 +3371,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
             gcast_connection_callbacks = new ConnectionCallbacks();
             gcast_connection_failed_listener = new ConnectionFailedListener();
             Cast.CastOptions.Builder api_options_builder = Cast.CastOptions.builder (gcast_selected_device, gcast_listener);
-            gcast_api_client = new GoogleApiClient.Builder (this)
+            gcast_api_client = new FireflyApiClient.Builder (this)
                     .addApi (Cast.API, api_options_builder.build())
                     .addConnectionCallbacks (gcast_connection_callbacks)
                     .addOnConnectionFailedListener (gcast_connection_failed_listener)
@@ -3506,7 +3503,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     		}
     	}
     
-    private class ConnectionFailedListener implements GoogleApiClient.OnConnectionFailedListener
+    private class ConnectionFailedListener implements FireflyApiClient.OnConnectionFailedListener
     	{
         @Override
         public void onConnectionFailed (ConnectionResult result)
@@ -3520,7 +3517,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     
     
     
-    private class ConnectionCallbacks implements GoogleApiClient.ConnectionCallbacks
+    private class ConnectionCallbacks implements FireflyApiClient.ConnectionCallbacks
     	{
     	@Override
     	public void onConnected (Bundle connectionHint)
