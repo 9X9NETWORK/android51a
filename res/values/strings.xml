@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
-    <!-- 
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
-    <string name="mso">9x9</string>
+    <string name="mso">demo</string>
     <string name="default_region">en</string>
     <string name="logo">tvlogo</string>
     <string name="splash_background">bgnew</string>
@@ -15,7 +14,6 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">361253423962738</string>
-	 -->
 	 		
     <!-- Joey Graceffa -->
     <!-- 
@@ -255,7 +253,7 @@
     <string name="fb_app_id">450168698417667</string>
     -->
 
-    <!-- crash course -->
+    <!-- crash course 
     <string name="app_name">Crash Course on FLIPr</string>
     <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
     <string name="white_label">crashcourse</string>     
@@ -269,7 +267,8 @@
     <string name="signin_bg">crashcourse_bg_open</string>  
     <string name="set_banner">crashcourse_banner</string>      	
     <string name="fb_app_id">1414438248794640</string>
-
+	-->
+	
     <!-- EchoMusic -->
     <!-- 
     <string name="app_name">EchoMusic</string>

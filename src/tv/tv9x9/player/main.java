@@ -181,8 +181,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		super.onResume();
 		
-		if (player != null)
-			player.reset_time_played();
+		reset_time_played();
 		
 		if (restore_video_location)
 			{
@@ -363,6 +362,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    return false;
 		}
 
+	public void reset_time_played()
+		{
+		if (player != null)
+			player.reset_time_played();
+		}
+	
 	public void adjust_layout_for_screen_size()
 		{
 		if (is_phone())
@@ -7899,6 +7904,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
  
     public void launch_player (String channel_id, String episode_id, String channels[])
 		{
+    	/* bug #12465: when waking, sometimes time will accumulate even if the player is not playing */
+    	reset_time_played();
+    	
 		if (current_layer != toplayer.PLAYBACK)
 			previous_layer = current_layer;
 		

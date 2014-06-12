@@ -112,16 +112,15 @@ public class GcmIntentService extends IntentService
     		}
     	String msg = bundle.toString();
     	String text = bundle.getString ("message");
-    	text = util.decodeURIComponent (text);
+    	if (text != null)
+    		text = util.decodeURIComponent (text);
     	
     	String app_name = getResources().getString (R.string.app_name);
     	
     	String mso = null;
     	String channel_id = null;
     	String episode_id = null;
-        String title = null;
-        String logo = null;
-        
+
     	String content = bundle.getString ("content");
     	log ("content=" + content);
     	if (content != null)
@@ -137,22 +136,23 @@ public class GcmIntentService extends IntentService
     			episode_id = fields[2];
     			episode_id = episode_id.replaceAll ("^yt", "");
     			}
-    		if (fields.length >= 4)
-    			{
-    			title = util.decodeURIComponent (fields[3]);
-    			log ("title: " + title);
-    			if (title.equals (""))
-    				title = null;
-    			}
-    		if (fields.length >= 5)
-    			{
-    			logo = fields[4];
-    			log ("logo: " + logo);
-    			if (logo.equals(""))
-    				logo = null;
-    			}
     		}
     
+    	String logo = bundle.getString ("logo");
+    	if (logo != null)
+	    	{
+	    	if (logo.equals (""))
+	    		logo = null;
+	    	}	
+    	
+    	String title = bundle.getString ("title");
+    	if (title != null)
+    		{
+    		title = util.decodeURIComponent (title);
+    		if (title.equals (""))
+    			title = null;
+    		}
+    	
     	boolean notifications_enabled = true;
     	boolean notify_with_sound = false;
     	boolean notify_with_vibrate = false;

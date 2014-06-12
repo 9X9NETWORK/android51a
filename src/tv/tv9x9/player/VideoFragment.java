@@ -433,13 +433,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					ImageView knob = (ImageView) mCallback.findViewById (R.id.knob);
 					if (knob != null)
 						knob.setVisibility (View.VISIBLE);
-					if (false && ctx.video_has_started)
-						{
-						/* presume this is resuming from a pause */
-			        	long offset = player.getCurrentTimeMillis();
-			        	if (offset > 0)
-			        		mCallback.main_thread_handler().post (ctx.go_fullscreen);
-						}
+
 					ctx.video_has_started = true;
 					ctx.video_play_pending = false;
 					ctx.pending_restart = false;
