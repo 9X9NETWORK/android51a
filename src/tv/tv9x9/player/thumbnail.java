@@ -43,7 +43,8 @@ public class thumbnail
 		return bm;
 		}
 	
-	public static void stack_thumbs (final Context ctx, final metadata m, final String channel_ids[], final Handler in_main_thread, final Runnable update)
+	public static void stack_thumbs
+			(final Context ctx, final metadata m, final String channel_ids[], final int width, final Handler in_main_thread, final Runnable update)
 		{
 		Thread t = new Thread()
 			{
@@ -73,16 +74,23 @@ public class thumbnail
 							String filename = ctx.getFilesDir() + "/" + m.api_server + "/cthumbs/" + channel_id + ".png"; 
 							
 							download (channel_id, url, filename, false);
+														
+							if (width > 0)
+								{
+								bitmappery.resize_bitmap_in_place (filename, width);
+								}
+							
 							if (update != null)
 								in_main_thread.post (update);	
 							
 							/* data obtained via 3.2 has an extra thumbnail. These are used by the portal and store */
 							
-							String first_episode_thumb = m.pool_meta (channel_id, "episode_thumb");		
+							String first_episode_thumb = m.pool_meta (channel_id, "episode_thumb_1");		
 							if (first_episode_thumb != null && first_episode_thumb.startsWith ("http"))
 								{
 								String ep_filename = ctx.getFilesDir() + "/" + m.api_server + "/xthumbs/" + channel_id + ".png"; 
 								download (channel_id, first_episode_thumb, ep_filename, false);
+								
 								if (update != null)
 									in_main_thread.post (update);	
 								}												
@@ -374,10 +382,10 @@ public class thumbnail
 		return true;
 		}
 
-	public static void download_single_episode_thumb (metadata m, Context ctx, String channel, String episode, Handler in_main_thread, Runnable update)
+	public static boolean download_single_episode_thumb (metadata m, Context ctx, String channel, String episode, Handler in_main_thread, Runnable update)
 		{
 		if (channel == null || episode == null)
-			return;
+			return false;
 		
 		String url = m.program_meta (episode, "thumb");
 		String filepath = m.episode_in_cache (episode);
@@ -390,7 +398,7 @@ public class thumbnail
 			if (channel.contains (":"))
 				{
 				actual_channel = m.program_meta (episode, "real_channel");
-				if (!make_app_dir (ctx, m, "ethumbs/" + actual_channel)) return;
+				if (!make_app_dir (ctx, m, "ethumbs/" + actual_channel)) return false;
 				}
 			String filename = ctx.getFilesDir() + "/" + filepath;
 			File f = new File (filename);
@@ -417,7 +425,7 @@ public class thumbnail
 						{
 						}
 					in_main_thread.post (update);
-					return;
+					return false;
 					}
 				
 				try
@@ -445,6 +453,7 @@ public class thumbnail
 					}
 				
 				in_main_thread.post (update);
+				return true;
 				}
 			else
 				{
@@ -463,6 +472,7 @@ public class thumbnail
 				{
 				}
 			}
+		return false;
 		}
 	
 	public static void download_episode_thumbnails (final Context ctx, final metadata m, final String channel, final Handler in_main_thread,
@@ -543,7 +553,7 @@ public class thumbnail
 		}
 	
 	public static void download_first_n_episode_thumbs
-		(final Context ctx, final metadata m, final String channel, final int n, final Handler h, final Runnable update)
+			(final Context ctx, final metadata m, final String channel, final int n, final Handler h, final Runnable update)
 		{
 		Thread t = new Thread()
 			{
@@ -561,6 +571,8 @@ public class thumbnail
 					if (!channel.contains (":"))
 						if (!make_app_dir (ctx, m, "ethumbs/" + channel)) return;
 	
+					int count = 0;
+					
 					String program_line[] = m.program_line_by_id (channel);
 					if (program_line != null)
 						{
@@ -568,13 +580,15 @@ public class thumbnail
 						for (int i = 0; i < true_n; i++)
 							{					
 							String episode = program_line [i];
-							download_single_episode_thumb (m, ctx, channel, episode, h, update);
+							if (download_single_episode_thumb (m, ctx, channel, episode, h, update))
+								count++;
 							}
 						}
 					else
 						Log.i ("vtest", "download episode thumbnails: no episodes in channel: " + channel);
 					
-					h.post (update);
+					if (count > 0)
+						h.post (update);
 					}				
 				catch (Exception ex)
 					{
@@ -585,6 +599,51 @@ public class thumbnail
 			};
 
 		t.start();
+		}
+	
+	public static void download_q_thumbs
+			(final Context ctx, final metadata config, final String channel_id, final int n, final Handler h, final Runnable update)
+		{
+		Thread t = new Thread()
+			{
+			public void run()
+				{
+				try
+					{
+					Log.i ("vtest", "----------- Download first " + n + " q-thumbnails for channel: " + channel_id);
+	
+					if (channel_id == null)
+						return;
+					
+					if (!make_app_dir (ctx, config, "qthumbs")) return;
+					if (!make_app_dir (ctx, config, "qthumbs/" + channel_id)) return;
+					
+					int n_downloads = 0;
+					
+					for (int i = 1; i <= n; i++)
+						{
+						String thumb = config.pool_meta (channel_id, "episode_thumb_" + i);
+						if (thumb != null && thumb.startsWith ("http"))
+							{
+							String filename = ctx.getFilesDir() + "/" + config.api_server + "/qthumbs/" + channel_id + "/" + util.md5 (thumb) + ".png";
+							Log.i ("vtest", "Q-DOWNLOAD: " + thumb + " => " + filename);
+							download_image (ctx, filename, thumb, false);
+							n_downloads++;
+							}
+						}
+					
+					if (n_downloads > 0)
+						h.post (update);
+					}				
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					((Activity) ctx).finish();
+					}
+				}
+			};
+	
+		t.start();		
 		}
 	
 	public static void download_stack_of_recent_thumbs (final Context ctx, final metadata m, 

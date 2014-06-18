@@ -184,9 +184,9 @@ public class start extends Activity
 			finish();
 			return;
 			}
-		
-		if (mService != null)
-			mService.set_callbacks ("start", relay_receive, relay_error);
+				
+		// if (mService != null)
+		// 	 mService.set_callbacks ("start", relay_receive, relay_error);
 		
 		if (config != null && config.future_action != null)
 			{
@@ -340,7 +340,7 @@ public class start extends Activity
 		    			if (fields.length >= 2)
 		    				channel_for_launch = fields[1].replaceAll ("^p",  "");
 		    			if (fields.length >= 3)
-		    				episode_for_launch = fields[1].replaceAll ("^yt",  "");
+		    				episode_for_launch = fields[2].replaceAll ("^yt",  "");
 		    			}
 	    			}
 	    		}

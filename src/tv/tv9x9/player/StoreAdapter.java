@@ -214,7 +214,7 @@ public class StoreAdapter extends BaseAdapter
 						float height = bmOptions.outHeight;
 						
 						bmOptions.inJustDecodeBounds = false;
-						bmOptions.inSampleSize = 2;
+						// bmOptions.inSampleSize = 2; // TODO: DOWNSAMPLED HERE
 						bmOptions.inPurgeable = true;
 						
 						Bitmap bitmap = BitmapFactory.decodeFile (filename, bmOptions);

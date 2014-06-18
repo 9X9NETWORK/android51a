@@ -519,7 +519,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{
 			GoogleAnalytics ga = GoogleAnalytics.getInstance (this);
 			// VERBOSE | INFO | DEBUG | WARNING
-			ga.getLogger().setLogLevel(LogLevel.VERBOSE);
+			ga.getLogger().setLogLevel (LogLevel.VERBOSE);
 			// String tracking_id = getString (R.string.ga_trackingId);
 			// String tracking_id = "UA-21595932-1";
 			String tracking_id = config.google_analytics;

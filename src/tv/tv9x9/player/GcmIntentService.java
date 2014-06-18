@@ -153,6 +153,13 @@ public class GcmIntentService extends IntentService
     			title = null;
     		}
     	
+    	/* this is a different type of message, which for some inexplicable reason they want these fields swapped */
+    	if (content == null && title == null)
+    		{
+    		title = text;
+    		text = "";
+    		}
+    	
     	boolean notifications_enabled = true;
     	boolean notify_with_sound = false;
     	boolean notify_with_vibrate = false;

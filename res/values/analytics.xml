@@ -9,4 +9,6 @@
 
   <!--Enable automatic exception tracking-->
   <bool name="ga_reportUncaughtExceptions">true</bool>
+  
+  <integer name="ga_sessionTimeout">1800</integer>
 </resources>

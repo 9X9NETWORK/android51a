@@ -35,8 +35,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="114"
-      android:versionName="5.0.1.114">
+      android:versionCode="115"
+      android:versionName="5.0.1.115">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -77,6 +77,7 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
+			<!--
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -85,14 +86,15 @@
     			<data android:scheme="https" android:host="www.9x9.tv" android:pathPrefix="/redirect/9x9/view" />    	   				 
     			<data android:scheme="http" android:host="beagle.9x9.tv" android:pathPrefix="/redirect/9x9/view" />
     			<data android:scheme="https" android:host="beagle.9x9.tv" android:pathPrefix="/redirect/9x9/view" />          				   					
-			</intent-filter>			
+			</intent-filter>	
+			-->		
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr" />        	       					   					
 			</intent-filter>
-			 		
+			 	  	
 			<!-- for Joey Graceffa -->
 			<!--		
 			<intent-filter>
@@ -244,15 +246,15 @@
 			 -->	
 								
 			<!-- for CTS -->
-			<!--   
+			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-cts" />        	       					   					
-			</intent-filter>	
-			--> 	
-	
+			</intent-filter>		
+	 		--> 
+	 		
 			<!-- for GOODTV -->
 			 <!-- 
 			<intent-filter>

@@ -536,6 +536,7 @@
 							android:ellipsize="end"					
 					    	/ -->
 				    	<ScrollView
+				    	    android:id="@+id/desc_scroll_container"
 						    android:layout_width="match_parent"
 						    android:layout_height="match_parent"
 						    android:layout_marginLeft="10dip"

@@ -1,5 +1,8 @@
 package tv.tv9x9.player;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -233,5 +236,110 @@ public class bitmappery
 				}
 			}			
 		return output;
+		}
+	
+	public static Bitmap generate_double_thumbnail (String channel_id, int thumb_width, int thumb_height, int margin_px, String f1, String f2)
+		{
+		Bitmap output = Bitmap.createBitmap (2 * thumb_width + 1 * margin_px, thumb_height, Config.ARGB_8888);
+		Canvas canvas = new Canvas (output);
+		
+		canvas.drawARGB (0, 0, 0, 0);
+		
+		// final Paint paint = new Paint();
+		
+		if (f1 != null)
+			{
+			Log.i ("vtest", "[DOUBLE] ch=" + channel_id + " f1=" + f1);
+			Bitmap bm1 = BitmapFactory.decodeFile (f1);
+			if (bm1 != null)
+				{
+				int left = 0;
+				int right = left + thumb_width;
+				final Rect src_rect = new Rect (0, 0, bm1.getWidth(), bm1.getHeight());
+				final Rect dst_rect = new Rect (left, 0, right, thumb_height);
+				canvas.drawBitmap (bm1, src_rect, dst_rect, null);
+				}
+			}
+		
+		if (f2 != null)
+			{
+			Log.i ("vtest", "[DOUBLE] ch=" + channel_id + " f2=" + f2);
+			Bitmap bm2 = BitmapFactory.decodeFile (f2);
+			if (bm2 != null)
+				{
+				int left = thumb_width + margin_px;
+				int right = left + thumb_width;
+				final Rect src_rect = new Rect (0, 0, bm2.getWidth(), bm2.getHeight());
+				final Rect dst_rect = new Rect (left, 0, right, thumb_height);
+				canvas.drawBitmap (bm2, src_rect, dst_rect, null);
+				}
+			}		
+				
+		return output;
+		}	
+	
+	public static void resize_bitmap_in_place (String filename, int width)
+		{
+		Bitmap bm = BitmapFactory.decodeFile (filename);
+		if (bm != null)
+			{
+			int old_width = bm.getWidth();
+			int old_height = bm.getHeight();
+			
+			if (width < old_width)
+				{
+				float ratio = old_height / old_width;
+				int height = (int) ((float) width / ratio);
+				Bitmap output = null;
+				try
+					{
+					output = Bitmap.createBitmap (width, height, Config.ARGB_8888);
+					}
+				catch (Exception ex)
+					{
+					Log.i ("vtest", "Error resizing bitmap: " + filename);
+					ex.printStackTrace();
+					bm.recycle();
+					return;
+					}
+				Canvas canvas = new Canvas (output);
+				
+				final Rect src_rect = new Rect (0, 0, bm.getWidth(), bm.getHeight());
+				final Rect dst_rect = new Rect (0, 0, width, height);
+				
+				canvas.drawARGB (0, 0, 0, 0);
+				canvas.drawBitmap (bm, src_rect, dst_rect, null);
+				
+				Log.i ("vtest", "SPECIAL BITMAP RESIZE: " + old_width + "x" + old_height + " -> " + height + "x" + width);
+				
+				FileOutputStream out = null;
+				try 
+					{
+					out = new FileOutputStream (filename);
+					}
+				catch (FileNotFoundException ex)
+					{
+					ex.printStackTrace();
+					bm.recycle();
+					return;
+					}
+				
+				try
+					{
+					output.compress (Bitmap.CompressFormat.PNG, 100, out);
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					bm.recycle();
+					return;
+					}
+				
+				}
+			else
+				Log.i ("vtest", "SPECIAL BITMAP RESIZE: was already smaller! old: " + old_width + ", new: " + width);
+			
+			bm.recycle();
+			}
 		}
 	}

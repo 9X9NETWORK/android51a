@@ -511,24 +511,31 @@ public class metadata
 					{
 					program_lock.unlock();
 					}
-
-				String nature = pool_meta (real_channel, "nature");
 							
-				if (nature != null && (nature.equals ("3") || nature.equals ("5")))
+				if (results.length > 0)
 					{
-					/* type 4, YouTube playlist, formerly used date, now uses position */
-					Arrays.sort (results, sort_by_date);
+					String nature = pool_meta (real_channel, "nature");
+					
+					if (nature != null && (nature.equals ("3") || nature.equals ("5")))
+						{
+						/* type 4, YouTube playlist, formerly used date, now uses position */
+						Arrays.sort (results, sort_by_date);
+						}
+					else
+						Arrays.sort (results, sort_by_position);		
+	
+					for (int i = 1; i <= 4; i++)
+						{
+						if (results.length >= i)
+							{
+							String episode_id = results [i-1];
+							String episode_thumb = program_meta (episode_id, "thumb");		
+							if (episode_thumb != null && !episode_thumb.equals (""))
+								set_channel_meta_by_id (real_channel, "episode_thumb_" + i, episode_thumb);
+							}
+						}
 					}
-				else
-					Arrays.sort (results, sort_by_position);		
-
-				if (results.length >= 1)
-					{
-					String first_episode_id = results [0];
-					String first_episode_thumb = program_meta (first_episode_id, "thumb");
-					if (first_episode_thumb != null && !first_episode_thumb.equals (""))
-						set_channel_meta_by_id (real_channel, "episode_thumb", first_episode_thumb);
-					}
+				
 				return results;
 				}
 			}
@@ -1128,7 +1135,11 @@ public class metadata
 		Hashtable <String, String> channel = new Hashtable <String, String>();
 		
 		String thumb = fields[4];
-		String episode_thumb = null;
+		
+		String episode_thumb_1 = null;
+		String episode_thumb_2 = null;
+		String episode_thumb_3 = null;
+		String episode_thumb_4 = null;
 		
 		if (thumb.contains ("|"))
 			{
@@ -1136,9 +1147,15 @@ public class metadata
 			Log.i ("vtest", "thumb " + thumb + " -> " + thumbs[0]);
 			thumb = thumbs[0];
 			if (thumbs.length > 1)
-				episode_thumb = thumbs[1];
+				episode_thumb_1 = thumbs[1];
+			if (thumbs.length > 2)
+				episode_thumb_2 = thumbs[2];
+			if (thumbs.length > 3)
+				episode_thumb_3 = thumbs[3];
+			if (thumbs.length > 4)
+				episode_thumb_4 = thumbs[4];			
 			}
-		
+
 		final String channel_id = fields [1];
 		
 		if (pool_meta (channel_id, "id") != null)
@@ -1180,12 +1197,18 @@ public class metadata
 			Log.i ("vtest", "parse channel line: virtual #" + virtual_channel + " <= " + channel_id);
 			}
 		
-		if (episode_thumb != null)
+		if (episode_thumb_1 != null)
 			{
 			/* v3.2+ only */
-			channel.put ("episode_thumb", episode_thumb);
-			Log.i ("vtest", "episode thumb " + channel_id + ": " + episode_thumb);
+			channel.put ("episode_thumb_1", episode_thumb_1);
+			Log.i ("vtest", "episode thumb " + channel_id + ": " + episode_thumb_1);
 			}
+		if (episode_thumb_2 != null)
+			channel.put ("episode_thumb_2", episode_thumb_2);
+		if (episode_thumb_3 != null)
+			channel.put ("episode_thumb_3", episode_thumb_3);
+		if (episode_thumb_4 != null)
+			channel.put ("episode_thumb_4", episode_thumb_4);
 		
 		/* have not fetched from youtube */
 		channel.put ("fetched", "0");
@@ -1365,10 +1388,17 @@ public class metadata
 				thumb = thumbs[0];
 				}
 			
+			String desc = fields[3];
+			if (desc.contains ("|"))
+				{
+				String descs[] = desc.split ("\\|");				
+				desc = descs[0];
+				}
+			
 			program.put ("sort", Integer.toString (count));
 			program.put ("channel", fields[0]);
 			program.put ("name", fields[2]);
-			program.put ("desc", fields[3]);
+			program.put ("desc", desc);
 			program.put ("thumb", thumb);
 			program.put ("url1", fields[8]);
 			program.put ("url2", fields[9]);
@@ -1430,6 +1460,7 @@ public class metadata
 		
 		String episode_id = fields [1];
 		String name = fields [2];
+		String desc = fields [3];
 		String duration = fields [5];
 		String thumb = fields [6];
 		String url = fields [8];
@@ -1438,13 +1469,19 @@ public class metadata
 		if (fields.length >= 15)
 			submeta = util.decodeURIComponent (fields [14]);
 		
+		if (desc.contains ("|"))
+			{
+			String descs[] = desc.split ("\\|");	
+			desc = (descs.length > 0) ? descs [0] : "";
+			}
+		
 		if (name.contains ("|"))
 			{
 			String names[] = name.split ("\\|");
 			String durations[] = duration.split ("\\|");
 			String urls[] = url.split ("\\|");
 			String thumbs[] = thumb.split ("\\|");
-			
+	
 			name = names.length > 0 ? names [0] : "";	
 			url = "";
 			thumb = (thumbs.length > 0) ? thumbs [0] : "";
@@ -1543,7 +1580,7 @@ public class metadata
 		program.put ("sort", Integer.toString (count));
 		program.put ("channel", virtual_channel == null ? channel : virtual_channel);
 		program.put ("name", name);
-		program.put ("desc", fields[3]);
+		program.put ("desc", desc);
 		program.put ("thumb", thumb);
 		program.put ("url1", url);
 		program.put ("url2", fields[9]);
