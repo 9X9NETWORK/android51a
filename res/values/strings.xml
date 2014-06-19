@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
+    <!-- 
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
@@ -14,6 +15,7 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">361253423962738</string>
+	-->
 	 		
     <!-- Joey Graceffa -->
     <!-- 
@@ -253,7 +255,8 @@
     <string name="fb_app_id">450168698417667</string>
     -->
 
-    <!-- crash course 
+    <!-- crash course -->
+    <!-- 
     <string name="app_name">Crash Course on FLIPr</string>
     <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
     <string name="white_label">crashcourse</string>     
@@ -284,7 +287,7 @@
     <string name="signin_bg">bg_open_echomusic</string>     
     <string name="set_banner">banner_echomusic</string>   
 	<string name="fb_app_id">212239432317755</string>
-     -->
+    -->
 	
     <!-- cts -->
     <!-- 
@@ -319,7 +322,7 @@
     <string name="signin_bg">bg_open_goodtv</string>        	
     <string name="set_banner">banner01_goodtv</string>
  	<string name="fb_app_id">555946694494117</string>       
-	 -->  
+	-->  
  	
     <!-- ddtv -->
     <!--   
@@ -353,7 +356,7 @@
     <string name="signin_bg">bg_open_fcu</string>
     <string name="set_banner">banner01_fcu</string>      
 	<string name="fb_app_id">180687745468145</string>           
-     -->  
+    -->  
   	           
     <!-- Tzu Chi -->
     <!--    
@@ -403,24 +406,24 @@
     <string name="signin_bg">bg_open_superstar</string>
     <string name="set_banner">banner_superstar</string>            
 	<string name="fb_app_id">422631834537839</string>
-	 --> 	
+	--> 	
     
     <!-- musicvideo -->
     <!--   
     <string name="app_name">Musicvideo FLIPr</string>
-    <string name="app_icon">@drawable/launch_logo_musicvideo</string>    
+    <string name="app_icon">@drawable/musicvideo_launch_logo</string>    
     <string name="white_label">musicvideo</string>     
     <string name="mso">musicvideo</string>
     <string name="default_region">zh</string>               
-    <string name="logo">logo_musicvideo</string>
-    <string name="splash_background">bg_open_musicvideo</string>
+    <string name="logo">musicvideo_logo</string>
+    <string name="splash_background">musicvideo_bg_open</string>
     <string name="splash_slogan"></string>    
-    <string name="splash_foreground">open_logo_musicvideo</string>    
-    <string name="signin_logo">logo_signin_musicvideo</string>        
-    <string name="signin_bg">bg_open_musicvideo</string>
-    <string name="set_banner">banner01_musicvideo</string>            
+    <string name="splash_foreground">musicvideo_open_logo</string>    
+    <string name="signin_logo">musicvideo_logo_signin</string>        
+    <string name="signin_bg">musicvideo_bg_open</string>
+    <string name="set_banner">musicvideo_banner01</string>            
 	<string name="fb_app_id">463854980410020</string>
-	  -->  	
+	--> 	
 	
 	<!-- newsflipr -->
     <!--   
@@ -491,21 +494,21 @@
 	-->
 
     <!-- Demo -->
-    <!--  
+   	<!-- 
    	<string name="app_name">Demo</string>
-    <string name="app_icon">@drawable/ddtv_launch_logo</string>    
+	<string name="app_icon">@drawable/tt_icon_new</string>       	
 	<string name="white_label">demo</string>
     <string name="mso">demo</string>
     <string name="default_region">en</string>
-    <string name="logo">ddtv_logo</string>
-    <string name="splash_background">ddtv_bg_open</string>
-    <string name="splash_foreground">ddtv_open_logo</string>    
-    <string name="splash_slogan"></string>     
-    <string name="signin_logo">ddtv_logo_signin</string>        
-    <string name="signin_bg">ddtv_bg_open</string>
-    <string name="set_banner">ddtv_banner01</string>
+    <string name="logo">tvlogo</string>
+    <string name="splash_background">bgnew</string>
+    <string name="splash_foreground">splash_generic_logo</string>        
+    <string name="splash_slogan">Empowering Cloud TV</string>     
+    <string name="signin_logo">tvlogo</string>    
+    <string name="signin_bg">bgnew</string>      
+    <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">361253423962738</string>
-	-->
+	 -->
 	
     <!-- Magazine -->
     <!--  
@@ -539,7 +542,7 @@
     <string name="signin_bg">bg_open_test</string>
     <string name="set_banner">banner_test</string>            
 	<string name="fb_app_id">390805357729394</string>
-    --> 
+     --> 
     
     <!-- Gametube -->
     <!--   
@@ -559,7 +562,7 @@
     -->
     
     <!-- Daaitv -->
-    <!--   
+    <!--  
     <string name="app_name">Daaitv FLIPr</string>
     <string name="app_icon">@drawable/daaitv_launch_logo</string>
     <string name="white_label">daaitv</string>
@@ -573,9 +576,58 @@
     <string name="signin_bg">daaitv_bg_open</string>
     <string name="set_banner">daaitv_banner</string>
     <string name="fb_app_id">280807262096612</string>
-     -->
+    -->
      
-		         
+    <!-- Ytower -->
+    <!--  
+    <string name="app_name">Ytower</string>
+    <string name="app_icon">@drawable/ytower_launch_logo</string>
+    <string name="white_label">ytower</string>
+    <string name="mso">ytower</string>
+    <string name="default_region">zh</string>
+    <string name="logo">ytower_logo</string>
+    <string name="splash_background">ytower_bg_open</string>
+    <string name="splash_foreground">ytower_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">ytower_logo_signin</string>
+    <string name="signin_bg">ytower_bg_open</string>
+    <string name="set_banner">ytower_banner</string>
+    <string name="fb_app_id">271811759664294</string>
+    --> 
+     
+    <!-- YourApp -->
+   	<!-- 
+    <string name="app_name">Your FLIPr App</string>
+    <string name="app_icon">@drawable/yourapp_launch_logo</string>
+    <string name="white_label">yourapp</string>
+    <string name="mso">yourapp</string>
+    <string name="default_region">en</string>
+    <string name="logo">yourapp_logo</string>
+    <string name="splash_background">yourapp_bg_open</string>
+    <string name="splash_foreground">yourapp_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">yourapp_logo_signin</string>
+    <string name="signin_bg">yourapp_bg_open</string>
+    <string name="set_banner">yourapp_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+	-->
+    
+    <!-- Demo1 -->
+   	<string name="app_name">Demo1</string>
+	<string name="app_icon">@drawable/tt_icon_new</string>       	
+	<string name="white_label">demo1</string>
+    <string name="mso">demo1</string>
+    <string name="default_region">en</string>
+    <string name="logo">tvlogo</string>
+    <string name="splash_background">bgnew</string>
+    <string name="splash_foreground">splash_generic_logo</string>        
+    <string name="splash_slogan">Empowering Cloud TV</string>     
+    <string name="signin_logo">tvlogo</string>    
+    <string name="signin_bg">bgnew</string>      
+    <string name="set_banner">banner_9x9</string>     
+	<string name="fb_app_id">361253423962738</string>
+	
+    		         
     <bool name="uses_chromecast">true</bool>
     
     <string name="guest">Guest</string>
