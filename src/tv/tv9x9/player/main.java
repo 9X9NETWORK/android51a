@@ -5346,21 +5346,24 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				{
 				ImageView vThumb = (ImageView) parent.findViewById (R.id.channel_icon);
 				
-				String t1 = config.pool_meta (channel_id, "episode_thumb_1");
-				String f1 = (t1 == null) ? null : main.this.getFilesDir() + "/" + config.api_server + "/qthumbs/" + channel_id + "/" + util.md5 (t1) + ".png";
-				
 				boolean used_thumbnail = false;
+				String t1 = config.pool_meta (channel_id, "episode_thumb_1");
 				
-				File f = new File (f1);
-				if (f.exists())
+				if (t1 != null && t1.startsWith ("http"))
 					{
-					if (f.length() > 0)
+					String f1 = (t1 == null) ? null : main.this.getFilesDir() + "/" + config.api_server + "/qthumbs/" + channel_id + "/" + util.md5 (t1) + ".png";
+										
+					File f = new File (f1);
+					if (f.exists())
 						{
-						Bitmap bitmap = BitmapFactory.decodeFile (f1);
-						if (bitmap != null)
+						if (f.length() > 0)
 							{
-							vThumb.setImageBitmap (bitmap);
-							used_thumbnail = true;
+							Bitmap bitmap = BitmapFactory.decodeFile (f1);
+							if (bitmap != null)
+								{
+								vThumb.setImageBitmap (bitmap);
+								used_thumbnail = true;
+								}
 							}
 						}
 					}
