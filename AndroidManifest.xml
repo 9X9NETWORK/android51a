@@ -37,9 +37,9 @@
 <!-- package="tv.flipr.demo1" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.flipr.demo1"
-      android:versionCode="115"
-      android:versionName="5.0.1.115">
+      package="tv.tv9x9.player"
+      android:versionCode="116"
+      android:versionName="5.0.1.116">
           
     <!-- Instructions
     	The build for CTS version is very fragile:

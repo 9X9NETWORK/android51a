@@ -2197,8 +2197,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void NEW_fill_episode_description (String episode_desc)
 		{		
-		Pattern pattern = android.util.Patterns.WEB_URL;
-		
 		ScrollView vContainer = (ScrollView) findViewById (R.id.desc_scroll_container);
 		vContainer.scrollTo (0, 0);
 		
@@ -2212,73 +2210,159 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				{
 				log ("LINE: |" + line + "|");
 				
-				View append_view = null;
-				Matcher matcher = pattern.matcher (line);
-				if (matcher.find (0))
-					{
-					/* create a LinearLayout */
-					int match_start = matcher.start(1);
-					int match_end = matcher.end();
-					
-					String text_to_left = match_start > 0 ? line.substring (0, match_start - 1) : "";
-					final String text = line.substring (match_start, match_end);					
-					String text_to_right = line.substring (match_end);
-					
-					log ("V1: |" + text_to_left + "|");
-					log ("V2: |" + text + "|");
-					log ("V3: |" + text_to_right + "|");
-					
-					LinearLayout linear = new LinearLayout (this);	
-					
-					TextView v1 = new TextView (this);
-					v1.setText (text_to_left);
-					v1.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
-					v1.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
-					if (text_to_left.contains ("http") || text_to_left.contains ("HTTP"))
-						v1.setMaxLines (1);
-					linear.addView (v1);
-					
-					TextView v2 = new TextView (this);
-					v2.setText (text);
-					v2.setTextColor (Color.rgb (0xFF, 0xFF, 0xFF));
-					v2.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
-					if (text.contains ("http") || text.contains ("HTTP"))
-						v2.setMaxLines (1);
-					linear.addView (v2);
-					v2.setOnClickListener (new OnClickListener()
-							{
-					        @Override
-					        public void onClick (View v)
-					        	{
-					        	log ("description url click: " + text);
-					        	Intent wIntent = new Intent (Intent.ACTION_VIEW, Uri.parse (text));
-					        	startActivity (wIntent);
-					        	}
-							});
-					
-					TextView v3 = new TextView (this);
-					v3.setText (text_to_right);
-					v3.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
-					v3.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
-					if (text_to_right.contains ("http") || text_to_right.contains ("HTTP"))
-						v3.setMaxLines (1);
-					linear.addView (v3);
-				
-					append_view = linear;
-					}
-				else
-					{
-					/* create just a TextView */
-					TextView v = new TextView (this);
-				    v.setText (line);
-				    append_view = v;
-					}
-				
-				LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams (WRAP_CONTENT, WRAP_CONTENT);
-				append_view.setLayoutParams (layout);
-				
-				vDesc.addView (append_view);
+				NEW_fill_episode_description_process_line (vDesc, line);
 				}
+			}
+		
+		/*
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"	
+	    */
+		
+		ScrollView.LayoutParams layout = new ScrollView.LayoutParams(
+                ScrollView.LayoutParams.MATCH_PARENT,
+                ScrollView.LayoutParams.WRAP_CONTENT);
+		
+		vContainer.updateViewLayout (vDesc, layout);
+		}
+	
+	public void NEW_fill_episode_description_process_line (LinearLayout vDesc, String line)
+		{
+		Pattern pattern = android.util.Patterns.WEB_URL;
+		
+		int maxchar = is_phone() ? 16 : 24;
+		
+		int viewcount = 0;
+		View append_views[] = new View [10];
+		
+	    String process_afterwards = null;
+	    
+		Matcher matcher = pattern.matcher (line);
+		if (matcher.find (0))
+			{
+			/* create a LinearLayout */
+			int match_start = matcher.start(1);
+			int match_end = matcher.end();
+			
+			String text_to_left = match_start > 0 ? line.substring (0, match_start - 1) : "";
+			String text = line.substring (match_start, match_end);					
+			String text_to_right = line.substring (match_end);
+			
+			log ("V1: |" + text_to_left + "|");
+			log ("V2: |" + text + "|");
+			log ("V3: |" + text_to_right + "|");
+			
+			TextView v1 = new TextView (this);
+			v1.setText (text_to_left);
+			v1.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
+			v1.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			if (text_to_left.contains ("http") || text_to_left.contains ("HTTP"))
+				v1.setMaxLines (1);
+		    // v1.setBackgroundColor (Color.RED);
+		    
+			TextView v2 = new TextView (this);
+			v2.setText (text);
+			v2.setTextColor (Color.rgb (0xFF, 0xFF, 0xFF));
+			v2.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			if (!text.startsWith ("http") && !text.startsWith ("Http") && !text.startsWith ("HTTP"))
+				text = "http://" + text;
+			v2.setMaxLines (1);
+			final String final_text = text;
+			v2.setOnClickListener (new OnClickListener()
+					{
+			        @Override
+			        public void onClick (View v)
+			        	{
+			        	log ("description url click: " + final_text);
+			        	Intent wIntent = new Intent (Intent.ACTION_VIEW, Uri.parse (final_text));
+			        	try
+			        		{
+				        	startActivity (wIntent);
+			        		}
+			        	catch (Exception ex)
+			        		{
+			        		ex.printStackTrace();
+			        		}
+			        	}
+					});
+		    // v2.setBackgroundColor (Color.GREEN);
+		    
+			Matcher matcher3 = pattern.matcher (text_to_right);
+			if (matcher3.find (0))
+				{
+				/* the third component has more links! recurse, but must be done after processing */
+				process_afterwards = text_to_right;
+				text_to_right = "";
+				}
+				
+			TextView v3 = new TextView (this);
+			v3.setText (text_to_right);
+			v3.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
+			v3.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			if (text_to_right.contains ("http") || text_to_right.contains ("HTTP"))
+				v3.setMaxLines (1);
+		    // v3.setBackgroundColor (Color.BLUE);
+		
+		    if (v1.length() > maxchar && v3.length() > maxchar)
+		    	{
+		    	log ("scenario 1: v1 // v2 // v3");
+				append_views [viewcount++] = v1;
+				append_views [viewcount++] = v2;
+				append_views [viewcount++] = v3;				    	
+		    	}
+		    else if (v1.length() > maxchar)
+		    	{
+		    	log ("scenario 2: v1 // v2 + v3");
+				append_views [viewcount++] = v1;
+				LinearLayout linear = new LinearLayout (this);	
+				linear.addView (v2);
+				linear.addView (v3);
+				append_views [viewcount++] = linear;
+		    	}
+		    else if (v3.length() > maxchar)
+		    	{
+		    	log ("scenario 3: v1 + v2 // v3");
+				LinearLayout linear = new LinearLayout (this);	
+		    	linear.addView (v1);
+		    	linear.addView (v2);
+				append_views [viewcount++] = linear;
+				append_views [viewcount++] = v3;
+		    	}
+		    else
+		    	{
+		    	log ("scenario 4: v1 + v2 + v3");
+				LinearLayout linear = new LinearLayout (this);	
+		    	linear.addView (v1);
+		    	linear.addView (v2);
+		    	linear.addView (v3);	
+				append_views [viewcount++] = linear;
+		    	}
+			}
+		else
+			{
+			/* create just a TextView */
+			log ("ORDINARY: |" + line + "|");
+			TextView v = new TextView (this);
+		    v.setText (line);
+		    // v.setBackgroundColor (Color.WHITE);
+		    append_views [viewcount++] = v;
+			}
+		
+		for (View v: append_views)
+			{
+			if (v != null)
+				{
+				LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams (WRAP_CONTENT, WRAP_CONTENT);
+				v.setLayoutParams (layout);
+				log ("adding append_view");
+				vDesc.addView (v);
+				}
+			}	
+		
+		if (process_afterwards != null)
+			{
+			log ("AFTERLINE: " + process_afterwards);
+			NEW_fill_episode_description_process_line (vDesc, process_afterwards);
 			}
 		}
 	
