@@ -124,7 +124,7 @@
 						</LinearLayout>		    
 					</LinearLayout>
 				</FrameLayout>		
-				<ProgressBar
+				<!-- ProgressBar
 				    android:id="@+id/set_progress"          
 			    	android:layout_width="60dip"
 			    	android:layout_height="60dip"
@@ -133,7 +133,7 @@
 			        android:padding="6dip"			    	
 			    	style="@android:style/Widget.ProgressBar.Inverse"
 			    	android:visibility="gone"
-			    	/>
+			    	/-->
 				<FrameLayout
 				    android:layout_width="fill_parent" 
 					android:layout_height="fill_parent">
@@ -161,7 +161,17 @@
 						android:cacheColorHint="@android:color/transparent"
 						android:dividerHeight="0dp"
 						android:divider="@null"
-						/>								
+						/>
+					<ProgressBar
+					    android:id="@+id/set_progress"          
+				    	android:layout_width="120dip"
+				    	android:layout_height="120dip"
+				    	android:layout_gravity="center"
+				    	android:gravity="center"
+				        android:padding="6dip"			    	
+				    	style="@android:style/Widget.ProgressBar.Inverse"
+				    	android:visibility="gone"
+				    	/>								
 				</FrameLayout>
 				<!-- android:cacheColorHint="@android:color/transparent" -->
 				<!-- 					android:cacheColorHint="#A0A0A0" -->

@@ -1007,6 +1007,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    		track_screen ("menu");
 	        }
         
+		set_invisible_mask (from_margin == 0);
+		
 		Animation a = new Animation()
 			{
 		    @Override
@@ -1041,6 +1043,30 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		setup_menu_buttons();
 		}
 	
+	public void set_invisible_mask (boolean visible)
+		{
+		View vMask = findViewById (R.id.invisible_mask);
+		if (vMask != null)
+			{
+			log ("set invisible mask: " + visible);
+			vMask.setVisibility (visible ? View.VISIBLE : View.GONE);
+			max_delta_x = 0;
+			if (visible)
+				vMask.setOnClickListener (new OnClickListener()
+					{
+			        @Override
+			        public void onClick (View v)
+			        	{
+			        	log ("click on: INVISIBLE MASK");
+			        	if (max_delta_x < 10)
+			        		toggle_menu();
+			        	}
+					});	
+			}
+		else
+			log ("can't find invisible mask!");
+		}
+	
 	public boolean menu_is_extended()
 		{
 		final View vHome = findViewById (R.id.slidingpanel);		
@@ -1056,6 +1082,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
         layout.leftMargin = 0;
         layout.width = screen_width;
         vHome.setLayoutParams (layout);
+        set_invisible_mask (false);
 		}
 
 	public int left_column_width()
@@ -1366,7 +1393,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			LinearLayout rv = null;
 					
-			log ("menu getView: " + position + " (of " + getCount() + ")");
+			// log ("menu getView: " + position + " (of " + getCount() + ")"); // noisy
 			
 			if (convertView == null)
 				rv = (LinearLayout) View.inflate (main.this, R.layout.menu_item, null);				
@@ -4440,10 +4467,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							@Override
 							public void run()
 								{
+								refresh_home();
+								/*
 								if (finger_is_down)
 									refresh_home();
 								else
 									log ("won't refresh in this bounce, because finger is not on screen");
+								*/
 								}							
 							});
 						
@@ -6856,7 +6886,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		vContainer.setOnTouchListener (new OnTouchListener()
 			{
 			@Override
-			public boolean onTouch(View arg0, MotionEvent arg1)
+			public boolean onTouch (View arg0, MotionEvent arg1)
 				{
 				log ("CONSUMED TOUCH");
 				return true;
@@ -9827,7 +9857,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (current_layer == toplayer.HOME)
 			{
 			if (home_slider != null)
-				diminish_side_titles (home_slider.current_home_page, true);
+				; // diminish_side_titles (home_slider.current_home_page, true);
 			}
 		}
 	
@@ -9841,6 +9871,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				diminish_side_titles (home_slider.current_home_page, false);
 			}
 		}
+	
+	@Override
+	public void onActionMove (int deltaX, int deltaY)
+		{
+		if (current_layer == toplayer.HOME)
+			{
+			if (home_slider != null)
+				diminish_side_titles (home_slider.current_home_page, deltaX > pixels_20);
+			}	
+		}		
 	
 	public void diminish_side_titles (View parent, boolean hide)
 		{
@@ -9871,6 +9911,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		}
 	
 	int big_thing_left_margin = 0;
+	int max_delta_x = 0;
 	
 	@Override
 	public void onBigThingDown()
@@ -9878,7 +9919,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		log ("onBigThingStart");
 		View vSliding = findViewById (R.id.slidingpanel);		
         FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vSliding.getLayoutParams();	
-        big_thing_left_margin = layout.leftMargin;       
+        big_thing_left_margin = layout.leftMargin;
+        max_delta_x = 0;
 		}
 	
 	@Override
@@ -9891,12 +9933,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
         if (big_thing_left_margin != 0)
         	{
         	/* dragging to close extended menu */
+        	/*
             if (deltaX < 0)
             	deltaX = 0;
             if (big_thing_left_margin - deltaX < 0)
             	deltaX = big_thing_left_margin;
             layout.leftMargin = big_thing_left_margin - deltaX;
             vSliding.setLayoutParams (layout);
+            if (deltaX > Math.abs (max_delta_x))
+            	max_delta_x = Math.abs (deltaX);
+            */
         	}
         else
         	{
@@ -9914,6 +9960,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		if (big_thing_left_margin != 0)
 			{
+			if (1 == 2)
+			{
+			log ("onBigThingUp max delta X: " + max_delta_x);
+			
         	/* dragging to close extended menu */
 			final View vHome = findViewById (R.id.slidingpanel);		
 	        FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vHome.getLayoutParams();
@@ -9936,6 +9986,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				
 			a.setDuration (400);	    		
 			vHome.startAnimation (a);
+			}
 			}
 		else
 			{

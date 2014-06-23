@@ -655,6 +655,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				onBigThingMove (deltaX, deltaY);
 			else if (video_is_minimized() && point_inside_view (event.getX(), event.getY(), vContainer))
 				onVideoHorizontal (deltaX);
+			
+			/* this should be lightweight! onBigThingMove and onVideoHorizontal for heavier stuff */
+			onActionMove (deltaX, deltaY);
 			}
 		
 		return false;
@@ -695,6 +698,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		/* override this */		
 		}
+	
+	public void onActionMove (int deltaX, int deltaY)
+		{
+		/* override this */		
+		}	
 	
 	public boolean onVideoActionTapped()
 		{

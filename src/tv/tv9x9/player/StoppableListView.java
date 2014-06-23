@@ -14,6 +14,7 @@ public class StoppableListView extends ListView
 	private Handler handler = null;
 	private Runnable refresh_function = null;
 	private boolean refresh_in_progress = false;
+	private boolean request_refresh = false;
 	
 	Callback finger_is_down_function = null;
 	
@@ -23,6 +24,11 @@ public class StoppableListView extends ListView
         this.isPagingEnabled = true;
     	}
 
+    public void log (String text)
+    	{
+    	Log.i ("vtest", "[ListView] " + text);
+    	}
+    
 	private boolean isPagingEnabled;
 
     public StoppableListView (Context context, AttributeSet attrs)
@@ -34,6 +40,28 @@ public class StoppableListView extends ListView
     @Override
     public boolean onTouchEvent (MotionEvent event)
     	{
+    	int action = event.getAction();
+    	
+    	if (action == MotionEvent.ACTION_UP)
+    		{
+    		log ("onTouchEvent ACTION UP");
+    		if (request_refresh)
+    			{
+    			request_refresh = false;
+    			refresh_in_progress = true;
+				Log.i ("vtest", "REFRESH!");
+				handler.post (new Runnable()
+					{
+					@Override
+					public void run()
+						{
+						refresh_function.run();
+						refresh_in_progress = false;
+						}
+					});
+    			}
+    		}
+    	
         if (this.isPagingEnabled)
         	{
             return super.onTouchEvent (event);
@@ -80,8 +108,15 @@ public class StoppableListView extends ListView
 		if (finger_is_down_function != null && !finger_is_down_function.return_boolean())
 			max_y_overscroll = maxOverScrollY;
 		
-		Log.i ("vtest", "deltaY: " + deltaY + ", max_y_overscroll: " + max_y_overscroll);
+		log ("deltaY: " + deltaY + ", max_y_overscroll: " + max_y_overscroll);
 		
+		if (scrollY < (-max_y_overscroll / 2))
+			{
+			if (handler != null && refresh_function != null)
+				request_refresh = true;
+			}
+		
+		/*
 		if (scrollY < (-max_y_overscroll / 2))
 			{
 			if (!refresh_in_progress)
@@ -102,8 +137,9 @@ public class StoppableListView extends ListView
 					}
 				}
 			else
-				Log.i ("vtest", "refresh in progress");
+				log ("refresh in progress");
 			}
+		*/
 		
         return super.overScrollBy (deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX, max_y_overscroll, isTouchEvent);  
     	}

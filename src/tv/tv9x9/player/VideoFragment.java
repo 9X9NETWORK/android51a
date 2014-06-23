@@ -168,6 +168,11 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 				{
 				player.pause();
 				}
+			catch (IllegalStateException ex)
+				{
+				ex.printStackTrace();
+				restart();
+				}
 			catch (Exception ex)
 				{
 				ex.printStackTrace();
@@ -186,6 +191,11 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					{		
 					log ("play");
 					player.play();
+					}
+				catch (IllegalStateException ex)
+					{
+					ex.printStackTrace();
+					restart();
 					}
 				catch (Exception ex)
 					{
@@ -214,6 +224,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					}
 				catch (IllegalStateException ex)
 					{
+					ex.printStackTrace();
 					restart();
 					}
 				catch (Exception ex)
@@ -243,6 +254,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					}
 				catch (IllegalStateException ex)
 					{
+					ex.printStackTrace();
 					restart();
 					}
 				catch (Exception ex)
@@ -264,6 +276,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 				}
 			catch (IllegalStateException ex)
 				{
+				ex.printStackTrace();
 				restart();
 				}
 			catch (Exception ex)
@@ -307,7 +320,21 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		{
 		int duration = 0;
 		if (player != null)
-			try { duration = player.getDurationMillis(); } catch (Exception ex) {};
+			{
+			try
+				{
+				duration = player.getDurationMillis();
+				}
+			catch (IllegalStateException ex)
+				{
+				ex.printStackTrace();
+				restart();
+				}
+			catch (Exception ex)
+				{
+				ex.printStackTrace();
+				};
+			}
 		return duration;
 		}
 	
@@ -316,7 +343,21 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		{
 		if (!mCallback.is_chromecasted())
 			if (player != null)
-				try { player.seekToMillis ((int) offset); } catch (Exception ex) {};
+				{
+				try
+					{
+					player.seekToMillis ((int) offset);
+					}
+				catch (IllegalStateException ex)
+					{
+					ex.printStackTrace();
+					restart();
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					};
+				}
 		}
 	
 	@Override
@@ -540,6 +581,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 			}
 		catch (IllegalStateException ex)
 			{
+			ex.printStackTrace();
 			restart();
 			}
 		catch (Exception ex)
