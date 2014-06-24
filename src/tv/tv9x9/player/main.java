@@ -9029,11 +9029,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				int true_num_youtubes = 0;
 				
 				/* how many YouTube channels are actually not in the 9x9 results */
-				for (String id: channel_ids_youtube)
-					{
-					if (!youtubes.contains (id.toLowerCase()))
-						true_num_youtubes++;
-					}
+				if (channel_ids_youtube != null)
+					for (String id: channel_ids_youtube)
+						{
+						if (!youtubes.contains (id.toLowerCase()))
+							true_num_youtubes++;
+						}
 				
 				/* merge */
 				int count = 0;

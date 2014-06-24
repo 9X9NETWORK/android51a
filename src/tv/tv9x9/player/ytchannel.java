@@ -828,7 +828,10 @@ public class ytchannel
 			}
 		
 		/* this is absurd but temporary */
-		return commas.split (",");
+		if (commas.equals(""))
+			return new String[] {};
+		else
+			return commas.split (",");
 		}
 		
 	/* 3.2 style channels with subepisodes */
