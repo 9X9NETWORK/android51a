@@ -154,7 +154,7 @@ public class GcmIntentService extends IntentService
     		}
     	
     	/* this is a different type of message, which for some inexplicable reason they want these fields swapped */
-    	if (content == null && title == null)
+    	if ((content == null || content.equals("")) && title == null)
     		{
     		title = text;
     		text = "";

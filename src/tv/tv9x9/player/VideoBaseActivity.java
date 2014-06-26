@@ -2402,6 +2402,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	String restore_video_id = null;
 	long restore_video_position = -1;
 	long restore_video_end_msec = -1;
+	String restore_video_channel = null;
 	int restore_video_current_episode_index = -1;
 	int restore_video_current_subepisode = -1;
 	int restore_video_visibility = -1;
@@ -2414,6 +2415,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			restore_video_position = player.get_most_recent_offset();
 			restore_video_current_episode_index = current_episode_index;
 			restore_video_current_subepisode = current_subepisode;
+			restore_video_channel = player_real_channel;
 			log ("VIDEO remember location: " + restore_video_position);
 			pause_video();
 		
@@ -2434,6 +2436,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		current_episode_index = restore_video_current_episode_index;
 		current_subepisode = restore_video_current_subepisode;
+		player_real_channel = restore_video_channel;
 		
 		set_video_visibility (restore_video_visibility);
 		if (restore_video_id != null && able_to_play_video() && restore_video_visibility == View.VISIBLE)

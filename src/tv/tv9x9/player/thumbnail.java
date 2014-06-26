@@ -36,9 +36,10 @@ public class thumbnail
 			bis.close();
 			is.close();
 			}
-		catch (IOException e)
+		catch (Exception ex)
 			{
-			Log.i ("vtest", "Error getting bitmap: " + e);
+			Log.i ("vtest", "Error getting bitmap: " + url);
+			ex.printStackTrace();
 			}
 		return bm;
 		}

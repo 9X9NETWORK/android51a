@@ -1141,6 +1141,13 @@ public class metadata
 		String episode_thumb_3 = null;
 		String episode_thumb_4 = null;
 		
+		String name = fields[2];
+		
+		String episode_title_1 = null;
+		String episode_title_2 = null;
+		String episode_title_3 = null;
+		String episode_title_4 = null;
+		
 		if (thumb.contains ("|"))
 			{
 			String thumbs[] = thumb.split ("\\|");
@@ -1155,7 +1162,21 @@ public class metadata
 			if (thumbs.length > 4)
 				episode_thumb_4 = thumbs[4];			
 			}
-
+		
+		if (name.contains ("|"))
+			{
+			String names[] = name.split ("\\|");
+			name = names[0];
+			if (names.length > 1)
+				episode_title_1 = names[1];
+			if (names.length > 2)
+				episode_title_2 = names[2];
+			if (names.length > 3)
+				episode_title_3 = names[3];
+			if (names.length > 4)
+				episode_title_4 = names[4];			
+			}
+		
 		final String channel_id = fields [1];
 		
 		if (pool_meta (channel_id, "id") != null)
@@ -1209,6 +1230,15 @@ public class metadata
 			channel.put ("episode_thumb_3", episode_thumb_3);
 		if (episode_thumb_4 != null)
 			channel.put ("episode_thumb_4", episode_thumb_4);
+		
+		if (episode_title_1 != null)
+			channel.put ("episode_title_1", episode_title_1);
+		if (episode_title_2 != null)
+			channel.put ("episode_title_2", episode_title_2);
+		if (episode_title_3 != null)
+			channel.put ("episode_title_3", episode_title_3);
+		if (episode_title_4 != null)
+			channel.put ("episode_title_4", episode_title_4);
 		
 		/* have not fetched from youtube */
 		channel.put ("fetched", "0");

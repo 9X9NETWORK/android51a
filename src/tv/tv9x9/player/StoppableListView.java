@@ -22,6 +22,7 @@ public class StoppableListView extends ListView
     	{
 		super (context);
         this.isPagingEnabled = true;
+        request_refresh = false;
     	}
 
     public void log (String text)
@@ -44,7 +45,7 @@ public class StoppableListView extends ListView
     	
     	if (action == MotionEvent.ACTION_UP)
     		{
-    		log ("onTouchEvent ACTION UP");
+    		log ("onTouchEvent ACTION UP (request refresh: " + request_refresh + ")");
     		if (request_refresh)
     			{
     			request_refresh = false;
@@ -73,7 +74,7 @@ public class StoppableListView extends ListView
     @Override
     public boolean onInterceptTouchEvent (MotionEvent event)
     	{
-        if (this.isPagingEnabled)
+        if (isPagingEnabled)
         	{
             return super.onInterceptTouchEvent (event);
         	}
@@ -83,7 +84,8 @@ public class StoppableListView extends ListView
 
     public void setPagingEnabled (boolean b)
     	{
-        this.isPagingEnabled = b;
+        isPagingEnabled = b;
+        request_refresh = false;
     	}
     
 	int max_overscroll_distance = 200;
@@ -92,6 +94,7 @@ public class StoppableListView extends ListView
 		{	
 		refresh_function = r;
 		handler = h;
+		request_refresh = false;
 		}
 	
 	public void set_finger_is_down_function (Callback c)
@@ -103,8 +106,8 @@ public class StoppableListView extends ListView
     protected boolean overScrollBy
             (int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) 
     	{		
-		int max_y_overscroll = deltaY < 0 ? max_overscroll_distance : maxOverScrollY;
-				
+		int max_y_overscroll = deltaY < 0 ? max_overscroll_distance : maxOverScrollY;			
+		
 		if (finger_is_down_function != null && !finger_is_down_function.return_boolean())
 			max_y_overscroll = maxOverScrollY;
 		
@@ -113,7 +116,15 @@ public class StoppableListView extends ListView
 		if (scrollY < (-max_y_overscroll / 2))
 			{
 			if (handler != null && refresh_function != null)
-				request_refresh = true;
+				{
+				if (finger_is_down_function != null && finger_is_down_function.return_boolean())
+					{
+					log ("will request refresh: scrollY=" + scrollY + ", max_y_overscroll=" + max_y_overscroll);
+					request_refresh = true;
+					}
+				else
+					log ("won't request refresh, since finger is not down");
+				}
 			}
 		
 		/*

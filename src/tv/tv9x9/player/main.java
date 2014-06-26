@@ -53,7 +53,6 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.os.Vibrator;
@@ -231,6 +230,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
         		if (player != null)
         			player.add_to_time_played();
         		}
+        	
+        	player_full_stop();
         	}
     	}
     
@@ -5371,23 +5372,26 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					vAgo.setVisibility (View.GONE);
 				}
 			
-			boolean small_channel_thumbnail_found = false;
-			
-			ImageView vSmallChannelIcon = (ImageView) row.findViewById (R.id.small_channel_icon);
-			if (vSmallChannelIcon != null)
+			if (is_phone())
 				{
-				String filename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + channel_id + ".png";
-				File f = new File (filename);
-				if (f.exists())
+				boolean small_channel_thumbnail_found = false;
+				
+				ImageView vSmallChannelIcon = (ImageView) row.findViewById (R.id.small_channel_icon);
+				if (vSmallChannelIcon != null)
 					{
-					Bitmap bitmap = BitmapFactory.decodeFile (filename);
-					if (bitmap != null)
+					String filename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + channel_id + ".png";
+					File f = new File (filename);
+					if (f.exists())
 						{
-						Bitmap bitmap2 = bitmappery.getRoundedCornerBitmap (bitmap, 70);
-						if (bitmap2 != null)
+						Bitmap bitmap = BitmapFactory.decodeFile (filename);
+						if (bitmap != null)
 							{
-							vSmallChannelIcon.setImageBitmap (bitmap2);
-							small_channel_thumbnail_found = true;
+							Bitmap bitmap2 = bitmappery.getRoundedCornerBitmap (bitmap, 70);
+							if (bitmap2 != null)
+								{
+								vSmallChannelIcon.setImageBitmap (bitmap2);
+								small_channel_thumbnail_found = true;
+								}
 							}
 						}
 					}
@@ -5475,6 +5479,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							Bitmap bitmap = BitmapFactory.decodeFile (f1);
 							if (bitmap != null)
 								{
+								log ("==> THUMBERY bitmap w:" + bitmap.getWidth() + ", h:" + bitmap.getHeight());
 								vThumb.setImageBitmap (bitmap);
 								used_thumbnail = true;
 								}
@@ -5483,6 +5488,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					}
 				if (!used_thumbnail)
 					vThumb.setImageResource (R.drawable.store_unavailable);
+				
+				if (is_phone())
+					{
+					TextView vFirstTitle = (TextView) parent.findViewById (R.id.first_episode_title);
+					if (vFirstTitle != null)
+						{
+						String e1 = config.pool_meta (channel_id, "episode_title_1");
+						vFirstTitle.setText (e1 != null && !e1.equals ("") ? e1 : "");
+						}
+					}
 				}
 			}
 		}

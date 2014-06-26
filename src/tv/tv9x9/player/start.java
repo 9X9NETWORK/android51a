@@ -541,6 +541,14 @@ public class start extends Activity
 				final String short_id = fields [0];
 				/* this MUST match the query in main *exactly* or there is no point to this */
 				first_setinfo_query = "setInfo?set=" + short_id + "&time=" + hour + "&programInfo=false";
+				
+				if (config.query_cache.get (first_setinfo_query) != null)
+					{
+					log ("have already called setInfo; skipping...");
+					delayed_launch();
+					return;
+					}
+			
 				new playerAPI (in_main_thread, config, first_setinfo_query)
 					{
 					public void success (String[] lines)
@@ -553,6 +561,8 @@ public class start extends Activity
 							preparse_first_set_info (short_id, lines);
 							delayed_launch();
 							}
+						else
+							delayed_launch();
 						}
 					public void failure (int code, String errtext)
 						{
