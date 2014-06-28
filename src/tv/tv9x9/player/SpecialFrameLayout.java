@@ -57,7 +57,8 @@ public class SpecialFrameLayout extends FrameLayout
 	    	Log.i ("vtest", "ACTION MOVE, x=" + event.getX() + ", y=" + event.getY());
 	        }
         super.onTouchEvent (event);
-        return true;
+        /* return true */
+        return false;
 	    }
 	 
 	@Override

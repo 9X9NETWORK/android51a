@@ -6916,7 +6916,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		vVideoLayer.setOnTouchListener (new OnTouchListener()
 		{
 			@Override
-			public boolean onTouch(View arg0, MotionEvent arg1)
+			public boolean onTouch (View arg0, MotionEvent arg1)
 				{
 				log ("***************** VIDEO LAYER onTouch");
 				return false;
@@ -6925,7 +6925,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		yt_wrapper.setOnTouchListener (new OnTouchListener()
 		{
 			@Override
-			public boolean onTouch(View arg0, MotionEvent arg1)
+			public boolean onTouch (View arg0, MotionEvent arg1)
 				{
 				log ("***************** YT WRAPPER LAYER onTouch");
 				return false;
@@ -7049,7 +7049,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		log ("onVideoActionTapped");
 		if (video_is_minimized)
 			{
-			if (max_pixels_minimized_box_moved < 100)
+			if (max_pixels_minimized_box_moved < pixels_100)
 				relaunch_player();
 			}
 		else
@@ -7094,7 +7094,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		    		log ("video maximize only");
 		    		video_normal();
 		    		}
-				}			
+				}	
+			else
+				{
+				/* reset margins */
+				log ("onVideoActionUp: small deltaX: " + deltaX);
+				video_minimize (false);
+				}
 			}			
 		else
 			{

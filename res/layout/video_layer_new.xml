@@ -521,20 +521,6 @@
 						    android:layout_height="match_parent"				    
 						    android:background="#1D1D1D"
 						    />	
-						    						
-					    <!-- TextView		     
-					        android:id="@+id/playback_episode_description"   
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:paddingLeft="10dip"
-							android:paddingRight="10dip"	
-							android:paddingBottom="10dip"						
-							android:gravity="top"
-							android:text="[...]"
-							android:textSize="16sp"							
-							android:textColor="#C0C0C0"							
-							android:ellipsize="end"					
-					    	/ -->
 				    	<ScrollView
 				    	    android:id="@+id/desc_scroll_container"
 						    android:layout_width="match_parent"

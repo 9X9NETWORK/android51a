@@ -1142,11 +1142,18 @@ public class metadata
 		String episode_thumb_4 = null;
 		
 		String name = fields[2];
-		
-		String episode_title_1 = null;
-		String episode_title_2 = null;
-		String episode_title_3 = null;
-		String episode_title_4 = null;
+				
+		String first_episode_title = null;		
+		if (fields.length > 24)
+			{
+			first_episode_title = fields [24];
+			if (first_episode_title.contains ("|"))
+				{
+				String eptitles[] = first_episode_title.split ("\t");
+				if (eptitles.length > 1)
+					first_episode_title = eptitles [1];
+				}
+			}
 		
 		if (thumb.contains ("|"))
 			{
@@ -1163,18 +1170,11 @@ public class metadata
 				episode_thumb_4 = thumbs[4];			
 			}
 		
+		/* YiWen says this does not reliably contain episode titles, but some do! Ignore them, use field #24. 25-Jun-2014 */
 		if (name.contains ("|"))
 			{
 			String names[] = name.split ("\\|");
-			name = names[0];
-			if (names.length > 1)
-				episode_title_1 = names[1];
-			if (names.length > 2)
-				episode_title_2 = names[2];
-			if (names.length > 3)
-				episode_title_3 = names[3];
-			if (names.length > 4)
-				episode_title_4 = names[4];			
+			name = names[0];		
 			}
 		
 		final String channel_id = fields [1];
@@ -1231,6 +1231,10 @@ public class metadata
 		if (episode_thumb_4 != null)
 			channel.put ("episode_thumb_4", episode_thumb_4);
 		
+		if (first_episode_title != null)
+			channel.put ("episode_title_1", first_episode_title);
+		
+		/*
 		if (episode_title_1 != null)
 			channel.put ("episode_title_1", episode_title_1);
 		if (episode_title_2 != null)
@@ -1239,6 +1243,7 @@ public class metadata
 			channel.put ("episode_title_3", episode_title_3);
 		if (episode_title_4 != null)
 			channel.put ("episode_title_4", episode_title_4);
+		*/
 		
 		/* have not fetched from youtube */
 		channel.put ("fetched", "0");

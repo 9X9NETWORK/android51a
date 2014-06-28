@@ -595,7 +595,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		return false;
 		}
 			
-	float downX = 0, downY = 0;
+	float downX = 0, downY = 0, max_delta_X = 0;
 	boolean x_movement_started = false;
 	boolean y_movement_started = false;
 	boolean started_inside_container = false;
@@ -613,9 +613,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (action == MotionEvent.ACTION_DOWN)
 			{
 			big_thing_moving = false;
-			// SpecialFrameLayout yt_wrapper = (SpecialFrameLayout) findViewById (R.id.ytwrapper2);
 			downX = event.getX();
 			downY = event.getY();
+			max_delta_X = 0;
 			log ("[dispatch] ACTION DOWN, x=" + event.getX() + ", y=" + event.getY());
 			started_inside_container = video_visible_somewhere() && point_inside_view (event.getX(), event.getY(), vContainer);
 			if (started_inside_container)
@@ -629,7 +629,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}	
 		else if (action == MotionEvent.ACTION_UP)
 			{
-			log ("[dispatch] ACTION UP, x=" + event.getX() + ", y=" + event.getY());
+			log ("[dispatch] ACTION UP, x=" + event.getX() + ", y=" + event.getY() + ", max_delta_X: " + max_delta_X);
 
 			int deltaX = (int) (downX - event.getX());
 			int deltaY = (int) (downY - event.getY());
@@ -638,7 +638,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				onBigThingUp (deltaX, deltaY);
 			else if (point_inside_view (event.getX(), event.getY(), vContainer))
 				{
-				if (Math.abs (deltaX) > pixels_80 || Math.abs (deltaY) > pixels_80)
+				// if (Math.abs (deltaX) > pixels_80 || Math.abs (deltaY) > pixels_80)
+				if (max_delta_X > pixels_40)
 					onVideoActionUp (deltaX, deltaY);
 				else
 					onVideoActionTapped();
@@ -647,10 +648,14 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		else if (action == MotionEvent.ACTION_MOVE)
 			{
+
 			log ("[dispatch] ACTION MOVE, x=" + event.getX() + ", y=" + event.getY());
 			int deltaX = (int) (downX - event.getX());
 			int deltaY = (int) (downY - event.getY());
-
+			
+			if (Math.abs (deltaX) > max_delta_X)
+				max_delta_X = Math.abs (deltaX);
+			
 			if (big_thing_moving)
 				onBigThingMove (deltaX, deltaY);
 			else if (video_is_minimized() && point_inside_view (event.getX(), event.getY(), vContainer))
