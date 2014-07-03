@@ -37,7 +37,7 @@
 		android:layout_marginLeft="12dip"
 		android:layout_marginRight="6dip"
 		android:layout_gravity="center"
-		android:src="@drawable/logo_signin_vice"						
+		android:src="@drawable/tvlogo"						
 		/>		
     <LinearLayout  
         android:id="@+id/terms_gossamer"    
