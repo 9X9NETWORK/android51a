@@ -35,6 +35,12 @@
 <!-- package="tv.flipr.ytower" -->
 <!-- package="tv.flipr.yourapp" -->
 <!-- package="tv.flipr.demo1" -->
+<!-- package="tv.flipr.demo2" -->
+<!-- package="tv.flipr.yourapp2" -->
+<!-- package="tv.dingdingtv.player9x9tv" -->
+<!-- package="tv.flipr.sundance" -->
+<!-- package="tv.flipr.iconcerts" -->
+<!-- package="tv.flipr.cw" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
@@ -80,7 +86,6 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -96,8 +101,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr" />        	       					   					
 			</intent-filter>
-			-->
-			 		
+			  		
 			<!-- for Joey Graceffa -->
 			<!--		
 			<intent-filter>
@@ -259,14 +263,14 @@
 			--> 	
 	
 			<!-- for GOODTV -->
-			 <!-- 
+			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-goodtv" />        	       					   					
 			</intent-filter>
-			 -->	
+			-->	
 
 			<!-- for DDTV -->
 			<!-- 
@@ -276,7 +280,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-ddtv" />        	       					   					
 			</intent-filter>
-			 -->	
+			-->	
 
 			<!-- for FCU -->
 			<!--  
@@ -326,7 +330,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-news" />        	       					   					
 			</intent-filter>
-		 	 -->				 
+		 	-->				 
 
             <!-- for KTSF -->
 		    <!-- 
@@ -399,14 +403,14 @@
             --> 
             																				
             <!-- for echomusic -->
-            <!--
+            <!--  
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="flipr-echomusic" />
             </intent-filter>
-            -->
+            --> 
             
             <!-- for ytower -->
             <!--  
@@ -429,13 +433,75 @@
 			-->	                                                                                                                                                                  
 
             <!-- for Demo1 -->
+            <!--  
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="flipr-demo1" />
             </intent-filter>
-        
+  			-->	                                                                                                                                                                  
+                    
+            <!-- for Demo2 -->
+            <!--  
+                <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-demo2" />
+            </intent-filter>
+  			-->	                                                                                                                                                                  
+ 
+            <!-- for YourApp2 -->
+            <!--  
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-yourapp2" />        	       		   					
+  			</intent-filter>
+  			-->	       
+  			
+			<!-- for DingDingTV -->
+            <!--   
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-dingdingtv" />        	       					   					
+			</intent-filter>
+  			-->
+			
+  			<!-- for Sundance -->
+            <!--   
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-sundance" />        	       		   					
+  			</intent-filter>
+  			-->
+  			 
+ 			<!-- for Iconcerts -->
+            <!--   
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-iconcerts" />        	       		   					
+  			</intent-filter>
+  			-->
+  			
+  			<!-- for CW -->
+			<!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-cw" />        	       					   					
+			</intent-filter>
+			-->
+            
         </activity>
         
 <!-- entire Manifest file as provided from RC company:
