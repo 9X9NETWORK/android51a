@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
+    <!-- 
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
@@ -14,7 +15,8 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">1429057570658015</string>
-	 			
+	 -->
+	  			
 	<!-- Joey Graceffa -->
     <!--  
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -289,7 +291,7 @@
          
     <!-- string name="app_name">華視</string --><!-- cts original -->
     <!-- cts festival -->  
-    <!--   
+    <!--    
     <string name="app_name">華視 FLIPr</string>
     <string name="app_icon">@drawable/cts_icon_new</string>
     <string name="white_label">cts</string>
@@ -303,10 +305,10 @@
     <string name="signin_bg">bg_open_cts</string> 
     <string name="set_banner">banner_cts</string>           
 	<string name="fb_app_id">1110847978946712</string>              
-    --> 
+     -->
 	
     <!-- thenewslens -->
-    <!--   
+       
     <string name="app_name">關鍵評論網 FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_thenewslens</string>    
     <string name="white_label">thenewslens</string>     
@@ -320,10 +322,10 @@
     <string name="signin_bg">bg_open_thenewslens</string>
     <string name="set_banner">banner_thenewslens</string>            
 	<string name="fb_app_id">436354623134686</string>
-	-->
+
 	
     <!-- goodtv -->
-    <!--   
+    <!--    
     <string name="app_name">GOODTV</string>
  	<string name="app_icon">@drawable/launch_logo_goodtv</string>         
     <string name="white_label">goodtv</string>
@@ -338,7 +340,7 @@
     <string name="signin_bg">bg_open_goodtv</string>        	
     <string name="set_banner">banner01_goodtv</string>
  	<string name="fb_app_id">555946694494117</string>       
-    --> 
+     --> 
  	
     <!-- ddtv -->
     <!--       
@@ -358,7 +360,7 @@
     --> 
     
     <!-- fcu -->
-    <!--       
+    <!--        
     <string name="app_name">逢甲影音</string>
     <string name="app_icon">@drawable/launch_logo_fcu</string>    
     <string name="white_label">fcu</string>     
@@ -372,7 +374,7 @@
     <string name="signin_bg">bg_open_fcu</string>
     <string name="set_banner">banner01_fcu</string>      
 	<string name="fb_app_id">180687745468145</string>
-    -->  
+     -->  
 	
     <!-- Tzu Chi -->
     <!--    
@@ -422,7 +424,7 @@
     <string name="signin_bg">musicvideo_bg_open</string>
     <string name="set_banner">musicvideo_banner01</string>            
 	<string name="fb_app_id">463854980410020</string>
- 	-->  
+ 	 -->   
     
     <!-- newsflipr -->
     <!--      
@@ -561,7 +563,7 @@
     -->
      
     <!-- Daaitv -->
-    <!--  
+    <!--   
     <string name="app_name">大愛 FLIPr</string>
     <string name="app_icon">@drawable/daaitv_launch_logo</string>
     <string name="white_label">daaitv</string>
@@ -575,7 +577,7 @@
     <string name="signin_bg">daaitv_bg_open</string>
     <string name="set_banner">daaitv_banner</string>
     <string name="fb_app_id">280807262096612</string>
-    -->
+     -->
     
     <!-- Ytower -->
     <!--  

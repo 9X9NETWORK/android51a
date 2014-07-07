@@ -43,7 +43,7 @@
 <!-- package="tv.flipr.cw" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.tv9x9.player"
+      package="tv.flipr.thenewslens"
       android:versionCode="119"
       android:versionName="5.0.1.119">
           
@@ -68,6 +68,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />    
 	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 	<uses-permission android:name="tv.tv9x9.player.permission.C2D_MESSAGE" />
+	
 	          
     <!-- change to false to allow Google TV -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="true" />
@@ -86,6 +87,7 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
+			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -101,7 +103,8 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr" />        	       					   					
 			</intent-filter>
-			  		
+			 -->
+			   		
 			<!-- for Joey Graceffa -->
 			<!--		
 			<intent-filter>
@@ -253,24 +256,24 @@
 			-->	
 								
 			<!-- for CTS -->
-			<!--   
+			<!--    
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-cts" />        	       					   					
 			</intent-filter>	
-			--> 	
+			 -->	
 	
 			<!-- for GOODTV -->
-			<!-- 
+			<!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-goodtv" />        	       					   					
 			</intent-filter>
-			-->	
+			 -->	
 
 			<!-- for DDTV -->
 			<!-- 
@@ -283,24 +286,24 @@
 			-->	
 
 			<!-- for FCU -->
-			<!--  
+			<!--   
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-fcu" />        	       					   					
 			</intent-filter>	
-			-->
+			 -->
 			
 			<!-- for THENEWSLENS -->
-			<!--  
+			  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-thenewslens" />        	       					   					
 			</intent-filter>	
-		 	-->
+		 	
 		 	 
 		 	<!-- for SUPERSTAR -->
 			<!--  
@@ -313,7 +316,7 @@
 		 	-->
 			
 			<!-- for MUSICVIDEO -->
-			<!--  
+			<!--    
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -393,14 +396,14 @@
             --> 
              
             <!-- for daaitv -->
-  			<!--  
+  			<!--    
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="flipr-daaitv" />
             </intent-filter>
-            --> 
+             -->
             																				
             <!-- for echomusic -->
             <!--  
@@ -611,6 +614,7 @@
     			<action android:name="com.android.vending.INSTALL_REFERRER" />
   			</intent-filter>
 		</receiver>
+		
 		
 		<service android:name="tv.tv9x9.player.AppCastDeviceService" android:exported="false">
     		<intent-filter>
