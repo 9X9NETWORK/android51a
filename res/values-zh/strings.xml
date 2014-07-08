@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
-    <!-- 
    	<string name="app_name">9x9.tv</string>
 	<string name="app_icon">@drawable/tt_icon_new</string>       	
     <string name="white_label">portal</string>
@@ -15,7 +14,6 @@
     <string name="signin_bg">bgnew</string>      
     <string name="set_banner">banner_9x9</string>     
 	<string name="fb_app_id">1429057570658015</string>
-	 -->
 	  			
 	<!-- Joey Graceffa -->
     <!--  
@@ -308,7 +306,7 @@
      -->
 	
     <!-- thenewslens -->
-       
+    <!--
     <string name="app_name">關鍵評論網 FLIPr</string>
     <string name="app_icon">@drawable/launch_logo_thenewslens</string>    
     <string name="white_label">thenewslens</string>     
@@ -322,7 +320,7 @@
     <string name="signin_bg">bg_open_thenewslens</string>
     <string name="set_banner">banner_thenewslens</string>            
 	<string name="fb_app_id">436354623134686</string>
-
+    -->
 	
     <!-- goodtv -->
     <!--    

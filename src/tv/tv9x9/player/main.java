@@ -4154,7 +4154,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		if (portal_stack_ids != null)
 			{
-			reset_arena_to_home();	
+			reset_arena_to_home();
 			
 			if (home_slider == null)
 				{
@@ -4169,7 +4169,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	log ("start set: " + start_set);
 		        	vHomePager.setCurrentItem (start_set);
 		        	}
-				}
+				}			
+			
+			create_set_slider();
+			position_set_slider();
 			}
 		
 		track_layer (toplayer.HOME);		
@@ -4195,11 +4198,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 	/* this is implemented using the base class! */
 		
+    Swaphome current_swap_object = null;
+    	
     public class HomeSlider extends PagerAdapter
     	{
     	boolean first_time = true;
-    	
-    	Swaphome current_swap_object = null;
+
     	FrameLayout current_home_page = null;
     	
         @Override
@@ -4227,11 +4231,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			if (is_phone())
 				{
+				/*
 				for (int id: new Integer[] { R.id.left_set_title, R.id.primary_set_title, R.id.right_set_title })
 					{
 					TextView v = (TextView) home_page.findViewById (id);
 					v.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
 					}
+				*/
 				}
 			
 			View vTabletPreamble = home_page.findViewById (R.id.tablet_preamble);
@@ -4287,13 +4293,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			sh.home_page = home_page;
 			((StoppableViewPager) container).addView (home_page, 0);
 			
+			/*
 			TextView vTitle = (TextView) sh.home_page.findViewById (R.id.primary_set_title);
 			vTitle.setText (portal_stack_names [position]);
+			*/
 			
 			TextView vBannerSetTitle = (TextView) sh.home_page.findViewById (R.id.banner_set_title);
 			if (vBannerSetTitle != null)
 				vBannerSetTitle.setText (portal_stack_names [position]);
 			
+			/*
 			TextView vLeft = (TextView) sh.home_page.findViewById (R.id.left_set_title);
 			vLeft.setText (position == 0 ? "" : portal_stack_names [position-1]);
 			vLeft.setOnClickListener (new OnClickListener()
@@ -4319,7 +4328,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        		((StoppableViewPager) container).setCurrentItem (position + 1);
 		        	}
 				});	
-		
+			*/
+			
 			View vModeThumbs = sh.home_page.findViewById (R.id.mode_thumbs);
 			if (vModeThumbs != null)
 				vModeThumbs.setOnClickListener (new OnClickListener()
@@ -4396,8 +4406,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					if (need_refresh)
 						sh.channel_adapter.notifyDataSetChanged();
 					}
+				position_set_slider();
 				}
 			}
+		
+	    
+	    @Override
+	    public CharSequence getPageTitle (int position)
+	    	{
+	    	return portal_stack_names [position];
+	    	}
 
 		public void set_mini_mode_thumbs (View v)
 			{
@@ -4565,6 +4583,161 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		boolean is_visible = vChannelOverlay.getVisibility() == View.VISIBLE;
 		vChannelOverlay.setVisibility (is_visible ? View.GONE : View.VISIBLE);
 		}
+		
+	boolean have_set_positions = false;
+	int set_offsets[] = null;
+	int set_widths[] = null;
+	
+	public void create_set_slider()
+		{	
+		have_set_positions = false;
+		
+		final LinearLayout vSetSlider = (LinearLayout) findViewById (R.id.set_slider);
+		/* DDT */
+		
+		
+		for (int i = 0; i < portal_stack_names.length; i++)
+			{
+			TextView vText = new TextView (this);
+			vText.setText (portal_stack_names [i]);
+			vText.setTextColor (Color.rgb (0x00, 0x00, 0x00));
+			vText.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			
+			vSetSlider.addView (vText);
+			
+			LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vText.getLayoutParams();
+			layout.height = MATCH_PARENT;
+			layout.leftMargin = 1;
+			layout.rightMargin = 1;
+			layout.gravity = Gravity.CENTER;
+			vText.setLayoutParams (layout);
+			
+			vText.setBackgroundColor (Color.rgb (0xFF, 0x66, 0x00));	
+			vText.setPadding (pixels_20, 0, pixels_20, 0);
+			vText.setGravity (Gravity.CENTER);
+			}
+		
+		/*
+		TextView v1 = new TextView (this);
+		v1.setText (text_to_left);
+		v1.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
+		v1.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+		if (text_to_left.contains ("http") || text_to_left.contains ("HTTP"))
+			v1.setMaxLines (1);
+			*/
+		vSetSlider.post (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				set_offsets = new int [portal_stack_names.length];
+				set_widths = new int [portal_stack_names.length];
+				
+				for (int i = 0; i < portal_stack_names.length; i++)
+					{
+					View v = vSetSlider.getChildAt (i);
+					set_offsets [i] = v.getLeft();
+					set_widths [i] = v.getWidth();
+					log ("set offset: " + set_offsets [i] + ", width: " + set_widths [i]);
+					have_set_positions = true;
+					position_set_slider();
+					if (vHomePager != null)
+						vHomePager.setOnPageChangeListener (new SliderListener());
+					
+				    class SimpleTabColorizer implements SlidingTabLayout.TabColorizer
+				    	{
+				        private int[] mIndicatorColors;
+				        private int[] mDividerColors;
+
+				        @Override
+				        public final int getIndicatorColor(int position) {
+				            return mIndicatorColors[position % mIndicatorColors.length];
+				        }
+
+				        @Override
+				        public final int getDividerColor(int position) {
+				            return mDividerColors[position % mDividerColors.length];
+				        }
+
+				        void setIndicatorColors(int... colors) {
+				            mIndicatorColors = colors;
+				        }
+
+				        void setDividerColors(int... colors) {
+				            mDividerColors = colors;
+				        }
+				    	}
+				    
+					SimpleTabColorizer colorizer = new SimpleTabColorizer();
+					colorizer.setIndicatorColors (Color.rgb (0xFF, 0xAA, 0x00));
+					
+				    final byte DEFAULT_DIVIDER_COLOR_ALPHA = 0x20;
+				    final int themeForegroundColor = Color.rgb (0xFF, 0xFF, 0x00);
+				    
+					// colorizer.setDividerColors (setColorAlpha (themeForegroundColor, DEFAULT_DIVIDER_COLOR_ALPHA));
+			        // colorizer.setDividerColors (Color.argb(0x20, 0xFF, 0xFF, 0x00));
+				    colorizer.setDividerColors (Color.argb (0xFF, 0xFF, 0xFFD, 0x0F));
+					SlidingTabLayout mSlidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
+					mSlidingTabLayout.setCustomTabColorizer (colorizer);
+					mSlidingTabLayout.setViewPager (vHomePager);
+					}
+				}	
+			});
+		}
+	
+	public void position_set_slider()
+		{	
+		final View vIndicator = findViewById (R.id.set_indicator);
+		if (have_set_positions && current_swap_object != null)
+			{
+			vIndicator.post(new Runnable()
+				{
+				@Override
+				public void run()
+					{
+					int set = current_swap_object.set;
+					log ("positioning set slider to: " + set + " left: " + set_offsets [set] + " width: " + set_widths [set]);
+					vIndicator.setVisibility (View.VISIBLE);
+					final FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vIndicator.getLayoutParams();
+					// layout.leftMargin = (int) (1.5 * (float) set_offsets [set]);
+					layout.width = set_widths [set];
+					layout.setMargins(set_offsets [set], 0, 0, 0);
+					vIndicator.setLayoutParams (layout);
+					}			
+				});			
+			}
+		else
+			vIndicator.setVisibility (View.GONE);
+		}
+	
+	private class SliderListener extends ViewPager.SimpleOnPageChangeListener
+		{
+		@Override
+		public void onPageScrolled (int position, final float positionOffset, int positionOffsetPixels)
+			{
+			super.onPageScrolled (position, positionOffset, positionOffsetPixels);
+			log ("SLIDER position=" + position + " positionOffset=" + positionOffset + " positionOffsetPixels=" + positionOffsetPixels);
+			
+			if (have_set_positions && current_swap_object != null)
+				{
+				final View vIndicator = findViewById (R.id.set_indicator);
+				vIndicator.post (new Runnable()
+					{
+					@Override
+					public void run()
+						{
+						int set = current_swap_object.set;
+
+						final FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vIndicator.getLayoutParams();
+						// layout.width = set_widths [set];
+						int left = (int) ((1.0 + positionOffset) * set_offsets [set]);
+						layout.setMargins (left, 0, 0, 0);
+						vIndicator.setLayoutParams (layout);
+						}
+					});
+				}
+			}
+	    }
 	
 	public void reset_arena_to_home()
 		{
@@ -4796,12 +4969,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					count++;
 					}
 			
+			/*
 			portal_stack_ids = new_portal_stack_ids;
 			portal_stack_names = new_portal_stack_names;
 			portal_stack_episode_thumbs = new_portal_stack_episode_thumbs;
 			portal_stack_channel_thumbs = new_portal_stack_channel_thumbs;		
 			portal_stack_banners = new_portal_stack_banners;
+			*/
 			}
+		
+		create_set_slider();
 		
 		final Runnable update = new Runnable()
 			{
@@ -5264,11 +5441,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			if (program_line != null && program_line.length > 0)
 				{
-
-				// vtriple != null WAS HERE >*<
-				
-
-				
 				if (!requested_channel_thumbs [position])
 					{
 					requested_channel_thumbs [position] = true;
@@ -5360,16 +5532,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			TextView vAgo = (TextView) row.findViewById (R.id.ago);
 			if (vAgo != null)
-				{				
-				if (num_episodes > 0 && program_line != null && program_line.length > 0)
-					{
-					long ts = config.get_most_appropriate_timestamp (channel_id);
-					String ago = util.ageof (main.this, ts);
-					vAgo.setText (ago);
-					vAgo.setVisibility (View.VISIBLE);
-					}
-				else
-					vAgo.setVisibility (View.GONE);
+				{			
+				long ts = config.get_most_appropriate_timestamp (channel_id);
+				String ago = util.ageof (main.this, ts);
+				vAgo.setText (ago);
 				}
 			
 			if (is_phone())
@@ -9908,11 +10074,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		if (parent != null)
 			{
+			/*
 			View vLeftSetTitle = parent.findViewById (R.id.left_set_title);
 	        vLeftSetTitle.setVisibility (hide ? View.INVISIBLE : View.VISIBLE);
 	        
 	        View vRightSetTitle = parent.findViewById (R.id.right_set_title);
 	        vRightSetTitle.setVisibility (hide ? View.INVISIBLE : View.VISIBLE);
+	        */
 			}
 		}
 	

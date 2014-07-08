@@ -234,6 +234,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	static int pixels_12 = 12;	
 	static int pixels_15 = 15;	
 	static int pixels_20 = 20;
+	static int pixels_24 = 24;		
 	static int pixels_25 = 25;	
 	static int pixels_30 = 30;
 	static int pixels_32 = 32;
@@ -433,6 +434,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    pixels_12  = (int) (12  * dm.density); 	    
 	    pixels_15  = (int) (15  * dm.density); 	    
 	    pixels_20  = (int) (20  * dm.density); 
+	    pixels_24  = (int) (24  * dm.density); 	    
 	    pixels_25  = (int) (25  * dm.density); 	    
 	    pixels_30  = (int) (30  * dm.density); 
 	    pixels_32  = (int) (32  * dm.density); 	    

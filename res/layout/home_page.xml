@@ -11,7 +11,7 @@
 	    android:background="#FFFFFF"
 	    android:orientation="vertical">	    		    
 	    
-	 	<LinearLayout
+	 	<!-- LinearLayout
 		    android:id="@+id/set_titles"
 		    android:layout_width="match_parent"
 		    android:layout_height="35dip"
@@ -57,7 +57,7 @@
 				android:text="Right Set"
 				android:paddingRight="6dip"
 				/>							    
-	    </LinearLayout>
+	    </LinearLayout-->
 	    
 		<LinearLayout
 		    android:layout_width="match_parent"
