@@ -87,7 +87,6 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -103,7 +102,6 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr" />        	       					   					
 			</intent-filter>
-			 -->
 			   		
 			<!-- for Joey Graceffa -->
 			<!--		
@@ -293,17 +291,17 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-fcu" />        	       					   					
 			</intent-filter>	
-			 -->
+			-->
 			
 			<!-- for THENEWSLENS -->
-			  
+			<!--   
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-thenewslens" />        	       					   					
 			</intent-filter>	
-		 	
+			-->
 		 	 
 		 	<!-- for SUPERSTAR -->
 			<!--  

@@ -118,7 +118,7 @@
 					<ImageView
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:src="@drawable/tvlogo"
+						android:src="@drawable/nine_logo"
 						/>	
 					<TextView
 	   					android:id="@+id/version"

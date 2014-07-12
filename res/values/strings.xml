@@ -2,17 +2,17 @@
 <resources>
     <!-- 9x9 -->
    	<string name="app_name">9x9.tv</string>
-	<string name="app_icon">@drawable/tt_icon_new</string>       	
+	<string name="app_icon">@drawable/nine_launch_logo</string>       	
     <string name="white_label">portal</string>
-    <string name="mso">demo</string>
+    <string name="mso">9x9</string>
     <string name="default_region">en</string>
-    <string name="logo">tvlogo</string>
-    <string name="splash_background">bgnew</string>
+    <string name="logo">nine_logo</string>
+    <string name="splash_background">nine_bg_open</string>
     <string name="splash_foreground">splash_generic_logo</string>        
     <string name="splash_slogan">Empowering Cloud TV</string>     
-    <string name="signin_logo">tvlogo</string>    
-    <string name="signin_bg">bgnew</string>      
-    <string name="set_banner">banner_9x9</string>     
+    <string name="signin_logo">nine_logo</string>    
+    <string name="signin_bg">nine_bg_open</string>      
+    <string name="set_banner">nine_banner</string>     
 	<string name="fb_app_id">1429057570658015</string>
 	  		
     <!-- Joey Graceffa -->
