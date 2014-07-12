@@ -40,6 +40,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.Signature;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -84,6 +85,8 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -92,6 +95,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TableRow;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout.LayoutParams;
@@ -108,6 +112,8 @@ import com.facebook.widget.*;
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import com.google.android.gms.ads.*;
+
 public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	{
 	boolean single_channel = false;
@@ -119,7 +125,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		}
 	
 	/* note, SIGNOUT, HELP, CATEGORY_ITEM and APP_ITEM are not real layers, but menu items */
-	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG };
+	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, 
+					HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG, TEST, PASSWORD };
 	
 	toplayer current_layer = toplayer.HOME;
 	toplayer layer_before_signin = toplayer.HOME;
@@ -331,6 +338,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    		{
 	    		slide_away_terms();
 	    		}
+	    	else if (current_layer == toplayer.PASSWORD)
+	    		{
+	    		slide_away_password();
+	    		}
 	    	else if (current_layer == toplayer.SIGNIN)
 	    		{
 	    		if (!is_phone())
@@ -348,7 +359,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	else if (current_layer == toplayer.GUIDE || current_layer == toplayer.SEARCH 
 	    				|| current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS
 	    				|| current_layer == toplayer.SHAKE || current_layer == toplayer.ABOUT
-	    				|| current_layer == toplayer.MESSAGES)
+	    				|| current_layer == toplayer.MESSAGES || current_layer == toplayer.TEST)
 	    		toggle_menu();
 	    	return true;
 	    	}
@@ -625,6 +636,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	boolean flurry_id_sent = false;
 	
 	@Override
+	public void onVideoActivityVideoStarted()
+		{
+		if (video_is_minimized)
+			video_minimize (false);
+		}
+	
+	@Override
 	public void onVideoActivityReady()
 		{
 		/* normally this is sent in onStart(), but config might not be available then */
@@ -732,12 +750,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (signin_bg != null)
 			{
 			int bg = getResources().getIdentifier (signin_bg, "drawable", getPackageName());
-			
-			View vSigninLayer = findViewById (R.id.signinlayer);
-			vSigninLayer.setBackgroundResource (bg);
-
-			View vTermsLayer = findViewById (R.id.termslayer);
-			vTermsLayer.setBackgroundResource (bg);
+			if (bg != 0)
+				{
+				View vSigninLayer = findViewById (R.id.signinlayer);
+				vSigninLayer.setBackgroundResource (bg);
+	
+				View vTermsLayer = findViewById (R.id.termslayer);
+				vTermsLayer.setBackgroundResource (bg);
+				}
 			}
 		
 		boolean uses_chromecast = getResources().getBoolean (R.bool.uses_chromecast);
@@ -1185,6 +1205,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
 		
+		items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
+		
 		/* no help screen has been provided yet */
 		// items.push (new menuitem (toplayer.HELP, R.string.help, R.drawable.icon_help, R.drawable.icon_help));
 		
@@ -1281,7 +1303,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        	close_menu();
 	        	enable_shake_layer();
 				break;
-			
+				
+			case TEST:
+	        	log ("click on: menu test");
+	        	close_menu();
+	        	enable_test_layer();
+				break;
+				
 			case ABOUT:
 	        	log ("click on: menu about");
 	        	close_menu();
@@ -1489,6 +1517,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					vAppIcon.setVisibility (View.INVISIBLE);
 					}
 				}
+			else if (current_layer == toplayer.PASSWORD && menu [position].type == toplayer.SETTINGS)
+				{
+				/* password is part of settings */
+				vTitle.setTextColor (Color.argb (0xFF, 0x77, 0x77, 0x77));
+				rv.setBackgroundColor (Color.WHITE);
+				}
 			else if (current_layer == menu [position].type)
 				{
 				vTitle.setTextColor (Color.argb (0xFF, 0x77, 0x77, 0x77));
@@ -1499,7 +1533,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				vTitle.setTextColor (Color.BLACK);
 				rv.setBackgroundColor (Color.argb (0x00, 0x00, 0x00, 0x00));
 				}
-				
 				
 			return rv;
 			}	
@@ -2236,20 +2269,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			String lines[] = episode_desc.split ("\n");
 			for (String line: lines)
 				{
-				log ("LINE: |" + line + "|");
-				
+				// log ("LINE: |" + line + "|");				
 				NEW_fill_episode_description_process_line (vDesc, line);
 				}
 			}
-		
-		/*
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"	
-	    */
-		
-		ScrollView.LayoutParams layout = new ScrollView.LayoutParams(
-                ScrollView.LayoutParams.MATCH_PARENT,
-                ScrollView.LayoutParams.WRAP_CONTENT);
+
+		ScrollView.LayoutParams layout = new ScrollView.LayoutParams
+				(ScrollView.LayoutParams.MATCH_PARENT, ScrollView.LayoutParams.WRAP_CONTENT);
 		
 		vContainer.updateViewLayout (vDesc, layout);
 		}
@@ -2276,9 +2302,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			String text = line.substring (match_start, match_end);					
 			String text_to_right = line.substring (match_end);
 			
-			log ("V1: |" + text_to_left + "|");
-			log ("V2: |" + text + "|");
-			log ("V3: |" + text_to_right + "|");
+			// log ("V1: |" + text_to_left + "|");
+			// log ("V2: |" + text + "|");
+			// log ("V3: |" + text_to_right + "|");
 			
 			TextView v1 = new TextView (this);
 			v1.setText (text_to_left);
@@ -2328,19 +2354,19 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			v3.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
 			v3.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
 			if (text_to_right.contains ("http") || text_to_right.contains ("HTTP"))
-				v3.setMaxLines (1);
+			v3.setMaxLines (1);
 		    // v3.setBackgroundColor (Color.BLUE);
 		
 		    if (v1.length() > maxchar && v3.length() > maxchar)
 		    	{
-		    	log ("scenario 1: v1 // v2 // v3");
+		    	// log ("scenario 1: v1 // v2 // v3");
 				append_views [viewcount++] = v1;
 				append_views [viewcount++] = v2;
 				append_views [viewcount++] = v3;				    	
 		    	}
 		    else if (v1.length() > maxchar)
 		    	{
-		    	log ("scenario 2: v1 // v2 + v3");
+		    	// log ("scenario 2: v1 // v2 + v3");
 				append_views [viewcount++] = v1;
 				LinearLayout linear = new LinearLayout (this);	
 				linear.addView (v2);
@@ -2349,7 +2375,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		    	}
 		    else if (v3.length() > maxchar)
 		    	{
-		    	log ("scenario 3: v1 + v2 // v3");
+		    	// log ("scenario 3: v1 + v2 // v3");
 				LinearLayout linear = new LinearLayout (this);	
 		    	linear.addView (v1);
 		    	linear.addView (v2);
@@ -2358,7 +2384,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		    	}
 		    else
 		    	{
-		    	log ("scenario 4: v1 + v2 + v3");
+		    	// log ("scenario 4: v1 + v2 + v3");
 				LinearLayout linear = new LinearLayout (this);	
 		    	linear.addView (v1);
 		    	linear.addView (v2);
@@ -2369,7 +2395,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		else
 			{
 			/* create just a TextView */
-			log ("ORDINARY: |" + line + "|");
+			// log ("ORDINARY: |" + line + "|");
 			TextView v = new TextView (this);
 		    v.setText (line);
 		    // v.setBackgroundColor (Color.WHITE);
@@ -2382,14 +2408,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				{
 				LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams (WRAP_CONTENT, WRAP_CONTENT);
 				v.setLayoutParams (layout);
-				log ("adding append_view");
+				// log ("adding append_view");
 				vDesc.addView (v);
 				}
 			}	
 		
 		if (process_afterwards != null)
 			{
-			log ("AFTERLINE: " + process_afterwards);
+			// log ("AFTERLINE: " + process_afterwards);
 			NEW_fill_episode_description_process_line (vDesc, process_afterwards);
 			}
 		}
@@ -2737,7 +2763,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		
 		View vTopBar = findViewById (R.id.sliding_top_bar);
-		vTopBar.setVisibility (layer == toplayer.SETTINGS || layer == toplayer.TERMS || layer == toplayer.SIGNIN ? View.GONE : View.VISIBLE);
+		vTopBar.setVisibility (layer == toplayer.TERMS || layer == toplayer.SIGNIN ? View.GONE : View.VISIBLE);
 		
 		View home_layer = home_layer();
 		home_layer.setVisibility (layer == toplayer.HOME ? View.VISIBLE : View.GONE);
@@ -2753,6 +2779,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		View settings_layer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
 		settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
+
+		View password_layer = findViewById (R.id.passwordlayer_phone);
+		password_layer.setVisibility (layer == toplayer.PASSWORD ? View.VISIBLE : View.GONE);
 		
 		View terms_layer = findViewById (R.id.termslayer);
 		terms_layer.setVisibility (layer == toplayer.TERMS ? View.VISIBLE : View.GONE);
@@ -2774,6 +2803,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 		View nag_layer = findViewById (R.id.nag_layer);
 		nag_layer.setVisibility (layer == toplayer.NAG ? View.VISIBLE : View.GONE);
+		
+		View test_layer = findViewById (R.id.testlayer);
+		test_layer.setVisibility (layer == toplayer.TEST ? View.VISIBLE : View.GONE);
 		
 		current_layer = layer;
 		
@@ -3089,7 +3121,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		for (int editable: editables)
 			{
 			EditText v = (EditText) findViewById (editable);
-			v.setText ("");
+			if (v != null)
+				v.setText ("");
 			}
 		}
 	
@@ -3275,10 +3308,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 	/*** TERMS *****************************************************************************************************/
 	
+	toplayer terms_previous_layer;
+	
 	public void enable_terms_layer()
 		{
 		disable_video_layer();
 		
+		terms_previous_layer = current_layer;
 		set_layer (toplayer.TERMS);
 		
 		setup_terms_buttons();
@@ -3389,7 +3425,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	{
 	    	public void run()
 	    		{
-	    		enable_signin_layer (null);
+	    		if (terms_previous_layer == toplayer.SIGNIN)
+	    			enable_signin_layer (null);
+	    		else
+	    			set_layer (terms_previous_layer);
 	    		toggle_menu();
 	    		}
 	    	});
@@ -3449,6 +3488,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				url = "http://mobile.9x9.tv/" + mso + "/" + action + "/" + language + "/";
 			}
 		
+		log ("terms/privacy url: " + url);
 		vWebPage.loadUrl (url);
 		}
 
@@ -3463,8 +3503,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
     private UiLifecycleHelper uiHelper = null;
     
-	/* stolen */
-	public boolean has_facebook()
+	/* this formerly worked. After an update (Android? Facebook?) it has broken! */
+	public boolean OLD_has_facebook()
 		{
 	    Intent intent = new Intent (Intent.ACTION_SEND);
 	    intent.putExtra (Intent.EXTRA_TEXT, "test probe");
@@ -3480,6 +3520,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	}
 	    return false;
 		}		
+	
+	public boolean has_facebook()
+		{
+		/* can something on the system handle a fb:// intent? */
+        final String urlFb = "fb://page/192338590805862";
+        Intent intent = new Intent (Intent.ACTION_VIEW);
+        intent.setData (Uri.parse (urlFb));
+        final PackageManager packageManager = getPackageManager();
+        List <ResolveInfo> list = packageManager.queryIntentActivities (intent, PackageManager.MATCH_DEFAULT_ONLY);
+        return (list.size() > 0);
+		}
 	
     private Session.StatusCallback fb_callback = new Session.StatusCallback()
 		{
@@ -3533,6 +3584,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			LoginButton vButton = (LoginButton) parent.findViewById (button);
 		    if (vButton != null)
 			    {
+		    	log ("enabling facebook login ui button: " + button);
 		    	vButton.setReadPermissions (Arrays.asList ("email", "user_location", "user_birthday"));
 		    	vButton.setUserInfoChangedCallback (new LoginButton.UserInfoChangedCallback()
 			    	{
@@ -4106,6 +4158,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			/* disable facebook buttons if there is no facebook app on this device */
 			if (!has_facebook())
 				{
+				log ("no facebook, disabling buttons");
 				for (int button: new int[] { R.id.nag2_fblogin, R.id.nag3_fblogin })
 					{
 					LoginButton vButton = (LoginButton) page.findViewById (button);
@@ -7239,7 +7292,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		log ("onVideoActionUp :: deltaX: " + deltaX + " deltaY: " + deltaY);
 		if (video_is_minimized)
 			{
-			if (deltaX > pixels_100)
+			if (Math.abs (deltaX) > pixels_100)
 				{
 		    	if (current_layer != toplayer.PLAYBACK)
 		    		{
@@ -7311,7 +7364,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		int max_drag = screen_width - MARGINALIA - minimized_width;
 		
-		if (deltaX >= 0 && deltaX < max_drag)
+		if (/* deltaX >= 0 && */ deltaX < max_drag)
 			{
 			SpecialFrameLayout.LayoutParams container_layout = (SpecialFrameLayout.LayoutParams) vContainer.getLayoutParams();	
 			SpecialFrameLayout.LayoutParams container2_layout = (SpecialFrameLayout.LayoutParams) vContainer2.getLayoutParams();
@@ -8370,6 +8423,48 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     	video_normal();
     	}
     
+	/*** TEST **************************************************************************************************/
+    
+    public void enable_test_layer()
+    	{
+		disable_video_layer();
+		set_layer (toplayer.TEST);
+		display_advertisement();
+    	}
+    
+    public void display_advertisement()
+    	{
+    	final InterstitialAd interstitial = new InterstitialAd (this);
+
+    	String ADMOB_UNIT_ID = "a153bdf9709138b";
+    	
+	    interstitial.setAdUnitId (ADMOB_UNIT_ID);   
+
+	    interstitial.setAdListener (new AdListener()
+	    	{
+            @Override
+            public void onAdLoaded()
+            	{
+            	log ("interstitial ad loaded");
+            	interstitial.show();
+            	}
+
+            @Override
+            public void onAdClosed()
+            	{
+            	log ("interstitial ad closed");
+                toggle_menu();
+            	}
+	    	});
+        
+	    AdRequest adRequest = new AdRequest.Builder()
+	    	.addTestDevice (AdRequest.DEVICE_ID_EMULATOR)
+	    	.addTestDevice ("9B1327240A0F06351FD043013CDD9072")
+	    	.build();
+	    
+	    interstitial.loadAd (adRequest);
+    	}
+    
 	/*** SHAKE **************************************************************************************************/
     
     public void enable_shake_layer()
@@ -8466,10 +8561,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				});
 			*/
 			
-			if (config.about_us_url.startsWith ("http"))
-				vAbout.loadUrl (config.about_us_url);
-			else
-				vAbout.loadDataWithBaseURL ("http://www.flipr.tv/", config.about_us_url, "text/html", "utf-8", null);
+			if (config.about_us_url != null)
+				{
+				if (config.about_us_url.startsWith ("http"))
+					vAbout.loadUrl (config.about_us_url);
+				else
+					vAbout.loadDataWithBaseURL ("http://www.flipr.tv/", config.about_us_url, "text/html", "utf-8", null);
+				}
 			}
     	}
     
@@ -8704,7 +8802,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		outgoing_category_query = true;
 		
-		String category_id = category_list [index];
+		final AbsListView vStore = (AbsListView) findViewById (is_tablet() ? R.id.store_list_tablet : R.id.store_list_phone);
+		final View vSpinner = findViewById (R.id.store_progress);
+		
+		if (starting == 0)
+			vStore.setSelection (0);
+		
+		String category_id = category_list [index];	
+		set_store_category_name (category_id);
 		
 		final String query = "categoryInfo?category=" + category_id
 				+ "&region=" + config.region + "&count=" + category_stride + "&start=" + starting;
@@ -8717,7 +8822,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 				
 		if (starting == 0)
-			set_spinner (View.VISIBLE);
+			{
+			vStore.setVisibility (View.GONE);
+			vSpinner.setVisibility (View.VISIBLE);
+			}
 		
 		final long vc_start = System.currentTimeMillis();
 		
@@ -8727,7 +8835,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				{
 				try
 					{
-					set_spinner (View.GONE);
+					vStore.setVisibility (View.VISIBLE);
+					vSpinner.setVisibility (View.GONE);
+					store_spinner (false);
 					long vc_end = System.currentTimeMillis();
 					long elapsed = (vc_end - vc_start) / 1000L;
 					log ("[" + query + "] lines received: " + lines.length + ", elapsed: " + elapsed);
@@ -8736,6 +8846,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					}
 				catch (Exception ex)
 					{
+					vStore.setVisibility (View.VISIBLE);
+					vSpinner.setVisibility (View.GONE);
+					store_spinner (false);
 					ex.printStackTrace();
 					finish();
 					}
@@ -8748,8 +8861,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			};		
 		}
 	
-	public void set_spinner (int visibility)
+	public void store_spinner (boolean visible)
 		{
+		// vStore.setVisibility (visible ? View.GONE : View.VISIBLE);
 		}
 	
 	public void load_category_inner (int index, int starting, String lines[])
@@ -8840,17 +8954,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 		if (category_adapter != null)
 			category_adapter.notifyDataSetChanged();
+			
+		set_store_category_name (category_id);
 		
-		String name = category_names.get (category_id);		
-		String txt_category_colon = getResources().getString (R.string.categorycolon);
+		AbsListView vStore = (AbsListView) findViewById (is_tablet() ? R.id.store_list_tablet : R.id.store_list_phone);
+		vStore.setVisibility (View.VISIBLE);
 		
-		TextView vCategoryName = (TextView) findViewById (R.id.category_name);
-		if (vCategoryName != null)
-			{
-			vCategoryName.setText (txt_category_colon + " " + name);
-			if (is_phone())
-				vCategoryName.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
-			}
+		View vSpinner = findViewById (R.id.store_progress);
+		vSpinner.setVisibility (View.GONE);
 		}
 
 	final Runnable store_channel_thumb_updated = new Runnable()
@@ -8861,7 +8972,20 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				store_adapter.notifyDataSetChanged();
 			}
 		};
-	
+
+	public void set_store_category_name (String category_id)
+		{
+		String name = category_names.get (category_id);			
+		String txt_category_colon = getResources().getString (R.string.categorycolon);
+		
+		TextView vCategoryName = (TextView) findViewById (R.id.category_name);
+		if (vCategoryName != null)
+			{
+			vCategoryName.setText (txt_category_colon + " " + name);
+			if (is_phone())
+				vCategoryName.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
+			}
+		}
 	public void redraw_store_list()
 		{	
 		}
@@ -8972,6 +9096,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			// vPhantomRefresh.setVisibility (View.GONE);
 			vSearchContainer.setVisibility (View.VISIBLE);
 			
+			final EditText vTerm = (EditText) vContainer.findViewById (R.id.term);
+			
 			View vCancel = vContainer.findViewById (R.id.search_cancel);
 			vCancel.setOnClickListener (new OnClickListener()
 				{
@@ -8979,11 +9105,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: search cancel");
-		        	disable_search_apparatus (view_id);
+		        	// disable_search_apparatus (view_id);
+		        	if (vTerm != null)
+		        		vTerm.setText ("");
 		        	}
 				});
 			
-			final EditText vTerm = (EditText) vContainer.findViewById (R.id.term);
 		    vTerm.setOnKeyListener (new OnKeyListener()
 			    {
 				@Override
@@ -9090,7 +9217,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (encoded_term == null)
 			return;
 
-		set_spinner (View.VISIBLE);
+		store_spinner (true);
 		prepare_search_screen (term);
 		
 		search_9x9_done = search_youtube_done = false;
@@ -9107,7 +9234,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 				log ("search lines received: " + chlines.length);
 	
-				set_spinner (View.GONE);
+				store_spinner (false);
 				
 				int section = 0;
 				int num_channels = 0;
@@ -9749,11 +9876,21 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	public void redraw_settings()
 		{
 		View vAccountSection = findViewById (R.id.account_section);
-		vAccountSection.setVisibility ((config.usertoken == null || config.email.equals ("[via Facebook]")) ? View.GONE : View.VISIBLE);
+		if (vAccountSection != null)
+			vAccountSection.setVisibility ((config.usertoken == null || config.email.equals ("[via Facebook]")) ? View.GONE : View.VISIBLE);
 		
 		View vPasswordSection = findViewById (R.id.password_section);
-		vPasswordSection.setVisibility ((config.usertoken == null || config.email.equals ("[via Facebook]")) ? View.GONE : View.VISIBLE);
+		if (vPasswordSection != null)
+			vPasswordSection.setVisibility ((config.usertoken == null || config.email.equals ("[via Facebook]")) ? View.GONE : View.VISIBLE);
 
+		View vAboutButton = findViewById (R.id.settings_about);
+		if (vAboutButton != null)
+			vAboutButton.setVisibility (config.about_us_url == null ? View.GONE : View.VISIBLE);
+
+		View vAboutDivider = findViewById (R.id.settings_about_divider);
+		if (vAboutDivider != null)
+			vAboutDivider.setVisibility (config.about_us_url == null ? View.GONE : View.VISIBLE);
+		
 		TextView vVersion = (TextView) findViewById (R.id.version);
 		if (vVersion != null)
 			{
@@ -9768,32 +9905,39 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				ex.printStackTrace();
 				}			
 			String txt_version = getResources().getString (R.string.version);
-			vVersion.setText (txt_version + ": " + version_code);
+			vVersion.setText (txt_version + " " + version_code);
 			}
 		
 		TextView vNameReadonly = (TextView) findViewById (R.id.settings_name_readonly);
-		vNameReadonly.setText (config.usertoken == null ? "" : config.username);
+		if (vNameReadonly != null)
+			vNameReadonly.setText (config.usertoken == null ? "" : config.username);
 
 		TextView vEmailReadonly = (TextView) findViewById (R.id.settings_email_readonly);
-		vEmailReadonly.setText (config.usertoken == null ? "" : config.email);
+		if (vEmailReadonly != null)
+			vEmailReadonly.setText (config.usertoken == null ? "" : config.email);
 		
 		TextView vSettingsEmail = (TextView) findViewById (R.id.settings_email);
-		vSettingsEmail.setText (config.usertoken == null ? "" : config.email);
+		if (vSettingsEmail != null)
+			vSettingsEmail.setText (config.usertoken == null ? "" : config.email);
 		
 		String vService = Context.VIBRATOR_SERVICE;
 		Vibrator vibrator = (Vibrator) getSystemService (vService);
 
 		View vSoundSection = findViewById (R.id.sound_when_notified);
-		vSoundSection.setVisibility (config.notifications_enabled ? View.VISIBLE : View.GONE);
+		if (vSoundSection != null)
+			vSoundSection.setVisibility (config.notifications_enabled ? View.VISIBLE : View.GONE);
 		
 		View vSoundDivider = findViewById (R.id.sound_notifications_divider);
-		vSoundDivider.setVisibility (config.notifications_enabled ? View.VISIBLE : View.GONE);
+		if (vSoundDivider != null)
+			vSoundDivider.setVisibility (config.notifications_enabled ? View.VISIBLE : View.GONE);
 		
 		View vVibrateSection = findViewById (R.id.vibrate_when_notified);
-		vVibrateSection.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
+		if (vVibrateSection != null)
+			vVibrateSection.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
 		
 		View vVibrateDivider = findViewById (R.id.vibrate_notifications_divider);
-		vVibrateDivider.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
+		if (vVibrateDivider != null)
+			vVibrateDivider.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
 		
 		ImageView vNotify = (ImageView) findViewById (R.id.enable_notifications_image);
 		if (vNotify != null)
@@ -9806,6 +9950,62 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		ImageView vSoundWhen = (ImageView) findViewById (R.id.sound_when_notified_image);
 		if (vSoundWhen != null)
 			vSoundWhen.setImageResource (config.notify_with_sound ? R.drawable.check_checked_52 : R.drawable.check_unchecked_52);
+		
+		Switch vNotifySwitch = (Switch) findViewById (R.id.settings_notification_switch);
+		if (vNotifySwitch != null)
+			{
+			vNotifySwitch.setChecked (config.notifications_enabled);
+			vNotifySwitch.setOnCheckedChangeListener (new OnCheckedChangeListener()
+				{
+				@Override
+				public void onCheckedChanged (CompoundButton view, boolean isChecked)
+					{
+					config.notifications_enabled = isChecked;
+					save_notification_settings();
+					redraw_settings();
+					}
+				});
+			}
+		
+		View vVibrate = findViewById (R.id.settings_vibrate);
+		if (vVibrate != null)
+			vVibrate.setAlpha (config.notifications_enabled ? 1.0f : 0.25f);
+		
+		Switch vVibrateSwitch = (Switch) findViewById (R.id.settings_vibrate_switch);
+		if (vVibrateSwitch != null)
+			{
+			vVibrateSwitch.setClickable (config.notifications_enabled);
+			vVibrateSwitch.setChecked (config.notify_with_vibrate);
+			vVibrateSwitch.setOnCheckedChangeListener (new OnCheckedChangeListener()
+				{
+				@Override
+				public void onCheckedChanged (CompoundButton view, boolean isChecked)
+					{
+					config.notify_with_vibrate = isChecked;
+					save_notification_settings();
+					}
+				});			
+			}
+		
+		View vSound = findViewById (R.id.settings_sound);
+		if (vSound != null)
+			vSound.setAlpha (config.notifications_enabled ? 1.0f : 0.25f);
+		
+		Switch vSoundSwitch = (Switch) findViewById (R.id.settings_sound_switch);
+		if (vSoundSwitch != null)
+			{
+			vSoundSwitch.setClickable (config.notifications_enabled);
+			vSoundSwitch.setChecked (config.notify_with_sound);
+			vSoundSwitch.setOnCheckedChangeListener (new OnCheckedChangeListener()
+				{
+				@Override
+				public void onCheckedChanged (CompoundButton view, boolean isChecked)
+					{
+					config.notify_with_sound = isChecked;
+					save_notification_settings();
+					}
+				});				
+			}
 		}
 	
 	public void save_notification_settings()
@@ -9865,6 +10065,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		final View vLayer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
 		
+		/*
 		if (!is_tablet())
 			{
 			View vTopBar = vLayer.findViewById (R.id.settings_top_bar_resizable);
@@ -9872,7 +10073,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			layout.height = is_phone() ? pixels_60 : pixels_160;
 			vTopBar.setLayoutParams (layout);		
 			}
-
+		*/
+		
 		View vNotifications = findViewById (R.id.enable_notifications);
 		if (vNotifications != null)
 			vNotifications.setOnClickListener (new OnClickListener()
@@ -9936,7 +10138,67 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	save_settings();
 		        	}
 				});
-				
+		
+		View vSignout = vLayer.findViewById (R.id.settings_signout);
+		if (vSignout != null)
+			vSignout.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: settings signout");
+		        	signout_from_app_or_facebook();
+		        	}
+				});
+		
+		View vEdit = vLayer.findViewById (R.id.settings_edit);
+		if (vEdit != null)
+			vEdit.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: settings edit account");
+		        	slide_in_password();
+		        	}
+				});		
+
+		View vAbout = vLayer.findViewById (R.id.settings_about);
+		if (vAbout != null)
+			vAbout.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: settings about");
+		        	enable_about_layer();
+		        	}
+				});
+		
+		View vTerms = vLayer.findViewById (R.id.settings_terms);
+		if (vTerms != null)
+			vTerms.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: settings terms");
+		        	slide_in_terms();
+		        	}
+				});		
+
+		View vPrivacy = vLayer.findViewById (R.id.settings_privacy);
+		if (vPrivacy != null)
+			vPrivacy.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: settings privacy");
+		        	slide_in_privacy();
+		        	}
+				});	
+		
 		if (vLayer != null)
 			vLayer.setOnClickListener (new OnClickListener()
 				{
@@ -10029,12 +10291,95 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void settings_exit()
 		{
-		final View vLayer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
-    	if (is_tablet())
-    		vLayer.setVisibility (View.GONE);
-    	else
-    		toggle_menu();
+		if (current_layer == toplayer.SETTINGS)
+			{
+			final View vLayer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
+	    	if (is_tablet())
+	    		vLayer.setVisibility (View.GONE);
+	    	else
+	    		toggle_menu();
+			}
+		else if (current_layer == toplayer.PASSWORD)
+			{
+			slide_away_password();
+			}
 		}
+	
+	/*** PASSWORD **************************************************************************************************/
+	
+	public void enable_password_layer()
+		{
+		disable_video_layer();
+		zero_signin_data();
+		set_layer (toplayer.PASSWORD);	
+		redraw_settings();
+		setup_password_buttons();
+		}	
+	
+	public void slide_in_password()
+		{
+		toggle_menu (new Callback()
+	    	{
+	    	public void run()
+	    		{
+	    		enable_password_layer();
+	    		toggle_menu();
+	    		}
+	    	});
+		}
+	
+	public void slide_away_password()
+		{
+    	toggle_menu (new Callback()
+	    	{
+	    	public void run()
+	    		{
+	    		enable_settings_layer();
+	    		toggle_menu();
+	    		}
+	    	});
+		}
+	
+	public void setup_password_buttons()
+		{
+		View vCancel = findViewById (R.id.password_cancel);
+		if (vCancel != null)
+			vCancel.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("password cancel");
+		        	slide_away_password();
+		        	}
+				});	
+
+		View vSave = findViewById (R.id.password_save);
+		if (vSave != null)
+			vSave.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("password save");
+		        	save_settings();
+		        	}
+				});	
+		
+		View vLayer = findViewById (R.id.passwordlayer_phone);
+		if (vLayer != null)
+			vLayer.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	/* eat this */
+		        	log ("password layer ate my tap!");
+		        	}
+				});		
+		}
+	
+	/*** MISC ******************************************************************************************************/
 	
 	boolean finger_is_down = false;
 	
@@ -10394,15 +10739,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
                 
                 set_arena (fake_set);
                 change_channel (shake_channel);
-                /*
-                launch_player (shake_channel, fake_set);
-
-                player_real_channel = shake_channel;
-        		program_line = config.program_line_by_id (shake_channel);        		
-        		if (playback_episode_pager != null)
-        			playback_episode_pager.set_content (shake_channel, program_line);
-        		update_metadata_inner();
-        		*/
             	}
         	});
 		}
