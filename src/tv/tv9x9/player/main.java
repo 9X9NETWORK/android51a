@@ -305,6 +305,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    			vSettings.setVisibility (View.GONE);
 	    			return true;
 	    			}
+	    		
+	    		View vSignin = findViewById (R.id.signinlayer_tablet);
+	    		if (vSignin.getVisibility() == View.VISIBLE)
+	    			{
+	    			log ("disable signin overlay");
+	    			vSignin.setVisibility (View.GONE);
+	    			return true;
+	    			}	    		
 	    		}
 	    	
 	    	if (current_layer == toplayer.PLAYBACK)
@@ -482,6 +490,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View vNotNeededSettingsLayer = findViewById (is_phone() ? R.id.settingslayer_tablet : R.id.settingslayer_phone);
 		if (vNotNeededSettingsLayer != null)
 			((ViewManager) vNotNeededSettingsLayer.getParent()).removeView (vNotNeededSettingsLayer);
+
+		/* remove the phone/tablet sublayer which we won't use */
+		View vNotNeededPasswordLayer = findViewById (is_phone() ? R.id.passwordlayer_tablet : R.id.passwordlayer_phone);
+		if (vNotNeededPasswordLayer != null)
+			((ViewManager) vNotNeededPasswordLayer.getParent()).removeView (vNotNeededPasswordLayer);
 		
 		/* this is a ListView */
 		View vSearchListPhone = findViewById (R.id.search_list_phone);
@@ -740,10 +753,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			int logo_id = getResources().getIdentifier (signin_logo, "drawable", getPackageName());
 			
 			ImageView vSigninLogo = (ImageView) findViewById (R.id.signin_logo);
-			vSigninLogo.setImageResource (logo_id);
+			if (vSigninLogo != null)
+				vSigninLogo.setImageResource (logo_id);
 			
 			ImageView vTermsLogo = (ImageView) findViewById (R.id.terms_logo);
-			vTermsLogo.setImageResource (logo_id);
+			if (vTermsLogo != null)
+				vTermsLogo.setImageResource (logo_id);
 			}
 		
 		String signin_bg = getResources().getString (R.string.signin_bg);
@@ -1177,7 +1192,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		*/
 		
-		boolean is_facebook = config.email != null && config.email.equals ("[via Facebook]");
+		boolean is_facebook = config != null && config.email != null && config.email.equals ("[via Facebook]");
 		
 		Stack <menuitem> items = new Stack <menuitem> ();
 		
@@ -2754,16 +2769,23 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		log ("set layer: " + layer.toString());
 		
-		if (is_tablet() && layer == toplayer.SETTINGS)
+		/* this is an overlay but will always go back to settings */
+		View password_layer = findViewById (is_phone() ? R.id.passwordlayer_phone : R.id.passwordlayer_tablet);
+		password_layer.setVisibility (layer == toplayer.PASSWORD ? View.VISIBLE : View.GONE);
+		
+		if (is_tablet() && (layer == toplayer.SETTINGS || layer == toplayer.SIGNIN))
 			{
-			/* this is an overlay not a true layer! */
 			View settings_layer = findViewById (R.id.settingslayer_tablet);
-			settings_layer.setVisibility (View.VISIBLE);
+			settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
+			
+			View signin_layer = findViewById (R.id.signinlayer_tablet);
+			signin_layer.setVisibility (layer == toplayer.SIGNIN ? View.VISIBLE : View.GONE);
+			
 			return;
-			}
+			}	
 		
 		View vTopBar = findViewById (R.id.sliding_top_bar);
-		vTopBar.setVisibility (layer == toplayer.TERMS || layer == toplayer.SIGNIN ? View.GONE : View.VISIBLE);
+		vTopBar.setVisibility (layer == toplayer.TERMS ? View.GONE : View.VISIBLE);
 		
 		View home_layer = home_layer();
 		home_layer.setVisibility (layer == toplayer.HOME ? View.VISIBLE : View.GONE);
@@ -2779,15 +2801,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		View settings_layer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
 		settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
-
-		View password_layer = findViewById (R.id.passwordlayer_phone);
-		password_layer.setVisibility (layer == toplayer.PASSWORD ? View.VISIBLE : View.GONE);
 		
 		View terms_layer = findViewById (R.id.termslayer);
 		terms_layer.setVisibility (layer == toplayer.TERMS ? View.VISIBLE : View.GONE);
 		
-		View signin_layer = findViewById (R.id.signinlayer);
-		signin_layer.setVisibility (layer == toplayer.SIGNIN ? View.VISIBLE : View.GONE);
+		View signin_layer = findViewById (is_phone() ? R.id.signinlayer_phone : R.id.signinlayer_tablet); // TODO FIX
+		if (signin_layer != null)
+			signin_layer.setVisibility (layer == toplayer.SIGNIN ? View.VISIBLE : View.GONE);
 		
 		View apps_layer = findViewById (R.id.appslayer);
 		apps_layer.setVisibility (layer == toplayer.APPS ? View.VISIBLE : View.GONE);
@@ -2826,6 +2846,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		setup_signin_buttons (callback);
 		
+		/*
 		View vGossamer = findViewById (R.id.gossamer);
 		LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vGossamer.getLayoutParams();
 		
@@ -2844,14 +2865,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			}
 		
 		vGossamer.setLayoutParams (layout);
+		*/
 		
 		signin_choices();
+		sign_in_tab();
 		
 		track_layer (toplayer.SIGNIN);
 		}
 
 	public void signin_choices()
 		{
+		/*
 		if (!is_phone())
 			{
 			View vSigninChoices = findViewById (R.id.signin_choices);
@@ -2859,6 +2883,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			View vSigninOrSignup = findViewById (R.id.signin_or_signup);
 			vSigninOrSignup.setVisibility (View.INVISIBLE);
 			}
+		*/
 		}
 	
 	public void setup_signin_buttons (final Runnable callback)
@@ -3069,6 +3094,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void adjust_signin_tabs (boolean is_sign_in)
 		{
+		int white = Color.WHITE;
+		int gray = Color.rgb (0x77, 0x77, 0x77);
+		int yellow = Color.rgb (0xFF, 0xAA, 0x00);
+		int dark = Color.rgb (0x1D, 0x1D, 0x1D);
+		
+		/*
 		if (is_tablet())
 			{
 			View vSigninChoices = findViewById (R.id.signin_choices);
@@ -3076,11 +3107,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			View vSigninOrSignup = findViewById (R.id.signin_or_signup);
 			vSigninOrSignup.setVisibility (View.VISIBLE);
 			}
+		*/
 		
 		View vSignInContent = findViewById (R.id.sign_in_content);
 		View vSignUpContent = findViewById (R.id.sign_up_content);	
 		
 		int not_visible = is_tablet() ? View.INVISIBLE : View.GONE;
+		not_visible = View.GONE; // TODO FIX!!!
 		
 		vSignInContent.setVisibility (is_sign_in ? View.VISIBLE : not_visible);
 		vSignUpContent.setVisibility (is_sign_in ? not_visible : View.VISIBLE);
@@ -3088,21 +3121,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View vSignInTab = findViewById (R.id.sign_in_tab);
 		View vSignUpTab = findViewById (R.id.sign_up_tab);
 		
-		if (is_tablet())
-			{		
-			vSignInTab.setBackgroundResource (is_sign_in ? R.drawable.leftwhiteblack : R.drawable.leftwhiteborder);
-			vSignUpTab.setBackgroundResource (is_sign_in ? R.drawable.rightwhiteborder : R.drawable.rightwhiteblack);
-			TextView vSignInTabText = (TextView) findViewById (R.id.sign_in_tab_text);
-			TextView vSignUpTabText = (TextView) findViewById (R.id.sign_up_tab_text);
-			vSignInTabText.setTextColor (is_sign_in ? Color.WHITE : Color.BLACK);
-			vSignUpTabText.setTextColor (is_sign_in ? Color.BLACK : Color.WHITE);			
-			}
-		else
-			{
-			vSignInTab.setBackgroundResource (is_sign_in ? R.drawable.gossamerleft : R.drawable.gossamerleftoff);
-			vSignUpTab.setBackgroundResource (is_sign_in ? R.drawable.gossamerrightoff : R.drawable.gossamerright);
-			}
+		TextView vSignInTabText = (TextView) findViewById (R.id.sign_in_tab_text);
+		TextView vSignUpTabText = (TextView) findViewById (R.id.sign_up_tab_text);
+		vSignInTabText.setTextColor (is_sign_in ? white : gray);
+		vSignUpTabText.setTextColor (is_sign_in ? gray : white);
+		
+		View vSignInTabBar = findViewById (R.id.sign_in_tab_bar);
+		View vSignUpTabBar = findViewById (R.id.sign_up_tab_bar);
+		
+		vSignInTabBar.setBackgroundColor (is_sign_in ? yellow : dark);
+		vSignUpTabBar.setBackgroundColor (is_sign_in ? dark : yellow);
 	    
+		/*
 		if (is_tablet())
 			{
 			String txt_sign_in = getResources().getString (R.string.si_sign_in_button); 
@@ -3111,6 +3141,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			TextView vSignText = (TextView) findViewById (R.id.signin_signup_button);
 			vSignText.setText (is_sign_in ? txt_sign_in : txt_sign_up);
 			}
+		*/
 		}
 	
 	public void zero_signin_data()
@@ -3319,6 +3350,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		setup_terms_buttons();
 		
+		/*
 		if (is_phone())
 			{
 			View vGossamer = findViewById (R.id.gossamer);
@@ -3329,7 +3361,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			layout.bottomMargin = pixels_30;
 			vGossamer.setLayoutParams (layout);
 			}
-		
+		*/
 		terms_tab();
 		
 		/* sometimes the terms layer background is not redrawing! force it here */
@@ -3579,7 +3611,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void fezbuk2 (View parent)
 		{
-		for (int button: new int[] { R.id.fblogin, R.id.nag2_fblogin, R.id.nag3_fblogin })
+		for (final int button: new int[] { R.id.fblogin, R.id.nag2_fblogin, R.id.nag3_fblogin })
 			{
 			LoginButton vButton = (LoginButton) parent.findViewById (button);
 		    if (vButton != null)
@@ -3592,6 +3624,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        public void onUserInfoFetched (final GraphUser user)
 			        	{
 			        	log ("FACEBOOK LOGIN BUTTON CALLBACK!");
+			        	if (button == R.id.nag2_fblogin || button == R.id.nag3_fblogin)
+			        		{
+			        		/* this only tracks if login is successful, which isn't 100% what PM requests, but is the best we can do */
+			        		track_event ("signIn", "signInWithFB-enforce", "signInWithFB-enforce", 0);
+			        		}
 			        	process_fb_user (user);
 			        	}
 			    	});
@@ -4143,6 +4180,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        public void onClick (View v)
 			        	{
 			        	log ("click on: nag sign up");
+						track_event ("signIn", "signInWithEmail-enforce", "signInWithEmail-enforce", 0);
 		        		enable_signin_layer (new Runnable()
 			    			{
 			        		@Override
@@ -9935,9 +9973,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (vVibrateSection != null)
 			vVibrateSection.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
 		
+		View vVibrateSection2 = findViewById (R.id.settings_vibrate);
+		if (vVibrateSection2 != null)
+			vVibrateSection2.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);	
+		
 		View vVibrateDivider = findViewById (R.id.vibrate_notifications_divider);
 		if (vVibrateDivider != null)
 			vVibrateDivider.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
+
+		View vVibrateDivider2 = findViewById (R.id.settings_vibrate_divider);
+		if (vVibrateDivider2 != null)
+			vVibrateDivider2.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
 		
 		ImageView vNotify = (ImageView) findViewById (R.id.enable_notifications_image);
 		if (vNotify != null)
@@ -10318,26 +10364,36 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void slide_in_password()
 		{
-		toggle_menu (new Callback()
-	    	{
-	    	public void run()
-	    		{
-	    		enable_password_layer();
-	    		toggle_menu();
-	    		}
-	    	});
+		if (is_phone())
+			{
+			toggle_menu (new Callback()
+		    	{
+		    	public void run()
+		    		{
+		    		enable_password_layer();
+		    		toggle_menu();
+		    		}
+		    	});
+			}
+		else
+			enable_password_layer();
 		}
 	
 	public void slide_away_password()
 		{
-    	toggle_menu (new Callback()
-	    	{
-	    	public void run()
-	    		{
-	    		enable_settings_layer();
-	    		toggle_menu();
-	    		}
-	    	});
+		if (is_phone())
+			{
+	    	toggle_menu (new Callback()
+		    	{
+		    	public void run()
+		    		{
+		    		enable_settings_layer();
+		    		toggle_menu();
+		    		}
+		    	});
+			}
+		else
+			enable_settings_layer();
 		}
 	
 	public void setup_password_buttons()
@@ -10366,7 +10422,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	}
 				});	
 		
-		View vLayer = findViewById (R.id.passwordlayer_phone);
+		View vLayer = findViewById (is_phone() ? R.id.passwordlayer_phone : R.id.passwordlayer_tablet);
 		if (vLayer != null)
 			vLayer.setOnClickListener (new OnClickListener()
 				{

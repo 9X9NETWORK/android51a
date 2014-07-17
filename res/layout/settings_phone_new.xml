@@ -19,59 +19,15 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1">
-        <FrameLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="#D7D7D7">
-			<LinearLayout
-			    android:layout_width="fill_parent"
-			    android:layout_height="wrap_content"
-			    android:layout_marginTop="12dip"
-			    android:layout_marginBottom="12dip"
-			    android:layout_marginLeft="12dip"
-			    android:layout_marginRight="12dip"
-			    android:background="#FFFFFF"
-			    android:orientation="vertical">		    
-	       		
-				<LinearLayout           
-						android:layout_width="fill_parent" 
-						android:layout_height="wrap_content"
-						android:layout_marginTop="5dip"
-						android:orientation="horizontal">
-					<include layout="@layout/account_settings" />
-				</LinearLayout>
-		
-				<LinearLayout           
-						android:layout_width="fill_parent" 
-						android:layout_height="wrap_content"
-						android:layout_marginTop="5dip"
-						android:orientation="horizontal">
-					<include layout="@layout/notification_settings_new" />
-				</LinearLayout>	
-			   		
-				<LinearLayout           
-						android:layout_width="fill_parent" 
-						android:layout_height="wrap_content"
-						android:layout_marginTop="5dip"
-						android:orientation="horizontal">
-					<include layout="@layout/about_settings" />
-				</LinearLayout>
-									    
-				<TextView    		 
-				    android:id="@+id/version"    
-					android:layout_width="fill_parent"
-					android:layout_height="wrap_content"
-					android:layout_gravity="left|center_vertical"
-					android:layout_marginTop="10dip"
-					android:layout_marginBottom="10dip"
-					android:gravity="center"
-					android:textSize="14sp"
-					android:textColor="#C0C0C0"
-					android:paddingLeft="8sp"
-					android:paddingRight="8sp"	
-					/>	    
-		
-			</LinearLayout>		
+        
+        <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:background="#D7D7D7">
+    
+			<include layout="@layout/main_settings" />
+			
 		</FrameLayout>
+		
 	</ScrollView>		
 </LinearLayout>

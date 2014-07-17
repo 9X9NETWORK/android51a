@@ -135,6 +135,7 @@
 	</LinearLayout>
     	
     <LinearLayout           
+        android:id="@+id/settings_vibrate_divider"        
 		android:layout_width="fill_parent" 
 		android:layout_height="1px"
 		android:layout_marginTop="10dip"

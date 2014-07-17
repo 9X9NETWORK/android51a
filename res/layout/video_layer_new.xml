@@ -130,9 +130,9 @@
 			        android:id="@+id/titlecardtext"		        
 					android:layout_width="wrap_content"
 					android:layout_height="fill_parent"
-					android:layout_gravity="top"
+					android:layout_gravity="center"
 					android:gravity="center"
-					android:textSize="42sp"
+					android:textSize="24sp"
 					android:textColor="#FFFFFF"
 					android:paddingLeft="3sp"
 					/>	

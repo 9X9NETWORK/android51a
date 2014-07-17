@@ -982,4 +982,7 @@
     <string name="confirm">Confirm</string>
 	<string name="terms_of_service">Terms of Service</string>     
 	<string name="test">Test</string>
+	<string name="log_in">Log in</string>	
+	<string name="log_in_with_email">Log in with Email</string>	
+	<string name="or_log_in_with_email">Or log in with Email</string>	
 </resources>

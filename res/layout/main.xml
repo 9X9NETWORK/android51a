@@ -22,7 +22,7 @@
 		    	    	        	    			
 			<include layout="@layout/apps_layer" />
 				    
-		    <include layout="@layout/signin_layer" />
+		    <include layout="@layout/signin_phone_new" />
 		   
 		    <include layout="@layout/terms_layer" />
 		    	    
@@ -55,8 +55,12 @@
 		
 	<include layout="@layout/nag_layer" />
 		
-	<include layout="@layout/settings_tablet" />
+	<include layout="@layout/settings_tablet_new" />
+
+	<include layout="@layout/signin_tablet_new" />
 			
+	<include layout="@layout/password_tablet" />
+				
 	<!-- either video_layer_old or video_layer_new gets added here -->
 		
 </FrameLayout>

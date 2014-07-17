@@ -140,6 +140,22 @@ public class util
    			return get_string (c, R.string.long_ago);
    		}
    	
+   	public static String countdown_time (long duration)
+		{
+		long remaining = duration;
+		
+   		int days = (int) Math.floor ((remaining + 0) / 86400);
+   		remaining -= (days * 86400);
+   			
+   		int hours = (int) Math.floor ((remaining + 0) / 3600);
+   		remaining -= (hours * 3600);
+   		
+   		int minutes = (int) Math.floor ((remaining + 0) / 60);
+   		remaining -= (minutes * 60);
+   		
+   		return (String.format ("%02d:%02d:%02d:%02d", days, hours, minutes, remaining));
+		}
+
    	public static String get_string (Context context, int id)
    		{
    		return context.getResources().getString (id);

@@ -56,9 +56,7 @@ public class ytchannel
 
 	public static String fetch_youtube (String nature, String username, int start_index)
 		{
-		Log.i ("fl", "Requesting YouTube channel: " + username);
-
-		HttpClient client = new DefaultHttpClient ();
+		Log.i ("vtest", "Requesting YouTube channel: " + username);
 
 		// nature 3: format=5&orderby=published
 		// nature 4: format=5&orderby=position
@@ -79,33 +77,34 @@ public class ytchannel
 			return null;
 			}
 
-		Log.i ("vtest", "calling YouTube API: " + url);
-
-		HttpGet request = new HttpGet (url);
-		String answer;
-		ResponseHandler<String> responseHandler = new BasicResponseHandler ();
-
-		try
-			{
-			answer = client.execute (request, responseHandler);
-			// Log.i ("vtest", "fetch returns: " + answer);
-			}
-		catch (Exception ex)
-			{
-			// 'org.apache.http.client.HttpResponseException: Not Found'
-			answer = "ERROR:" + ex.toString ();
-			}
-
-		return answer;
+		return fetch_url (url);
 		}
 
 	public static String fetch_youtube_stats (String username)
 		{
-		Log.i ("fl", "Requesting YouTube stats: " + username);
+		Log.i ("vtest", "Requesting YouTube stats: " + username);
+		String url = "http://gdata.youtube.com/feeds/api/users/" + username + "?alt=json&prettyprint=true";
+		return fetch_url (url);
+		}
 	
+	public static String fetch_youtube_comments (String video_id)
+		{
+		Log.i ("vtest", "Requesting YouTube comments: " + video_id);
+		String url = "http://gdata.youtube.com/feeds/api/videos/" + video_id + "/comments?v=2&alt=json&start-index=1&prettyprint=true";		
+		return fetch_url (url);
+		}
+	
+	public static String fetch_youtube_live_info (String video_id)
+		{
+		Log.i ("vtest", "Requesting YouTube live broadcast info: " + video_id);
+		String url = "http://gdata.youtube.com/feeds/api/users/live/broadcasts/" + video_id + "/states?v=2&alt=json&prettyprint=true";
+		return fetch_url (url);
+		}
+	
+	public static String fetch_url (String url)
+		{
 		HttpClient client = new DefaultHttpClient ();
 	
-		String url = "http://gdata.youtube.com/feeds/api/users/" + username + "?alt=json&prettyprint=true";
 		Log.i ("vtest", "calling YouTube API: " + url);
 	
 		HttpGet request = new HttpGet (url);
@@ -126,32 +125,29 @@ public class ytchannel
 		return answer;
 		}
 	
-
-	public static String fetch_youtube_comments (String video_id)
+	public static void youtube_live_info
+			(final metadata config, final String video_id, final Handler handler, final Callback update)
 		{
-		Log.i ("vtest", "Requesting YouTube comments: " + video_id);
-	
-		HttpClient client = new DefaultHttpClient ();
-	
-		String url = "http://gdata.youtube.com/feeds/api/videos/" + video_id + "/comments?v=2&alt=json&start-index=1&prettyprint=true";
-		Log.i ("vtest", "calling YouTube API: " + url);
-	
-		HttpGet request = new HttpGet (url);
-		String answer;
-		ResponseHandler <String> responseHandler = new BasicResponseHandler ();
-	
-		try
+		Thread t = new Thread()
 			{
-			answer = client.execute (request, responseHandler);
-			// Log.i ("vtest", "fetch returns: " + answer);
-			}
-		catch (Exception ex)
-			{
-			// 'org.apache.http.client.HttpResponseException: Not Found'
-			answer = "ERROR:" + ex.toString ();
-			}
-	
-		return answer;
+			@Override
+			public void run()
+				{
+				String data = fetch_youtube_live_info (video_id);
+				final String when = parse_youtube_live_info (config, video_id, data);
+				if (update != null)
+					handler.post (new Runnable()
+						{
+						public void run()
+							{
+							if (update != null)
+								update.run_string (when);
+							}
+						});
+				}
+			};
+		
+		t.start();
 		}
 	
 	public static void youtube_channel_search_in_thread
@@ -834,6 +830,77 @@ public class ytchannel
 			return commas.split (",");
 		}
 		
+	public static String parse_youtube_live_info (metadata config, String video_id, String data)
+		{
+		// x.feed.yt$when.start
+		
+		JSONObject json = null;
+		try
+			{
+			json = new JSONObject (data);
+			}
+		catch (Exception ex)
+			{
+			Log.i ("vtest", "-- live info: JSON parse error: " + video_id);
+			return null;
+			}
+
+		JSONObject feed = null;		
+		try
+			{
+			feed = json.getJSONObject ("feed");
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			Log.i ("vtest", "-- live info: JSON: no \"feed\" in JSON for: " + video_id);
+			return null;
+			}
+
+		JSONObject when = null;		
+		try
+			{
+			when = feed.getJSONObject ("yt$when");
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			Log.i ("vtest", "-- live info: JSON: no \"yt$when\" in JSON for: " + video_id);
+			return null;
+			}
+
+		String start_date = null;		
+		try
+			{
+			start_date = when.getString ("start");
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			Log.i ("vtest", "-- live info: JSON: no \"start\" in JSON for: " + video_id);
+			return null;
+			}
+
+		/* example 2012-11-11T05:57:15.000Z -- SimpleDateFormat is not documented as working with "Z" type timezones */
+		start_date = start_date.replace ("Z", "-0000");
+		
+		Log.i ("vtest", "-- live info: start date is: " + start_date);
+		
+		String timestamp = null;
+        SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); // "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        try
+        	{
+			Date dt = sdf.parse (start_date);
+			timestamp = "" + dt.getTime();
+        	}
+        catch (ParseException e1)
+        	{
+			timestamp = "";
+        	}
+        
+		return timestamp;
+		}
+	
 	/* 3.2 style channels with subepisodes */
 	
 	public static void fetch_and_parse_32

@@ -44,8 +44,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="121"
-      android:versionName="5.0.1.121">
+      android:versionCode="122"
+      android:versionName="5.0.1.122">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -616,7 +616,7 @@
 		<activity android:name="com.google.android.gms.ads.AdActivity"
              android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
   		
-		<!-- Used for Google Play Store Campaign Measurement-->;
+		<!-- Used for Google Play Store Campaign Measurement-->
 		<service android:name="com.google.analytics.tracking.android.CampaignTrackingService" />
 		<receiver android:name="com.google.analytics.tracking.android.CampaignTrackingReceiver" android:exported="true">
 			<intent-filter>

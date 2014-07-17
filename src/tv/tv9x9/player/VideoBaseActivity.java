@@ -62,6 +62,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -139,7 +140,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	public boolean fullscreen = false;
 	
 	Timer progress_timer = null;
-
+	Timer countdown_timer = null;
+	
 	final Handler in_main_thread = new Handler ();
 	
 	double screen_inches = 0L;
@@ -377,6 +379,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		if (progress_timer != null)
 			progress_timer.cancel();
+		
+		if (countdown_timer != null)
+			countdown_timer.cancel();
 		
 		google_cast_destroy();
 		super.onDestroy();
@@ -1311,6 +1316,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		video_has_started = false;
 		playing_begin_titlecard = playing_end_titlecard = false;
 		
+		if (countdown_timer != null)
+			{
+			countdown_timer.cancel();
+			countdown_timer = null;
+			}
+		
 		/* always clear the OSD for POI */
 		remove_poi_inner();
 		
@@ -1359,7 +1370,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					log ("episode \"" + episode_id + "\" has no subepisodes, url is: " + url);
 					if (url == null)
 						config.dump_episode_details (episode_id);
-					play_video_url (url, start_msec, -1);
+					
+					String nature = config.pool_meta (player_real_channel, "nature");
+					if (nature != null && nature.equals ("13"))
+						play_live_episode (url);
+					else
+						play_video_url (url, start_msec, -1);
 					}
 				else
 					{
@@ -1373,6 +1389,103 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		}
 
+	public void play_live_episode (final String url)
+		{
+		if (url.contains ("youtube.com"))
+			{	
+			String video_id = video_id_of (url);
+			ytchannel.youtube_live_info (config, video_id, in_main_thread, new Callback()
+				{
+				public void run_string (String start_timestamp)
+					{
+					if (start_timestamp != null)				
+						countdown_to_live_broadcast (url, start_timestamp);
+					else
+						play_video_url (url, 0, -1);
+					}
+				});
+			}
+		else
+			{
+			/* no special processing for non-YouTube */
+			play_video_url (url, 0, -1);
+			}
+		}
+	
+	public void countdown_to_live_broadcast (String url, String timestamp)
+		{
+		long start_time = Long.parseLong (timestamp);
+		
+		TextView vMessage = (TextView) findViewById (R.id.titlecardtext);
+		vMessage.setText ("");
+		vMessage.setTextColor (Color.rgb (0xFF, 0xFF, 0xFF));
+		
+		View vTitlecard = findViewById (R.id.titlecard);
+		vTitlecard.setBackgroundColor (Color.rgb (0x00, 0x00, 0x00));
+		
+		vTitlecard.setVisibility (View.VISIBLE);	
+		set_video_visibility (View.GONE);
+		
+		View vBacking = findViewById (R.id.backing_controls);
+		vBacking.setVisibility (View.GONE);
+		
+		/* ugly hack */
+		if (!video_is_minimized() && videoFragment != null && videoFragment.video_width > 0)
+			{
+			/* set the height of the wrapper, otherwise collapsing the video will also collapse the wrapper */
+			int orientation = getRequestedOrientation();
+	    	boolean landscape = orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			SpecialFrameLayout yt_wrapper = (SpecialFrameLayout) findViewById (R.id.ytwrapper2);
+			LinearLayout.LayoutParams wrapper_layout = (LinearLayout.LayoutParams) yt_wrapper.getLayoutParams();
+			wrapper_layout.weight = landscape ? 1.0f : 0f;
+			wrapper_layout.height = landscape ? 0 : videoFragment.video_height;
+			wrapper_layout.width = landscape ? MATCH_PARENT : videoFragment.video_width;
+			yt_wrapper.setLayoutParams (wrapper_layout);
+			}		
+		
+		countdown_timer = new Timer();
+    	countdown_timer.scheduleAtFixedRate (new CountdownTask (start_time), 1000, 1000);
+		}
+	
+	class CountdownTask extends TimerTask
+		{  
+		long start_time = 0;
+		
+		CountdownTask (long start_time)
+			{
+			this.start_time = start_time;
+			}
+		
+		public void run()
+	       	{
+			in_main_thread.post (new Runnable()
+				{
+				@Override
+				public void run()
+					{
+					long now = System.currentTimeMillis();					
+					long seconds = (start_time - now) / 1000;
+					
+					log ("start: " + (start_time/1000) + ", now: " + (now/1000) + ", seconds: " + seconds);
+					
+					TextView vMessage = (TextView) findViewById (R.id.titlecardtext);
+					
+					String cd = util.countdown_time (seconds);
+					
+					vMessage.setText ("Please stand by. " + cd);
+					
+					View vTitlecard = findViewById (R.id.titlecard);
+					if (vTitlecard.getVisibility() != View.VISIBLE)
+						{
+						cancel();
+						countdown_timer = null;
+						}
+					}
+				});
+	       	}	       	
+  		}
+	
+	
 	/* this should be false unless the dots return. I hope the dots don't return */
 	boolean haz_dotz = false;
 	
