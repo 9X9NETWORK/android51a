@@ -767,8 +767,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			int bg = getResources().getIdentifier (signin_bg, "drawable", getPackageName());
 			if (bg != 0)
 				{
-				View vSigninLayer = findViewById (R.id.signinlayer);
-				vSigninLayer.setBackgroundResource (bg);
+				// View vSigninLayer = findViewById (is_phone() ? R.id.signinlayer_phone : R.id.signinlayer_tablet);
+				// vSigninLayer.setBackgroundResource (bg);
 	
 				View vTermsLayer = findViewById (R.id.termslayer);
 				vTermsLayer.setBackgroundResource (bg);
@@ -1220,7 +1220,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
 		
-		items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
+		// items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
 		
 		/* no help screen has been provided yet */
 		// items.push (new menuitem (toplayer.HELP, R.string.help, R.drawable.icon_help, R.drawable.icon_help));
@@ -5538,7 +5538,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					
 					int n_thumbs = is_tablet() ? 4 : 1;
 					log ("** request " + n_thumbs + " thumbs: " + channel_id + " (position: " + position + ")");
-						
+					
 					thumbnail.download_first_n_episode_thumbs
 							(main.this, config, channel_id, n_thumbs, in_main_thread, triple_update_thumbs);
 					}
@@ -5742,6 +5742,25 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 								}
 							}
 						}
+					else
+						{
+						/* no episode icon is found. if this is a live channel (type 13), try a channel icon */
+						String nature = config.pool_meta (channel_id, "nature");
+						if (nature != null && nature.equals ("13"))
+							{
+							String cfilename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + channel_id + ".png";
+							File cf = new File (cfilename);
+							if (cf.exists())
+								{
+								Bitmap bitmap = BitmapFactory.decodeFile (cfilename);
+								if (bitmap != null)
+									{
+									vThumb.setImageBitmap (bitmap);
+									used_thumbnail = true;
+									}								
+								}
+							}
+						}
 					}
 				if (!used_thumbnail)
 					vThumb.setImageResource (R.drawable.store_unavailable);
@@ -5936,21 +5955,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			final ViewPager horiz = (ViewPager) horiz_obj;
 			EpisodeSlider horiz_adapter = (EpisodeSlider) horiz.getAdapter();
 			horiz_adapter.set_content (channel_id, episodes);
-			
-			/*
-			final ViewPager horiz = (ViewPager) horiz_obj;
-			Runnable horiz_update_thumbs = new Runnable()
-				{
-				@Override
-				public void run()
-					{
-					String episodes[] = config.program_line_by_id (channel_id);
-					EpisodeSlider horiz_adapter = (EpisodeSlider) horiz.getAdapter();
-					horiz_adapter.set_content (channel_id, episodes);
-					}
-				};
-			*/
-			// thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, horiz_update_thumbs);
 			}
 		};
 		
@@ -6148,6 +6152,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		play (channel_id, episode_id);
 		}
 	
+	@Override
 	public void play_nth_episode_in_channel (String channel_id, int position)
 		{
 		program_line = config.program_line_by_id (channel_id);
@@ -7584,9 +7589,38 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						TextView vTitle = (TextView) hrow.findViewById (title_id);
 						if (vTitle != null)
 							vTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
+						}					
+
+					String nature = config.pool_meta (channel_id, "nature");
+					boolean use_blank = nature == null || !nature.equals ("13");
+					
+					if (!fill_in_episode_thumb (episode, hrow, resource_id, title_id, use_blank))
+						{
+						boolean found_episode_thumb = false;
+						
+						if (nature != null && nature.equals ("13"))
+							{
+							/* no thumbnail, try a channel thumbnail if this is a live channel (type 13) */
+							String cfilename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + channel_id + ".png";
+							File cf = new File (cfilename);
+							if (cf.exists())
+								{
+								Bitmap bitmap = BitmapFactory.decodeFile (cfilename);
+								if (bitmap != null)
+									{
+									ImageView vThumb = (ImageView) hrow.findViewById (resource_id);
+									if (vThumb != null)
+										{
+										vThumb.setImageBitmap (bitmap);
+										found_episode_thumb = true;
+										}
+									}	
+								}
+							}
+						if (!found_episode_thumb)
+							all_thumbs_found = false;
 						}
-					if (!fill_in_episode_thumb (episode, hrow, resource_id, title_id, true))
-						all_thumbs_found = false;
+					
 					View vBorder = hrow.findViewById (resource_id);
 					vBorder.setBackgroundColor (content != null && base + i == current_episode_index - 1 ? Color.WHITE : Color.BLACK);
 					View vBox = hrow.findViewById (box_id);
@@ -7647,16 +7681,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							set_content (channel_id, program_line);
 							redraw_swap (swap);
 							update_metadata_inner();
-							/*
-							thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, new Runnable()
-								{
-								@Override
-								public void run()
-									{
-									redraw_swap (swap);
-									}									
-								});
-							*/
 							}					
 						});
 				}
@@ -8463,14 +8487,22 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     
 	/*** TEST **************************************************************************************************/
     
+    @Override
+    public void advertise (final Runnable r)
+    	{
+    	restore_video_location = false;
+		videoFragment.set_startup_function (in_main_thread, r);
+    	admob_interstitial_advertisement (r);
+    	}
+    
     public void enable_test_layer()
     	{
 		disable_video_layer();
 		set_layer (toplayer.TEST);
-		display_advertisement();
+		// interstitial_advertisement();
     	}
     
-    public void display_advertisement()
+    public void admob_interstitial_advertisement (final Runnable r)
     	{
     	final InterstitialAd interstitial = new InterstitialAd (this);
 
@@ -8491,7 +8523,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
             public void onAdClosed()
             	{
             	log ("interstitial ad closed");
-                toggle_menu();
+                // in_main_thread.post (r);
             	}
 	    	});
         

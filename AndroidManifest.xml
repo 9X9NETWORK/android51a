@@ -44,8 +44,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="122"
-      android:versionName="5.0.1.122">
+      android:versionCode="123"
+      android:versionName="5.0.1.123">
           
     <!-- Instructions
     	The build for CTS version is very fragile:

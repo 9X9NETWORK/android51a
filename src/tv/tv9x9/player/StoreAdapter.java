@@ -39,6 +39,7 @@ public class StoreAdapter extends BaseAdapter
 		public void launch_player (String channel_id, String channels[]);
 		public boolean outgoing_category_queries_pending();
 		public void set_follow_icon_state (View v, String channel_id, int follow_resource_id, int unfollow_resource_id);
+		public File getFilesDir();
 		};
 	
 	public StoreAdapter (Context c, mothership ms, metadata config, int current_category_index, String category_id, String channels[])
@@ -225,15 +226,33 @@ public class StoreAdapter extends BaseAdapter
 							}
 						}
 					
-					if (!channel_thumbnail_found)
+					if (!channel_thumbnail_found && vChannelicon != null)
 						{
-						if (vChannelicon != null)
-							vChannelicon.setImageResource (R.drawable.noimage);
+						vChannelicon.setImageResource (R.drawable.noimage);
 						}
 				
 					if (!episode_thumbnail_found)
-						vEpisodeicon.setImageResource (R.drawable.store_unavailable);
-
+						{
+						String nature = config.pool_meta (channel_id, "nature");
+						if (nature != null && nature.equals ("13"))
+							{
+							/* no thumbnail, try a channel thumbnail if this is a live channel (type 13) */
+							String cfilename = ms.getFilesDir() + "/" + config.api_server + "/cthumbs/" + channel_id + ".png";
+							File cf = new File (cfilename);
+							if (cf.exists())
+								{
+								Bitmap bitmap = BitmapFactory.decodeFile (cfilename);
+								if (bitmap != null)
+									{
+									vEpisodeicon.setImageBitmap (bitmap);
+									episode_thumbnail_found = true;
+									}								
+								}
+							}
+						if (!episode_thumbnail_found)
+							vEpisodeicon.setImageResource (R.drawable.store_unavailable);
+						}
+					
 					View vFollow = rv.findViewById (R.id.follow);
 					
 					// int follow_icon = ms.is_tablet() ? R.drawable.icon_follow : R.drawable.icon_follow_black;

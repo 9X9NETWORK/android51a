@@ -507,6 +507,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			FlurryAgent.logEvent (event);
 		}
 	
+	public void post_to_main_thread (Runnable r)
+		{
+		in_main_thread.post (r);
+		}
+	
 	public void flurry_log (String event, String k1, String v1)
 		{
 		if (event != null)
@@ -576,7 +581,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		String smashed_event = category + "." + action + "." + label + value + "." + extra;
 		
 		if (most_recent_event != null && most_recent_event.equals (smashed_event))
-			return;		
+			{
+			/* never send duplicate events */
+			return;
+			}
+		
 		most_recent_event = smashed_event;
 		
 		Map <String, String> m = MapBuilder.createEvent (category, action, label, value).build();
@@ -1287,9 +1296,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		else
 			log ("no requested episode, episode index is: " + current_episode_index + " (of " + program_line.length + ")");
-		
-
-	
+			
 		if (config.programs_in_real_channel (player_real_channel) > 0)
 			{
 			log ("start_playing()");
@@ -1304,9 +1311,57 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		return url.contains (".m3u8") || url.endsWith (".mp4") || url.endsWith (".MP4");
 		}
 	
-	public void try_to_play_episode (int episode)
+	public void try_to_play_episode (final int episode)
 		{
-		try_to_play_episode (episode, 0);
+		final String channel_id = player_real_channel;
+		
+		Runnable r = new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				log ("advertisement finished, now playing episode #" + episode);
+				play_nth_episode_in_channel (channel_id, episode);
+				// try_to_play_episode (episode, 0);					
+				}			
+			};
+			
+		if (!is_it_time_to_play_an_advertisement (r))
+			try_to_play_episode (episode, 0);
+		}
+	
+	public void play_nth_episode_in_channel (String channel_id, int position)
+		{
+		/* override this -- ugly layer violation */
+		}
+	
+	public boolean is_it_time_to_play_an_advertisement (Runnable r)
+		{
+		if (!chromecasted)
+			{
+			// int tpc = config.total_play_count - 1;
+			alert ("TPC: " + config.total_play_count);
+			if (config.total_play_count > 1 && (config.total_play_count == 3 || config.total_play_count % 9 == 0))
+				{				
+				if (config.last_played_advertisement_at != config.total_play_count)
+					{
+					config.last_played_advertisement_at = config.total_play_count;
+					advertise (r);
+					return true;
+					}
+				else
+					log ("count is " + config.total_play_count + ", already played an advertisement");
+				}
+			else
+				log ("count is " + config.total_play_count + ", not the right time to play an advertisement");
+			}
+		
+		return false;
+		}
+	
+	 public void advertise (final Runnable r)
+		{
+		/* override this */
 		}
 	
 	public void try_to_play_episode (int episode, long start_msec)
@@ -2099,11 +2154,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		vTitlecard.setVisibility (View.GONE);
 		
 		in_main_thread.post (update_metadata);
-		
-		/* right state? */
-		
-		// hide_video_fragment();
-		// show_player_fragment();
+
 		switch_to_player_fragment();
 		in_main_thread.post (new Runnable()
 			{
@@ -2117,25 +2168,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				restore_video_id = final_url;
 				}
 			});
-		
-		/*
-		if (player == playerFragment)
-			{
-			playerFragment.stop();
-			playerFragment.play_video (url);
-			}
-		else
-			{
-			switch_players (playerFragment, new Runnable()
-				{
-				@Override
-				public void run()
-					{
-					playerFragment.play_video (url);					
-					}				
-				});
-			}
-			*/
 		}
 	
 	public String active_player()
@@ -3036,7 +3068,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			String episode_name = config.program_meta (cumulative_episode_id, "name");			
 			
 			if (duration >= 6)
-				track_event ("p" + cumulative_channel_id + "/" + cumulative_episode_id, "epWatched", channel_name + "/" + episode_name, duration);	
+				{
+				track_event ("p" + cumulative_channel_id + "/" + cumulative_episode_id, "epWatched", channel_name + "/" + episode_name, duration);
+				/* this is the advertising counter */
+				config.total_play_count++;
+				}
 			}
 		cumulative_episode_id = null;
 		cumulative_episode_time = 0;

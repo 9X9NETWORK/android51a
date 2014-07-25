@@ -36,6 +36,10 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 	   onPaused is called. Before Google made that change, it just worked and this nastiness was not required */
 	private Handler handler = null;
 	private Runnable startup_function = null;
+	/* in case the above fails, retry it exactly once... */
+	private Runnable startup_function_retry = null;
+	
+	private Runnable on_resume_callback = null;	
 	
 	private boolean restart_in_progress = false;
 	int number_of_inits = 0;
@@ -86,6 +90,10 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		initialize (devkey, this);
 		reset_time_played();
 		super.onResume();
+		if (on_resume_callback != null)			
+			{
+			// mCallback.post_to_main_thread (on_resume_callback);
+			}
 		}
 
 	@Override
@@ -478,6 +486,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					ctx.video_has_started = true;
 					ctx.video_play_pending = false;
 					ctx.pending_restart = false;
+					startup_function_retry = null;					
 					mCallback.relay_post ("REPORT PLAYING");
 					mCallback.readout_volume();
 					mCallback.main_thread_handler().post (new Runnable()
@@ -505,6 +514,9 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 					
 					most_recent_offset = 0;
 					add_to_time_played();	
+					
+					final Runnable sfr = startup_function_retry;
+					startup_function_retry = null;
 					
 					log ("pending_restart is: " + ctx.pending_restart);
 					mCallback.reset_progress_bar();
@@ -573,7 +585,12 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 						}
 					else
 						{
-						log ("onStopped: video was not started, won't move to next episode");
+						if (sfr != null)
+							{
+							handler.post (sfr);		
+							}
+						else
+							log ("onStopped: video was not started, won't move to next episode");
 						return;
 						}
 					}
@@ -803,9 +820,11 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		
 		if (startup_function != null)
 			{
-			log ("executing startup function");
-			handler.post (startup_function);
+			final Runnable sf = startup_function;
+			startup_function_retry = startup_function;
 			startup_function = null;
+			log ("executing startup function");
+			handler.post (sf);			
 			}
 		}
 

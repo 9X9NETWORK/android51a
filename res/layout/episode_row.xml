@@ -9,13 +9,15 @@
 	    android:id="@+id/ep0_box"
 		android:layout_weight="1"		    
 	    android:layout_width="0dip"
-		android:layout_height="wrap_content"> 
+		android:layout_height="match_parent"> 
 	  	<ImageView		
 	   		android:id="@+id/ep0"					    		    
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"			
 			android:padding="3dip"
-			android:background="#000000"			
+			android:background="#000000"
+			android:adjustViewBounds="true"
+			android:scaleType="fitXY"				
 			/>	
 		<TextView
 	  		android:id="@+id/eptitle0"
@@ -28,20 +30,22 @@
 			android:singleLine="true"
 			android:background="#40000000"
 			android:paddingLeft="3dip"
-			android:paddingRight="3dip"				
+			android:paddingRight="3dip"			
 			/>				
 	</FrameLayout>		
 	<FrameLayout
 	    android:id="@+id/ep1_box"
 	   	android:layout_weight="1"	
 	    android:layout_width="0dip"
-		android:layout_height="wrap_content"> 		
+		android:layout_height="match_parent"> 		
 	  	<ImageView		
 	   		android:id="@+id/ep1"					    		    
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"	
 			android:padding="3dip"		
-			android:background="#000000"									
+			android:background="#000000"	
+			android:adjustViewBounds="true"
+			android:scaleType="fitXY"													
 			/>	
 		<TextView
 	  		android:id="@+id/eptitle1"
@@ -61,13 +65,15 @@
 	    android:id="@+id/ep2_box"	
 		android:layout_weight="1"		        
 	    android:layout_width="0dip"
-		android:layout_height="wrap_content"> 	
+		android:layout_height="match_parent"> 	
 	  	<ImageView		
 	   		android:id="@+id/ep2"					    		    
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"			
 			android:padding="3dip"		
-			android:background="#000000"						
+			android:background="#000000"			
+			android:adjustViewBounds="true"
+			android:scaleType="fitXY"								
 			/>			
 		<TextView
 	  		android:id="@+id/eptitle2"
@@ -87,13 +93,15 @@
 	    android:id="@+id/ep3_box"
 		android:layout_weight="1"		    	    
 	    android:layout_width="0dip"
-		android:layout_height="wrap_content"> 				
+		android:layout_height="match_parent"> 				
 	  	<ImageView		
 	   		android:id="@+id/ep3"					    		    
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"				
 			android:padding="3dip"		
-			android:background="#000000"						
+			android:background="#000000"			
+			android:adjustViewBounds="true"
+			android:scaleType="fitXY"								
 			/>				
 		<TextView
 	  		android:id="@+id/eptitle3"

@@ -41,6 +41,10 @@ public class metadata
 	
 	public String about_us_url = null;
 	
+	/* advertising counters. start from 1, because it tends to be behind because of analytics delay */
+	public int total_play_count = 1;
+	public int last_played_advertisement_at = 0;
+	
 	/* dongle mode only */
 	public String guidemode = "3x3";
 	

@@ -27,6 +27,7 @@ public interface OnPlayerListener
 	public void accumulate_episode_time (long t);
 	public View findViewById (int id);
 	public String active_player();
+	public void post_to_main_thread (Runnable r);
 	
 	public void onVideoActivityVideoStarted();
 	public void onVideoActivityLayout();
