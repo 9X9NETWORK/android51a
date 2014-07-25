@@ -643,7 +643,11 @@ public class start extends Activity
 				else if (fields[0].equals ("aboutus"))
 					config.about_us_url = fields[1];
 				else if (fields[0].equals ("signup-enforce"))
-						config.signup_nag = fields[1];
+					config.signup_nag = fields[1];
+				else if (fields[0].equals ("admob-key"))
+					config.admob_key = fields[1];
+				else if (fields[0].equals ("ad"))
+					config.advertising_regime = fields[1];
 				else if (fields[0].equals ("notification-sound-vibration"))
 					{
 					// sound off;vibration off

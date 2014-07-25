@@ -8488,11 +8488,19 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	/*** TEST **************************************************************************************************/
     
     @Override
-    public void advertise (final Runnable r)
+    public boolean advertise (final Runnable r)
     	{
-    	restore_video_location = false;
-		videoFragment.set_startup_function (in_main_thread, r);
-    	admob_interstitial_advertisement (r);
+    	if (config.advertising_regime != null)
+	    	{
+    		if (config.advertising_regime.equals ("admob"))
+	    		{
+		    	restore_video_location = false;
+				videoFragment.set_startup_function (in_main_thread, r);
+		    	admob_interstitial_advertisement (r);
+		    	return true;
+	    		}
+	    	}
+   		return false;
     	}
     
     public void enable_test_layer()
@@ -8506,7 +8514,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     	{
     	final InterstitialAd interstitial = new InterstitialAd (this);
 
-    	String ADMOB_UNIT_ID = "a153bdf9709138b";
+    	String ADMOB_UNIT_ID = config.admob_key;
     	
 	    interstitial.setAdUnitId (ADMOB_UNIT_ID);   
 

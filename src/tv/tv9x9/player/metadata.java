@@ -30,6 +30,8 @@ public class metadata
 	public String facebook_app_id = null;
 	public String flurry_id = null;
 	public String gcm_sender_id = null;
+	public String admob_key = null;
+	public String advertising_regime = null;
 	
 	/* chromecast: 5ecf7ff9-2144-46ce-acc9-6d606831e2dc_1 */
 	public String chromecast_app_name = null;

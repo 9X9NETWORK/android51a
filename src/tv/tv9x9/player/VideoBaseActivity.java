@@ -1340,14 +1340,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (!chromecasted)
 			{
 			// int tpc = config.total_play_count - 1;
-			alert ("TPC: " + config.total_play_count);
+			// alert ("TPC: " + config.total_play_count);
 			if (config.total_play_count > 1 && (config.total_play_count == 3 || config.total_play_count % 9 == 0))
 				{				
 				if (config.last_played_advertisement_at != config.total_play_count)
 					{
 					config.last_played_advertisement_at = config.total_play_count;
-					advertise (r);
-					return true;
+					return advertise (r);
 					}
 				else
 					log ("count is " + config.total_play_count + ", already played an advertisement");
@@ -1359,9 +1358,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		return false;
 		}
 	
-	 public void advertise (final Runnable r)
+	 public boolean advertise (final Runnable r)
 		{
 		/* override this */
+		return false;
 		}
 	
 	public void try_to_play_episode (int episode, long start_msec)
