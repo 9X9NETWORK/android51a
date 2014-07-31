@@ -280,7 +280,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		FrameLayout vMain = (FrameLayout) findViewById (R.id.main);
 		
 		/* Lili wants to support two different layouts for playback page */
-		View video_layer = inflater.inflate (R.layout.video_layer_new, vMain, true);		
+		// View video_layer = inflater.inflate (R.layout.video_layer_new, vMain, true);		
 		
 	    videoFragment = (VideoFragment) getSupportFragmentManager().findFragmentById (R.id.video_fragment_container);
 	    videoFragment.set_context (this); /* naughty */
@@ -360,13 +360,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		super.onResume();
 		log ("onResume");
-		/*
-		if (config != null)
-			{			
-			if (restore_video_location)
-				restore_location();
-			}
-		*/
 		launch_in_progress = false;
 		cumulative_episode_time = 0;
 		gcast_resume();
@@ -530,12 +523,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (config != null)
 			{
 			GoogleAnalytics ga = GoogleAnalytics.getInstance (this);
-			// VERBOSE | INFO | DEBUG | WARNING
+			// LogLevel can be: VERBOSE | INFO | DEBUG | WARNING
 			ga.getLogger().setLogLevel (LogLevel.VERBOSE);
-			// String tracking_id = getString (R.string.ga_trackingId);
-			// String tracking_id = "UA-21595932-1";
 			String tracking_id = config.google_analytics;
-			// Tracker tr = EasyTracker.getInstance (this);
 			if (tracking_id != null)
 				return ga.getTracker (tracking_id);
 			else
@@ -1050,7 +1040,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		player_real_channel = channel_id;
 		
 		/* RETARDED */
-		/* We want to call yt_player.stop() here. BUT THERE IS NO STOP API */
+		/* We want to call yt_player.stop() here. BUT GOOGLE GAVE US NO STOP API. How broken is that? */
 		playerFragment.stop();
 		
 		video_play_pending = true;
@@ -1321,8 +1311,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			public void run()
 				{
 				log ("advertisement finished, now playing episode #" + episode);
-				play_nth_episode_in_channel (channel_id, episode);
-				// try_to_play_episode (episode, 0);					
+				play_nth_episode_in_channel (channel_id, episode);				
 				}			
 			};
 			
@@ -1339,8 +1328,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		if (!chromecasted)
 			{
-			// int tpc = config.total_play_count - 1;
-			// alert ("TPC: " + config.total_play_count);
 			if (config.total_play_count > 1 && (config.total_play_count == 3 || config.total_play_count % 9 == 0))
 				{				
 				if (config.last_played_advertisement_at != config.total_play_count)
@@ -2232,9 +2219,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		View vTitlecard = findViewById (R.id.titlecard);
 		vTitlecard.setVisibility (View.GONE);				
 		
-		switch_to_video_fragment();		
-		// hide_player_fragment();
-		// show_video_fragment();
+		switch_to_video_fragment();
 		
 		if (progress_timer == null)
 			{
@@ -2668,7 +2653,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				
 				boolean is_playing = false;
 				
-	            if (player.is_playing())
+	            if (player != null && player.is_playing())
 		            {
 	            	is_playing = true;
 	            	
@@ -3136,11 +3121,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 							{
 							String fields[] = current_episode.split (":");
 							current_episode = fields[1];
-							}
-						
-						String nature = config.pool_meta (current_channel, "nature");
-						String channel_name = config.pool_meta (current_channel, "name");
-						String episode_name = config.program_meta(current_episode, "name");							
+							}					
 						
 						if (config.usertoken != null)
 							{
@@ -3540,7 +3521,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
                 	}
             	};
             	
-            // Connect to Google Play services
             gcast_connection_callbacks = new ConnectionCallbacks();
             gcast_connection_failed_listener = new ConnectionFailedListener();
             Cast.CastOptions.Builder api_options_builder = Cast.CastOptions.builder (gcast_selected_device, gcast_listener);
@@ -3723,7 +3703,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		            	}
 		            else
 		            	{
-		                // Re-create the custom message channel
+		                /* re-create the custom message channel */
 		                try
 		                	{
 		                    Cast.CastApi.setMessageReceivedCallbacks (gcast_api_client, gcast_channel.getNamespace(), gcast_channel);
@@ -3738,7 +3718,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        	}
 		        else
 			        	{
-			            // Launch the receiver app
+			            /* launch receiver app */
 			            Cast.CastApi
 			                    .launchApplication(gcast_api_client, config.chromecast_app_name, false)
 			                    .setResultCallback(
@@ -3769,8 +3749,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			                                                        + wasLaunched);
 			                                        gcast_application_started = true;
 			
-			                                        // Create the custom message
-			                                        // channel
+			                                        /* custom channel */
 			                                        gcast_channel = new Cast9x9Channel();
 			                                        try
 			                                        	{
@@ -3864,6 +3843,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		    	{
 	    		if (!f.isHidden())
 		    		{
+	    			log ("hide fragment");
 			        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
 			        ft.hide (f);  
 			        ft.commit();
@@ -3894,6 +3874,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		    	{
 				if (f.isHidden())
 		    		{
+					log ("show fragment");
 			        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
 			        ft.show (f);  
 			        ft.commit();
@@ -3908,6 +3889,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    
     public void switch_to_video_fragment()
     	{
+    	log ("switch to video fragment");
 		try
 			{
 	    	if (videoFragment != null)
@@ -3956,6 +3938,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     
 	public void switch_to_player_fragment()
 		{
+    	log ("switch to player fragment");
 		try
 			{
 	    	if (playerFragment != null)
@@ -3997,6 +3980,45 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        player = playerFragment;
 		    	}
 	    	}
+	    catch (Exception ex)
+	    	{
+	    	ex.printStackTrace();
+	    	}
+		}
+
+    public void hide_both_fragments()
+		{
+    	log ("hide both fragments");
+		try
+			{
+	    	if (videoFragment != null)
+		    	{
+		        View vVideoContainer = findViewById (R.id.video_fragment_container);
+		        if (vVideoContainer != null)
+		        	{
+		        	log ("set video_fragment_container width to 0");
+		        	SpecialFrameLayout.LayoutParams layout = (SpecialFrameLayout.LayoutParams) vVideoContainer.getLayoutParams();
+		        	layout.width = 0;
+		        	vVideoContainer.setLayoutParams (layout);
+		        	}		
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.hide (videoFragment);
+		        ft.hide (playerFragment);
+		        ft.commit();
+
+		        View vPlayerSurface = findViewById (R.id.player_fragment_container).findViewById (R.id.surface);
+		        if (vPlayerSurface != null)		        	
+		        	vPlayerSurface.setVisibility (View.GONE);
+		        
+		        player = null;
+		    	}
+	    	}
+		catch (IllegalStateException ex)
+			{
+			/* This is probably a bug in android. Not sure how to handle it! see: */
+			/* http://stackoverflow.com/questions/7469082/getting-exception-illegalstateexception-can-not-perform-this-action-after-onsa */
+	    	ex.printStackTrace();
+			}
 	    catch (Exception ex)
 	    	{
 	    	ex.printStackTrace();
@@ -4270,7 +4292,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        String episodes[] = config.program_line_by_id (channel_id);
 		        for (String arena_episode_id: episodes)
 		        	{
-		        	// log ("arena episode: " + arena_episode_id); // busy
 		        	JSONObject episode_structure = new JSONObject();
 		        	
 		        	String name = config.program_meta (arena_episode_id, "name");
@@ -4282,8 +4303,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        	String url = config.best_url (arena_episode_id);			        	
 		        	if (url == null || url.equals (""))
 		        		url = config.program_meta (arena_episode_id, "sub-1-url");
-		        	
-		        	// log ("arena episode url: " + url); // busy
 		        	
 		        	episode_structure.put ("id", arena_episode_id);
 		        	episode_structure.put ("name", name);
@@ -4321,8 +4340,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			
 			data.put ("mso", mso);
 	    	payload.put ("data", data);
-	    	payload.put ("type", "play");
-	        // Log.i ("vtest", "JSON: " + payload.toString());    	        
+	    	payload.put ("type", "play");	        
 	    	}
 	    catch (Exception ex)
 	    	{

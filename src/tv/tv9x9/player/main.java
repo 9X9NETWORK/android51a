@@ -126,7 +126,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	/* note, SIGNOUT, HELP, CATEGORY_ITEM and APP_ITEM are not real layers, but menu items */
 	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, 
-					HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG, TEST, PASSWORD };
+					HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG, TEST, PASSWORD, ADVERT };
 	
 	toplayer current_layer = toplayer.HOME;
 	toplayer layer_before_signin = toplayer.HOME;
@@ -188,6 +188,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		super.onResume();
 		
+		View vMask = findViewById (R.id.top_mask);
+		if (vMask != null)
+			vMask.setVisibility (View.GONE);
+			
 		reset_time_played();
 		
 		if (restore_video_location)
@@ -357,12 +361,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		    		View vSigning = findViewById (R.id.signin_or_signup);
 		    		if (vSigning.getVisibility() == View.VISIBLE)
 		    			{
-		    			signin_choices();
 		    			return true;
 		    			}
 		    		}
 	    		toggle_menu();
 	    		zero_signin_data();
+	    		}
+	    	else if (current_layer == toplayer.ADVERT)
+	    		{
+	    		/* TODO: check for 6 seconds elapsed before allowing this */
 	    		}
 	    	else if (current_layer == toplayer.GUIDE || current_layer == toplayer.SEARCH 
 	    				|| current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS
@@ -530,7 +537,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		else
 			{
 			/* this is messy. Can't use onPaused because that will probably occur after analytics */
-			if (!player.is_paused())
+			if (player != null && !player.is_paused())
 				player.add_to_time_played();
 			pause_video();
 			playerFragment.stop();
@@ -1334,22 +1341,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			case SETTINGS:
 	        	log ("click on: menu settings");		        	
 	        	close_menu();
-	        	// if (config.usertoken != null)
-	        		enable_settings_layer();
-	        	/*
-	        	else
-	        		{
-	        		enable_signin_layer (new Runnable()
-	        			{
-		        		@Override
-		        		public void run()
-			        		{
-		        			if (config.usertoken != null)
-		        				enable_settings_layer();	
-			        		}
-	        			});
-	        		}
-	        	*/
+	        	enable_settings_layer();
 	        	break;
 	        	
 			case MESSAGES:
@@ -1665,7 +1657,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		if (!chromecasted)
 			{
-			boolean is_paused = player.is_paused();
+			boolean is_paused = player == null || player.is_paused();
 			ImageView vPausePlay = (ImageView) findViewById (R.id.pause_or_play);
 			if (vPausePlay != null)
 				vPausePlay.setImageResource (is_paused ? R.drawable.play_tablet : R.drawable.pause_tablet);
@@ -2471,10 +2463,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				log ("follow or unfollow already in progress");
 				return;
 				}
-			final int position =  config.youtube_auth_token == null ? config.first_empty_position() : 0;
+			final int position = config.youtube_auth_token == null ? config.first_empty_position() : 0;
 	    	if (position >= 0)
 				{
-
 	    		int server_position = (position == 0) ? 0 : config.client_to_server (position);
 	    		
 	    		if (real_channel.startsWith ("="))
@@ -2671,12 +2662,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 
 		if (e1_thumb != null && e1_thumb.startsWith ("http"))
 			config.set_channel_meta_by_id (real_channel, "episode_thumb_1", e1_thumb);
-		
+				
 		// channelSubmit response:
 		// 0	SUCCESS
 		// I/vtest   (15411): --
 		// I/vtest   (15411): 32604	Test of FAITH	https://lh4.googleusercontent.com/-IsaoVr_-NPU/AAAAAAAAAAI/AAAAAAAAAAA/dBRQPKmAthM/photo.jpg	3	
 
+		final int server_position = config.client_to_server (position);
+	
+		log ("channelSubmit url=" + url);
+		log ("channelSubmit position=" + position + ", grid=" + server_position);
+		log ("channelSubmit name=" + channel_name);
+		
 		Thread t = new Thread ()
 			{
 			@Override
@@ -2690,7 +2687,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        List <NameValuePair> kv = new ArrayList <NameValuePair> (7);
 		        kv.add (new BasicNameValuePair ("mso", config.mso));
 		        kv.add (new BasicNameValuePair ("url", url));
-		        kv.add (new BasicNameValuePair ("grid", "" + config.client_to_server (position)));
+		        kv.add (new BasicNameValuePair ("grid", "" + server_position));
 		        kv.add (new BasicNameValuePair ("langCode", "" + config.region));
 		        kv.add (new BasicNameValuePair ("user", config.usertoken));
 		        kv.add (new BasicNameValuePair ("name", channel_name + "|" + e1_name + "|" + e2_name + "|" + e3_name));
@@ -2827,6 +2824,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View test_layer = findViewById (R.id.testlayer);
 		test_layer.setVisibility (layer == toplayer.TEST ? View.VISIBLE : View.GONE);
 		
+		// View advert_layer = findViewById (R.id.direct_ad_layer);
+		// advert_layer.setVisibility (layer == toplayer.ADVERT ? View.VISIBLE : View.GONE);
+		
 		current_layer = layer;
 		
 		redraw_menu();
@@ -2846,46 +2846,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		setup_signin_buttons (callback);
 		
-		/*
-		View vGossamer = findViewById (R.id.gossamer);
-		LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vGossamer.getLayoutParams();
-		
-		layout.topMargin = pixels_30;
-		layout.bottomMargin = pixels_30;
-		
-		if (is_phone())
-			{
-			layout.leftMargin = pixels_30;
-			layout.rightMargin = pixels_30;
-			}
-		else
-			{
-			layout.leftMargin = (int) (screen_width * 0.2);
-			layout.rightMargin = (int) (screen_width * 0.2);
-			}
-		
-		vGossamer.setLayoutParams (layout);
-		*/
-		
-		signin_choices();
 		sign_in_tab();
 		
 		track_layer (toplayer.SIGNIN);
 		}
 
-	public void signin_choices()
-		{
-		/*
-		if (!is_phone())
-			{
-			View vSigninChoices = findViewById (R.id.signin_choices);
-			vSigninChoices.setVisibility (View.VISIBLE);
-			View vSigninOrSignup = findViewById (R.id.signin_or_signup);
-			vSigninOrSignup.setVisibility (View.INVISIBLE);
-			}
-		*/
-		}
-	
 	public void setup_signin_buttons (final Runnable callback)
 		{
 		int editables[] = { R.id.sign_in_email_container,
@@ -2905,9 +2870,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        public void onClick (View v)
 			        	{
 			        	EditText vEditable = (EditText) vContainer.findViewWithTag ("editable");
-			        	vEditable.requestFocusFromTouch();
-			        	InputMethodManager imm = (InputMethodManager) getSystemService (Context.INPUT_METHOD_SERVICE); 
-			            imm.showSoftInput (vEditable, 0);
+			        	if (vEditable != null)
+			        		{
+			        		vEditable.requestFocusFromTouch();
+				        	InputMethodManager imm = (InputMethodManager) getSystemService (Context.INPUT_METHOD_SERVICE); 
+				            imm.showSoftInput (vEditable, 0);
+			        		}
 			        	}
 					});	
 			}
@@ -3045,7 +3013,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        public void onClick (View v)
 			        	{
 			        	log ("click on: signin cancel");
-			        	signin_choices();
 			        	}
 					});
 			
@@ -3099,16 +3066,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		int yellow = Color.rgb (0xFF, 0xAA, 0x00);
 		int dark = Color.rgb (0x1D, 0x1D, 0x1D);
 		
-		/*
-		if (is_tablet())
-			{
-			View vSigninChoices = findViewById (R.id.signin_choices);
-			vSigninChoices.setVisibility (View.INVISIBLE);
-			View vSigninOrSignup = findViewById (R.id.signin_or_signup);
-			vSigninOrSignup.setVisibility (View.VISIBLE);
-			}
-		*/
-		
 		View vSignInContent = findViewById (R.id.sign_in_content);
 		View vSignUpContent = findViewById (R.id.sign_up_content);	
 		
@@ -3117,9 +3074,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		vSignInContent.setVisibility (is_sign_in ? View.VISIBLE : not_visible);
 		vSignUpContent.setVisibility (is_sign_in ? not_visible : View.VISIBLE);
-		
-		View vSignInTab = findViewById (R.id.sign_in_tab);
-		View vSignUpTab = findViewById (R.id.sign_up_tab);
 		
 		TextView vSignInTabText = (TextView) findViewById (R.id.sign_in_tab_text);
 		TextView vSignUpTabText = (TextView) findViewById (R.id.sign_up_tab_text);
@@ -3131,17 +3085,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		vSignInTabBar.setBackgroundColor (is_sign_in ? yellow : dark);
 		vSignUpTabBar.setBackgroundColor (is_sign_in ? dark : yellow);
-	    
-		/*
-		if (is_tablet())
-			{
-			String txt_sign_in = getResources().getString (R.string.si_sign_in_button); 
-			String txt_sign_up = getResources().getString (R.string.si_sign_up_button);
-					
-			TextView vSignText = (TextView) findViewById (R.id.signin_signup_button);
-			vSignText.setText (is_sign_in ? txt_sign_in : txt_sign_up);
-			}
-		*/
 		}
 	
 	public void zero_signin_data()
@@ -3349,19 +3292,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		set_layer (toplayer.TERMS);
 		
 		setup_terms_buttons();
-		
-		/*
-		if (is_phone())
-			{
-			View vGossamer = findViewById (R.id.gossamer);
-			LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vGossamer.getLayoutParams();
-			layout.leftMargin = pixels_30;
-			layout.rightMargin = pixels_30;
-			layout.topMargin = pixels_30;
-			layout.bottomMargin = pixels_30;
-			vGossamer.setLayoutParams (layout);
-			}
-		*/
 		terms_tab();
 		
 		/* sometimes the terms layer background is not redrawing! force it here */
@@ -4320,17 +4250,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			FrameLayout home_page = (FrameLayout) View.inflate (main.this, R.layout.home_page, null);
 			
-			if (is_phone())
-				{
-				/*
-				for (int id: new Integer[] { R.id.left_set_title, R.id.primary_set_title, R.id.right_set_title })
-					{
-					TextView v = (TextView) home_page.findViewById (id);
-					v.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
-					}
-				*/
-				}
-			
 			View vTabletPreamble = home_page.findViewById (R.id.tablet_preamble);
 			vTabletPreamble.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 
@@ -4384,42 +4303,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			sh.home_page = home_page;
 			((StoppableViewPager) container).addView (home_page, 0);
 			
-			/*
-			TextView vTitle = (TextView) sh.home_page.findViewById (R.id.primary_set_title);
-			vTitle.setText (portal_stack_names [position]);
-			*/
-			
 			TextView vBannerSetTitle = (TextView) sh.home_page.findViewById (R.id.banner_set_title);
 			if (vBannerSetTitle != null)
 				vBannerSetTitle.setText (portal_stack_names [position]);
-			
-			/*
-			TextView vLeft = (TextView) sh.home_page.findViewById (R.id.left_set_title);
-			vLeft.setText (position == 0 ? "" : portal_stack_names [position-1]);
-			vLeft.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: left title");
-		        	if (position > 0)
-		        		((StoppableViewPager) container).setCurrentItem (position - 1);
-		        	}
-				});	
-			
-			TextView vRight = (TextView) sh.home_page.findViewById (R.id.right_set_title);
-			vRight.setText (position == portal_stack_ids.length - 1 ? "" : portal_stack_names [position+1]);
-			vRight.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: right title");
-		        	if (position < portal_stack_ids.length - 1)
-		        		((StoppableViewPager) container).setCurrentItem (position + 1);
-		        	}
-				});	
-			*/
 			
 			View vModeThumbs = sh.home_page.findViewById (R.id.mode_thumbs);
 			if (vModeThumbs != null)
@@ -4578,12 +4464,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 							public void run()
 								{
 								refresh_home();
-								/*
-								if (finger_is_down)
-									refresh_home();
-								else
-									log ("won't refresh in this bounce, because finger is not on screen");
-								*/
 								}							
 							});
 						
@@ -4684,8 +4564,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		have_set_positions = false;
 		
 		final LinearLayout vSetSlider = (LinearLayout) findViewById (R.id.set_slider);
-		/* DDT */
-		
 		
 		for (int i = 0; i < portal_stack_names.length; i++)
 			{
@@ -4707,15 +4585,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			vText.setPadding (pixels_20, 0, pixels_20, 0);
 			vText.setGravity (Gravity.CENTER);
 			}
-		
-		/*
-		TextView v1 = new TextView (this);
-		v1.setText (text_to_left);
-		v1.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
-		v1.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
-		if (text_to_left.contains ("http") || text_to_left.contains ("HTTP"))
-			v1.setMaxLines (1);
-			*/
+
 		vSetSlider.post (new Runnable()
 			{
 			@Override
@@ -4741,22 +4611,26 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				        private int[] mDividerColors;
 
 				        @Override
-				        public final int getIndicatorColor(int position) {
+				        public final int getIndicatorColor (int position)
+				        	{
 				            return mIndicatorColors[position % mIndicatorColors.length];
-				        }
+				        	}
 
 				        @Override
-				        public final int getDividerColor(int position) {
+				        public final int getDividerColor (int position)
+				        	{
 				            return mDividerColors[position % mDividerColors.length];
-				        }
+				        	}
 
-				        void setIndicatorColors(int... colors) {
+				        void setIndicatorColors (int... colors)
+				        	{
 				            mIndicatorColors = colors;
-				        }
+				        	}
 
-				        void setDividerColors(int... colors) {
+				        void setDividerColors(int... colors)
+				        	{
 				            mDividerColors = colors;
-				        }
+				        	}
 				    	}
 				    
 					SimpleTabColorizer colorizer = new SimpleTabColorizer();
@@ -8487,12 +8361,40 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     
 	/*** TEST **************************************************************************************************/
     
+    public void enable_test_layer()
+    	{
+		disable_video_layer();
+		set_layer (toplayer.TEST);
+		int adnum = config.next_advert();
+		log ("next advert is: " + adnum);
+		String url = config.advert_meta (adnum, "url");
+		log ("advert url: " + url);
+		if (url != null && !url.equals (""))
+			launch_direct_ad (url);
+    	}
+    
+	/*** ADVERTISING **************************************************************************************************/
+    
     @Override
     public boolean advertise (final Runnable r)
     	{
+    	log ("advertising regime: " + config.advertising_regime);
     	if (config.advertising_regime != null)
 	    	{
-    		if (config.advertising_regime.equals ("admob"))
+    		if (config.advertising_regime.equals ("direct-video"))
+    			{		 
+    			restore_video_location = false;
+    			videoFragment.set_startup_function (in_main_thread, r);
+    			int adnum = config.next_advert();
+    			log ("next advert is: " + adnum);
+    			String url = config.advert_meta (adnum, "url");
+    			if (url != null && !url.equals (""))
+	    			{
+	    			launch_direct_ad (url);
+	    			return true;
+	    			}
+    			}
+    		else if (config.advertising_regime.equals ("admob"))
 	    		{
 		    	restore_video_location = false;
 				videoFragment.set_startup_function (in_main_thread, r);
@@ -8503,11 +8405,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
    		return false;
     	}
     
-    public void enable_test_layer()
+    public void launch_direct_ad (String video_url)
     	{
-		disable_video_layer();
-		set_layer (toplayer.TEST);
-		// interstitial_advertisement();
+		View vMask = findViewById (R.id.top_mask);
+		if (vMask != null)
+			vMask.setVisibility (View.VISIBLE);
+		
+		Intent wIntent = new Intent (this, DirectAdvert.class);
+		wIntent.putExtra("tv.9x9.advert", video_url);
+		startActivity (wIntent);
     	}
     
     public void admob_interstitial_advertisement (final Runnable r)
@@ -8541,6 +8447,20 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	.build();
 	    
 	    interstitial.loadAd (adRequest);
+    	}
+    
+	/*** ADVERT **************************************************************************************************/
+    
+    /* This isn't used. Moved it to its own activity (like Admob) */
+    
+    public void enable_advert_layer()
+    	{
+    	pause_video();
+		disable_video_layer();
+		
+		// hide_both_fragments();
+		
+		set_layer (toplayer.ADVERT);
     	}
     
 	/*** SHAKE **************************************************************************************************/
@@ -9818,7 +9738,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		@Override
 		public int getCount()
 			{			
-			log ("getcount: " + messages.length);
+			// log ("getcount: " + messages.length);
 			return messages == null ? 0 : messages.length;
 			}
 		
@@ -10915,7 +10835,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	            	init_shake (true);
 	            
 	            if (shake_channel_stack == null || shake_channel_stack.isEmpty())
-	            	shake_channel = "1029"; /* Ellen -- should refill here, or when count=1 remaining */
+	            	shake_channel = "1029"; /* "Ellen" channel -- should refill here, or when count=1 remaining */
 	            else
 	            	shake_channel = shake_channel_stack.pop();
 	

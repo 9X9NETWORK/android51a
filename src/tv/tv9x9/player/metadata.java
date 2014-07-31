@@ -33,7 +33,6 @@ public class metadata
 	public String admob_key = null;
 	public String advertising_regime = null;
 	
-	/* chromecast: 5ecf7ff9-2144-46ce-acc9-6d606831e2dc_1 */
 	public String chromecast_app_name = null;
 	
 	public boolean shake_and_discover_feature = false;
@@ -87,7 +86,7 @@ public class metadata
 	
 	public Runnable interrupt_with_notification = null;
 	
-	/* always, once, never */
+	/* always, once, or never */
 	public String signup_nag = "never";
 	
 	/* the portal API may be called from start activity, and consumed by the main activity */
@@ -102,15 +101,19 @@ public class metadata
 	Hashtable  <String,  Hashtable <String, String>>   channels_by_youtube;
 	Hashtable  <String,  Hashtable <String, String>>   titlecards;
 	Hashtable  <String,  Hashtable <String, String>>   special_tags;
-	
-	Hashtable <String, Hashtable <String, String>> sets;
+	Hashtable  <String,  Hashtable <String, String>>   adverts;	
+	Hashtable  <String,  Hashtable <String, String>>   sets;
 	
 	/* episode id -> Integer.toString() -> Comment */
 	Hashtable  <String,  Hashtable <String, Comment>>  comments;
 	
 	/* kept here because activities come and go */
 	Hashtable < String, String[] > query_cache = new Hashtable < String, String[] > ();
-		
+	
+	/* will cycle through direct ads by number, rather than id */
+	public int highest_advert = 0;
+	public int current_advert = 0;
+	
 	String last_visited_channel = null;
 	String last_visited_episode = null;
 	String last_visited_stack = null;
@@ -166,6 +169,10 @@ public class metadata
 		sets = new Hashtable <String, Hashtable <String, String>> ();
 		comments = new Hashtable <String,  Hashtable <String, Comment>> ();
 		special_tags = new Hashtable <String,  Hashtable <String, String>> ();
+		adverts = new Hashtable <String,  Hashtable <String, String>> ();	
+		
+		highest_advert = 0;
+		current_advert = 0;
 		
 		init_query_cache();
 		
@@ -1238,18 +1245,7 @@ public class metadata
 			channel.put ("episode_thumb_4", episode_thumb_4);
 		
 		if (first_episode_title != null)
-			channel.put ("episode_title_1", first_episode_title);
-		
-		/*
-		if (episode_title_1 != null)
-			channel.put ("episode_title_1", episode_title_1);
-		if (episode_title_2 != null)
-			channel.put ("episode_title_2", episode_title_2);
-		if (episode_title_3 != null)
-			channel.put ("episode_title_3", episode_title_3);
-		if (episode_title_4 != null)
-			channel.put ("episode_title_4", episode_title_4);
-		*/
+			channel.put ("episode_title_1", first_episode_title);		
 		
 		/* have not fetched from youtube */
 		channel.put ("fetched", "0");
@@ -1393,14 +1389,6 @@ public class metadata
 			program_lock.unlock();
 			}
 		}
-
-	/*
-	 * programgrid [fields [1]] = { 'channel': fields[0],
-	 * 'url1': 'fp:' + fields[8], 'url2': 'fp:' + fields[9], 'url3': 'fp:' +
-	 * fields[10], 'url4': 'fp:' + fields[11], 'name': fields[2], 'desc': fields
-	 * [3], 'type': fields[4], 'thumb': fields[6], 'snapshot': fields[7],
-	 * 'timestamp': fields[12], 'duration': fields[5] };
-	 */
 
 	public void parse_program_info (String[] lines)
 		{
@@ -1546,7 +1534,6 @@ public class metadata
 							String ab[] = metaline.split (":\\s+");
 							if (ab.length >= 2)
 								kvs.put (ab[0], ab[1]);
-							// Log.i ("vtest", "found key/value in meta: " + ab[0] + " => " + ab[1]); // noisy
 							}
 						}
 					String kv_type = kvs.get ("type");
@@ -1562,7 +1549,6 @@ public class metadata
 							titlecards.put (title_id, kvs);
 							program.put ("sub-" + kv_sub + "-begin-title", title_id);
 							program.put ("sub-" + kv_sub + "-pre", kv_duration);
-							// Log.i ("vtest", "added titlecard: " + title_id); // noisy
 							}
 						if (kv_type.contains ("end"))
 							{
@@ -1571,7 +1557,6 @@ public class metadata
 							titlecards.put (title_id, kvs);
 							program.put ("sub-" + kv_sub + "-end-title", title_id);
 							program.put ("sub-" + kv_sub + "-post", kv_duration);
-							// Log.i ("vtest", "added titlecard: " + title_id); // noisy
 							}
 						}
 					}
@@ -2347,5 +2332,64 @@ public class metadata
 			channel_lock.unlock();
 			}
 		return tag;
+		}
+	
+	public void set_advert (String id, String type, String name, String url)
+		{
+		try
+			{
+			Log.i ("vtest", "set advert " + (1 + highest_advert) + ": " + url);
+			channel_lock.lock();
+			Hashtable <String, String> advert = adverts.get (id);
+			if (advert == null)
+				advert = new Hashtable <String, String> ();
+			advert.put ("seq", Integer.toString (++highest_advert));	
+			advert.put ("id", id);	
+			advert.put ("type", type);
+			advert.put ("name", name);
+			advert.put ("url", url);
+			adverts.put (Integer.toString (highest_advert), advert);
+			}
+		finally
+			{
+			channel_lock.unlock();
+			}
+		}
+	
+	public Hashtable <String, String> get_advert (int id)
+		{
+		Hashtable <String, String> advert = null;
+		try
+			{
+			channel_lock.lock();
+			advert = adverts.get (Integer.toString (id));
+			}
+		finally
+			{
+			channel_lock.unlock();
+			}
+		return advert;
+		}
+	
+	public int next_advert()
+		{	
+		if (highest_advert > 0)
+			{
+			if (current_advert + 1 > highest_advert)
+				current_advert = 1;
+			else
+				current_advert++;		
+			return current_advert;
+			}
+		else
+			return -1;
+		}
+	
+	public String advert_meta (int id, String field)
+		{
+		Hashtable <String, String> advert = get_advert (id);
+		if (advert != null)
+			Log.i ("vtest", "obtained an advert for " + id);
+		return advert != null ? advert.get (field) : null;
 		}
 	}

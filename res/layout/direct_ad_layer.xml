@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/direct_ad_layer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    
+	<FrameLayout
+	    android:id="@+id/direct_ad_layer"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:orientation="vertical"
+	    />
+        
+	<io.vov.vitamio.widget.CenterLayout
+		android:id="@+id/video_ad_container"
+	  	android:layout_width="match_parent"
+	 	android:layout_height="300dip"
+	 	android:layout_marginTop="60dip"
+	  	android:orientation="vertical"
+	  	android:background="#FFFF00">
+	    <SurfaceView
+	        android:id="@+id/video_ad_surface"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_gravity="center"
+	        android:visibility="visible">
+	    </SurfaceView>
+	</io.vov.vitamio.widget.CenterLayout>
+
+	<FrameLayout 
+	    android:id="@+id/skip_ad_button"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"  
+	    android:layout_gravity="right|top"
+	    android:gravity="right|top"
+	    android:orientation="vertical"
+	    android:padding="6dip"
+	    android:background="@drawable/btn_playback_skip">
+	    	
+		<LinearLayout 
+		    android:id="@+id/skip_ad_button_phase_1"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"  
+		    android:layout_gravity="center"
+		    android:gravity="center"
+		    android:orientation="vertical"
+		    android:padding="6dip"
+		    android:visibility="visible">
+		    <TextView
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"  
+			    android:layout_gravity="right|top"
+			    android:gravity="right|top"   
+			    android:text="You can skip ads"
+			    android:textSize="18sp"
+			    />
+		    <TextView
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"  
+			    android:layout_gravity="right|top"
+			    android:gravity="right|top"   
+			    android:text="after 6 seconds"
+			    android:textSize="18sp"			    
+			    />	    
+		</LinearLayout>
+
+		<LinearLayout 
+		    android:id="@+id/skip_ad_button_phase_2"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"  
+		    android:layout_gravity="center"
+		    android:gravity="center"
+		    android:orientation="vertical"
+		    android:padding="6dip"
+		    android:visibility="invisible">
+		    <TextView
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"  
+			    android:layout_gravity="right|top"
+			    android:gravity="right|top"   
+			    android:text="Skip AD"
+			    android:textSize="24sp"
+			    />    
+		</LinearLayout>
+				
+	</FrameLayout>
+	
+</FrameLayout>

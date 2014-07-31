@@ -69,6 +69,8 @@ public class RelayActivity extends Activity
 	int pixels_200 = 200;
 	
 	double screen_inches = 0L;
+	int screen_width = 0;
+	int screen_height = 0;
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState)
@@ -141,6 +143,8 @@ public class RelayActivity extends Activity
 		    double x = Math.pow (dm.widthPixels / dm.xdpi, 2);
 		    double y = Math.pow (dm.heightPixels / dm.ydpi, 2);
 		    screen_inches = Math.sqrt (x+y);
+		    screen_width = dm.widthPixels;
+		    screen_height = dm.heightPixels;
 			}
 		catch (Exception ex)
 			{

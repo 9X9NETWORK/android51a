@@ -44,8 +44,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="123"
-      android:versionName="5.0.1.123">
+      android:versionCode="124"
+      android:versionName="5.0.1.124">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -535,6 +535,13 @@
 
 		<!-- android:screenOrientation="portrait" -->
         <activity android:name="tv.tv9x9.player.main" android:configChanges="keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustPan" android:screenOrientation="portrait" android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+            
+        <activity android:name="tv.tv9x9.player.DirectAdvert" android:configChanges="keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustPan" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

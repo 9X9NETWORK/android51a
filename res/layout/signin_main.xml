@@ -201,7 +201,8 @@
 						/>		
 				</LinearLayout>				   		
 				<EditText
-				    android:id="@+id/sign_in_email"       
+				    android:id="@+id/sign_in_email"
+				    android:tag="editable"	        
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="0.50"
@@ -214,6 +215,7 @@
 					android:singleLine="true"
 					android:cursorVisible="true"
 					android:textCursorDrawable="@null"			
+	    			android:inputType="textEmailAddress"						
 					android:background="@drawable/textfield_tray"
 					android:nextFocusDown="@+id/sign_in_password"									
 					android:nextFocusForward="@+id/sign_in_password"								
@@ -294,7 +296,8 @@
 						/>		
 				</LinearLayout>				   		
 				<EditText
-				    android:id="@+id/sign_in_password"       
+				    android:id="@+id/sign_in_password"     
+					android:tag="editable"	 				      
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="0.50"
@@ -418,7 +421,8 @@
 							/>		
 					</LinearLayout>				   		
 					<EditText
-					    android:id="@+id/sign_up_name"       
+					    android:id="@+id/sign_up_name"
+					    android:tag="editable"	        
 						android:layout_width="0dip"
 						android:layout_height="wrap_content"
 						android:layout_weight="0.50"
@@ -432,6 +436,7 @@
 						android:cursorVisible="true"
 						android:textCursorDrawable="@null"			
 						android:background="@drawable/textfield_tray"
+						android:inputType="textEmailAddress"	
 						android:nextFocusDown="@+id/sign_up_email"									
 						android:nextFocusForward="@+id/sign_up_email"								
 						/>											    
@@ -511,7 +516,8 @@
 							/>		
 					</LinearLayout>				   		
 					<EditText
-					    android:id="@+id/sign_up_email"       
+					    android:id="@+id/sign_up_email"      
+					    android:tag="editable"	 					     
 						android:layout_width="0dip"
 						android:layout_height="wrap_content"
 						android:layout_weight="0.50"
@@ -525,8 +531,8 @@
 						android:cursorVisible="true"
 						android:textCursorDrawable="@null"			
 						android:background="@drawable/textfield_tray"
-						android:nextFocusDown="@+id/sign_up_email"									
-						android:nextFocusForward="@+id/sign_up_email"								
+						android:nextFocusDown="@+id/sign_up_password"									
+						android:nextFocusForward="@+id/sign_up_password"								
 						/>											    
 				</LinearLayout>  						
 									
@@ -605,7 +611,8 @@
 							/>		
 					</LinearLayout>				   		
 					<EditText
-					    android:id="@+id/sign_up_password"       
+					    android:id="@+id/sign_up_password"     
+					    android:tag="editable"	 					      
 						android:layout_width="0dip"
 						android:layout_height="wrap_content"
 						android:layout_weight="0.50"
@@ -620,8 +627,8 @@
 						android:textCursorDrawable="@null"		
 						android:password="true"		
 						android:background="@drawable/textfield_tray"
-						android:nextFocusDown="@+id/sign_in_button"									
-						android:nextFocusForward="@+id/sign_in_button"								
+						android:nextFocusDown="@+id/sign_up_verify"									
+						android:nextFocusForward="@+id/sign_up_verify"								
 						/>											    
 				</LinearLayout>    
 							
@@ -700,7 +707,8 @@
 							/>		
 					</LinearLayout>				   		
 					<EditText
-					    android:id="@+id/sign_up_verify"       
+					    android:id="@+id/sign_up_verify"
+					    android:tag="editable"	 					           
 						android:layout_width="0dip"
 						android:layout_height="wrap_content"
 						android:layout_weight="0.50"

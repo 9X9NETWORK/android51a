@@ -60,7 +60,15 @@
 	<include layout="@layout/signin_tablet_new" />
 			
 	<include layout="@layout/password_tablet" />
-				
-	<!-- either video_layer_old or video_layer_new gets added here -->
+		
+	<include layout="@layout/video_layer_new" />
+					
+	<FrameLayout
+	   	android:id="@+id/top_mask"
+	  	android:layout_width="fill_parent"
+	   	android:layout_height="fill_parent"
+	   	android:background="#A0000000"
+	   	android:visibility="gone"
+		/>		
 		
 </FrameLayout>

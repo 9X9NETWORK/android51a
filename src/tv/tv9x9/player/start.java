@@ -245,39 +245,6 @@ public class start extends Activity
 		{
 	    super.onConfigurationChanged (newconfig);
 		}
-	
-	@Override
-	public boolean onCreateOptionsMenu (Menu menu)
-		{
-		// menu.add ("Settings").setIcon (android.R.drawable.ic_menu_preferences).setIntent (new Intent (this, settings.class));
-		// menu.add ("Become a TV").setIntent (new Intent (this, tvgrid.class));
-		// menu.add ("Grid").setIntent (new Intent (this, tvgrid.class));
-		// menu.add ("dev2");
-		// menu.add ("beagle");
-		// menu.add ("www");
-		// menu.add ("stage");
-		// menu.add ("Shear").setIntent (new Intent (this, shear.class));
-		return true;
-		}
-
-	@Override
-	public boolean onOptionsItemSelected (MenuItem item)
-		{
-		Log.i ("vtest", "menu item: " + item.getItemId () + " title: " + item.getTitle ());
-
-		if (item.getTitle().equals ("Remote"))
-			{
-			String app_name = "com.soylent.rc";
-			Intent i = this.getPackageManager().getLaunchIntentForPackage (app_name);
-			if (i != null)
-				this.startActivity (i);
-			else
-				alert ("application not available: " + app_name);
-			return true;
-			}
-		
-		return super.onOptionsItemSelected (item);
-		}
 		
 	public void device_parameters()
 		{
@@ -386,8 +353,7 @@ public class start extends Activity
 		{
 		FrameLayout vSplash = (FrameLayout) findViewById (R.id.splash);		
 		ImageView vLogo = (ImageView) findViewById (R.id.logo);
-		TextView vSlogan = (TextView) findViewById (R.id.slogan);
-		
+		TextView vSlogan = (TextView) findViewById (R.id.slogan);		
 		
 		String splash_bg = getResources().getString (R.string.splash_background);
 		String splash_fg = getResources().getString (R.string.splash_foreground);		
@@ -616,58 +582,79 @@ public class start extends Activity
 	
 	public void process_brandinfo (String lines[])
 		{
+		int section = 0;		
 		for (String line: lines)
 			{
 			Log.i ("vtest", "brandInfo: " + line);
-			String fields[] = line.split ("\t");
-			if (fields.length >= 2)
+			
+			if (line.equals ("--"))
 				{
-				if (fields[0].equals ("supported-region"))
-					config.supported_region = fields[1];
-				else if (fields[0].equals ("title"))
-					config.mso_title = fields[1];
-				else if (fields[0].equals ("preferredLangCode"))
-					config.mso_preferred_lang_code = fields[1];				
-				else if (fields[0].equals ("ga"))
-					config.google_analytics = fields[1];
-				else if (fields[0].equals ("facebook-clientid"))
-					config.facebook_app_id = fields[1];
-				else if (fields[0].equals ("chromecast-id"))
-					config.chromecast_app_name = fields[1];
-				else if (fields[0].equals ("flurry"))
-					config.flurry_id = fields[1];	
-				else if (fields[0].equals ("notify") || fields[0].equals ("gcm-sender-id"))
-					config.gcm_sender_id = fields[1];
-				else if (fields[0].equals ("shake-discover"))
-					config.shake_and_discover_feature = fields[1].equals ("on");
-				else if (fields[0].equals ("aboutus"))
-					config.about_us_url = fields[1];
-				else if (fields[0].equals ("signup-enforce"))
-					config.signup_nag = fields[1];
-				else if (fields[0].equals ("admob-key"))
-					config.admob_key = fields[1];
-				else if (fields[0].equals ("ad"))
-					config.advertising_regime = fields[1];
-				else if (fields[0].equals ("notification-sound-vibration"))
+				section++;
+				continue;
+				}			
+
+			String fields[] = line.split ("\t");
+			
+			if (section == 0)
+				{
+				if (fields.length >= 2)
 					{
-					// sound off;vibration off
-					String subfields[] = fields[1].split (";");
-					for (String subfield: subfields)
+					if (fields[0].equals ("supported-region"))
+						config.supported_region = fields[1];
+					else if (fields[0].equals ("title"))
+						config.mso_title = fields[1];
+					else if (fields[0].equals ("preferredLangCode"))
+						config.mso_preferred_lang_code = fields[1];				
+					else if (fields[0].equals ("ga"))
+						config.google_analytics = fields[1];
+					else if (fields[0].equals ("facebook-clientid"))
+						config.facebook_app_id = fields[1];
+					else if (fields[0].equals ("chromecast-id"))
+						config.chromecast_app_name = fields[1];
+					else if (fields[0].equals ("flurry"))
+						config.flurry_id = fields[1];	
+					else if (fields[0].equals ("notify") || fields[0].equals ("gcm-sender-id"))
+						config.gcm_sender_id = fields[1];
+					else if (fields[0].equals ("shake-discover"))
+						config.shake_and_discover_feature = fields[1].equals ("on");
+					else if (fields[0].equals ("aboutus"))
+						config.about_us_url = fields[1];
+					else if (fields[0].equals ("signup-enforce"))
+						config.signup_nag = fields[1];
+					else if (fields[0].equals ("admob-key"))
+						config.admob_key = fields[1];
+					else if (fields[0].equals ("ad"))
+						config.advertising_regime = fields[1];
+					else if (fields[0].equals ("notification-sound-vibration"))
 						{
-						String kv[] = subfield.replaceAll("\\s+", " ").split (" ");
-						if (kv.length >= 2)
+						// sound off;vibration off
+						String subfields[] = fields[1].split (";");
+						for (String subfield: subfields)
 							{
-							String opt = kv[0].trim();
-							String arg = kv[1].trim();
-							if (opt.equals ("sound"))
-								config.notify_with_sound_default = (arg.equals ("on"));
-							if (opt.equals ("vibration"))
-								config.notify_with_vibrate_default = (arg.equals ("on"));
+							String kv[] = subfield.replaceAll("\\s+", " ").split (" ");
+							if (kv.length >= 2)
+								{
+								String opt = kv[0].trim();
+								String arg = kv[1].trim();
+								if (opt.equals ("sound"))
+									config.notify_with_sound_default = (arg.equals ("on"));
+								if (opt.equals ("vibration"))
+									config.notify_with_vibrate_default = (arg.equals ("on"));
+								}
 							}
 						}
 					}
 				}
+			else if (section == 1)
+				{
+				if (fields.length >= 4)
+					{
+					// [id] TAB [type] TAB [name] TAB [url]					
+					config.set_advert (fields[0], fields[1], fields[2], fields[3]); 
+					}
+				}
 			}
+
 		
 		/* don't allow nag page in the US even if the server is configured that way */
 		String lang = Locale.getDefault().getLanguage();
