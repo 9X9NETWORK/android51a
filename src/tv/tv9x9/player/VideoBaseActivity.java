@@ -253,6 +253,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	static int pixels_150 = 150;
 	static int pixels_160 = 160;	
 	static int pixels_200 = 200;
+	static int pixels_300 = 300;
 	
 	public VideoFragment videoFragment = null;
 	public PlayerFragment playerFragment = null;
@@ -449,6 +450,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    pixels_150 = (int) (150 * dm.density);	    
 	    pixels_160 = (int) (160 * dm.density);	 	    
 	    pixels_200 = (int) (200 * dm.density);
+	    pixels_300 = (int) (300 * dm.density);	    
 	    
 	    h_movement_threshhold = pixels_120;
 	    v_movement_threshhold = pixels_120;
@@ -601,7 +603,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		return false;
 		}
 			
-	float downX = 0, downY = 0, max_delta_X = 0;
+	float downX = 0, downY = 0, max_delta_X = 0, max_delta_Y = 0;
 	boolean x_movement_started = false;
 	boolean y_movement_started = false;
 	boolean started_inside_container = false;
@@ -622,6 +624,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			downX = event.getX();
 			downY = event.getY();
 			max_delta_X = 0;
+			max_delta_Y = 0;
 			log ("[dispatch] ACTION DOWN, x=" + event.getX() + ", y=" + event.getY());
 			started_inside_container = video_visible_somewhere() && point_inside_view (event.getX(), event.getY(), vContainer);
 			if (started_inside_container)
@@ -635,17 +638,17 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}	
 		else if (action == MotionEvent.ACTION_UP)
 			{
-			log ("[dispatch] ACTION UP, x=" + event.getX() + ", y=" + event.getY() + ", max_delta_X: " + max_delta_X);
-
 			int deltaX = (int) (downX - event.getX());
 			int deltaY = (int) (downY - event.getY());
+			
+			log ("[dispatch] ACTION UP, x=" + event.getX() + ", y=" + event.getY() + ", deltaX=" + deltaX + ", deltaY=" + deltaY + ", max_delta_X=" + max_delta_X);
 			
 			if (big_thing_moving)
 				onBigThingUp (deltaX, deltaY);
 			else if (point_inside_view (event.getX(), event.getY(), vContainer))
 				{
 				// if (Math.abs (deltaX) > pixels_80 || Math.abs (deltaY) > pixels_80)
-				if (max_delta_X > pixels_40)
+				if (max_delta_X > pixels_40 || max_delta_Y > pixels_40)
 					onVideoActionUp (deltaX, deltaY);
 				else
 					onVideoActionTapped();
@@ -661,6 +664,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			
 			if (Math.abs (deltaX) > max_delta_X)
 				max_delta_X = Math.abs (deltaX);
+			
+			if (Math.abs (deltaY) > max_delta_Y)
+				max_delta_Y = Math.abs (deltaY);
 			
 			if (big_thing_moving)
 				onBigThingMove (deltaX, deltaY);
@@ -2701,8 +2707,15 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			long total_duration = duration;
 			
 			if (current_subepisode > 0)
-				{
-				total_duration = 1000 * Integer.parseInt (config.program_meta (episode_id, "total-duration"));
+				{	
+				String total_duration_string = config.program_meta (episode_id, "total-duration");
+				if (total_duration_string == null)
+					{
+					/* missing important subprogram data! */
+					log ("episode " + episode_id + " has subepisodes but no total-duration!");
+					return;
+					}
+				total_duration = 1000 * Integer.parseInt (total_duration_string);
 				
 				int s_offset = 1000 * Integer.parseInt (config.program_meta (episode_id, "sub-" + current_subepisode + "-offset"));
 				int s_duration = 1000 * Integer.parseInt (config.program_meta (episode_id, "sub-" + current_subepisode + "-duration"));

@@ -22,10 +22,12 @@ import android.os.Build;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 
@@ -79,6 +81,8 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
     private final SlidingTabStrip mTabStrip;
 
+    private Context ctx = null;
+    
     public SlidingTabLayout(Context context) {
         this(context, null);
     }
@@ -99,6 +103,8 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
         mTabStrip = new SlidingTabStrip(context);
         addView(mTabStrip, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        
+        ctx = context;
     }
 
     /**
@@ -221,6 +227,28 @@ public class SlidingTabLayout extends HorizontalScrollView {
             tabView.setOnClickListener(tabClickListener);
 
             mTabStrip.addView(tabView);
+
+            int divisor = adapter.getCount() >= 3 ? 3 : 2;
+            
+            /* tdell: set width to 1/3 screen width */
+            int screen_width = -1;
+    		try
+				{
+				DisplayMetrics dm = new DisplayMetrics();
+				WindowManager wm = (WindowManager) ctx.getSystemService (Context.WINDOW_SERVICE);
+			    wm.getDefaultDisplay().getMetrics (dm);
+			    screen_width = dm.widthPixels;
+				}
+    		catch (Exception ex)
+				{
+				/* nothing */
+				}
+    		if (screen_width > 0)
+	    		{
+	            SlidingTabStrip.LayoutParams layout = (SlidingTabStrip.LayoutParams) tabView.getLayoutParams();
+	            layout.width = screen_width / divisor;
+	            tabView.setLayoutParams(layout);
+	    		}
         }
     }
 

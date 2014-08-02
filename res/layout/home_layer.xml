@@ -101,6 +101,25 @@
 	    	style="@android:style/Widget.ProgressBar.Inverse"
 	    	android:visibility="gone"
 	    	/>	
+	    	
+		<FrameLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="300dip"
+		    android:layout_gravity="top|center_horizontal"
+		    android:gravity="center">		
+			<ImageView
+			    android:id="@+id/home_swipe_hint"
+			    android:layout_width="350dip"			    
+			    android:layout_height="100dip"
+			    android:layout_gravity="center"
+			    android:gravity="center"
+			    android:src="@drawable/icon_tutorial_flipping"
+			    android:alpha="0"
+			    android:scaleType="fitXY"
+			    android:adjustViewBounds="true"
+			    />
+		</FrameLayout>
+		
     </FrameLayout>
 			    	
 </LinearLayout>
