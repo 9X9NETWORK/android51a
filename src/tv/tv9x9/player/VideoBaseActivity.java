@@ -475,8 +475,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		    double x = Math.pow (dm.widthPixels / dm.xdpi, 2);
 		    double y = Math.pow (dm.heightPixels / dm.ydpi, 2);
 		    screen_inches = Math.sqrt (x+y);
-		    screen_width = dm.widthPixels;
-		    screen_height = dm.heightPixels;
+		    screen_width = dm.widthPixels < dm.heightPixels ? dm.widthPixels : dm.heightPixels;
+		    screen_height = dm.widthPixels < dm.heightPixels ? dm.heightPixels : dm.widthPixels;
 		    screen_density = dm.density;
 			}
 		catch (Exception ex)

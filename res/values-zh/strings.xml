@@ -984,5 +984,9 @@
 	<string name="test">Test</string>
 	<string name="log_in">Log in</string>	
 	<string name="log_in_with_email">Log in with Email</string>	
-	<string name="or_log_in_with_email">Or log in with Email</string>	
+	<string name="or_log_in_with_email">Or log in with Email</string>
+	<string name="skip_ads_1">這則廣告將在 ％d </string>
+	<string name="skip_ads_2"></string>
+	<string name="skip_ads_3">秒後跳過</string>
+	<string name="skip_ad">跳過廣告</string>		
 </resources>

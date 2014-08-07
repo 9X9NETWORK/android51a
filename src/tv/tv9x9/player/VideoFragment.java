@@ -773,6 +773,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 		try
 			{
 			player.addFullscreenControlFlag (YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
+			player.addFullscreenControlFlag (YouTubePlayer.FULLSCREEN_FLAG_ALWAYS_FULLSCREEN_IN_LANDSCAPE);
 			}
 		catch (Exception ex)
 			{

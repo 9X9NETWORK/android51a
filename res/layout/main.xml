@@ -2,7 +2,8 @@
 <FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+   	android:background="#FF0000">
 
     <include layout="@layout/menu_layer" />
 
@@ -10,6 +11,8 @@
 	    android:id="@+id/slidingpanel"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
+	    android:layout_gravity="left|top"
+	    android:gravity="left|top"
 	    android:orientation="vertical">
 	
 	    <include android:id="@+id/sliding_top_bar" layout="@layout/top_bar" />

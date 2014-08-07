@@ -64,6 +64,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -166,6 +167,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		/* use recalculated value instead of just 20 */
 		MARGINALIA = is_phone() ? pixels_10 : pixels_20;
+		
+		/* home layout needs to be told what it is */
+		int orientation = getResources().getConfiguration().orientation;
+		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
+		set_screen_config (landscape);
 		}
 
 	@Override
@@ -529,6 +535,72 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		/* this is a GridView */
 		View vMessageListTablet = findViewById (R.id.message_list_tablet);
 		vMessageListTablet.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
+		}
+	
+
+	@Override
+	public void onConfigurationChanged (Configuration newConfig)
+		{
+		super.onConfigurationChanged (newConfig);
+		boolean landscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE;
+		set_screen_config (landscape);
+		}
+	
+	public void set_screen_config (boolean landscape)
+		{
+		final View vMenu = findViewById (R.id.menu_layer);	
+        FrameLayout.LayoutParams menu_layout = (FrameLayout.LayoutParams) vMenu.getLayoutParams();	
+        
+        View vPanel = findViewById (R.id.slidingpanel);
+        FrameLayout.LayoutParams panel_layout = (FrameLayout.LayoutParams) vPanel.getLayoutParams();
+        
+        View vMenuButton = findViewById (R.id.menubutton);
+        
+        int new_screen_width = 0;
+        int new_screen_height = 0;
+        
+		try
+			{
+			DisplayMetrics dm = new DisplayMetrics();
+		    getWindowManager().getDefaultDisplay().getMetrics (dm);
+		    new_screen_width = dm.widthPixels;
+		    new_screen_height = dm.heightPixels;
+			}
+		catch (Exception ex)
+			{
+			/* nothing */
+			}
+
+		int true_width = 0;
+		if (landscape)
+			true_width = new_screen_width > new_screen_height ? new_screen_width : new_screen_height;
+		else
+			true_width = new_screen_width > new_screen_height ? new_screen_height : new_screen_width;				
+        
+		log ("configuration changed: landscape=" + landscape + " true_width=" + true_width + " w=" + new_screen_width + " h=" + new_screen_height);
+		
+		// I/vtest   (10577): [main] configuration changed: landscape=false true_width=1824 w=1200 h=1824
+
+		
+		if (landscape)
+			{	
+	        menu_layout.width = left_column_width();
+	        panel_layout.width = true_width - menu_layout.width;
+	        panel_layout.leftMargin = 0;
+			panel_layout.gravity = Gravity.RIGHT | Gravity.TOP;
+			vMenuButton.setVisibility (View.GONE);
+			}
+		else
+			{	
+	        menu_layout.width = left_column_width();
+	        panel_layout.width = MATCH_PARENT;
+	        panel_layout.leftMargin = 0;
+			panel_layout.gravity = Gravity.LEFT | Gravity.TOP;
+			vMenuButton.setVisibility (View.VISIBLE);
+			}
+		
+        vMenu.setLayoutParams (menu_layout);
+        vPanel.setLayoutParams (panel_layout);
 		}
 	
 	public void player_full_stop()
@@ -1032,6 +1104,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{	
 		redraw_menu();
 		
+		int orientation = getResources().getConfiguration().orientation;
+		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
+		
 		/* set the width of the menu */
 		final LinearLayout vMenu = (LinearLayout) findViewById (R.id.menu_layer);		
         FrameLayout.LayoutParams menu_layout = (FrameLayout.LayoutParams) vMenu.getLayoutParams();		
@@ -1040,10 +1115,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
         
 		final View vHome = findViewById (R.id.slidingpanel);		
         FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vHome.getLayoutParams();
+        // layout.gravity = (landscape ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP;
         
         /* when from_margin is 0, the column is extended */
         final int from_margin = layout.leftMargin;
         final int to_margin = (layout.leftMargin == 0) ? left_column_width() : 0;    		
+        
+        log ("toggle menu: track=" + track + " orientation=" + orientation + " landscape=" + landscape + " from_margin=" + from_margin + " to_margin=" + to_margin);
         
         if (track)
 	        {
@@ -1063,6 +1141,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vHome.getLayoutParams();
 		        layout.leftMargin = (int) (from_margin + (to_margin - from_margin) * interpolatedTime);
 		        layout.width = screen_width;
+		        log ("menu-ANIM: " + layout.leftMargin);
 		        vHome.setLayoutParams (layout);		        
 		    	}
 			};
@@ -1083,7 +1162,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			public void onAnimationStart (Animation animation) {}
 			});
 		
-		a.setDuration (400);	    		
+		a.setDuration (400);
+		if (!landscape)
 		vHome.startAnimation (a);
 		
 		setup_menu_buttons();
@@ -1091,6 +1171,15 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void set_invisible_mask (boolean visible)
 		{
+		int orientation = getResources().getConfiguration().orientation;
+		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
+		
+		if (landscape)
+			{
+			/* don't appear to lose control of the app */
+			visible = false;
+			}
+		
 		View vMask = findViewById (R.id.invisible_mask);
 		if (vMask != null)
 			{
@@ -1122,11 +1211,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void hide_menu_immediately()
 		{
-		// View vHome = home_layer();	
+		log ("hide menu immediately");
+		int orientation = getResources().getConfiguration().orientation;
+		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
 		final View vHome = findViewById (R.id.slidingpanel);	
         FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vHome.getLayoutParams();
         layout.leftMargin = 0;
-        layout.width = screen_width;
+        if (!landscape)
+        	layout.width = screen_width;
         vHome.setLayoutParams (layout);
         set_invisible_mask (false);
 		}
@@ -1180,6 +1272,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public void redraw_menu()
 		{
+		if (config == null)
+			return;
+		
 		if (!initialized_app_menu)
 			{
 			initialized_app_menu = true;
@@ -1192,6 +1287,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					}
 				}, 15000);
 			}
+		
+		setup_menu_buttons();
 		
 		/*
 		 * if we want categories in the menu
@@ -1716,8 +1813,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		LinearLayout.LayoutParams wrapper_layout = (LinearLayout.LayoutParams) yt_wrapper.getLayoutParams();
 		
-		int orientation = getRequestedOrientation();
-		boolean landscape = orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+		int orientation = getResources().getConfiguration().orientation;
+		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
+		// int orientation = getRequestedOrientation();
+		// boolean landscape = orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 		
 		if (fullscreen || landscape)
 			{
@@ -6507,8 +6606,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		setup_playback_buttons();
 		
     	int orientation = getRequestedOrientation();
-    	boolean landscape = orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    	boolean landscape = fullscreen || orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 
+		log ("set size of video: shrunk=" + shrunk + " landscape=" + landscape);
+		
 		View video = findViewById (R.id.video_fragment_container);
 		SpecialFrameLayout.LayoutParams layout = (SpecialFrameLayout.LayoutParams) video.getLayoutParams();
 		View video2 = findViewById (R.id.player_fragment_container);
@@ -6585,6 +6686,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		hide_menu_immediately();
 		setup_playback_buttons();
+		
+		int orientation = getResources().getConfiguration().orientation;
+		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
+		if (landscape)
+			onVideoActivityLayout();
 		}
 
 	public void playback_back()

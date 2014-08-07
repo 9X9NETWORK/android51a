@@ -2,8 +2,8 @@
 	    android:id="@+id/video_layer_new"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
-    	android:layout_gravity="bottom|right"
-    	android:gravity="bottom|right"	    
+    	android:layout_gravity="top|right"
+    	android:gravity="top|right"	    
 	    android:background="#00000000"
 	    android:orientation="vertical"
 	    android:visibility="gone">	

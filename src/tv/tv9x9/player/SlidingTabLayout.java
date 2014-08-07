@@ -17,6 +17,7 @@
 package tv.tv9x9.player;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v4.view.PagerAdapter;
@@ -229,7 +230,10 @@ public class SlidingTabLayout extends HorizontalScrollView {
             mTabStrip.addView(tabView);
 
             int divisor = adapter.getCount() >= 3 ? 3 : 2;
-            
+                		
+    		int orientation = getResources().getConfiguration().orientation;
+    		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
+    		
             /* tdell: set width to 1/3 screen width */
             int screen_width = -1;
     		try
@@ -237,16 +241,23 @@ public class SlidingTabLayout extends HorizontalScrollView {
 				DisplayMetrics dm = new DisplayMetrics();
 				WindowManager wm = (WindowManager) ctx.getSystemService (Context.WINDOW_SERVICE);
 			    wm.getDefaultDisplay().getMetrics (dm);
-			    screen_width = dm.widthPixels;
+			    if (landscape)
+			    	screen_width = dm.heightPixels < dm.widthPixels ? dm.widthPixels : dm.heightPixels;
+			    else
+			    	screen_width = dm.heightPixels < dm.widthPixels ? dm.heightPixels : dm.widthPixels;
 				}
     		catch (Exception ex)
 				{
 				/* nothing */
 				}
-    		if (screen_width > 0)
+    		
+    		int width = screen_width;
+    		width = ((View) mTabStrip.getParent().getParent()).getWidth();
+    		
+    		if (width > 0)
 	    		{
 	            SlidingTabStrip.LayoutParams layout = (SlidingTabStrip.LayoutParams) tabView.getLayoutParams();
-	            layout.width = screen_width / divisor;
+	            layout.width = width / divisor;
 	            tabView.setLayoutParams(layout);
 	    		}
         }

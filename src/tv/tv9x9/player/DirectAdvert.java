@@ -4,12 +4,14 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import io.vov.vitamio.LibsChecker;
 import io.vov.vitamio.MediaPlayer;
@@ -32,6 +34,9 @@ public class DirectAdvert extends RelayActivity
 	private SurfaceHolder holder = null;
 	private boolean mIsVideoReadyToBePlayed = false;
 	private boolean mSurfaceCreated = false;
+	
+	int milliseconds_remaining = 6500;
+	boolean countdown_started = false;
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState)
@@ -83,6 +88,23 @@ public class DirectAdvert extends RelayActivity
 		
 		// advert_url = "http://download.wavetlan.com/SVV/Media/HTTP/H264/Other_Media/H264_test5_voice_mp4_480x360.mp4";
 		// advert_url = "http://download.wavetlan.com/SVV/Media/HTTP/MP4/ConvertedFiles/Media-Convert/Unsupported/dw11222.mp4";
+		
+		if (is_phone())
+			{
+			TextView vText1a = (TextView) findViewById (R.id.skip_ad_button_phase_1_text_1);
+			vText1a.setTextSize (TypedValue.COMPLEX_UNIT_SP, 12);			
+			TextView vText1b = (TextView) findViewById (R.id.skip_ad_button_phase_1_text_2);
+			vText1b.setTextSize (TypedValue.COMPLEX_UNIT_SP, 12);	    
+			TextView vText1c = (TextView) findViewById (R.id.skip_ad_button_phase_1_text_3);
+			vText1c.setTextSize (TypedValue.COMPLEX_UNIT_SP, 12);		
+			TextView vCountdown = (TextView) findViewById (R.id.skip_ad_button_countdown);
+			vCountdown.setTextSize (TypedValue.COMPLEX_UNIT_SP, 12);				
+			TextView vText2 = (TextView) findViewById (R.id.skip_ad_button_phase_2_text);
+			vText2.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);	
+			}
+		
+		TextView vCountdown = (TextView) findViewById (R.id.skip_ad_button_countdown);
+		vCountdown.setText ("6");
 		}	
 	
 	@Override
@@ -190,14 +212,32 @@ public class DirectAdvert extends RelayActivity
 		
 		mMediaPlayer.start();
 		
+		if (!countdown_started)
+			{
+			countdown_started = true;
+			post_countdown();
+			}
+		}
+	
+	public void post_countdown()
+		{
 		in_main_thread.postDelayed (new Runnable()
 			{
 			@Override
 			public void run()
 				{
-				set_skip_phase (2);
+				milliseconds_remaining -= 500;
+				log ("milliseconds remaining: " + milliseconds_remaining);
+				
+				TextView vCountdown = (TextView) findViewById (R.id.skip_ad_button_countdown);
+				vCountdown.setText (Integer.toString (milliseconds_remaining / 1000));
+				
+				if (milliseconds_remaining > 500)
+					post_countdown();
+				else
+					set_skip_phase (2);
 				}			
-			}, 6500);
+			}, 1000);
 		}
 	
 	@Override
@@ -251,6 +291,7 @@ public class DirectAdvert extends RelayActivity
 	public void onCompletion (MediaPlayer mp)
 		{
 		log ("onCompletion");
+		finish();
 		}
 
 	@Override
