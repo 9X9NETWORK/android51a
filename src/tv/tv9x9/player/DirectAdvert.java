@@ -1,6 +1,7 @@
 package tv.tv9x9.player;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -54,30 +55,17 @@ public class DirectAdvert extends RelayActivity
 		
 		setContentView (R.layout.direct_ad_layer);
 		
+		int orientation = getResources().getConfiguration().orientation;
+		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
+		
 		View ad_layer = findViewById (R.id.direct_ad_layer);
 		ad_layer.setVisibility (View.VISIBLE);
-		
-		int height = (int) ((float) screen_width / 1.77);
-		
-		View vContainer = findViewById (R.id.video_ad_container);
-		FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vContainer.getLayoutParams();
-		layout.height = height;
-		layout.width = screen_width;
-		vContainer.setLayoutParams (layout);
 				
-		View vSkip = findViewById (R.id.skip_ad_button);
-		FrameLayout.LayoutParams skip_layout = (FrameLayout.LayoutParams) vSkip.getLayoutParams();
-		skip_layout.topMargin = height + pixels_60 + pixels_10;
-		vSkip.setLayoutParams (skip_layout);
-		
+		adjust_layout (landscape);
+		int height = (int) ((float) screen_width / 1.77);
 		set_skip_phase (1);
 		
-		mPreview = (SurfaceView) findViewById (R.id.video_ad_surface);
-		// mPreview.setVisibility (View.VISIBLE);
-		holder = mPreview.getHolder();
-		holder.addCallback (this);
-		holder.setFormat (PixelFormat.RGBA_8888);
-		holder.setFixedSize (screen_width, height);
+
 		
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();	
@@ -132,6 +120,57 @@ public class DirectAdvert extends RelayActivity
 		super.onStop();	
 		}
 
+	@Override
+	public void onConfigurationChanged (Configuration newConfig)
+		{
+		super.onConfigurationChanged (newConfig);
+		boolean landscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE;
+		adjust_layout (landscape);
+		}
+	
+	public void adjust_layout (boolean landscape)
+		{		
+		log ("adjust layout: " + (landscape ? "landscape" : "portrait"));
+		
+		int true_width = 0;
+		int true_height = 0;
+		if (landscape)
+			{
+			true_width = screen_width > screen_height ? screen_width : screen_height;
+			true_height = screen_width > screen_height ? screen_height : screen_width;
+			}
+		else
+			{
+			true_width = screen_width > screen_height ? screen_height : screen_width;
+			true_height = screen_width > screen_height ? screen_width : screen_height;
+			}
+			
+		int height = (int) ((float) screen_width / 1.77);
+
+		mPreview = (SurfaceView) findViewById (R.id.video_ad_surface);
+		// mPreview.setVisibility (View.VISIBLE);
+		holder = mPreview.getHolder();
+		holder.addCallback (this);
+		holder.setFormat (PixelFormat.RGBA_8888);
+		// holder.setFixedSize (screen_width, height);
+		// holder.setFixedSize (true_width, true_height);
+		
+		View vContainer = findViewById (R.id.video_ad_container);
+		FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vContainer.getLayoutParams();
+		layout.height = height;
+		layout.width = screen_width;
+		vContainer.setLayoutParams (layout);
+		
+		View vSkip = findViewById (R.id.skip_ad_button);
+		FrameLayout.LayoutParams skip_layout = (FrameLayout.LayoutParams) vSkip.getLayoutParams();
+		if (landscape)
+			skip_layout.topMargin = height - pixels_60 - pixels_50;
+		else
+			skip_layout.topMargin = height + pixels_60 + pixels_10;
+
+		vSkip.setLayoutParams (skip_layout);
+		}
+	
 	@Override
 	public void onRelayActivityReady()
 		{

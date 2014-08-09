@@ -29,6 +29,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import tv.tv9x9.player.HorizontalListView.OnScrollListener;
+import twitter4j.TwitterException;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -130,7 +131,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	/* note, SIGNOUT, HELP, CATEGORY_ITEM and APP_ITEM are not real layers, but menu items */
 	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, 
-					HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG, TEST, PASSWORD, ADVERT };
+					HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG, TEST, PASSWORD, ADVERT, SOCIAL };
 	
 	toplayer current_layer = toplayer.HOME;
 	toplayer layer_before_signin = toplayer.HOME;
@@ -197,6 +198,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		{
 		super.onResume();
 		
+		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+		
 		View vMask = findViewById (R.id.top_mask);
 		if (vMask != null)
 			vMask.setVisibility (View.GONE);
@@ -241,7 +244,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
         	{
         	if (video_is_minimized)
 				{
-        		log ("saving state of minimized video");
+        		log ("saving state of minimized layvideo");
         		remember_location();
 				}
 
@@ -251,7 +254,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
         			player.add_to_time_played();
         		}
         	
-        	player_full_stop();
+        	player_full_stop (false);
         	}
     	}
     
@@ -331,7 +334,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	if (current_layer == toplayer.PLAYBACK)
 	    		{
 	    		track_event ("navigation", "back", "back", 0);
-	    		player_full_stop();
+	    		player_full_stop (true);
 	    		}
 	    	else if (current_layer == toplayer.HOME)
 	    		{
@@ -603,7 +606,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
         vPanel.setLayoutParams (panel_layout);
 		}
 	
-	public void player_full_stop()
+	public void player_full_stop (boolean unlaunch_player)
 		{
 		if (chromecasted)
 			{
@@ -624,7 +627,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		if (previous_layer == toplayer.SHAKE)
 			enable_shake_layer();
 		else
-			unlaunch_player();
+			{
+			if (unlaunch_player)	
+				unlaunch_player();
+			}
 		}
 	
 	@Override
@@ -1327,7 +1333,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
 		
-		// items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
+		items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
+
+		items.push (new menuitem (toplayer.SOCIAL, R.string.social, R.drawable.icon_setting, R.drawable.icon_setting_press));
 		
 		/* no help screen has been provided yet */
 		// items.push (new menuitem (toplayer.HELP, R.string.help, R.drawable.icon_help, R.drawable.icon_help));
@@ -1470,7 +1478,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	        	log ("click on: menu signout");
 	        	signout_from_app_or_facebook();
 	        	break;
-	        	
+	    
+			case SOCIAL:
+	        	close_menu();				
+				log ("click on: menu social");
+				enable_social_layer();
+				break;
+				
 			case NAG:
 				log ("click on: nag");
 				close_menu();
@@ -1778,7 +1792,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	public void onLastEpisode()
 		{
 		log ("last episode!");
-		player_full_stop();
+		player_full_stop (true);
 		}
 	
 	@Override
@@ -2669,13 +2683,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	public void set_follow_icon_state (int resource_id, String channel_id, int follow_resource_id, int unfollow_resource_id)
 		{
 		View v = findViewById (resource_id);
-		if (v != null)
+		if (v != null && channel_id != null)
 			set_follow_icon_state (v, channel_id, follow_resource_id, unfollow_resource_id);
 		}
 
 	public void set_follow_icon_state (View v, String channel_id, int follow_resource_id, int unfollow_resource_id)
 		{
-		if (v != null)
+		if (v != null && channel_id != null)
 			{
 			ImageView vFollowIcon = (ImageView) v.findViewById (R.id.follow_icon);
 			if (vFollowIcon != null)
@@ -2872,7 +2886,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View password_layer = findViewById (is_phone() ? R.id.passwordlayer_phone : R.id.passwordlayer_tablet);
 		password_layer.setVisibility (layer == toplayer.PASSWORD ? View.VISIBLE : View.GONE);
 		
-		if (is_tablet() && (layer == toplayer.SETTINGS || layer == toplayer.SIGNIN))
+		if (is_tablet() && (layer == toplayer.SETTINGS || layer == toplayer.SIGNIN || layer == toplayer.PASSWORD))
 			{
 			View settings_layer = findViewById (R.id.settingslayer_tablet);
 			settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
@@ -2925,6 +2939,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		View test_layer = findViewById (R.id.testlayer);
 		test_layer.setVisibility (layer == toplayer.TEST ? View.VISIBLE : View.GONE);
+		
+		View social_layer = findViewById (R.id.sociallayer);
+		social_layer.setVisibility (layer == toplayer.SOCIAL ? View.VISIBLE : View.GONE);
 		
 		// View advert_layer = findViewById (R.id.direct_ad_layer);
 		// advert_layer.setVisibility (layer == toplayer.ADVERT ? View.VISIBLE : View.GONE);
@@ -3003,6 +3020,33 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			        	});
 		        	}
 				});	
+		
+		View vBanner = findViewById (R.id.signin_banner);
+		if (vBanner != null)
+			vBanner.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: signin banner");
+					zero_signin_data();
+					activate_layer (layer_before_signin);
+					if (callback != null)
+						callback.run();
+		        	}
+				});
+		
+		
+		ImageView vAppIcon = (ImageView) findViewById (R.id.signin_app_icon);  
+		if (vAppIcon != null)
+			{
+			String app_icon = getResources().getString (R.string.logo);
+			if (app_icon != null)
+				{
+				int app_icon_id = getResources().getIdentifier (app_icon, "drawable", getPackageName());
+				vAppIcon.setImageResource (app_icon_id);
+				}
+			}
 		
 		View vSignin = findViewById (R.id.sign_in_button);
 		if (vSignin != null)
@@ -6704,7 +6748,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			onVideoActivityLayout();
 			}
     	else
-    		player_full_stop();	
+    		player_full_stop (true);	
 		}
 	
 	public void setup_playback_buttons()
@@ -6826,13 +6870,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	}
 				});	
 		
-		int orientation = getRequestedOrientation();
-		boolean landscape = orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+		int orientation = getResources().getConfiguration().orientation;
+		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
 		
 		View vPlaybackFollow = findViewById (R.id.playback_follow);
 		if (vPlaybackFollow != null)
 			{
-			// vPlaybackFollow.setVisibility (config.usertoken != null ? View.VISIBLE : View.GONE);
 			vPlaybackFollow.setOnClickListener (new OnClickListener()
 				{
 		        @Override
@@ -6966,12 +7009,19 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	public boolean able_to_play_video()
 		{
 		if (current_layer != toplayer.PLAYBACK && !video_is_minimized)
+			{
+			log ("able to play video? No, because we are not in playback mode");
 			return false;
+			}
 		
 		View vVideoLayer = video_layer();
 		if (vVideoLayer.getVisibility() != View.VISIBLE)
+			{
+			log ("able to play video? No, because video layer is not visible");
 			return false;
+			}
 		
+		log ("able to play video? Yes");
 		return true;
 		}
 	
@@ -8673,6 +8723,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     	{
 		disable_video_layer();
 		set_layer (toplayer.TEST);
+		
 		int adnum = config.next_advert();
 		log ("next advert is: " + adnum);
 		String url = config.advert_meta (adnum, "url");
@@ -8681,6 +8732,147 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			launch_direct_ad (url);
     	}
     
+	/*** SOCIAL **************************************************************************************************/
+    
+    SocialAdapter social_adapter = null;
+    
+    public class social
+    	{	
+    	String username;
+    	String text;
+    	}
+    
+    social social_feed[] = new social [0];
+    
+    public void enable_social_layer()
+		{
+		disable_video_layer();
+		set_layer (toplayer.SOCIAL);	
+	
+		Callback cb = new Callback()
+			{
+			@Override
+			public void run_two_strings (String username, String text)
+				{
+				log ("@" + username + " :: " + text);
+				
+				social new_feed[] = new social [social_feed.length + 1];
+				System.arraycopy (social_feed, 0, new_feed, 1, social_feed.length);
+				
+				social item = new social();
+				item.username = username;
+				item.text = text;
+				
+				new_feed [0] = item; 
+				social_feed = new_feed;
+				
+				// if (social_feed.length % 25 == 0)
+					in_main_thread.post (new Runnable()
+						{
+						@Override
+						public void run()
+							{
+							social_adapter.set_content (social_feed);
+							}
+						});
+					}
+			};	
+		
+		ListView vSocial = (ListView) findViewById (R.id.social_list);
+		social_adapter = new SocialAdapter (this, social_feed);
+		vSocial.setAdapter (social_adapter);
+		
+		final Streamy s = new Streamy();
+		s.t0 (cb);
+		
+		View vStop = findViewById (R.id.soc_stop);
+		if (vStop != null)
+			vStop.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	s.close();
+		        	}
+				});		
+		}
+    
+	public class SocialAdapter extends BaseAdapter
+		{
+		private Context context;
+		private social socials[] = null;
+		
+		public SocialAdapter (Context context, social socials[])
+			{
+			this.context = context;
+			this.socials = socials;
+			}
+	
+		public void set_content (social socials[])
+			{
+			this.socials = socials;
+			notifyDataSetChanged();
+			}
+		
+		@Override
+		public int getCount()
+			{			
+			log ("getcount: " + socials.length);
+			return socials == null ? 0 : socials.length;
+			}
+		
+		@Override
+		public Object getItem (int position)
+			{
+			return position;
+			}
+	
+		@Override
+		public long getItemId (int position)
+			{
+			return position;
+			}
+		
+		@Override
+		public View getView (final int position, View convertView, ViewGroup parent)
+			{
+			LinearLayout rv = null;
+					
+			log ("social getView: " + position + " (of " + getCount() + ")");
+			
+			if (convertView == null)
+				rv = (LinearLayout) View.inflate (main.this, R.layout.social_item, null);				
+			else
+				rv = (LinearLayout) convertView;
+						
+			if (rv == null)
+				{
+				log ("getView: [position " + position + "] rv is null!");
+				return null;
+				}
+			
+			if (position > socials.length)
+				{
+				log ("getView: position is " + position + " but only have " + socials.length + " items!");
+				return null;
+				}
+			
+			TextView vTitle = (TextView) rv.findViewById (R.id.title);
+			if (vTitle != null)
+				vTitle.setText ("@" + socials [position].username);
+			
+			TextView vText = (TextView) rv.findViewById (R.id.text);
+			if (vText != null)
+				vText.setText (socials [position].text);
+	
+			TextView vCounter = (TextView) rv.findViewById (R.id.soc_counter);
+			if (vCounter != null)
+				vCounter.setText ("#" + Integer.toString (socials.length - position));
+			
+			return rv;
+			}	
+		}	
+
 	/*** ADVERTISING **************************************************************************************************/
     
     @Override

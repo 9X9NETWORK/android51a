@@ -44,8 +44,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="126"
-      android:versionName="5.0.1.126">
+      android:versionCode="127"
+      android:versionName="5.0.1.127">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -542,7 +542,7 @@
             </intent-filter>
         </activity>
             
-        <activity android:name="tv.tv9x9.player.DirectAdvert" android:configChanges="keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustPan" android:screenOrientation="portrait">
+        <activity android:name="tv.tv9x9.player.DirectAdvert" android:configChanges="keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -625,13 +625,21 @@
              android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
   		
 		<!-- Used for Google Play Store Campaign Measurement-->
-		<service android:name="com.google.analytics.tracking.android.CampaignTrackingService" />
+		<!-- service android:name="com.google.analytics.tracking.android.CampaignTrackingService" />
 		<receiver android:name="com.google.analytics.tracking.android.CampaignTrackingReceiver" android:exported="true">
 			<intent-filter>
 				<action android:name="com.android.vending.INSTALL_REFERRER" />
 			</intent-filter>
+		</receiver-->
+		
+		<service android:name="com.google.analytics.tracking.android.CampaignTrackingService" />
+		<receiver android:name="com.google.analytics.tracking.android.CampaignTrackingReceiver" android:exported="true">
+	  		<intent-filter>
+	    		<action android:name="com.android.vending.INSTALL_REFERRER" />
+	  		</intent-filter>
 		</receiver>
 		
+    
 		<service android:name="tv.tv9x9.player.AppCastDeviceService" android:exported="false">
     		<intent-filter>
         		<action android:name="android.media.MediaRouteProviderService" />

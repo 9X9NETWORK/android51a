@@ -1322,7 +1322,29 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			};
 			
 		if (!is_it_time_to_play_an_advertisement (r))
-			try_to_play_episode (episode, 0);
+			try_to_play_episode_msec (episode, 0);
+		}
+	
+	public void try_to_play_episode (final int episode, final long start_msec)
+		{
+		final String channel = player_real_channel;
+		Runnable r = new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				log ("advertisement finished, now playing episode #" + episode);
+				if (player_real_channel == null)
+					{
+					log ("[try to play episode] player real channel is null! setting to: " + channel);
+					player_real_channel = channel;
+					}
+				try_to_play_episode_msec (episode, start_msec);		
+				}			
+			};
+		
+		if (!is_it_time_to_play_an_advertisement (r))
+			try_to_play_episode_msec (episode, start_msec);
 		}
 	
 	public void play_nth_episode_in_channel (String channel_id, int position)
@@ -1357,7 +1379,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		return false;
 		}
 	
-	public void try_to_play_episode (int episode, long start_msec)
+	public void try_to_play_episode_msec (int episode, long start_msec)
 		{
 		log ("try to play episode: " + episode);		
 		
@@ -3065,7 +3087,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			String channel_name = config.pool_meta (cumulative_channel_id, "name");
 			String episode_name = config.program_meta (cumulative_episode_id, "name");			
 			
-			if (duration >= 6)
+			if (duration >= 12)
 				{
 				track_event ("p" + cumulative_channel_id + "/" + cumulative_episode_id, "epWatched", channel_name + "/" + episode_name, duration);
 				/* this is the advertising counter */

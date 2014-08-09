@@ -44,7 +44,9 @@
 			<include layout="@layout/settings_phone_new" />
 
 			<include layout="@layout/password_phone" />
-						
+					
+			<include layout="@layout/social_layer" />
+							
 			<include layout="@layout/test_layer" />
 												
 			<FrameLayout
