@@ -1,5 +1,16 @@
 package tv.tv9x9.player;
 
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import tv.tv9x9.player.Social.PingTask;
+
+import com.google.analytics.tracking.android.GoogleAnalytics;
+import com.google.analytics.tracking.android.MapBuilder;
+import com.google.analytics.tracking.android.Tracker;
+import com.google.analytics.tracking.android.Logger.LogLevel;
+
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -26,6 +37,11 @@ public class DirectAdvert extends RelayActivity
 	{
 	String advert_url = null;
 	String defer_url = null;
+	String advert_id = null;
+	String advert_name = null;
+	
+	long duration = -1;
+	Timer update_timer = null;
 	
 	private boolean mIsVideoSizeKnown = false;
 	private int mVideoWidth = 0;
@@ -64,14 +80,14 @@ public class DirectAdvert extends RelayActivity
 		adjust_layout (landscape);
 		int height = (int) ((float) screen_width / 1.77);
 		set_skip_phase (1);
-		
-
-		
+				
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();	
 		if (extras != null)
 			{
 			advert_url = extras.getString ("tv.9x9.advert");
+			advert_id = extras.getString ("tv.9x9.advert_id");
+			advert_name = extras.getString ("tv.9x9.advert_name");
 			}
 		
 		// advert_url = "http://download.wavetlan.com/SVV/Media/HTTP/H264/Other_Media/H264_test5_voice_mp4_480x360.mp4";
@@ -100,6 +116,8 @@ public class DirectAdvert extends RelayActivity
 		{
 		log ("onDestroy");
 		super.onDestroy();
+		if (update_timer != null)
+			try { update_timer.cancel(); } catch (Exception ex) {};
 		release_player();
 		cleanup();
 		}
@@ -255,7 +273,11 @@ public class DirectAdvert extends RelayActivity
 			{
 			countdown_started = true;
 			post_countdown();
+			update_timer = new Timer();
+			update_timer.scheduleAtFixedRate (new UpdateTask(), 500, 500);
 			}
+		
+		duration = mMediaPlayer.getDuration();
 		}
 	
 	public void post_countdown()
@@ -330,6 +352,9 @@ public class DirectAdvert extends RelayActivity
 	public void onCompletion (MediaPlayer mp)
 		{
 		log ("onCompletion");
+		update_timer.cancel();
+		track_event (advert_id, "completed", advert_name, 0);
+		send_impression_track();
 		finish();
 		}
 
@@ -339,8 +364,12 @@ public class DirectAdvert extends RelayActivity
 		log ("onBufferingUpdate: " + percent);
 		}
 	
+	int current_phase = -1;
+	
 	public void set_skip_phase (int phase)
 		{
+		current_phase = phase;
+		
 		View vOne = findViewById (R.id.skip_ad_button_phase_1);
 		vOne.setVisibility (phase == 1 ? View.VISIBLE : View.INVISIBLE);
 		
@@ -354,9 +383,100 @@ public class DirectAdvert extends RelayActivity
 		        @Override
 		        public void onClick (View v)
 		        	{
+		        	send_impression_track();
 		        	finish();
 		        	}
 				});
 			}
+		}
+	
+	public void send_impression_track()
+		{		
+		if (current_phase == 2)
+			{
+			track_event (advert_id, "impression", advert_name, duration);
+			}
+		}
+	
+	Tracker get_tracker()
+		{
+		if (config != null)
+			{
+			GoogleAnalytics ga = GoogleAnalytics.getInstance (this);
+			// LogLevel can be: VERBOSE | INFO | DEBUG | WARNING
+			ga.getLogger().setLogLevel (LogLevel.VERBOSE);
+			String tracking_id = config.google_analytics;
+			if (tracking_id != null)
+				return ga.getTracker (tracking_id);
+			else
+				return null;
+			}
+		else
+			return null;
+		}
+	
+	public void track_event (String category, String action, String label, long value)
+		{
+		track_event (category, action, label, value, "");
+		}
+	
+	public void track_event (String category, String action, String label, long value, String extra)
+		{
+		String smashed_event = category + "." + action + "." + label + value + "." + extra;
+		
+		Map <String, String> m = MapBuilder.createEvent (category, action, label, value).build();
+		Tracker tr = get_tracker();
+		if (tr != null)
+			{
+			log ("[analytics] track event: " + smashed_event);
+			tr.send (m);
+			}
+		else
+			log ("track_event(" + action + "): not tracking");
+		}
+	
+	boolean q0 = false, q1 = false, q2 = false, q3 = false;
+	
+	class UpdateTask extends TimerTask
+		{  
+		public void run()
+	   		{
+			if (mMediaPlayer == null)
+				{
+				cancel();
+				return;
+				}
+			long new_duration = 0;
+			try { new_duration = mMediaPlayer.getDuration(); } catch (Exception ex) {};
+			if (new_duration > 0)
+				duration = new_duration;
+			long offset = 0;
+			try { offset = mMediaPlayer.getCurrentPosition(); } catch (Exception ex) {};
+			
+			float percent = (float) offset / (float) duration;
+			
+			log ("tick offset=" + offset + " duration=" + duration + " percent=" + percent);
+			if (!q0 && percent >= 0.0)
+				{
+				q0 = true;
+				track_event (advert_id, "started", advert_name, 0);
+				}			
+			if (!q1 && percent >= 0.25)
+				{
+				q1 = true;
+				track_event (advert_id, "firstQuartile", advert_name, 0);
+				}
+			if (!q2 && percent >= 0.50)
+				{
+				q2 = true;
+				track_event (advert_id, "midPoint", advert_name, 0);
+				}
+			if (!q3 && percent >= 0.75)
+				{
+				q3 = true;
+				track_event (advert_id, "thirdQuartile", advert_name, 0);
+				cancel();
+				}
+	   		}
 		}
 	}

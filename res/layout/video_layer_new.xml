@@ -1,4 +1,4 @@
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
 	    android:id="@+id/video_layer_new"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
@@ -8,7 +8,15 @@
 	    android:orientation="vertical"
 	    android:visibility="gone">	
 	    	
-	    <!-- for both portrait mode and landscape -->
+	    <!-- activate this in landscape. But determine its proper height programmatically first! -->
+	    <FrameLayout
+	        android:id="@+id/underneath_status_bar"
+	        android:layout_width="fill_parent"
+	        android:layout_height="25dip"
+	        android:background="#000000"
+	        android:visibility="gone"         
+	    	/>
+	    <!-- for both portrait mode and landscape -->	    
 	    <LinearLayout
 		    android:id="@+id/top_controls"
 		    android:layout_width="fill_parent"

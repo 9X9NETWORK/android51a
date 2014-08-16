@@ -51,6 +51,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
@@ -79,6 +80,7 @@ import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewManager;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
@@ -481,23 +483,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			layout5.height = pixels_30;
 			layout5.width = pixels_30;
 			vPlaybackFollow.setLayoutParams (layout5);
-			
-			/* terms_layer.xml */
-			View vTermsGossamer = findViewById (R.id.terms_gossamer);
-			LinearLayout.LayoutParams layout5a = (LinearLayout.LayoutParams) vTermsGossamer.getLayoutParams();
-			layout5a.leftMargin = pixels_20;
-			layout5a.rightMargin = pixels_20;
-			layout5a.topMargin = pixels_40;
-			layout5a.bottomMargin = pixels_40;
-			vTermsGossamer.setLayoutParams (layout5a);
-			
-			/* terms_layer.xml */
-			TextView vTermsTabText = (TextView) findViewById (R.id.terms_tab_text);
-			vTermsTabText.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
-			
-			/* terms_layer.xml */
-			TextView vPrivacyTabText = (TextView) findViewById (R.id.privacy_tab_text);
-			vPrivacyTabText.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
 			}
 		
 		/* remove the phone/tablet sublayer which we won't use */
@@ -858,7 +843,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				// View vSigninLayer = findViewById (is_phone() ? R.id.signinlayer_phone : R.id.signinlayer_tablet);
 				// vSigninLayer.setBackgroundResource (bg);
 	
-				View vTermsLayer = findViewById (R.id.termslayer);
+				View vTermsLayer = findViewById (R.id.termslayer_new);
 				vTermsLayer.setBackgroundResource (bg);
 				}
 			}
@@ -1333,9 +1318,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
 		
-		items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
+		// items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
 
-		items.push (new menuitem (toplayer.SOCIAL, R.string.social, R.drawable.icon_setting, R.drawable.icon_setting_press));
+		// items.push (new menuitem (toplayer.SOCIAL, R.string.social, R.drawable.icon_setting, R.drawable.icon_setting_press));
 		
 		/* no help screen has been provided yet */
 		// items.push (new menuitem (toplayer.HELP, R.string.help, R.drawable.icon_help, R.drawable.icon_help));
@@ -1827,6 +1812,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		LinearLayout.LayoutParams wrapper_layout = (LinearLayout.LayoutParams) yt_wrapper.getLayoutParams();
 		
+		View vUnderStatus = findViewById (R.id.underneath_status_bar);
+		
 		int orientation = getResources().getConfiguration().orientation;
 		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
 		// int orientation = getRequestedOrientation();
@@ -1861,6 +1848,55 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			wrapper_layout.height = LayoutParams.MATCH_PARENT;
 			
 			yt_wrapper.setLayoutParams (wrapper_layout);
+			
+			final View decorView = getWindow().getDecorView();
+			int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+			decorView.setSystemUiVisibility(uiOptions);
+			
+			/* try to hide the status bar if it appears. this code does NOT work as intended */
+			decorView.setOnSystemUiVisibilityChangeListener (new View.OnSystemUiVisibilityChangeListener()
+				{
+			    @Override
+			    public void onSystemUiVisibilityChange (int visibility)
+			    	{
+			        // Note that system bars will only be "visible" if none of the
+			        // LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
+			        if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) 
+			        	{
+			            // TODO: The system bars are visible. Make any desired
+			            // adjustments to your UI, such as showing the action bar or
+			            // other navigational controls.
+						int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+						decorView.setSystemUiVisibility(uiOptions);
+			        	}
+			        else
+			        	{
+			            // TODO: The system bars are NOT visible. Make any desired
+			            // adjustments to your UI, such as hiding the action bar or
+			            // other navigational controls.
+			        	}
+			    	}
+				});
+			
+			/*
+			Rect rectangle = new Rect();
+			Window window = getWindow();
+			window.getDecorView().getWindowVisibleDisplayFrame (rectangle);
+			int statusBarHeight = rectangle.top;
+			int contentViewTop = window.findViewById (Window.ID_ANDROID_CONTENT).getTop();
+			int titleBarHeight = contentViewTop - statusBarHeight;
+			*/
+			
+			int sbh = 0;
+			int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+			if (resourceId > 0)
+				sbh = getResources().getDimensionPixelSize(resourceId);
+			
+			LinearLayout.LayoutParams status_layout = (LinearLayout.LayoutParams) vUnderStatus.getLayoutParams();
+			status_layout.height = sbh;
+			vUnderStatus.setLayoutParams (status_layout);
+			
+			vUnderStatus.setVisibility (View.VISIBLE);
 			}
 		else
 			{
@@ -1912,6 +1948,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				
 				yt_wrapper.setLayoutParams (wrapper_layout);
 				yt_wrapper.postInvalidate();
+				
+				vUnderStatus.setVisibility (View.GONE);
 				
 				vPlaybackBody.postInvalidate();
 				}
@@ -2915,7 +2953,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		View settings_layer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
 		settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
 		
-		View terms_layer = findViewById (R.id.termslayer);
+		View terms_layer = findViewById (R.id.termslayer_new);
 		terms_layer.setVisibility (layer == toplayer.TERMS ? View.VISIBLE : View.GONE);
 		
 		View signin_layer = findViewById (is_phone() ? R.id.signinlayer_phone : R.id.signinlayer_tablet); // TODO FIX
@@ -3442,7 +3480,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		terms_tab();
 		
 		/* sometimes the terms layer background is not redrawing! force it here */
-		View vTermsLayer = findViewById (R.id.termslayer);
+		View vTermsLayer = findViewById (R.id.termslayer_new);
 		vTermsLayer.postInvalidate();
 		
 		/* and even then that doesn't always work! Also the only purpose a "postInvalidateDelayed" method
@@ -3465,7 +3503,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	}
 				});		
 		
-		View vTermsLayer = findViewById (R.id.termslayer);
+		ImageView vAppIcon = (ImageView) findViewById (R.id.terms_app_icon);  
+		if (vAppIcon != null)
+			{
+			String app_icon = getResources().getString (R.string.logo);
+			if (app_icon != null)
+				{
+				int app_icon_id = getResources().getIdentifier (app_icon, "drawable", getPackageName());
+				vAppIcon.setImageResource (app_icon_id);
+				}
+			}
+		
+		View vTermsLayer = findViewById (R.id.termslayer_new);
 		if (vTermsLayer != null)
 			vTermsLayer.setOnClickListener (new OnClickListener()
 				{
@@ -3534,10 +3583,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	    	{
 	    	public void run()
 	    		{
-	    		if (terms_previous_layer == toplayer.SIGNIN)
-	    			enable_signin_layer (null);
-	    		else
+	    		if (is_tablet())
+	    			{
+	    			/* set the background layer. on tablets, signin is an overlay */
 	    			set_layer (terms_previous_layer);
+	    			}
+	    		enable_signin_layer (null);
+	    		sign_up_tab();
 	    		toggle_menu();
 	    		}
 	    	});
@@ -3563,11 +3615,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		vTermsContent.setVisibility (is_terms ? View.VISIBLE : View.GONE);
 		vPrivacyContent.setVisibility (is_terms ? View.GONE : View.VISIBLE);
 		
-		View vTermsTab = findViewById (R.id.terms_tab);
-		View vPrivacyTab = findViewById (R.id.privacy_tab);
+		String txt_privacy = getResources().getString (R.string.privacypolicy);
+		String txt_terms = getResources().getString (R.string.terms_of_service);
 		
-		vTermsTab.setBackgroundResource (is_terms ? R.drawable.gossamerleft : R.drawable.gossamerleftoff);
-		vPrivacyTab.setBackgroundResource (is_terms ? R.drawable.gossamerrightoff : R.drawable.gossamerright);		
+		TextView vBanner = (TextView) findViewById (R.id.terms_banner_text);
+		vBanner.setText (is_terms ? txt_terms : txt_privacy);
 		}
 	
 	public void load_terms_content (int id, String action)
@@ -8727,9 +8779,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		int adnum = config.next_advert();
 		log ("next advert is: " + adnum);
 		String url = config.advert_meta (adnum, "url");
+		String id = config.advert_meta (adnum, "id");
+		String name = config.advert_meta (adnum, "name");
 		log ("advert url: " + url);
 		if (url != null && !url.equals (""))
-			launch_direct_ad (url);
+			launch_direct_ad (url, id, name);
     	}
     
 	/*** SOCIAL **************************************************************************************************/
@@ -8794,7 +8848,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	{
 		        	s.close();
 		        	}
-				});		
+				});
 		}
     
 	public class SocialAdapter extends BaseAdapter
@@ -8888,9 +8942,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
     			int adnum = config.next_advert();
     			log ("next advert is: " + adnum);
     			String url = config.advert_meta (adnum, "url");
+    			String id = config.advert_meta (adnum, "id");
+    			String name = config.advert_meta (adnum, "name");
     			if (url != null && !url.equals (""))
 	    			{
-	    			launch_direct_ad (url);
+	    			launch_direct_ad (url, id, name);
 	    			return true;
 	    			}
     			}
@@ -8905,14 +8961,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
    		return false;
     	}
     
-    public void launch_direct_ad (String video_url)
+    public void launch_direct_ad (String video_url, String id, String name)
     	{
 		View vMask = findViewById (R.id.top_mask);
 		if (vMask != null)
 			vMask.setVisibility (View.VISIBLE);
 		
 		Intent wIntent = new Intent (this, DirectAdvert.class);
-		wIntent.putExtra("tv.9x9.advert", video_url);
+		wIntent.putExtra ("tv.9x9.advert", video_url);
+		wIntent.putExtra ("tv.9x9.advert_id", id);
+		wIntent.putExtra ("tv.9x9.advert_name", name);
 		startActivity (wIntent);
     	}
     
