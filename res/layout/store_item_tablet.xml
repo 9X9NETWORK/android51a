@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"  
+    android:background="#D9D9D9"
 	android:id="@+id/square">       
     <!-- the only purpose of this inner LinearLayout is to provide a bottomMargin, which is ignored if used in the container above -->
 	<LinearLayout
@@ -9,8 +10,7 @@
 	    android:layout_height="wrap_content"
 	    android:layout_marginBottom="10dip"    
 		android:id="@+id/square"
-	    android:padding="4dip"    
-	    android:background="@drawable/grayround"
+	    android:background="#FFFFFF"
 	    android:orientation="vertical">           
 		<FrameLayout
 		    android:layout_width="fill_parent"
@@ -24,7 +24,6 @@
 		    	android:id="@+id/epicon"
 		        android:layout_width="fill_parent" 
 		        android:layout_height="fill_parent"
-		        android:padding="6dip"
 		        android:scaleType="fitXY"
 		        android:adjustViewBounds="true"
 		        />
@@ -32,7 +31,8 @@
 		<LinearLayout
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"	
-			android:layout_marginTop="-3dip"			        
+			android:layout_marginTop="10dip"
+			android:layout_marginBottom="10dip"			        
 		    android:orientation="horizontal">  
 			<LinearLayout
 			    android:layout_width="0dip"
@@ -46,8 +46,8 @@
 					android:layout_gravity="bottom"			
 					android:layout_marginLeft="6dip"
 					android:layout_marginRight="6dip"
-					android:textSize="22sp"
-					android:textColor="#FFFFFF"
+					android:textSize="18sp"
+					android:textColor="#242424"
 					android:gravity="left"
 					android:paddingLeft="3dip"
 					android:singleLine="true"
@@ -60,9 +60,9 @@
 					android:layout_gravity="bottom"			
 					android:layout_marginLeft="6dip"
 					android:layout_marginRight="6dip"	
-					android:layout_marginTop="-5dip"
-					android:textSize="16sp"
-					android:textColor="#FFFFFF"
+					android:layout_marginTop="0dip"
+					android:textSize="13sp"
+					android:textColor="#999999"
 					android:gravity="left"
 					android:paddingLeft="3dip"
 					android:singleLine="true"
@@ -74,7 +74,7 @@
 		        android:layout_width="45dip" 
 		        android:layout_height="45dip"
 		        android:padding="6dip"
-				android:src="@drawable/icon_share"
+				android:src="@drawable/icon_share_black"
 				android:adjustViewBounds="true"
 				android:scaleType="fitXY"
 		        />
@@ -87,7 +87,7 @@
 			        android:layout_width="fill_parent" 
 			        android:layout_height="fill_parent"
 			        android:padding="6dip"
-					android:src="@drawable/icon_follow"
+					android:src="@drawable/icon_follow_black"
 					android:adjustViewBounds="true"
 					android:scaleType="fitXY"					
 			        />			

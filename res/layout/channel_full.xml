@@ -3,16 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="#D9D9D9">
 
     <FrameLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
 	    android:orientation="horizontal"
-		android:layout_marginLeft="5dip"
-		android:layout_marginRight="5dip"
-		android:layout_marginTop="5dip"    
-		android:background="@drawable/grayround">
+		android:layout_marginLeft="12dip"
+		android:layout_marginRight="12dip"
+		android:layout_marginTop="12dip"    
+		android:background="#FFFFFF">
 	    	
         <LinearLayout
 		    android:layout_width="match_parent"
@@ -30,7 +30,7 @@
 			       	android:adjustViewBounds="true" 
 			       	android:scaleType="fitXY"
 					android:layout_marginLeft="10dip"
-					android:layout_marginRight="10dip"
+					android:layout_marginRight="5dip"
 					android:layout_marginTop="10dip"
 					android:layout_marginBottom="10dip"
 					android:background="#FF0000"
@@ -74,8 +74,8 @@
 							android:layout_width="fill_parent"
 							android:layout_height="wrap_content"
 							android:layout_gravity="center"
-							android:textSize="22sp"
-							android:textColor="#FFFFFF"
+							android:textSize="18sp"
+							android:textColor="#242424"
 							android:paddingLeft="3dip"
 							android:paddingRight="5dip"
 							android:gravity="center_vertical|left"
@@ -87,8 +87,8 @@
 							android:layout_width="fill_parent"
 							android:layout_height="wrap_content"
 							android:layout_gravity="center"
-							android:textSize="16sp"
-							android:textColor="#FFFFFF"
+							android:textSize="12sp"
+							android:textColor="#777777"
 							android:paddingLeft="3dip"
 							android:paddingRight="5dip"
 							android:gravity="center_vertical|left"

@@ -2,7 +2,7 @@
     android:id="@+id/appslayer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="#D9D9D9"
     android:orientation="vertical"
     android:visibility="gone">		 
 	    
@@ -24,10 +24,11 @@
         android:paddingTop="6dip"   
         android:paddingBottom="6dip"           
         android:textSize="16sp"
-        android:textColor="#000000"
+        android:textColor="#FFFFFF"
 		android:singleLine="true"
 		android:ellipsize="end"		
-		android:text="@string/get_suggested_tv_apps"	        
+		android:text="@string/get_suggested_tv_apps"
+		android:background="#404040"	        
         />	  		
     <LinearLayout           
 		android:layout_width="fill_parent" 
@@ -68,6 +69,7 @@
 			android:drawSelectorOnTop="false"
 			android:cacheColorHint="@android:color/transparent"
 			android:numColumns="2"
+			android:horizontalSpacing="10dp"				
 			/>	 					  	
 	</FrameLayout>						
 </LinearLayout>

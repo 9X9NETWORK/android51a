@@ -433,13 +433,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			TextView vEpisodeAge = (TextView) findViewById (R.id.episode_age);
 			vEpisodeAge.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 			
-			// TextView vNumCommentsHeader = (TextView) findViewById (R.id.num_comments_header);
-			// vNumCommentsHeader.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
-			// TextView vNumCommentsDot = (TextView) findViewById (R.id.num_comments_dot);
-			// vNumCommentsDot.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);			
-			// TextView vNumComments = (TextView) findViewById (R.id.num_comments);
-			// vNumComments.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
-			
 			/* video_layer_new.xml */
 			TextView vFromPrefix = (TextView) findViewById (R.id.playback_from_prefix);
 			vFromPrefix.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
@@ -1030,34 +1023,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		        	enable_search_apparatus (R.id.sliding_top_bar);
 		        	}
 				});	
-		
-		
-		/*
-		View vRefresh = vSlidingTopBar.findViewById (R.id.refresh);
-		if (vRefresh != null)
-			vRefresh.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	if (current_layer == toplayer.GUIDE)
-			        	{
-			        	log ("click on: guide refresh button");
-			        	refresh_guide();
-			        	}
-		        	else if (current_layer == toplayer.STORE)
-		        		{
-    		        	log ("click on: store refresh button");
-    		        	store_refresh();
-		        		}
-		        	else if (current_layer == toplayer.HOME)
-		        		{
-			        	log ("click on: home refresh button");
-			        	refresh_home();
-		        		}
-		        	}
-				});
-		*/	
 		}
 	
 	public void setup_home_buttons()
@@ -1325,12 +1290,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		/* no help screen has been provided yet */
 		// items.push (new menuitem (toplayer.HELP, R.string.help, R.drawable.icon_help, R.drawable.icon_help));
 		
-		items.push (new menuitem (toplayer.APPS, R.string.suggested_tv_apps, R.drawable.icon_apps, R.drawable.icon_apps_press));
-		
-		if (apps_expanded && recommended_apps != null)
-			{			
-			for (app a: recommended_apps)
-				items.push (new menuitem (a));
+		if (recommended_apps != null && recommended_apps.length > 0)
+			{
+			items.push (new menuitem (toplayer.APPS, R.string.suggested_tv_apps, R.drawable.icon_apps, R.drawable.icon_apps_press));
+			if (apps_expanded)
+				{			
+				for (app a: recommended_apps)
+					items.push (new menuitem (a));
+				}
 			}
 		
 		if (config.about_us_url != null)
@@ -2252,30 +2219,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 		
 		NEW_fill_episode_description (episode_desc);
 		
-		/*
-		vEpisodeTitle.setOnClickListener (new OnClickListener()
-			{
-	        @Override
-	        public void onClick (View v)
-	        	{
-	        	toggle_extended_comments_view();
-	        	}
-			});	
-		*/
-		
-		/*
-		View vPlaybackBodyNormal = findViewById (R.id.playbackbody_normal_view);
-		if (vPlaybackBodyNormal != null)
-			vPlaybackBodyNormal.setOnClickListener (new OnClickListener()
-			{
-	        @Override
-	        public void onClick (View v)
-	        	{
-	        	toggle_extended_comments_view();
-	        	}
-			});	
-		*/
-		
 		String timestamp = config.program_meta (episode_id, "timestamp");		
 		String ago = util.ageof (main.this, Long.parseLong (timestamp) / 1000);
 		
@@ -2339,25 +2282,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				playback_episode_pager.notifyDataSetChanged();
 			}
 		}
-	
-	/*
-	public void toggle_extended_comments_view()
-		{
-    	View vNormal = findViewById (R.id.playbackbody_normal_view);
-    	View vExtended = findViewById (R.id.playbackbody_comments_view);
-    	boolean is_extended = vExtended.getVisibility() == View.VISIBLE;
-    	vNormal.setVisibility (is_extended ? View.VISIBLE : View.GONE);
-    	vExtended.setVisibility (is_extended ? View.GONE : View.VISIBLE);
-		vExtended.setOnClickListener (new OnClickListener()
-			{
-	        @Override
-	        public void onClick (View v)
-	        	{
-	        	toggle_extended_comments_view();
-	        	}
-			});
-		}
-	*/
 	
 	public void fill_episode_description (String episode_desc)
 		{
@@ -4162,7 +4086,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			
 			TextView vDesc = (TextView) rv.findViewById (R.id.desc);
 			if (vDesc != null)
+				{
 				vDesc.setText (apps [position].description);
+				vDesc.setMaxLines (is_phone() ? 2 : 3);
+				if (is_tablet())
+					vDesc.setLines (3);
+				}
 
 			boolean icon_found = false;
 			
@@ -4181,10 +4110,14 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 						vIcon.setImageBitmap (bitmap);
 						}
 					}
+				
+				if (is_phone())
+					{
+					LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vIcon.getLayoutParams();
+					layout.height = layout.width = pixels_40 + pixels_4;
+					vIcon.setLayoutParams (layout);
+					}
 				}
-			
-			View vBottomBar = rv.findViewById (R.id.bottom_bar);
-			vBottomBar.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 			
 			String txt_download = getResources().getString (R.string.download);
 			String txt_coming_soon = getResources().getString (R.string.coming_soon);
@@ -4674,19 +4607,21 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 					}
 				}
 			
+			View vChannelList = home_page.findViewById (R.id.channel_list);
+			FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vChannelList.getLayoutParams();
 			if (is_tablet())
 				{
-				View vChannelList = home_page.findViewById (R.id.channel_list);
-				FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vChannelList.getLayoutParams();
 				layout.leftMargin = 0;
 				layout.rightMargin = 0;
-				vChannelList.setLayoutParams (layout);
 				}
+			else
+				{
+				layout.topMargin = pixels_6;
+				}
+			vChannelList.setLayoutParams (layout);
 			
 			if (is_tablet() && sh.channel_adapter != null)
 				set_mini_mode_thumbs (sh.home_page);
-			
-			diminish_side_titles (home_page, true);
 			
 			home_page.setTag (R.id.container, position);			
 			sh.home_page = home_page;
@@ -4742,12 +4677,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			{
 			Swaphome sh = (Swaphome) object;
 			log ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% primary 3x3: " + position);
-			diminish_side_titles (current_home_page, true);
 			current_swap_object = sh;
 			if (sh != null)
 				{
 				current_home_page = sh.home_page;
-				diminish_side_titles (current_home_page, false);
 	
 				if (sh.channel_adapter != null)
 					{
@@ -4868,7 +4801,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			    		LayoutInflater inflater = main.this.getLayoutInflater();
 			    		if (!sh.shim_added)
 				    		{
-				    		View shim = inflater.inflate (R.layout.footer_shim, null);
+				    		View shim = inflater.inflate (R.layout.footer_shim_d9, null);
 				    		sh.vChannels.addFooterView (shim);
 				    		sh.shim_added = true;
 				    		}
@@ -5638,7 +5571,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 			if (is_tablet())
 				{
 				// float factor = mini_mode ? 0.3f : 0.45f;
-				float factor = mini_mode ? 0.3f : 0.55f;
+				float factor = mini_mode ? 0.3f : 0.5f;
 				big_thumb_width = (int) ((screen_width - pixels_40) * factor);
 				big_thumb_height = (int) ((float) big_thumb_width / 1.77);
 				LinearLayout.LayoutParams pic_layout = (LinearLayout.LayoutParams) vChannelFrame.getLayoutParams();
@@ -6043,7 +5976,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	
 	public Bitmap triple_thumbnail (String channel_id, String program_line[], int big_thumb_width)
 		{
-		int margin_cruft = (int) (density * (5 + 10 + 10 + 5 + 5 + 5));
+		int margin_cruft = (int) (density * (6 + 12 + 12 + 6 + 6 + 6));
 		
 		// int thumb_width = (screen_width - margin_cruft - big_thumb_width) / 3;
 		int thumb_width = (screen_width - margin_cruft - big_thumb_width) / 2;		
@@ -8420,18 +8353,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 				File f = new File (filename);
 				if (f.exists ())
 					{
-					/*
-					Bitmap bitmap = BitmapFactory.decodeFile (filename);
-					if (bitmap != null)
-						{
-						Bitmap bitmap2 = bitmappery.getRoundedCornerBitmap (bitmap, 50);
-						if (bitmap2 != null)
-							{
-							vChannelicon.setImageBitmap (bitmap2);
-							channel_thumbnail_found = true;
-							}
-						}
-					*/
 					Bitmap bitmap = BitmapFactory.decodeFile (filename);
 					if (bitmap != null)
 						{
@@ -10997,47 +10918,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership
 	public void onActionDown()
 		{
 		finger_is_down = true;
-		if (current_layer == toplayer.HOME)
-			{
-			if (home_slider != null)
-				; // diminish_side_titles (home_slider.current_home_page, true);
-			}
 		}
 	
 	@Override
 	public void onActionUp()
 		{
 		finger_is_down = false;
-		if (current_layer == toplayer.HOME)
-			{
-			if (home_slider != null)
-				diminish_side_titles (home_slider.current_home_page, false);
-			}
 		}
 	
 	@Override
 	public void onActionMove (int deltaX, int deltaY)
-		{
-		if (current_layer == toplayer.HOME)
-			{
-			if (home_slider != null)
-				diminish_side_titles (home_slider.current_home_page, deltaX > pixels_20);
-			}	
+		{	
 		}		
-	
-	public void diminish_side_titles (View parent, boolean hide)
-		{
-		if (parent != null)
-			{
-			/*
-			View vLeftSetTitle = parent.findViewById (R.id.left_set_title);
-	        vLeftSetTitle.setVisibility (hide ? View.INVISIBLE : View.VISIBLE);
-	        
-	        View vRightSetTitle = parent.findViewById (R.id.right_set_title);
-	        vRightSetTitle.setVisibility (hide ? View.INVISIBLE : View.VISIBLE);
-	        */
-			}
-		}
 	
 	@Override
 	public boolean inside_big_draggable_thing (float x, float y)

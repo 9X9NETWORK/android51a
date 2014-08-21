@@ -2,7 +2,7 @@
     android:id="@+id/storelayer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="#D9D9D9"
     android:orientation="vertical"
     android:visibility="gone">		 
 		
@@ -63,9 +63,9 @@
 			android:id="@+id/store_list_phone"
 			android:layout_width="fill_parent" 
 			android:layout_height="fill_parent"
-			android:layout_marginLeft="10dip"
-			android:layout_marginRight="10dip"
-			android:layout_marginTop="10dip"
+			android:layout_marginLeft="12dip"
+			android:layout_marginRight="12dip"
+			android:layout_marginTop="12dip"
 			android:layout_gravity="top|center_horizontal"
 			android:gravity="top|center_horizontal"				
 			android:drawSelectorOnTop="false"
@@ -77,9 +77,9 @@
 			android:id="@+id/store_list_tablet"
 			android:layout_width="fill_parent" 
 			android:layout_height="fill_parent"
-			android:layout_marginLeft="10dip"
-			android:layout_marginRight="10dip"
-			android:layout_marginTop="10dip"
+			android:layout_marginLeft="12dip"
+			android:layout_marginRight="12dip"
+			android:layout_marginTop="12dip"
 			android:layout_gravity="top|center_horizontal"
 			android:gravity="top|center_horizontal"				
 			android:drawSelectorOnTop="false"
@@ -88,7 +88,7 @@
 			android:divider="@null"
 			android:numColumns="2"
 			android:stretchMode="columnWidth"
-			android:horizontalSpacing="10dp"	
+			android:horizontalSpacing="12dp"	
 			android:visibility="gone"	
 			/>		   	
 	   	

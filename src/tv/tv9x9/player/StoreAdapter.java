@@ -153,7 +153,8 @@ public class StoreAdapter extends BaseAdapter
 					String txt_episode = context.getResources().getString (R.string.episode_lc);		
 					String txt_episodes = context.getResources().getString (R.string.episodes_lc);
 					
-					vMeta.setText (ago + " • " + icount + " " + (icount == 1 ? txt_episode : txt_episodes));
+					// vMeta.setText (ago + " • " + icount + " " + (icount == 1 ? txt_episode : txt_episodes));
+					vMeta.setText (ago);
 					}
 				
 				ImageView vSpecialTag = (ImageView) rv.findViewById (R.id.special_tag);
@@ -257,7 +258,7 @@ public class StoreAdapter extends BaseAdapter
 					
 					// int follow_icon = ms.is_tablet() ? R.drawable.icon_follow : R.drawable.icon_follow_black;
 					// int unfollow_icon = ms.is_tablet() ? R.drawable.icon_unfollow : R.drawable.icon_unfollow_press;
-					int follow_icon = ms.is_tablet() ? R.drawable.icon_heart : R.drawable.icon_heart_black;
+					int follow_icon = ms.is_tablet() ? R.drawable.icon_heart_black : R.drawable.icon_heart_black;
 					int unfollow_icon = ms.is_tablet() ? R.drawable.icon_heart_active : R.drawable.icon_heart_active;
 					
 					Log.i ("vtest", "channel: " + channel_id + " subscribed=" + config.is_subscribed (channel_id));
@@ -312,7 +313,7 @@ public class StoreAdapter extends BaseAdapter
 		if (vEpisodeicon != null)
 			{
 			FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vEpisodeicon.getLayoutParams();
-			layout.height = (int) ((float) (ms.screen_width() - ms.actual_pixels (40)) / 1.77 * 0.55);
+			layout.height = (int) ((float) (ms.screen_width() - ms.actual_pixels (40)) / 1.77 * (ms.is_tablet() ? 0.55 : 0.75));
 			vEpisodeicon.setLayoutParams (layout);
 			}
 		
