@@ -37,6 +37,16 @@
 	
 			<include layout="@layout/message_layer" />
 					
+			<!-- fragment
+			    class="tv.tv9x9.player.MessagesFragment"
+			    android:id="@+id/message_fragment_container"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			   	android:layout_gravity="center"
+			   	android:gravity="bottom|center_horizontal"
+			    android:background="#000000"
+			    /-->
+				      	
 			<include layout="@layout/shake_layer" />
 	
 			<include layout="@layout/about_layer" />

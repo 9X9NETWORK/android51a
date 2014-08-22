@@ -1468,8 +1468,20 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				{
 				public void run_string (String start_timestamp)
 					{
-					if (start_timestamp != null)				
-						countdown_to_live_broadcast (url, start_timestamp);
+					if (start_timestamp != null)
+						{
+						long start_time = Long.parseLong (start_timestamp);
+						
+						long now = System.currentTimeMillis();					
+						long seconds = (start_time - now) / 1000;
+						
+						log ("start seconds delta: " + seconds);
+						
+						if (seconds > 0)
+							countdown_to_live_broadcast (url, start_timestamp);
+						else
+							play_video_url (url, 0, -1);
+						}
 					else
 						play_video_url (url, 0, -1);
 					}

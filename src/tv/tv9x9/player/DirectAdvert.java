@@ -459,7 +459,7 @@ public class DirectAdvert extends RelayActivity
 			if (!q0 && percent >= 0.0)
 				{
 				q0 = true;
-				track_event (advert_id, "started", advert_name, 0);
+				// track_event (advert_id, "started", advert_name, 0);
 				}			
 			if (!q1 && percent >= 0.25)
 				{
