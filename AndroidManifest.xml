@@ -44,8 +44,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="130"
-      android:versionName="5.0.1.130">
+      android:versionCode="131"
+      android:versionName="5.0.1.131">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -100,7 +100,7 @@
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
-    			<data android:scheme="flipr" />        	       					   					
+    			<data android:scheme="flipr-9x9" />        	       					   					
 			</intent-filter>
 			   		
 			<!-- for Joey Graceffa -->

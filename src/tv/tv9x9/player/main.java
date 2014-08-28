@@ -27,6 +27,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import tv.tv9x9.player.HorizontalListView.OnScrollListener;
 import tv.tv9x9.player.MessagesFragment.OnMessagesListener;
@@ -134,7 +136,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	
 	/* note, SIGNOUT, HELP, CATEGORY_ITEM and APP_ITEM are not real layers, but menu items */
 	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, 
-					HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG, TEST, PASSWORD, ADVERT, SOCIAL };
+					HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG, TEST, PASSWORD, ADVERT, SOCIAL, FEEDBACK };
 	
 	toplayer current_layer = toplayer.HOME;
 	toplayer layer_before_signin = toplayer.HOME;
@@ -389,7 +391,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	    	else if (current_layer == toplayer.GUIDE || current_layer == toplayer.SEARCH 
 	    				|| current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS
 	    				|| current_layer == toplayer.SHAKE || current_layer == toplayer.ABOUT
-	    				|| current_layer == toplayer.MESSAGES || current_layer == toplayer.TEST)
+	    				|| current_layer == toplayer.MESSAGES || current_layer == toplayer.TEST
+	    				|| current_layer == toplayer.FEEDBACK || current_layer == toplayer.SOCIAL)
 	    		toggle_menu();
 	    	return true;
 	    	}
@@ -1024,6 +1027,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		        	enable_search_apparatus (R.id.sliding_top_bar);
 		        	}
 				});	
+		
+		vSlidingTopBar.setOnClickListener (new OnClickListener()
+			{
+	        @Override
+	        public void onClick (View v)
+	        	{
+	        	/* eat this */
+	        	log ("click on: top bar");
+	        	}
+			});	
 		}
 	
 	public void setup_home_buttons()
@@ -1098,7 +1111,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		        FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vHome.getLayoutParams();
 		        layout.leftMargin = (int) (from_margin + (to_margin - from_margin) * interpolatedTime);
 		        layout.width = screen_width;
-		        log ("menu-ANIM: " + layout.leftMargin);
+		        // log ("menu-ANIM: " + layout.leftMargin);
 		        vHome.setLayoutParams (layout);		        
 		    	}
 			};
@@ -1287,6 +1300,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		// items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
 
 		// items.push (new menuitem (toplayer.SOCIAL, R.string.social, R.drawable.icon_setting, R.drawable.icon_setting_press));
+
+		items.push (new menuitem (toplayer.FEEDBACK, R.string.feedback, R.drawable.icon_nav_feedback, R.drawable.icon_nav_feedback));
 		
 		/* no help screen has been provided yet */
 		// items.push (new menuitem (toplayer.HELP, R.string.help, R.drawable.icon_help, R.drawable.icon_help));
@@ -1436,6 +1451,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	        	close_menu();				
 				log ("click on: menu social");
 				enable_social_layer();
+				break;
+				
+			case FEEDBACK:
+				close_menu();
+				log ("click on: menu feedback");
+				enable_feedback_layer();
 				break;
 				
 			case NAG:
@@ -2861,8 +2882,17 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			return;
 			}	
 		
+		if (layer != toplayer.SOCIAL)
+			{
+			if (soc != null)
+				{
+				soc.close();
+				soc = null;
+				}
+			}
+			
 		View vTopBar = findViewById (R.id.sliding_top_bar);
-		vTopBar.setVisibility (layer == toplayer.TERMS ? View.GONE : View.VISIBLE);
+		vTopBar.setVisibility (layer == toplayer.TERMS || layer == toplayer.FEEDBACK ? View.GONE : View.VISIBLE);
 		
 		View home_layer = home_layer();
 		home_layer.setVisibility (layer == toplayer.HOME ? View.VISIBLE : View.GONE);
@@ -2907,8 +2937,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		View social_layer = findViewById (R.id.sociallayer);
 		social_layer.setVisibility (layer == toplayer.SOCIAL ? View.VISIBLE : View.GONE);
 		
-		// View advert_layer = findViewById (R.id.direct_ad_layer);
-		// advert_layer.setVisibility (layer == toplayer.ADVERT ? View.VISIBLE : View.GONE);
+		View feedback_layer = findViewById (R.id.feedbacklayer);
+		feedback_layer.setVisibility (layer == toplayer.FEEDBACK ? View.VISIBLE : View.GONE);		
 		
 		current_layer = layer;
 		
@@ -3568,11 +3598,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		if (language.equals ("tw") || language.equals ("cn"))
 			language = "zh";
 		
-		String url = "http://mobile.9x9.tv/android/" + mso + "/support/" + device_type() + "/" + language + "/";
+		String url = "http://mobile.flipr.tv/android/" + mso + "/support/" + device_type() + "/" + language + "/";
 		if (action != null)
 			{
 			if (action.equals ("terms") || action.equals ("privacy"))
-				url = "http://mobile.9x9.tv/" + mso + "/" + action + "/" + language + "/";
+				url = "http://mobile.flipr.tv/" + mso + "/" + action + "/" + language + "/";
 			}
 		
 		log ("terms/privacy url: " + url);
@@ -8775,6 +8805,185 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			launch_direct_ad (url, id, name);
     	}
     
+	/*** FEEDBACK **************************************************************************************************/
+    
+    enum feedbacks { CONTACT, SUGGESTION, BUG };
+    
+    feedbacks current_feedback = feedbacks.CONTACT;
+    
+    toplayer layer_before_feedback = toplayer.HOME;
+    
+    public void enable_feedback_layer()
+    	{
+    	current_feedback = feedbacks.CONTACT;
+    	
+    	if (current_layer != toplayer.FEEDBACK)
+    		layer_before_feedback = current_layer;
+    	
+		disable_video_layer();
+		set_layer (toplayer.FEEDBACK);
+		setup_feedback_buttons();
+		redraw_feedback();
+    	}
+    
+    public void setup_feedback_buttons()
+    	{
+		ImageView vAppIcon = (ImageView) findViewById (R.id.feedback_app_icon);  
+		if (vAppIcon != null)
+			{
+			String app_icon = getResources().getString (R.string.logo);
+			if (app_icon != null)
+				{
+				int app_icon_id = getResources().getIdentifier (app_icon, "drawable", getPackageName());
+				vAppIcon.setImageResource (app_icon_id);
+				}
+			}
+		
+		if (config.email != null)
+			{
+			TextView vEmail = (TextView) findViewById (R.id.feedback_email);
+			vEmail.setText (config.email);
+			}
+		
+    	View vBack = findViewById (R.id.feedback_back);
+		vBack.setOnClickListener (new OnClickListener()
+			{
+	        @Override
+	        public void onClick (View v)
+	        	{
+	        	feedback_close();
+	        	}
+			});
+		
+		View vContact = findViewById (R.id.feedback_radio_contact);
+		if (vContact != null)
+			vContact.setOnClickListener (new OnClickListener()
+			{
+	        @Override
+	        public void onClick (View v)
+	        	{
+	        	current_feedback = feedbacks.CONTACT;
+	        	redraw_feedback();
+	        	}
+			});	
+
+		View vSuggestion = findViewById (R.id.feedback_radio_suggestion);
+		if (vSuggestion != null)
+			vSuggestion.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	current_feedback = feedbacks.SUGGESTION;
+		        	redraw_feedback();
+		        	}
+				});	
+		
+		View vBug = findViewById (R.id.feedback_radio_bug);
+		if (vBug != null)
+			vBug.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	current_feedback = feedbacks.BUG;
+		        	redraw_feedback();
+		        	}
+				});	
+		
+		View vSend = findViewById (R.id.feedback_send);
+		if (vSend != null)
+			vSend.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("feedback send");
+		        	send_feedback();
+		        	}
+				});	
+		
+		View vFeedback = findViewById (R.id.feedbacklayer);		
+		if (vFeedback != null)
+			vFeedback.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	/* eat this */
+		        	log ("feedback layer ate my tap!");
+		        	}
+				});		
+    	}
+    
+    public void redraw_feedback()
+    	{
+    	ImageView vContact = (ImageView) findViewById (R.id.feedback_radio_contact_image);
+    	vContact.setImageResource (current_feedback == feedbacks.CONTACT ? R.drawable.btn_radio_on : R.drawable.btn_radio_off);
+    	ImageView vSuggestion = (ImageView) findViewById (R.id.feedback_radio_suggestion_image);
+    	vSuggestion.setImageResource (current_feedback == feedbacks.SUGGESTION ? R.drawable.btn_radio_on : R.drawable.btn_radio_off);
+    	ImageView vBug = (ImageView) findViewById (R.id.feedback_radio_bug_image);
+    	vBug.setImageResource (current_feedback == feedbacks.BUG ? R.drawable.btn_radio_on : R.drawable.btn_radio_off);
+    	}
+    
+    public void send_feedback()
+    	{    	
+    	TextView vMessage = (TextView) findViewById (R.id.feedback_text);
+    	String message = vMessage.getText().toString();
+    	
+    	if (message.equals (""))
+    		{
+    		alert ("Please provide a message!");
+    		return;
+    		}
+    	
+    	TextView vEmail = (TextView) findViewById (R.id.feedback_email);
+    	String email = vEmail.getText().toString();
+    	
+    	String type = current_feedback.toString().toLowerCase();
+    	
+    	String email_encoded = util.encodeURIComponent (email);
+    	String message_encoded = util.encodeURIComponent (message);
+    	
+    	String version_code = "unknown";	
+		try
+			{
+			PackageInfo pInfo = getPackageManager().getPackageInfo (getPackageName(), 0);
+			version_code = pInfo.versionName;
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			}	
+		
+    	String query = "userReport?key=email,description,os,version&value=" + email_encoded + "," + message_encoded + ",android," + version_code + "&type=" + type;
+		new playerAPI (in_main_thread, config, query)
+			{
+			public void success (String[] lines)
+				{
+				log ("userReport sent successfully");
+				toast_by_resource (R.string.feedback_thanks);
+				feedback_close();
+				}		
+			public void failure (int code, String errtext)
+				{
+				alert ("ERROR! " + errtext);
+				}
+			};	
+		}
+    
+    public void feedback_close()
+	    {
+		toggle_menu (new Callback()
+			{
+			public void run()
+				{
+		    	set_layer (layer_before_feedback);
+		    	toggle_menu();
+				}
+			});
+	    }
+    
 	/*** SOCIAL **************************************************************************************************/
     
     SocialAdapter social_adapter = null;
@@ -8786,6 +8995,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
     	}
     
     social social_feed[] = new social [0];
+    
+    Social soc = null;
     
     public void enable_social_layer()
 		{
@@ -8825,9 +9036,99 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		social_adapter = new SocialAdapter (this, social_feed);
 		vSocial.setAdapter (social_adapter);
 		
-		final Streamy s = new Streamy();
-		s.t0 (cb);
+		// final Streamy s = new Streamy();
+		// s.t0 (cb);
 		
+		soc = new Social (config);
+		
+		Callback onConnected = new Callback()
+			{
+			@Override
+			public void run_string (String text)
+				{
+				log ("callback: social connected");
+				soc.post ("MSO " + config.mso);
+				}
+			};
+			
+		Callback onRead = new Callback()
+			{
+			@Override
+			public void run_string (String text)
+				{
+				log ("callback: social line read: " + text);
+				if (text.startsWith ("DATA ") || text.startsWith ("{"))
+					{
+					social new_feed[] = new social [social_feed.length + 1];
+					System.arraycopy (social_feed, 0, new_feed, 1, social_feed.length);
+					
+					String data = text.replaceAll ("^DATA ", "");
+										
+					JSONObject json = null;
+					try
+						{
+						json = new JSONObject (data);
+						}
+					catch (JSONException ex)
+						{						
+						ex.printStackTrace();
+						}
+					
+					// ** got line: {"username": "9x9.tv", "name": "9x9.tv", "text": "Thanks to all of your suggestions, we've added this feature that you've all been waiting for! http://blog.9x9.tv/2013/02/bring-your-youtube-subscriptions-sign.html You can download the app here: https://play.google.com/store/apps/details?id=tv.tv9x9.player", "userid": "283883488348574", "date": "2013-02-08T10:02:29+0000", "postid": "283883488348574_524590450895569", "type": "facebook"}
+
+					String x_username = null;
+					String x_text = null;
+					
+					try
+						{
+						x_username = json.getString ("username");
+						x_text = json.getString ("text");
+						}
+					catch (JSONException ex)
+						{
+						// TODO Auto-generated catch block
+						ex.printStackTrace();
+						}
+					
+					if (x_username == null || x_text == null)
+						{
+						log ("social: incomplete data");
+						return;
+						}
+					
+					social item = new social();
+					item.username = x_username;
+					item.text = x_text;
+					
+					new_feed [0] = item; 
+					social_feed = new_feed;
+					
+					in_main_thread.post (new Runnable()
+						{
+						@Override
+						public void run()
+							{
+							log ("bing");
+							social_adapter.set_content (social_feed);
+							}
+						});
+					}
+				}
+			};
+			
+		Callback onError = new Callback()
+			{
+			@Override
+			public void run_string (String text)
+				{
+				log ("callback: social error: " + text);
+				soc.close();
+				soc = null;
+				}
+			};
+			
+		soc.open (onConnected, onRead, onError);
+				
 		View vStop = findViewById (R.id.soc_stop);
 		if (vStop != null)
 			vStop.setOnClickListener (new OnClickListener()
@@ -8835,7 +9136,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		        @Override
 		        public void onClick (View v)
 		        	{
-		        	s.close();
+		        	soc.close();
 		        	}
 				});
 		}

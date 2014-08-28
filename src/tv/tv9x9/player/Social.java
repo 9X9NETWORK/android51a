@@ -46,7 +46,7 @@ public class Social
 		Log.i ("vtest", "[Social] " + text);
 		}	 
 	
-	public void open (final String whence, final Callback onConnected, final Callback onRead, final Callback onError)
+	public void open (final Callback onConnected, final Callback onRead, final Callback onError)
 		{
 		if (connfd != null)
 			{
@@ -59,6 +59,9 @@ public class Social
 				{
 				}
 			}
+		
+		read_callback = onRead;
+		error_callback = onError;
 		
 		Thread t = new Thread()
 			{
@@ -129,11 +132,14 @@ public class Social
 			{
 			while ((line = in_stream.readLine()) != null)
 				{
-				log ("** got line: " + line);
-				if (read_callback != null)
-					read_callback.run_string (line);
-				else
-					log ("no callback, ignoring");
+				if (!line.matches ("^\\s*$"))
+					{
+					log ("** got line: " + line);
+					if (read_callback != null)
+						read_callback.run_string (line);
+					else
+						log ("no callback, ignoring");
+					}
 				}
 			config.renderer = null;
 			if (!awaiting_close && error_callback != null)

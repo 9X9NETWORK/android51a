@@ -56,7 +56,9 @@
 			<include layout="@layout/password_phone" />
 					
 			<include layout="@layout/social_layer" />
-							
+			
+			<include layout="@layout/feedback_layer" />
+										
 			<include layout="@layout/test_layer" />
 												
 			<FrameLayout

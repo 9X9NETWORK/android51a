@@ -648,6 +648,8 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 							ctx.video_systemic_error = true;		
 						else if (rString.equals ("UNKNOWN"))
 							/* API bug? -- do nothing */;
+						else if (rString.equals ("NOT_PLAYABLE"))
+							mCallback.alert ("Video not playable!");
 						else
 							mCallback.alert (rString);
 						}
