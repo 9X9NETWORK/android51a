@@ -69,9 +69,13 @@
 			    android:layout_height="2px"
 			    android:background="#D7D7D7"
 				android:orientation="horizontal"		
-				/>  					   	
-	        <LinearLayout
-		        android:id="@+id/feedback_radio"
+				/>  				
+
+			<include layout="@layout/feedback_radio_phone" />	  				
+			<include layout="@layout/feedback_radio_tablet" />	   	
+						
+	        <!-- LinearLayout
+		        android:id="@+id/feedback_radio_tablet"
 			    android:layout_width="fill_parent"
 			    android:layout_height="wrap_content"
 			    android:layout_marginTop="10dip"
@@ -145,7 +149,7 @@
 						android:text="@string/bug"					
 						/>					   							   	
 			    </LinearLayout>  			    			    			   					   	
-		    </LinearLayout>            
+		    </LinearLayout-->            
 		    
 	        <TextView     
 				android:layout_width="wrap_content"

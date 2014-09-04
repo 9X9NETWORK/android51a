@@ -37,6 +37,7 @@ import twitter4j.TwitterException;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -62,6 +63,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.os.Vibrator;
@@ -1299,7 +1301,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		
 		// items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
 
-		// items.push (new menuitem (toplayer.SOCIAL, R.string.social, R.drawable.icon_setting, R.drawable.icon_setting_press));
+		if (config.social_server != null)
+			items.push (new menuitem (toplayer.SOCIAL, R.string.social, R.drawable.icon_social, R.drawable.icon_social_gray));
 
 		items.push (new menuitem (toplayer.FEEDBACK, R.string.feedback, R.drawable.icon_nav_feedback, R.drawable.icon_nav_feedback));
 		
@@ -2947,6 +2950,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	
 	/*** SIGNIN ************************************************************************************************/
 	
+	SigninSlider signin_slider = null;
+	
+	Runnable signin_layer_callback = null;
+	
 	public void enable_signin_layer (Runnable callback)
 		{
 		disable_video_layer();
@@ -2956,64 +2963,28 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			layer_before_signin = current_layer;
 		
 		set_layer (toplayer.SIGNIN);		
-		
-		setup_signin_buttons (callback);
+
+		signin_layer_callback = callback;
+		setup_signin_layer_buttons (callback);
 		
 		sign_in_tab();
 		
 		track_layer (toplayer.SIGNIN);
+		
+        signin_slider = new SigninSlider();
+        StoppableViewPager vSigninPager = (StoppableViewPager) findViewById (R.id.signin_pager);
+        vSigninPager.setAdapter (signin_slider);
+        
+        create_signin_slider();
 		}
 
-	public void setup_signin_buttons (final Runnable callback)
+	public void setup_signin_layer_buttons (final Runnable callback)
 		{
-		int editables[] = { R.id.sign_in_email_container,
-							R.id.sign_in_password_container, 
-							R.id.sign_up_name_container,
-							R.id.sign_up_email_container,
-							R.id.sign_up_password_container,
-							R.id.sign_up_verify_container };
+		ViewGroup vSigninGroup = (ViewGroup) findViewById (R.id.sign_in_content);
+		setup_edit_containers (vSigninGroup);
 		
-		for (int editable: editables)
-			{
-			final View vContainer = findViewById (editable);
-			if (vContainer != null)
-				vContainer.setOnClickListener (new OnClickListener()
-					{
-			        @Override
-			        public void onClick (View v)
-			        	{
-			        	EditText vEditable = (EditText) vContainer.findViewWithTag ("editable");
-			        	if (vEditable != null)
-			        		{
-			        		vEditable.requestFocusFromTouch();
-				        	InputMethodManager imm = (InputMethodManager) getSystemService (Context.INPUT_METHOD_SERVICE); 
-				            imm.showSoftInput (vEditable, 0);
-			        		}
-			        	}
-					});	
-			}
-
-		View vBack = findViewById (R.id.signin_back);
-		if (vBack != null)
-			vBack.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: signin back");
-		        	toggle_menu (new Callback()
-			        	{
-						@Override
-						public void run()
-							{
-							zero_signin_data();
-							activate_layer (layer_before_signin);
-							if (callback != null)
-								callback.run();
-							}		        	
-			        	});
-		        	}
-				});	
+		ViewGroup vSignupGroup = (ViewGroup) findViewById (R.id.sign_up_content);
+		setup_edit_containers (vSignupGroup);
 		
 		View vBanner = findViewById (R.id.signin_banner);
 		if (vBanner != null)
@@ -3028,8 +2999,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 					if (callback != null)
 						callback.run();
 		        	}
-				});
-		
+				});		
 		
 		ImageView vAppIcon = (ImageView) findViewById (R.id.signin_app_icon);  
 		if (vAppIcon != null)
@@ -3041,7 +3011,22 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 				vAppIcon.setImageResource (app_icon_id);
 				}
 			}
-		
+
+		View vSigninLayer = findViewById (R.id.signinlayer);
+		if (vSigninLayer != null)
+			vSigninLayer.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	/* eat this */
+		        	log ("signin layer ate my tap!");
+		        	}
+				});
+		}
+	
+	public void setup_signin_buttons (View v)
+		{
 		View vSignin = findViewById (R.id.sign_in_button);
 		if (vSignin != null)
 			vSignin.setOnClickListener (new OnClickListener()
@@ -3050,47 +3035,16 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: signin");
-		        	proceed_with_signin (callback);
+		        	proceed_with_signin (signin_layer_callback);
 		        	}
 				});
-		
-		View vSignup = findViewById (R.id.sign_up_button);
-		if (vSignup != null)
-			vSignup.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: signup");
-		        	proceed_with_signup (callback);
-		        	}
-				});
-		
-		View vSigninTab = findViewById (R.id.sign_in_tab);
-		if (vSigninTab != null)
-			vSigninTab.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: signin tab");
-		        	sign_in_tab();
-		        	}
-				});
+	
+		fezbuk2 (v);
+		}
 
-		View vSignupTab = findViewById (R.id.sign_up_tab);
-		if (vSignupTab != null)
-			vSignupTab.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: signup tab");
-		        	sign_up_tab();
-		        	}
-				});
-
-		TextView vTermsButton = (TextView) findViewById (R.id.terms_button);
+	public void setup_signup_buttons (View v)
+		{
+		TextView vTermsButton = (TextView) v.findViewById (R.id.terms_button);
 		if (vTermsButton != null)
 			{
 			vTermsButton.setPaintFlags (vTermsButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
@@ -3104,7 +3058,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		        	}
 				});
 			}
-		TextView vPrivacyButton = (TextView) findViewById (R.id.privacy_button);
+		TextView vPrivacyButton = (TextView) v.findViewById (R.id.privacy_button);
 		if (vPrivacyButton != null)
 			{
 			vPrivacyButton.setPaintFlags (vPrivacyButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
@@ -3117,77 +3071,219 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		        	slide_in_privacy();
 		        	}
 				});
-			}
+			}		
 		
-		if (!is_phone())
-			{
-			View vSignInChoice = findViewById (R.id.sign_in_choice);
-			if (vSignInChoice != null)
-				vSignInChoice.setOnClickListener (new OnClickListener()
-					{
-			        @Override
-			        public void onClick (View v)
-			        	{
-			        	log ("click on: signin choice");
-			        	sign_in_tab();
-			        	}
-					});
-			
-			View vSignUpChoice = findViewById (R.id.sign_up_choice);
-			if (vSignUpChoice != null)
-				vSignUpChoice.setOnClickListener (new OnClickListener()
-					{
-			        @Override
-			        public void onClick (View v)
-			        	{
-			        	log ("click on: signup choice");
-			        	sign_up_tab();
-			        	}
-					});
-			
-			View vCancel = findViewById (R.id.signin_signup_cancel);
-			if (vCancel != null)
-				vCancel.setOnClickListener (new OnClickListener()
-					{
-			        @Override
-			        public void onClick (View v)
-			        	{
-			        	log ("click on: signin cancel");
-			        	}
-					});
-			
-			View vSigninSignup = findViewById (R.id.signin_signup_button);
-			if (vSigninSignup != null)
-				vSigninSignup.setOnClickListener (new OnClickListener()
-					{
-			        @Override
-			        public void onClick (View v)
-			        	{
-			        	log ("click on: signin/signup");
-			        	View vSignUpContent = findViewById (R.id.sign_up_content);
-			        	if (vSignUpContent.getVisibility() == View.VISIBLE) 
-			        		proceed_with_signup (callback);
-			        	else
-			        		proceed_with_signin (callback);
-			        	}
-					});			
-			}
-		
-		View vSigninLayer = findViewById (R.id.signinlayer);
-		if (vSigninLayer != null)
-			vSigninLayer.setOnClickListener (new OnClickListener()
+		View vSignup = v.findViewById (R.id.sign_up_button);
+		if (vSignup != null)
+			vSignup.setOnClickListener (new OnClickListener()
 				{
 		        @Override
 		        public void onClick (View v)
 		        	{
-		        	/* eat this */
-		        	log ("signin layer ate my tap!");
+		        	log ("click on: signup");
+		        	proceed_with_signup (signin_layer_callback);
 		        	}
-				});
-		
-		View vMain = findViewById (R.id.main);
-		fezbuk2 (vMain);
+				});		
 		}
+	
+	/* look for "editcontainer"s and set them up as a larger touchable region to bring up the soft keyboard */
+	
+	public void setup_edit_containers (ViewGroup vBody)
+		{
+		if (vBody != null)
+			{
+			int n_children = vBody.getChildCount();
+		    for (int i = 0; i < n_children; i++)
+		    	{
+		        final View vChild = vBody.getChildAt (i);
+		        
+		        String tag = (String) vChild.getTag();
+		        if (tag != null && tag.equals ("editcontainer"))
+		        	{
+					vChild.setOnClickListener (new OnClickListener()
+						{
+				        @Override
+				        public void onClick (View v)
+				        	{
+				        	EditText vEditable = (EditText) vChild.findViewWithTag ("editable");
+				        	if (vEditable != null)
+				        		{
+				        		vEditable.requestFocusFromTouch();
+					        	InputMethodManager imm = (InputMethodManager) getSystemService (Context.INPUT_METHOD_SERVICE); 
+					            imm.showSoftInput (vEditable, 0);
+				        		}
+				        	}
+			        	});
+		        	}
+		        else
+		        	{
+		        	/* only need to descend into ViewGroups that don't have tag "editcontainer" */
+			        if (vChild instanceof ViewGroup)
+			        	setup_edit_containers ((ViewGroup) vChild);
+		        	}
+		        }
+			}
+		}
+	
+	public void create_signin_slider()
+		{	
+		have_set_positions = false;
+		
+		/*
+		final LinearLayout vSetSlider = (LinearLayout) findViewById (R.id.set_slider);
+		
+		for (int i = 0; i < portal_stack_names.length; i++)
+			{
+			TextView vText = new TextView (this);
+			vText.setText (portal_stack_names [i]);
+			vText.setTextColor (Color.rgb (0x00, 0x00, 0x00));
+			vText.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			
+			vSetSlider.addView (vText);
+			
+			LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vText.getLayoutParams();
+			layout.height = MATCH_PARENT;
+			layout.leftMargin = 1;
+			layout.rightMargin = 1;
+			layout.gravity = Gravity.CENTER;
+			vText.setLayoutParams (layout);
+			
+			vText.setBackgroundColor (Color.rgb (0xFF, 0x66, 0x00));	
+			vText.setPadding (pixels_20, 0, pixels_20, 0);
+			vText.setGravity (Gravity.CENTER);
+			}
+		*/
+		
+		in_main_thread.post (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				set_offsets = new int [portal_stack_names.length];
+				set_widths = new int [portal_stack_names.length];
+				
+				for (int i = 0; i < portal_stack_names.length; i++)
+					{
+					/*
+					View v = vSetSlider.getChildAt (i);
+					set_offsets [i] = v.getLeft();
+					set_widths [i] = v.getWidth();
+					log ("set offset: " + set_offsets [i] + ", width: " + set_widths [i]);
+					have_set_positions = true;
+					position_set_slider();
+					if (vHomePager != null)
+						vHomePager.setOnPageChangeListener (new SliderListener());
+					*/
+					
+				    class SimpleTabColorizer implements SlidingTabLayout.TabColorizer
+				    	{
+				        private int[] mIndicatorColors;
+				        private int[] mDividerColors;
+	
+				        @Override
+				        public final int getIndicatorColor (int position)
+				        	{
+				            return mIndicatorColors [position % mIndicatorColors.length];
+				        	}
+	
+				        @Override
+				        public final int getDividerColor (int position)
+				        	{
+				            return mDividerColors [position % mDividerColors.length];
+				        	}
+	
+				        void setIndicatorColors (int... colors)
+				        	{
+				            mIndicatorColors = colors;
+				        	}
+	
+				        void setDividerColors (int... colors)
+				        	{
+				            mDividerColors = colors;
+				        	}
+				    	}
+				    
+					SimpleTabColorizer colorizer = new SimpleTabColorizer();
+					colorizer.setIndicatorColors (Color.rgb (0xFF, 0xAA, 0x00));					
+				    colorizer.setDividerColors (Color.argb (0x60, 0xFF, 0xFF, 0xFF));
+					SlidingTabLayout mSlidingTabLayout = (SlidingTabLayout) findViewById (R.id.signin_tabs);
+					mSlidingTabLayout.setCustomTabColorizer (colorizer);
+			        StoppableViewPager vSigninPager = (StoppableViewPager) findViewById (R.id.signin_pager);
+					mSlidingTabLayout.setViewPager (vSigninPager);
+					}
+				}	
+			});
+		}
+
+	class Swapsign
+		{
+		int page_number = 0;
+		ScrollView page = null;
+		public Swapsign (int page_number)
+			{
+			this.page_number = page_number;
+			}
+		};
+
+	/* this is implemented using the base class! */
+		
+	public class SigninSlider extends PagerAdapter
+		{		
+	    @Override
+	    public int getCount()
+	    	{
+	        return 2;
+	    	}
+	
+	    @Override
+	    public CharSequence getPageTitle (int position)
+	    	{
+	    	return getResources().getString (position == 0 ? R.string.log_in : R.string.si_sign_up_button);
+	    	}
+	    
+		@Override
+		public boolean isViewFromObject (View view, Object object)
+			{
+			return (((Swapsign) object).page) == (ScrollView) view;
+			}
+		
+		@Override
+		public Object instantiateItem (final ViewGroup container, final int position)
+			{
+			log ("[NAG] instantiate: " + position);
+			
+			Swapsign sh = new Swapsign (position);				
+			int layout_resource = position == 0 ? R.layout.sign_in_content : R.layout.sign_up_content;
+			
+			ScrollView page = (ScrollView) View.inflate (main.this, layout_resource, null);
+			sh.page = page;
+			
+			((StoppableViewPager) container).addView (page, 0);
+			
+			setup_edit_containers (page);
+			
+			if (position == 0)
+				setup_signin_buttons (page);
+			else
+				setup_signup_buttons (page);
+
+			return sh;
+			}
+		
+		@Override
+		public void destroyItem (ViewGroup container, int position, Object object)
+			{
+			log ("[NAG] destroy: " + position);
+			Swapsign sh = (Swapsign) object;
+			((StoppableViewPager) container).removeView (sh.page);
+			}
+		
+		@Override
+		public void setPrimaryItem (ViewGroup container, int position, Object object)
+			{
+			Swapsign sh = (Swapsign) object;		
+			}
+		}   
 
 	public void sign_in_tab()
 		{
@@ -3201,6 +3297,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	
 	public void adjust_signin_tabs (boolean is_sign_in)
 		{
+		/*
 		int white = Color.WHITE;
 		int gray = Color.rgb (0x77, 0x77, 0x77);
 		int yellow = Color.rgb (0xFF, 0xAA, 0x00);
@@ -3225,6 +3322,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		
 		vSignInTabBar.setBackgroundColor (is_sign_in ? yellow : dark);
 		vSignUpTabBar.setBackgroundColor (is_sign_in ? dark : yellow);
+		 * 
+		 */
 		}
 	
 	public void zero_signin_data()
@@ -3238,7 +3337,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			if (v != null)
 				v.setText ("");
 			}
-		
 		}
 	
 	public void proceed_with_signin (final Runnable callback)
@@ -5054,14 +5152,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 				    	}
 				    
 					SimpleTabColorizer colorizer = new SimpleTabColorizer();
-					colorizer.setIndicatorColors (Color.rgb (0xFF, 0xAA, 0x00));
-					
-				    final byte DEFAULT_DIVIDER_COLOR_ALPHA = 0x20;
-				    final int themeForegroundColor = Color.rgb (0xFF, 0xFF, 0x00);
-				    
-					// colorizer.setDividerColors (setColorAlpha (themeForegroundColor, DEFAULT_DIVIDER_COLOR_ALPHA));
-			        // colorizer.setDividerColors (Color.argb(0x20, 0xFF, 0xFF, 0x00));
-				    colorizer.setDividerColors (Color.argb (0xFF, 0xFF, 0xFFD, 0x0F));
+					colorizer.setIndicatorColors (Color.rgb (0xFF, 0xAA, 0x00));					
+				    colorizer.setDividerColors (Color.argb (0x60, 0xFF, 0xFF, 0xFF));
 					SlidingTabLayout mSlidingTabLayout = (SlidingTabLayout) findViewById (R.id.sliding_tabs);
 					mSlidingTabLayout.setCustomTabColorizer (colorizer);
 					mSlidingTabLayout.setViewPager (vHomePager);
@@ -6251,7 +6343,21 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			horiz_adapter.set_content (channel_id, episodes);
 			}
 		};
-		
+
+	@SuppressLint ("NewApi")
+	@SuppressWarnings ("deprecation")
+	public void setImageAlpha (ImageView vImage, int alpha)
+		{
+		if (android.os.Build.VERSION.SDK_INT >= 16)
+			{
+			vImage.setImageAlpha (alpha);
+			}
+		else
+			{
+			vImage.setAlpha (alpha);
+			}
+		}
+	
 	class EpisodeAdapter extends ArrayAdapter <String>
 		{
 		Activity context;
@@ -6290,7 +6396,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	        return program_line != null ? program_line.length : 0;  
 	    	}  
 	
-	    @Override  
+		@Override
 	    public View getView (int position, View convertView, ViewGroup parent)
 	    	{
 	    	View row = convertView;
@@ -6319,8 +6425,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			View vBorder = row.findViewById (R.id.border);
 			vBorder.setBackgroundColor (position == current_episode_index - 1 ? white : black);
 			
-			vPic.setImageAlpha (position == current_episode_index -1 ? 0xFF : 0xA0);
-			
+			setImageAlpha (vPic, position == current_episode_index -1 ? 0xFF : 0xA0);
+
 			// vEptitle.setTextColor ((position + 1 == current_episode_index) ? orange : gray);
 			
 			String filename = main.this.getFilesDir() + "/" + config.episode_in_cache (program_id);
@@ -8807,14 +8913,23 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
     
 	/*** FEEDBACK **************************************************************************************************/
     
-    enum feedbacks { CONTACT, SUGGESTION, BUG };
+    boolean feedback_initialized = false;
     
-    feedbacks current_feedback = feedbacks.CONTACT;
+    enum feedbacks { CONTACT, SUGGESTION, BUG };   
     
+    feedbacks current_feedback = feedbacks.CONTACT;    
     toplayer layer_before_feedback = toplayer.HOME;
     
     public void enable_feedback_layer()
     	{
+    	if (!feedback_initialized)
+    		{
+    		View vRemove = findViewById (is_tablet() ? R.id.feedback_radio_phone : R.id.feedback_radio_tablet);
+        	if (vRemove != null)
+    			((ViewManager) vRemove.getParent()).removeView (vRemove);
+    		feedback_initialized = true;
+    		}
+    	
     	current_feedback = feedbacks.CONTACT;
     	
     	if (current_layer != toplayer.FEEDBACK)
@@ -8992,6 +9107,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
     	{	
     	String username;
     	String text;
+    	String type;
+    	String image;
+    	String post_id;
     	}
     
     social social_feed[] = new social [0];
@@ -9032,12 +9150,22 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 					}
 			};	
 		
+		/* zap any earlier data */
+		social_feed = new social [0];
+			
 		ListView vSocial = (ListView) findViewById (R.id.social_list);
 		social_adapter = new SocialAdapter (this, social_feed);
 		vSocial.setAdapter (social_adapter);
 		
+		/* this one streams directly from twitter's API */
 		// final Streamy s = new Streamy();
 		// s.t0 (cb);
+		
+		if (soc != null)
+			{
+			try { soc.close(); } catch (Exception ex) {};
+			soc = null;
+			}
 		
 		soc = new Social (config);
 		
@@ -9078,15 +9206,20 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 
 					String x_username = null;
 					String x_text = null;
+					String x_type = null;
+					String x_image = null;
+					String x_post_id = null;
 					
 					try
 						{
 						x_username = json.getString ("username");
 						x_text = json.getString ("text");
+						x_type = json.getString ("type");
+						x_post_id = json.getString ("postid");
+						x_image = json.getString ("image");
 						}
 					catch (JSONException ex)
 						{
-						// TODO Auto-generated catch block
 						ex.printStackTrace();
 						}
 					
@@ -9097,8 +9230,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 						}
 					
 					social item = new social();
-					item.username = x_username;
+					item.username = x_type.equals ("twitter") ? "@" + x_username : x_username;
 					item.text = x_text;
+					item.type = x_type;
+					item.image = x_image;
+					item.post_id = x_post_id;
 					
 					new_feed [0] = item; 
 					social_feed = new_feed;
@@ -9108,7 +9244,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 						@Override
 						public void run()
 							{
-							log ("bing");
 							social_adapter.set_content (social_feed);
 							}
 						});
@@ -9145,16 +9280,21 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		{
 		private Context context;
 		private social socials[] = null;
-		
+		private boolean requested_image[] = null;
+				
 		public SocialAdapter (Context context, social socials[])
 			{
 			this.context = context;
 			this.socials = socials;
+			requested_image = new boolean [socials.length];
+			Arrays.fill (requested_image, Boolean.FALSE);
 			}
 	
 		public void set_content (social socials[])
 			{
 			this.socials = socials;
+			requested_image = new boolean [socials.length];
+			Arrays.fill (requested_image, Boolean.FALSE);
 			notifyDataSetChanged();
 			}
 		
@@ -9201,18 +9341,63 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 				return null;
 				}
 			
+			social soc = socials [position];
+			
 			TextView vTitle = (TextView) rv.findViewById (R.id.title);
 			if (vTitle != null)
-				vTitle.setText ("@" + socials [position].username);
+				vTitle.setText (soc.username);
 			
 			TextView vText = (TextView) rv.findViewById (R.id.text);
 			if (vText != null)
-				vText.setText (socials [position].text);
+				vText.setText (soc.text);
 	
 			TextView vCounter = (TextView) rv.findViewById (R.id.soc_counter);
 			if (vCounter != null)
 				vCounter.setText ("#" + Integer.toString (socials.length - position));
 			
+			TextView vSource = (TextView) rv.findViewById (R.id.message_source);
+			if (vSource != null)
+				vSource.setText (" on " + soc.type);
+						
+			log ("soc image? " + soc.image);
+			
+			ImageView vThumb = (ImageView) rv.findViewById (R.id.soc_image);
+			if (vThumb != null)
+				{
+				boolean used_thumbnail = false;
+				
+				if (soc.image != null && soc.image.startsWith ("http"))
+					{
+					String filename = getFilesDir() + "/" + config.api_server + "/soc/" + soc.post_id + ".png";
+					File f = new File (filename);
+					if (f.exists())
+						{
+						Bitmap bitmap = BitmapFactory.decodeFile (filename);
+						if (bitmap != null)
+							{
+							vThumb.setImageBitmap (bitmap);
+							vThumb.setVisibility (View.VISIBLE);
+							used_thumbnail = true;
+							}								
+						}
+								
+					if (!used_thumbnail && !requested_image [position])
+						{
+						thumbnail.download_soc_image (main.this, config, soc.post_id, soc.image, in_main_thread, new Runnable()
+							{
+							@Override
+							public void run()
+								{
+								notifyDataSetChanged();
+								}
+							});
+						}
+					}
+				
+				if (!used_thumbnail)
+					vThumb.setVisibility (View.GONE);
+				}
+						
 			return rv;
 			}	
 		}	

@@ -288,7 +288,7 @@
 					android:singleLine="true"	
 					android:text="@string/from_uc"
 			    	/>				   
-				<ImageView
+				<tv.tv9x9.player.CircleImageView
 			    	android:id="@+id/playback_channel_icon_landscape"
 			        android:layout_width="70dip" 
 			        android:layout_height="70dip"
@@ -605,7 +605,7 @@
 							android:ellipsize="end"	
 							android:text="@string/from_uc"							
 					    	/>				
-						<ImageView
+						<tv.tv9x9.player.CircleImageView
 					    	android:id="@+id/playback_channel_icon"
 					        android:layout_width="60dip" 
 					        android:layout_height="60dip"

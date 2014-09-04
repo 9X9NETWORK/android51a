@@ -99,7 +99,7 @@
 					android:ellipsize="end"	
 					android:text="@string/from_uc"						
 			    	/>				
-				<ImageView
+				<tv.tv9x9.player.CircleImageView
 			    	android:id="@+id/small_channel_icon"
 			        android:layout_width="32dip" 
 			        android:layout_height="32dip"

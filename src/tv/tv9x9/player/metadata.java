@@ -26,7 +26,7 @@ public class metadata
 	// public String api_server = "beagle.9x9.tv";
 	public String relay_server = "relay-dev.9x9.tv";
 	public int relay_port = 909;
-	public String social_server = "soc1.flipr.tv";
+	public String social_server = null;
 	public int social_port = 7707;
 	public String google_analytics = null;
 	public String facebook_app_id = null;

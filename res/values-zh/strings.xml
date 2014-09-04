@@ -999,4 +999,5 @@
 	<string name="feedback_your_email">Your Email:</string>
 	<string name="feedback_your_message">Your message:</string>
 	<string name="feedback_thanks">Thank you for your feedback!</string>	
+	<string name="social_feed">Social Feed</string>	
 </resources>

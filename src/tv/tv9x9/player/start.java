@@ -599,36 +599,50 @@ public class start extends Activity
 				{
 				if (fields.length >= 2)
 					{
-					if (fields[0].equals ("supported-region"))
-						config.supported_region = fields[1];
-					else if (fields[0].equals ("title"))
-						config.mso_title = fields[1];
-					else if (fields[0].equals ("preferredLangCode"))
-						config.mso_preferred_lang_code = fields[1];				
-					else if (fields[0].equals ("ga"))
-						config.google_analytics = fields[1];
-					else if (fields[0].equals ("facebook-clientid"))
-						config.facebook_app_id = fields[1];
-					else if (fields[0].equals ("chromecast-id"))
-						config.chromecast_app_name = fields[1];
-					else if (fields[0].equals ("flurry"))
-						config.flurry_id = fields[1];	
-					else if (fields[0].equals ("notify") || fields[0].equals ("gcm-sender-id"))
-						config.gcm_sender_id = fields[1];
-					else if (fields[0].equals ("shake-discover"))
-						config.shake_and_discover_feature = fields[1].equals ("on");
-					else if (fields[0].equals ("aboutus"))
-						config.about_us_url = fields[1];
-					else if (fields[0].equals ("signup-enforce"))
-						config.signup_nag = fields[1];
-					else if (fields[0].equals ("admob-key"))
-						config.admob_key = fields[1];
-					else if (fields[0].equals ("ad"))
-						config.advertising_regime = fields[1];
-					else if (fields[0].equals ("notification-sound-vibration"))
+					String key = fields[0];
+					String value = fields[1];
+					
+					if (key.equals ("supported-region"))
+						config.supported_region = value;
+					else if (key.equals ("title"))
+						config.mso_title = value;
+					else if (key.equals ("preferredLangCode"))
+						config.mso_preferred_lang_code = value;				
+					else if (key.equals ("ga"))
+						config.google_analytics = value;
+					else if (key.equals ("facebook-clientid"))
+						config.facebook_app_id = value;
+					else if (key.equals ("chromecast-id"))
+						config.chromecast_app_name = value;
+					else if (key.equals ("flurry"))
+						config.flurry_id = value;	
+					else if (key.equals ("notify") || key.equals ("gcm-sender-id"))
+						config.gcm_sender_id = value;
+					else if (key.equals ("shake-discover"))
+						config.shake_and_discover_feature = value.equals ("on");
+					else if (key.equals ("aboutus"))
+						config.about_us_url = value;
+					else if (key.equals ("signup-enforce"))
+						config.signup_nag = value;
+					else if (key.equals ("admob-key"))
+						config.admob_key = value;
+					else if (key.equals ("ad"))
+						config.advertising_regime = value;
+					else if (key.equals ("social-feeds-server"))
+						{
+						String subfields[] = value.split (" ");
+						if (subfields.length > 1)
+							{
+							config.social_server = subfields[0];
+							config.social_port = Integer.parseInt (subfields[1]);
+							}
+						else
+							config.social_server = value;
+						}
+					else if (key.equals ("notification-sound-vibration"))
 						{
 						// sound off;vibration off
-						String subfields[] = fields[1].split (";");
+						String subfields[] = value.split (";");
 						for (String subfield: subfields)
 							{
 							String kv[] = subfield.replaceAll("\\s+", " ").split (" ");

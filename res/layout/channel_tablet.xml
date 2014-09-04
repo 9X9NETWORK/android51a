@@ -23,7 +23,7 @@
 			  	android:id="@+id/channel_frame"    
 			    android:layout_width="100dip"
 				android:layout_height="100dip">    
-			    <ImageView
+			    <tv.tv9x9.player.CircleImageView
 			        android:id="@+id/channel_icon"
 			       	android:layout_width="fill_parent" 
 			       	android:layout_height="fill_parent"

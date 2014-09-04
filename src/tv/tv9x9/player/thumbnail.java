@@ -355,6 +355,33 @@ public class thumbnail
 		t.start();
 		}
 
+	public static void download_soc_image
+			(final Context ctx, final metadata m, final String post_id, final String url, final Handler in_main_thread, final Runnable update)
+		{
+		Thread t = new Thread()
+			{
+			public void run()
+				{
+				try
+					{
+					if (!make_app_dir (ctx, m, "soc")) return;										
+					
+					String filename = ctx.getFilesDir() + "/" + m.api_server + "/soc/" + post_id + ".png"; 
+							
+					download (post_id, url, filename, false);
+					in_main_thread.post (update);	
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					((Activity) ctx).finish();
+					}
+				}
+			};
+		
+		t.start();
+		}
+	
 	public static boolean make_app_dir (final Context ctx, final metadata m, String dir)
 		{
 		File sdir = new File (ctx.getFilesDir(), m.api_server);
