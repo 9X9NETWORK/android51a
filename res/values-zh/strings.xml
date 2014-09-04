@@ -730,6 +730,23 @@
     <string name="fb_app_id">1424661534476944</string>
     -->
 
+    <!-- Musicsounds -->
+    <!--
+    <string name="app_name">音樂頌</string>
+    <string name="app_icon">@drawable/musicsounds_launch_logo</string>
+    <string name="white_label">musicsounds</string>
+    <string name="mso">musicsounds</string>
+    <string name="default_region">zh</string>
+    <string name="logo">musicsounds_logo</string>
+    <string name="splash_background">musicsounds_bg_open</string>
+    <string name="splash_foreground">musicsounds_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">musicsounds_logo_signin</string>
+    <string name="signin_bg">musicsounds_bg_open</string>
+    <string name="set_banner">musicsounds_banner</string>
+    <string name="fb_app_id">271923529673066</string>
+    -->
+    
     
     <bool name="uses_chromecast">true</bool>
     

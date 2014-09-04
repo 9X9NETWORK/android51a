@@ -41,6 +41,7 @@
 <!-- package="tv.flipr.sundance" -->
 <!-- package="tv.flipr.iconcerts" -->
 <!-- package="tv.flipr.cw" -->
+<!-- package="tv.flipr.musicsounds" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
@@ -502,6 +503,16 @@
     			<data android:scheme="flipr-cw" />        	       					   					
 			</intent-filter>
 			-->
+			
+			<!-- for Musicsounds -->
+           	<!--
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-musicsounds" />                     
+            </intent-filter>
+            -->			
             
         </activity>
         
