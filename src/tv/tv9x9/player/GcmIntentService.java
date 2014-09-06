@@ -16,6 +16,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -218,12 +219,15 @@ public class GcmIntentService extends IntentService
 	        
 	        PendingIntent pi = PendingIntent.getActivity (this, 0, start_intent, PendingIntent.FLAG_CANCEL_CURRENT);
 	        
-	        String icon_name = getResources().getString (R.string.app_icon);	
-	        String fields[] = icon_name.split ("/");
-	        icon_name = fields [fields.length - 1];
-	        icon_name = icon_name.replaceAll ("\\.[a-z]+$", "");        
-			int icon_id = getResources().getIdentifier (icon_name, "drawable", getPackageName());
-	        log ("icon=" + icon_name + " id=" + icon_id);
+	        // String icon_name = getResources().getString (R.string.app_icon);
+	        Drawable icon = getResources().getDrawable (R.drawable.app_icon_ptr);
+	        // String fields[] = icon_name.split ("/");
+	        // icon_name = fields [fields.length - 1];
+	        // icon_name = icon_name.replaceAll ("\\.[a-z]+$", "");        
+			// int icon_id = getResources().getIdentifier (icon_name, "drawable", getPackageName());
+	        int icon_id = R.drawable.app_icon_ptr;
+	        // log ("icon=" + icon_name + " id=" + icon_id);
+	        log ("icon=" + icon_id);
 	        log ("payload=" + msg);
 	        log ("text=" + text);
 	        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder (this)

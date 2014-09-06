@@ -356,7 +356,7 @@ public class thumbnail
 		}
 
 	public static void download_soc_image
-			(final Context ctx, final metadata m, final String post_id, final String url, final Handler in_main_thread, final Runnable update)
+			(final Context ctx, final metadata m, final String post_id, final String url, final int max_width, final Handler in_main_thread, final Runnable update)
 		{
 		Thread t = new Thread()
 			{
@@ -368,7 +368,13 @@ public class thumbnail
 					
 					String filename = ctx.getFilesDir() + "/" + m.api_server + "/soc/" + post_id + ".png"; 
 							
-					download (post_id, url, filename, false);
+					download (post_id, url, filename, false);					
+					
+					if (max_width > 0)
+						{
+						bitmappery.resize_bitmap_in_place (filename, max_width);
+						}
+										
 					in_main_thread.post (update);	
 					}
 				catch (Exception ex)

@@ -9110,6 +9110,10 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
     	String type;
     	String image;
     	String post_id;
+    	String format;
+    	String object_id;
+    	String link;
+    	String date;
     	}
     
     social social_feed[] = new social [0];
@@ -9156,6 +9160,32 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		ListView vSocial = (ListView) findViewById (R.id.social_list);
 		social_adapter = new SocialAdapter (this, social_feed);
 		vSocial.setAdapter (social_adapter);
+		
+		vSocial.setOnItemClickListener (new OnItemClickListener()
+			{
+			public void onItemClick (AdapterView parent, View v, int position, long id)
+				{
+				if (position < social_feed.length)
+					{
+					String link = social_feed [position].link;
+					if (link != null)
+						{
+						log ("social click: " + position + ", link: " + link);
+			        	Intent wIntent = new Intent (Intent.ACTION_VIEW, Uri.parse (link));
+			        	try
+			        		{
+				        	startActivity (wIntent);
+			        		}
+			        	catch (Exception ex)
+			        		{
+			        		ex.printStackTrace();
+			        		}
+						}
+					else
+						log ("social click: " + position + ", but no link");
+					}
+				}
+			});	
 		
 		/* this one streams directly from twitter's API */
 		// final Streamy s = new Streamy();
@@ -9209,19 +9239,20 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 					String x_type = null;
 					String x_image = null;
 					String x_post_id = null;
+					String x_object_id = null;
+					String x_format = null;
+					String x_link = null;
+					String x_date = null;
 					
-					try
-						{
-						x_username = json.getString ("username");
-						x_text = json.getString ("text");
-						x_type = json.getString ("type");
-						x_post_id = json.getString ("postid");
-						x_image = json.getString ("image");
-						}
-					catch (JSONException ex)
-						{
-						ex.printStackTrace();
-						}
+					try { x_username = json.getString ("username"); } catch (JSONException ex) {};
+					try { x_text = json.getString ("text"); } catch (JSONException ex) {};
+					try { x_type = json.getString ("type"); } catch (JSONException ex) {};
+					try { x_post_id = json.getString ("postid"); } catch (JSONException ex) {};
+					try { x_image = json.getString ("image"); } catch (JSONException ex) {};
+					try { x_format = json.getString ("format");} catch (JSONException ex) {};
+					try { x_object_id = json.getString ("objectid"); } catch (JSONException ex) {};
+					try { x_link = json.getString ("link"); } catch (JSONException ex) {};
+					try { x_date = json.getString ("date"); } catch (JSONException ex) {};
 					
 					if (x_username == null || x_text == null)
 						{
@@ -9235,6 +9266,12 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 					item.type = x_type;
 					item.image = x_image;
 					item.post_id = x_post_id;
+					item.format = x_format;
+					item.object_id = x_object_id;
+					item.link = x_link;
+					item.date = x_date;
+					
+					log ("SOCIAL: user=" + item.username + " format=" + item.format + " object=" + item.object_id);
 					
 					new_feed [0] = item; 
 					social_feed = new_feed;
@@ -9361,6 +9398,21 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 						
 			log ("soc image? " + soc.image);
 			
+			log ("SOCIAL #" + Integer.toString (socials.length - position) + ": user=" + soc.username + " format=" + soc.format + " object=" + soc.object_id);
+			
+			TextView vWhat = (TextView) rv.findViewById (R.id.soc_what);
+			if (vWhat != null)
+				vWhat.setText (soc.format);
+			
+			TextView vAgo = (TextView) rv.findViewById (R.id.message_ago);
+			if (vAgo != null)
+				{
+				String ago = "";
+				if (soc.date.length() == "1409103232".length())
+					ago = util.ageof (main.this, Long.parseLong (soc.date));
+				vAgo.setText (ago);
+				}
+			
 			ImageView vThumb = (ImageView) rv.findViewById (R.id.soc_image);
 			if (vThumb != null)
 				{
@@ -9383,7 +9435,31 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 								
 					if (!used_thumbnail && !requested_image [position])
 						{
-						thumbnail.download_soc_image (main.this, config, soc.post_id, soc.image, in_main_thread, new Runnable()
+						String image = soc.image;
+						if (soc.format != null && soc.format.equals ("photo") && soc.object_id != null)
+							{
+							/* this might be quite large */
+							String throwaway_token = "167147783347469|PUMgsuQgK9wOOVoYecDZV4b2-sw";
+							image = "https://graph.facebook.com/" + soc.object_id + "/picture?access_token=" + throwaway_token + "&type=normal"; 
+							}
+						
+						if (image.contains ("safe_image.php"))
+							{
+							/* extract original url from an embedded field in the Facebook url. undocumented */
+							String fields[] = image.split ("&");
+							for (String field: fields)
+								{ 
+								if (field.startsWith ("url="))
+									{
+									image = util.decodeURIComponent (field.substring (4));
+									break;
+									}
+								}
+							}
+						
+						int max_width = screen_width - pixels_20;
+						
+						thumbnail.download_soc_image (main.this, config, soc.post_id, image, max_width, in_main_thread, new Runnable()
 							{
 							@Override
 							public void run()
