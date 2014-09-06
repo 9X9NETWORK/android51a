@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 9x9 -->
+   	<string name="app_name">9x9.tv</string> 
+	<drawable name="app_icon_ptr">@drawable/nine_launch_logo</drawable>    	  	
+    <string name="white_label">portal</string>
+    <string name="mso">9x9</string>
+    <string name="default_region">en</string>
+    <string name="logo">nine_logo</string>
+    <string name="splash_background">nine_bg_open</string>
+    <string name="splash_foreground">splash_generic_logo</string>        
+    <string name="splash_slogan">Empowering Cloud TV</string>     
+    <string name="signin_logo">nine_logo</string>    
+    <string name="signin_bg">nine_bg_open</string>      
+    <string name="set_banner">nine_banner</string>        
+	<string name="fb_app_id">1429057570658015</string>
+	  			
+	<!-- Joey Graceffa -->
+    <!--  
+    <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/joeygraceffa_launch_logo</string>
+    <string name="white_label">joeygraceffa</string>
+    <string name="mso">joeygraceffa</string>
+    <string name="default_region">en</string>
+    <string name="logo">joeygraceffa_logo</string>
+    <string name="splash_background">joeygraceffa_bg_open</string>
+    <string name="splash_foreground">joeygraceffa_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">joeygraceffa_logo_signin</string>
+    <string name="signin_bg">joeygraceffa_bg_open</string>
+    <string name="set_banner">joeygraceffa_banner01</string>
+    <string name="fb_app_id">595235090571267</string>
+	-->
+    
+    <!-- Jenna Marbles -->
+    <!--   
+    <string name="app_name">Flipr - Jenna Marbles Edition</string>
+    <string name="app_icon">@drawable/jennamarbles_launch_logo</string>
+    <string name="white_label">jennamarbles</string>
+    <string name="mso">jennamarbles</string>
+    <string name="default_region">en</string>
+    <string name="logo">jennamarbles_logo</string>
+    <string name="splash_background">jennamarbles_bg_open</string>
+    <string name="splash_foreground">jennamarbles_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">jennamarbles_logo_signin</string>
+    <string name="signin_bg">jennamarbles_bg_open</string>
+    <string name="set_banner">jennamarbles_banner01</string>
+    <string name="fb_app_id">278438812338830</string>
+    -->
+
+    <!-- Ray William Johnson -->
+    <!-- 
+    <string name="app_name">Flipr - Ray William Johnson Edition</string>
+    <string name="app_icon">@drawable/raywilliamjohnson_launch_logo</string>
+    <string name="white_label">raywilliamjohnson</string>
+    <string name="mso">raywilliamjohnson</string>
+    <string name="default_region">en</string>
+    <string name="logo">raywilliamjohnson_logo</string>
+    <string name="splash_background">raywilliamjohnson_bg_open</string>
+    <string name="splash_foreground">raywilliamjohnson_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">raywilliamjohnson_logo_signin</string>
+    <string name="signin_bg">raywilliamjohnson_bg_open</string>
+    <string name="set_banner">raywilliamjohnson_banner01</string>
+    <string name="fb_app_id">1419139305027309</string>
+    -->
+    
+    <!-- The Ellen Show -->
+    <!-- 
+    <string name="app_name">Flipr - The Ellen Show Edition</string>
+    <string name="app_icon">@drawable/theellenshow_launch_logo</string>
+    <string name="white_label">theellenshow</string>
+    <string name="mso">theellenshow</string>
+    <string name="default_region">en</string>
+    <string name="logo">theellenshow_logo</string>
+    <string name="splash_background">theellenshow_bg_open</string>
+    <string name="splash_foreground">theellenshow_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">theellenshow_logo_signin</string>
+    <string name="signin_bg">theellenshow_bg_open</string>
+    <string name="set_banner">theellenshow_banner01</string>
+    <string name="fb_app_id">235033980039180</string>
+    -->
+    
+    <!-- The Rooster Teeth -->
+    <!-- 
+    <string name="app_name">Flipr - The Rooster Teeth Edition</string>
+    <string name="app_icon">@drawable/roosterteeth_launch_logo</string>
+    <string name="white_label">roosterteeth</string>
+    <string name="mso">roosterteeth</string>
+    <string name="default_region">en</string>
+    <string name="logo">roosterteeth_logo</string>
+    <string name="splash_background">roosterteeth_bg_open</string>
+    <string name="splash_foreground">roosterteeth_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">roosterteeth_logo_signin</string>
+    <string name="signin_bg">roosterteeth_bg_open</string>
+    <string name="set_banner">roosterteeth_banner01</string>
+    <string name="fb_app_id">1428431837427582</string>
+    -->
+       
+    <!-- Freddiew -->
+    <!-- 
+    <string name="app_name">Flipr - The Freddiew Edition</string>
+    <string name="app_icon">@drawable/freddiew_launch_logo</string>
+    <string name="white_label">freddiew</string>
+    <string name="mso">freddiew</string>
+    <string name="default_region">en</string>
+    <string name="logo">freddiew_logo</string>
+    <string name="splash_background">freddiew_bg_open</string>
+    <string name="splash_foreground">freddiew_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">freddiew_logo_signin</string>
+    <string name="signin_bg">freddiew_bg_open</string>
+    <string name="set_banner">freddiew_banner01</string>
+    <string name="fb_app_id">761677907197600</string>
+    -->
+         
+    <!-- Spinnin' Records -->
+    <!--   
+    <string name="app_name">SpinninRec on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/spinninrec_launch_logo</string>
+    <string name="white_label">spinninrec</string>
+    <string name="mso">spinninrec</string>
+    <string name="default_region">en</string>
+    <string name="logo">spinninrec_logo</string>
+    <string name="splash_background">spinninrec_bg_open</string>
+    <string name="splash_foreground">spinninrec_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">spinninrec_logo_signin</string>
+    <string name="signin_bg">spinninrec_bg_open</string>
+    <string name="set_banner">spinninrec_banner01</string>
+    <string name="fb_app_id">708058312558163</string>
+    -->
+
+    <!-- The Fine Bros -->
+    <!-- 
+    <string name="app_name">The Fine Bros on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/thefinebros_launch_logo</string>
+    <string name="white_label">thefinebros</string>
+    <string name="mso">thefinebros</string>
+    <string name="default_region">en</string>
+    <string name="logo">thefinebros_logo</string>
+    <string name="splash_background">thefinebros_bg_open</string>
+    <string name="splash_foreground">thefinebros_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">thefinebros_logo_signin</string>
+    <string name="signin_bg">thefinebros_bg_open</string>
+    <string name="set_banner">thefinebros_banner01</string>
+    <string name="fb_app_id">1468306366724948</string>
+    -->
+    	  
+    <!-- History -->
+    <!-- 
+    <string name="app_name">History Channel on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/history_launch_logo</string>
+    <string name="white_label">history</string>
+    <string name="mso">history</string>
+    <string name="default_region">en</string>
+    <string name="logo">history_logo</string>
+    <string name="splash_background">history_bg_open</string>
+    <string name="splash_foreground">history_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">history_logo_signin</string>
+    <string name="signin_bg">history_bg_open</string>
+    <string name="set_banner">history_banner01</string>
+    <string name="fb_app_id">1423211814590720</string>
+ 	-->
+       
+    <!-- NBA -->
+    <!-- 
+    <string name="app_name">NBA on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/nba_launch_logo</string>
+    <string name="white_label">nba</string>
+    <string name="mso">nba</string>
+    <string name="default_region">en</string>
+    <string name="logo">nba_logo</string>
+    <string name="splash_background">nba_bg_open</string>
+    <string name="splash_foreground">nba_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">nba_logo_signin</string>
+    <string name="signin_bg">nba_bg_open</string>
+    <string name="set_banner">nba_banner01</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+
+    <!-- Smosh -->
+    <!-- 
+    <string name="app_name">Smosh on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/smosh_launch_logo</string>
+    <string name="white_label">smosh</string>
+    <string name="mso">smosh</string>
+    <string name="default_region">en</string>
+    <string name="logo">smosh_logo</string>
+    <string name="splash_background">smosh_bg_open</string>
+    <string name="splash_foreground">smosh_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">smosh_logo_signin</string>
+    <string name="signin_bg">smosh_bg_open</string>
+    <string name="set_banner">smosh_banner01</string>
+    <string name="fb_app_id">492773477497848</string>
+    -->
+    	
+    <!-- Shane -->
+    <!-- 
+    <string name="app_name">Shane on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/shane_launch_logo</string>
+    <string name="white_label">shane</string>
+    <string name="mso">shane</string>
+    <string name="default_region">en</string>
+    <string name="logo">shane_logo</string>
+    <string name="splash_background">shane_bg_open</string>
+    <string name="splash_foreground">shane_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">shane_logo_signin</string>
+    <string name="signin_bg">shane_bg_open</string>
+    <string name="set_banner">shane_banner01</string>
+    <string name="fb_app_id">359889977487152</string>
+	-->
+    	
+    <!-- College Humor -->
+    <!-- 
+    <string name="app_name">Collegehumor on Flipr Unofficial</string>
+    <string name="app_icon">@drawable/collegehumor_launch_logo</string>
+    <string name="white_label">collegehumor</string>
+    <string name="mso">collegehumor</string>
+    <string name="default_region">en</string>
+    <string name="logo">collegehumor_logo</string>
+    <string name="splash_background">collegehumor_bg_open</string>
+    <string name="splash_foreground">collegehumor_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">collegehumor_logo_signin</string>
+    <string name="signin_bg">collegehumor_bg_open</string>
+    <string name="set_banner">collegehumor_banner01</string>
+    <string name="fb_app_id">613862398667500</string>
+    -->
+	
+    <!-- Network_A -->
+    <!-- 
+    <string name="app_name">Network_A on FLIPr</string>
+    <string name="app_icon">@drawable/networka_launch_logo</string>
+    <string name="white_label">networka</string>
+    <string name="mso">networka</string>
+    <string name="default_region">en</string>
+    <string name="logo">networka_logo</string>
+    <string name="splash_background">networka_bg_open</string>
+    <string name="splash_foreground">networka_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">networka_logo</string>
+    <string name="signin_bg">networka_bg_open</string>
+    <string name="set_banner">networka_banner</string>
+    <string name="fb_app_id">450168698417667</string>
+	-->	
+    
+    <!-- crash course -->
+    <!-- 
+    <string name="app_name">Crash Course on FLIPr</string>
+    <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
+    <string name="white_label">crashcourse</string>     
+    <string name="mso">crashcourse</string>
+    <string name="default_region">en</string>           
+    <string name="logo">crashcourse_logo</string>
+    <string name="splash_background">crashcourse_bg_open</string>
+    <string name="splash_foreground">crashcourse_open_logo</string>    
+    <string name="splash_slogan"></string>    
+    <string name="signin_logo">crashcourse_logo</string>        
+    <string name="signin_bg">crashcourse_bg_open</string>  
+    <string name="set_banner">crashcourse_banner</string>      	
+    <string name="fb_app_id">1414438248794640</string>
+    -->
+    
+    <!-- EchoMusic -->
+    <!--   
+    <string name="app_name">音樂圖書館</string>
+    <string name="app_icon">@drawable/launch_logo_echomusic</string>
+    <string name="white_label">echomusic</string>
+    <string name="mso">echomusic</string>
+    <string name="default_region">zh</string>
+    <string name="logo">logo_echomusic</string>
+    <string name="splash_background">bg_open_echomusic</string>
+    <string name="splash_foreground">open_logo_echomusic</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">logo_signin_echomusic</string>
+    <string name="signin_bg">bg_open_echomusic</string>     
+    <string name="set_banner">banner_echomusic</string>   
+	<string name="fb_app_id">212239432317755</string>
+    -->
+         
+    <!-- string name="app_name">華視</string --><!-- cts original -->
+    <!-- cts festival -->  
+    <!--    
+    <string name="app_name">華視 FLIPr</string>
+    <string name="app_icon">@drawable/cts_icon_new</string>
+    <string name="white_label">cts</string>
+    <string name="mso">cts</string>    
+    <string name="default_region">zh</string>    
+    <string name="logo">cts_logo</string>  
+    <string name="splash_background">bg_open_cts</string>
+    <string name="splash_foreground">open_logo_cts</string>    
+    <string name="splash_slogan"></string>            
+    <string name="signin_logo">logo_cts</string>        
+    <string name="signin_bg">bg_open_cts</string> 
+    <string name="set_banner">banner_cts</string>           
+	<string name="fb_app_id">1110847978946712</string>              
+     -->
+	
+    <!-- thenewslens -->
+    <!--
+    <string name="app_name">關鍵評論網 FLIPr</string>
+    <string name="app_icon">@drawable/launch_logo_thenewslens</string>    
+    <string name="white_label">thenewslens</string>     
+    <string name="mso">thenewslens</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_thenewslens</string>
+    <string name="splash_background">bg_open_thenewslens</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">open_logo_thenewslens</string>    
+    <string name="signin_logo">logo_signin_thenewslens</string>        
+    <string name="signin_bg">bg_open_thenewslens</string>
+    <string name="set_banner">banner_thenewslens</string>            
+	<string name="fb_app_id">436354623134686</string>
+    -->
+	
+    <!-- goodtv -->
+    <!--    
+    <string name="app_name">GOODTV</string>
+ 	<string name="app_icon">@drawable/launch_logo_goodtv</string>         
+    <string name="white_label">goodtv</string>
+    <string name="mso">goodtv</string>
+    <string name="default_region">zh</string>    
+    <string name="logo">logo_goodtv</string>   
+    <string name="logo_old">logo_goodtv</string>       
+    <string name="splash_background">bg_open_goodtv</string>
+    <string name="splash_foreground">open_logo_goodtv</string>   
+    <string name="splash_slogan"></string>           
+    <string name="signin_logo">logo_signin_goodtv</string>        
+    <string name="signin_bg">bg_open_goodtv</string>        	
+    <string name="set_banner">banner01_goodtv</string>
+ 	<string name="fb_app_id">555946694494117</string>       
+     --> 
+ 	
+    <!-- ddtv -->
+    <!--       
+    <string name="app_name">丁丁電視</string>
+    <string name="app_icon">@drawable/ddtv_launch_logo</string>    
+    <string name="white_label">ddtv</string>     
+    <string name="mso">ddtv</string>
+    <string name="default_region">en</string>               
+    <string name="logo">ddtv_logo</string>
+    <string name="splash_background">ddtv_bg_open</string>
+    <string name="splash_foreground">ddtv_open_logo</string>    
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">ddtv_logo_signin</string>        
+    <string name="signin_bg">ddtv_bg_open</string>
+    <string name="set_banner">ddtv_banner01</string>
+    <string name="fb_app_id">496791563769983</string>
+    --> 
+    
+    <!-- fcu -->
+    <!--        
+    <string name="app_name">逢甲影音</string>
+    <string name="app_icon">@drawable/launch_logo_fcu</string>    
+    <string name="white_label">fcu</string>     
+    <string name="mso">fcu</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_fcu</string>
+    <string name="splash_background">bg_open_fcu</string>
+    <string name="splash_foreground">open_logo_fcu</string>    
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">logo_signin_fcu</string>                 
+    <string name="signin_bg">bg_open_fcu</string>
+    <string name="set_banner">banner01_fcu</string>      
+	<string name="fb_app_id">180687745468145</string>
+     -->  
+	
+    <!-- Tzu Chi -->
+    <!--    
+    <string name="app_name">慈濟</string>
+	<string name="app_icon">@drawable/tc_icon_new</string>    
+    <string name="white_label">tc</string>
+    <string name="mso">tzuchi</string>    
+    <string name="default_region">zh</string>    
+    <string name="logo">tclogo62</string>       
+    <string name="splash_background">splash_tc_bg</string>
+    <string name="splash_foreground">splash_tc_logo</string>  
+    <string name="splash_slogan"></string>              
+    <string name="signin_logo">logo_signin_vice</string>        
+    <string name="signin_bg">splash_vice</string>           
+	<string name="fb_app_id">361253423962738</string>           
+	-->
+	
+	<!-- superstar -->
+    <!--   
+    <string name="app_name">網路大明星</string>
+    <string name="app_icon">@drawable/launch_logo_superstar</string>    
+    <string name="white_label">superstar</string>     
+    <string name="mso">superstar</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_superstar</string>
+    <string name="splash_background">bg_open_superstar</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">open_logo_superstar</string>    
+    <string name="signin_logo">logo_signin_superstar</string>        
+    <string name="signin_bg">bg_open_superstar</string>
+    <string name="set_banner">banner_superstar</string>            
+	<string name="fb_app_id">422631834537839</string>
+    -->
+    
+    <!-- musicvideo -->
+    <!--   
+    <string name="app_name">MV不解釋</string>
+    <string name="app_icon">@drawable/musicvideo_launch_logo</string>    
+    <string name="white_label">musicvideo</string>     
+    <string name="mso">musicvideo</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">musicvideo_logo</string>
+    <string name="splash_background">musicvideo_bg_open</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">musicvideo_open_logo</string>    
+    <string name="signin_logo">musicvideo_logo_signin</string>        
+    <string name="signin_bg">musicvideo_bg_open</string>
+    <string name="set_banner">musicvideo_banner01</string>            
+	<string name="fb_app_id">463854980410020</string>
+ 	 -->   
+    
+    <!-- newsflipr -->
+    <!--      
+    <string name="app_name">喇新聞 FLIPr</string>
+    <string name="app_icon">@drawable/launch_logo_newsflipr</string>    
+    <string name="white_label">news</string>     
+    <string name="mso">news</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_newsflipr</string>
+    <string name="splash_background">bg_open_newsflipr</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">open_logo_newsflipr</string>    
+    <string name="signin_logo">logo_signin_newsflipr</string>        
+    <string name="signin_bg">bg_open_newsflipr</string>
+    <string name="set_banner">banner_newsflipr</string>            
+	<string name="fb_app_id">756691711022525</string>    
+	-->	
+
+    <!-- ktsf26 -->
+    <!--  
+    <string name="app_name">KTSF26</string>
+    <string name="app_icon">@drawable/ktsf_launch_logo</string>
+    <string name="white_label">ktsf26</string>
+    <string name="mso">ktsf26</string>
+    <string name="default_region">en</string>
+    <string name="logo">ktsf_logo</string>
+    <string name="splash_background">ktsf_bg_open</string>
+    <string name="splash_foreground">ktsf_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">ktsf_logo_signin</string>
+    <string name="signin_bg">ktsf_bg_open</string>
+    <string name="set_banner">ktsf_banner01</string>
+    <string name="fb_app_id">493993324039786</string>
+	-->
+		
+    <!-- Power ng Pinoy TV -->
+    <!-- 
+    <string name="app_name">Pinoy TV</string>
+    <string name="app_icon">@drawable/pinoytv_launch_logo</string>
+    <string name="white_label">pinoytv</string>
+    <string name="mso">pinoytv</string>
+    <string name="default_region">en</string>
+    <string name="logo">pinoytv_logo</string>
+    <string name="splash_background">pinoytv_bg_open</string>
+    <string name="splash_foreground">pinoytv_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">pinoytv_logo_signin</string>
+    <string name="signin_bg">pinoytv_bg_open</string>
+    <string name="set_banner">pinoytv_banner01</string>
+    <string name="fb_app_id">361253423962738</string>
+	-->	
+	    		
+    <!-- YuenFoongYu -->
+    <!-- 
+    <string name="app_name">Demo</string>
+    <string name="app_icon">@drawable/demo_launch_logo</string>
+    <string name="white_label">demo</string>
+    <string name="mso">demo</string>
+    <string name="default_region">en</string>
+    <string name="logo">demo_logo</string>
+    <string name="splash_background">demo_bg_open</string>
+    <string name="splash_foreground">demo_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">demo_logo_signin</string>
+    <string name="signin_bg">demo_bg_open</string>
+    <string name="set_banner">demo_banner01</string>
+    <string name="fb_app_id">292201190939231</string>
+	-->	
+
+    <!-- Demo -->
+    <!--
+   	<string name="app_name">Demo</string>
+	<string name="app_icon">@drawable/tt_icon_new</string>       	
+	<string name="white_label">demo</string>
+    <string name="mso">demo</string>
+    <string name="default_region">en</string>
+    <string name="logo">tvlogo</string>
+    <string name="splash_background">bgnew</string>
+    <string name="splash_foreground">splash_generic_logo</string>        
+    <string name="splash_slogan">Empowering Cloud TV</string>     
+    <string name="signin_logo">tvlogo</string>    
+    <string name="signin_bg">bgnew</string>      
+    <string name="set_banner">banner_9x9</string>     
+	<string name="fb_app_id">292201190939231</string>
+	-->
+			
+    <!-- Magazine -->
+    <!--  
+    <string name="app_name">癮雜誌</string>
+    <string name="app_icon">@drawable/magazine_launch_logo</string>
+    <string name="white_label">magazine</string>
+    <string name="mso">magazine</string>
+    <string name="default_region">zh</string>
+    <string name="logo">magazine_logo</string>
+    <string name="splash_background">magazine_bg_open</string>
+    <string name="splash_foreground">magazine_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">magazine_logo_signin</string>
+    <string name="signin_bg">magazine_bg_open</string>
+    <string name="set_banner">magazine_banner01</string>
+    <string name="fb_app_id">535963343168975</string>
+    -->
+    
+    <!-- test -->
+    <!--   
+    <string name="app_name">test FLIPr</string>
+    <string name="app_icon">@drawable/launch_logo_test</string>    
+    <string name="white_label">test</string>     
+    <string name="mso">test</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">logo_test</string>
+    <string name="splash_background">bg_open_test</string>
+    <string name="splash_slogan"></string>    
+    <string name="splash_foreground">open_logo_test</string>    
+    <string name="signin_logo">logo_signin_test</string>        
+    <string name="signin_bg">bg_open_test</string>
+    <string name="set_banner">banner_test</string>            
+	<string name="fb_app_id">390805357729394</string>
+    -->
+    
+    <!-- Gametube -->
+    <!--    
+    <string name="app_name">GameTube</string>
+    <string name="app_icon">@drawable/gametube_launch_logo</string>
+    <string name="white_label">gametube</string>
+    <string name="mso">gametube</string>
+    <string name="default_region">zh</string>
+    <string name="logo">gametube_logo</string>
+    <string name="splash_background">gametube_bg_open</string>
+    <string name="splash_foreground">gametube_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">gametube_logo_signin</string>
+    <string name="signin_bg">gametube_bg_open</string>
+    <string name="set_banner">gametube_banner</string>
+    <string name="fb_app_id">708083305909248</string>
+    -->
+     
+    <!-- Daaitv -->
+    <!--   
+    <string name="app_name">大愛 FLIPr</string>
+    <string name="app_icon">@drawable/daaitv_launch_logo</string>
+    <string name="white_label">daaitv</string>
+    <string name="mso">daaitv</string>
+    <string name="default_region">zh</string>
+    <string name="logo">daaitv_logo</string>
+    <string name="splash_background">daaitv_bg_open</string>
+    <string name="splash_foreground">daaitv_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">daaitv_logo_signin</string>
+    <string name="signin_bg">daaitv_bg_open</string>
+    <string name="set_banner">daaitv_banner</string>
+    <string name="fb_app_id">280807262096612</string>
+     -->
+    
+    <!-- Ytower -->
+    <!--  
+    <string name="app_name">楊桃美食網</string>
+    <string name="app_icon">@drawable/ytower_launch_logo</string>
+    <string name="white_label">ytower</string>
+    <string name="mso">ytower</string>
+    <string name="default_region">zh</string>
+    <string name="logo">ytower_logo</string>
+    <string name="splash_background">ytower_bg_open</string>
+    <string name="splash_foreground">ytower_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">ytower_logo_signin</string>
+    <string name="signin_bg">ytower_bg_open</string>
+    <string name="set_banner">ytower_banner</string>
+    <string name="fb_app_id">271811759664294</string>
+    -->
+    
+    <!-- YourApp -->
+    <!--  
+    <string name="app_name">Your FLIPr App</string>
+    <string name="app_icon">@drawable/yourapp_launch_logo</string>
+    <string name="white_label">yourapp</string>
+    <string name="mso">yourapp</string>
+    <string name="default_region">en</string>
+    <string name="logo">yourapp_logo</string>
+    <string name="splash_background">yourapp_bg_open</string>
+    <string name="splash_foreground">yourapp_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">yourapp_logo_signin</string>
+    <string name="signin_bg">yourapp_bg_open</string>
+    <string name="set_banner">yourapp_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+    
+    <!-- Demo1 -->
+    <!-- 
+   	<string name="app_name">Demo1</string>
+	<string name="app_icon">@drawable/tt_icon_new</string>       	
+	<string name="white_label">demo1</string>
+    <string name="mso">demo1</string>
+    <string name="default_region">en</string>
+    <string name="logo">tvlogo</string>
+    <string name="splash_background">bgnew</string>
+    <string name="splash_foreground">splash_generic_logo</string>        
+    <string name="splash_slogan">Empowering Cloud TV</string>     
+    <string name="signin_logo">tvlogo</string>    
+    <string name="signin_bg">bgnew</string>      
+    <string name="set_banner">banner_9x9</string>     
+	<string name="fb_app_id">361253423962738</string>
+    -->
+      
+    <!-- Demo2 -->
+   	<!-- 
+   	<string name="app_name">Demo2</string>
+	<string name="app_icon">@drawable/tt_icon_new</string>       	
+	<string name="white_label">demo2</string>
+    <string name="mso">demo2</string>
+    <string name="default_region">en</string>
+    <string name="logo">tvlogo</string>
+    <string name="splash_background">bgnew</string>
+    <string name="splash_foreground">splash_generic_logo</string>        
+    <string name="splash_slogan">Empowering Cloud TV</string>     
+    <string name="signin_logo">tvlogo</string>    
+    <string name="signin_bg">bgnew</string>      
+    <string name="set_banner">banner_9x9</string>     
+	<string name="fb_app_id">361253423962738</string>
+	-->
+
+    <!-- YourApp2 -->
+   	<!-- 
+    <string name="app_name">Your FLIPr App2</string>
+    <string name="app_icon">@drawable/yourapp_launch_logo</string>
+    <string name="white_label">yourapp2</string>
+    <string name="mso">yourapp2</string>
+    <string name="default_region">en</string>
+    <string name="logo">yourapp_logo</string>
+    <string name="splash_background">yourapp_bg_open</string>
+    <string name="splash_foreground">yourapp_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">yourapp_logo_signin</string>
+    <string name="signin_bg">yourapp_bg_open</string>
+    <string name="set_banner">yourapp_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+	-->
+	
+    <!-- dingdingtv -->
+    <!-- 
+    <string name="app_name">DingDingTV</string>
+    <string name="app_icon">@drawable/ddtv_launch_logo</string>    
+    <string name="white_label">dingdingtv</string>     
+    <string name="mso">dingdingtv</string>
+    <string name="default_region">en</string>               
+    <string name="logo">ddtv_logo</string>
+    <string name="splash_background">ddtv_bg_open</string>
+    <string name="splash_foreground">ddtv_open_logo</string>    
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">ddtv_logo_signin</string>        
+    <string name="signin_bg">ddtv_bg_open</string>
+    <string name="set_banner">ddtv_banner01</string>
+    <string name="fb_app_id">361253423962738</string>
+	-->
+    
+	<!-- Sundance -->
+    <!-- 
+   	<string name="app_name">日舞電影 FLIPr</string>
+	<string name="app_icon">@drawable/sundance_launch_logo</string>
+    <string name="white_label">sundance</string>
+    <string name="mso">sundance</string>
+    <string name="default_region">zh</string>
+    <string name="logo">sundance_logo</string>
+    <string name="splash_background">sundance_bg_open</string>
+    <string name="splash_foreground">sundance_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">sundance_logo_signin</string>
+    <string name="signin_bg">sundance_bg_open</string>
+    <string name="set_banner">sundance_banner</string>
+    <string name="fb_app_id">249416341849120</string>
+    -->
+     
+    <!-- Iconcerts -->
+    <!-- 
+   	<string name="app_name">愛現場</string>
+	<string name="app_icon">@drawable/iconcerts_launch_logo</string>
+    <string name="white_label">iconcerts</string>
+    <string name="mso">iconcerts</string>
+    <string name="default_region">zh</string>
+    <string name="logo">iconcerts_logo</string>
+    <string name="splash_background">iconcerts_bg_open</string>
+    <string name="splash_foreground">iconcerts_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">iconcerts_logo_signin</string>
+    <string name="signin_bg">iconcerts_bg_open</string>
+    <string name="set_banner">iconcerts_banner</string>
+    <string name="fb_app_id">293143897532949</string>
+    -->
+    
+    <!-- CW -->
+    <!-- 
+    <string name="app_name">天下影音</string>
+    <string name="app_icon">@drawable/cw_launch_logo</string>    
+    <string name="white_label">cw</string>     
+    <string name="mso">cw</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">cw_logo</string>
+    <string name="splash_background">cw_bg_open</string>
+    <string name="splash_foreground">cw_open_logo</string>    
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">cw_logo_signin</string>        
+    <string name="signin_bg">cw_bg_open</string>
+    <string name="set_banner">cw_banner</string>
+    <string name="fb_app_id">1424661534476944</string>
+    -->
+
+    <!-- Musicsounds -->
+    <!--
+    <string name="app_name">音樂頌</string>
+    <string name="app_icon">@drawable/musicsounds_launch_logo</string>
+    <string name="white_label">musicsounds</string>
+    <string name="mso">musicsounds</string>
+    <string name="default_region">zh</string>
+    <string name="logo">musicsounds_logo</string>
+    <string name="splash_background">musicsounds_bg_open</string>
+    <string name="splash_foreground">musicsounds_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">musicsounds_logo_signin</string>
+    <string name="signin_bg">musicsounds_bg_open</string>
+    <string name="set_banner">musicsounds_banner</string>
+    <string name="fb_app_id">271923529673066</string>
+    -->
+    
+</resources>
