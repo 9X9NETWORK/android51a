@@ -31,21 +31,31 @@
 		    	    
 		    <include layout="@layout/guide_layer" />
 	
-			<include layout="@layout/store_layer" />
+			<!-- include layout="@layout/store_layer" / -->
 	
+			<fragment
+			    class="tv.tv9x9.player.StoreLayer"
+			    android:id="@+id/store_fragment_container"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />
+				
 			<include layout="@layout/search_layer" />
 	
-			<include layout="@layout/message_layer" />
+			<!-- include layout="@layout/message_layer" / -->
 					
-			<!-- fragment
-			    class="tv.tv9x9.player.MessagesFragment"
+			<fragment
+			    class="tv.tv9x9.player.MessagesLayer"
 			    android:id="@+id/message_fragment_container"
 			    android:layout_width="match_parent"
-			    android:layout_height="wrap_content"
+			    android:layout_height="match_parent"
 			   	android:layout_gravity="center"
-			   	android:gravity="bottom|center_horizontal"
+			   	android:gravity="top|center_horizontal"
 			    android:background="#000000"
-			    /-->
+			    />
 				      	
 			<include layout="@layout/shake_layer" />
 	
@@ -55,8 +65,18 @@
 
 			<include layout="@layout/password_phone" />
 					
-			<include layout="@layout/social_layer" />
+			<!-- include layout="@layout/social_layer" / -->
 			
+			<fragment
+			    class="tv.tv9x9.player.SocialLayer"
+			    android:id="@+id/social_fragment_container"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />
+						
 			<include layout="@layout/feedback_layer" />
 										
 			<include layout="@layout/test_layer" />

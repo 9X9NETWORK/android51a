@@ -286,10 +286,14 @@ public class bitmappery
 			int old_width = bm.getWidth();
 			int old_height = bm.getHeight();
 			
+			Log.i ("vtest", "width: " + width + " old_width: " + old_width + " old_height: " + old_height);
+			
 			if (width < old_width)
 				{
-				float ratio = old_height / old_width;
-				int height = (int) ((float) width / ratio);
+				float ratio = (float) old_height / (float) old_width;
+				int height = (int) (((float) width) * ratio);
+				
+				Log.i ("vtest", "new width: " + width + " old_width: " + old_width + " new_height: " + height + " old_height: " + old_height);
 				Bitmap output = null;
 				try
 					{

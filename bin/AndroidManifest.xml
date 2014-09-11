@@ -41,11 +41,12 @@
 <!-- package="tv.flipr.sundance" -->
 <!-- package="tv.flipr.iconcerts" -->
 <!-- package="tv.flipr.cw" -->
+<!-- package="tv.flipr.musicsounds" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="123"
-      android:versionName="5.0.1.123">
+      android:versionCode="134"
+      android:versionName="5.0.1.134">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -75,7 +76,7 @@
          
       
     <!--uses-feature android:name="com.google.android.tv" android:required="true" /-->
-    <application android:icon="@string/app_icon" android:label="@string/app_name" android:largeHeap="true" android:debuggable="false" android:hardwareAccelerated="true">
+    <application android:icon="@drawable/app_icon_ptr" android:label="@string/app_name" android:largeHeap="true" android:debuggable="@bool/debuggable" android:hardwareAccelerated="true">
         <!--meta-data android:name="com.facebook.sdk.ApplicationId" android:value="361253423962738"/-->    
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/fb_app_id"/>
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />            
@@ -100,7 +101,7 @@
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
-    			<data android:scheme="flipr" />        	       					   					
+    			<data android:scheme="flipr-9x9" />        	       					   					
 			</intent-filter>
 			   		
 			<!-- for Joey Graceffa -->
@@ -502,6 +503,16 @@
     			<data android:scheme="flipr-cw" />        	       					   					
 			</intent-filter>
 			-->
+			
+			<!-- for Musicsounds -->
+           	<!--
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-musicsounds" />                     
+            </intent-filter>
+            -->			
             
         </activity>
         
@@ -534,7 +545,15 @@
 		</receiver>
 
 		<!-- android:screenOrientation="portrait" -->
-        <activity android:name="tv.tv9x9.player.main" android:configChanges="keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustPan" android:screenOrientation="portrait" android:theme="@style/Theme.AppCompat">
+		
+        <activity android:name="tv.tv9x9.player.main" android:configChanges="keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustPan" android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+            
+        <activity android:name="tv.tv9x9.player.DirectAdvert" android:configChanges="keyboardHidden|orientation|screenSize" android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -617,13 +636,21 @@
              android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
   		
 		<!-- Used for Google Play Store Campaign Measurement-->
-		<service android:name="com.google.analytics.tracking.android.CampaignTrackingService" />
+		<!-- service android:name="com.google.analytics.tracking.android.CampaignTrackingService" />
 		<receiver android:name="com.google.analytics.tracking.android.CampaignTrackingReceiver" android:exported="true">
 			<intent-filter>
 				<action android:name="com.android.vending.INSTALL_REFERRER" />
 			</intent-filter>
+		</receiver-->
+		
+		<service android:name="com.google.analytics.tracking.android.CampaignTrackingService" />
+		<receiver android:name="com.google.analytics.tracking.android.CampaignTrackingReceiver" android:exported="true">
+	  		<intent-filter>
+	    		<action android:name="com.android.vending.INSTALL_REFERRER" />
+	  		</intent-filter>
 		</receiver>
 		
+    
 		<service android:name="tv.tv9x9.player.AppCastDeviceService" android:exported="false">
     		<intent-filter>
         		<action android:name="android.media.MediaRouteProviderService" />

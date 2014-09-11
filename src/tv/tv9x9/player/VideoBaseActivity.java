@@ -232,6 +232,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	static int pixels_5 = 5;
 	static int pixels_6 = 6;	
 	static int pixels_7 = 7;	
+	static int pixels_8 = 8;
 	static int pixels_10 = 10;
 	static int pixels_12 = 12;	
 	static int pixels_15 = 15;	
@@ -387,6 +388,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		return in_main_thread;
 		}
 	
+	public metadata get_config()
+		{
+		return config;
+		}
+	
 	private ServiceConnection mConnection = new ServiceConnection ()
 		{
 		@Override
@@ -429,6 +435,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    pixels_5   = (int) (5   * dm.density);
 	    pixels_6   = (int) (6   * dm.density); 	    
 	    pixels_7   = (int) (7   * dm.density); 	    
+	    pixels_8   = (int) (8   * dm.density); 	  	    
 	    pixels_10  = (int) (10  * dm.density); 
 	    pixels_12  = (int) (12  * dm.density); 	    
 	    pixels_15  = (int) (15  * dm.density); 	    

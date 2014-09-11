@@ -27,12 +27,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import tv.tv9x9.player.HorizontalListView.OnScrollListener;
-import tv.tv9x9.player.MessagesFragment.OnMessagesListener;
-import twitter4j.TwitterException;
+import tv.tv9x9.player.MessagesLayer.OnMessagesListener;
+import tv.tv9x9.player.SocialLayer.OnSocialListener;
+import tv.tv9x9.player.StoreLayer.OnStoreListener;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -113,6 +112,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
+
 // import com.google.android.gms.gcm;
 
 import com.facebook.*;
@@ -126,7 +130,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import com.google.android.gms.ads.*;
 
-public class main extends VideoBaseActivity implements StoreAdapter.mothership, OnMessagesListener
+public class main extends VideoBaseActivity implements OnMessagesListener, OnSocialListener, OnStoreListener
 	{
 	boolean single_channel = false;
 	boolean single_episode = false;
@@ -345,15 +349,8 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	    		}
 	    	else if (current_layer == toplayer.HOME)
 	    		{
-	    		View vChannelOverlay = findViewById (R.id.channel_overlay);
-	    		boolean channel_overlay_visible = vChannelOverlay != null && vChannelOverlay.getVisibility() == View.VISIBLE;
 	    		if (menu_is_extended())
 	    			toggle_menu();
-	    		else if (channel_overlay_visible)
-	    			{
-	    			if (home_slider != null)
-	    				toggle_channel_overlay (home_slider.current_home_page);
-	    			}
 	    		else
 	    			exit_stage_left();
 	    		}
@@ -361,7 +358,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	    		{
 	    		View vCategoryLayer = findViewById (R.id.category_layer);
 	    		if (vCategoryLayer.getVisibility() == View.VISIBLE)
-	    			toggle_category_layer();
+	    			store_class().toggle_category_layer();
 	    		else
 	    			toggle_menu();
 	    		}
@@ -508,14 +505,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		vSearchListTablet.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
 		
 		/* this is a ListView */
-		View vStoreListPhone = findViewById (R.id.store_list_phone);
-		vStoreListPhone.setVisibility (is_tablet() ? View.GONE : View.VISIBLE);
-		
-		/* this is a GridView */
-		View vStoreListTablet = findViewById (R.id.store_list_tablet);
-		vStoreListTablet.setVisibility (is_tablet() ? View.VISIBLE : View.GONE);
-		
-		/* this is a ListView */
 		View vMessageListPhone = findViewById (R.id.message_list_phone);
 		vMessageListPhone.setVisibility (is_tablet() ? View.GONE : View.VISIBLE);
 		
@@ -531,6 +520,11 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		super.onConfigurationChanged (newConfig);
 		boolean landscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE;
 		set_screen_config (landscape);
+		}
+	
+	public Handler get_main_thread()
+		{
+		return in_main_thread;
 		}
 	
 	public void set_screen_config (boolean landscape)
@@ -624,20 +618,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			{
 		   	if (!single_channel && !single_episode)
 				{
-				if (playback_channel_adapter != null)
-					{
-					final int next = next_channel_index() - 1;
-					in_main_thread.post (new Runnable()
-						{
-						@Override
-						public void run()
-							{
-							ListView vPlaybackChannels = (ListView) findViewById (R.id.playback_channel_list);
-							if (vPlaybackChannels != null)
-								vPlaybackChannels.smoothScrollToPosition (next);
-							}
-						});
-					}
 				track_event ("navigation", "swipePG", "swipePG", 0);
 				next_channel();
 				}
@@ -651,20 +631,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			{
 	    	if (!single_channel && !single_episode)
 				{
-				if (playback_channel_adapter != null)
-					{
-					final int prev = previous_channel_index() - 1;
-					in_main_thread.post (new Runnable()
-						{
-						@Override
-						public void run()
-							{
-							ListView vPlaybackChannels = (ListView) findViewById (R.id.playback_channel_list);
-							if (vPlaybackChannels != null)
-								vPlaybackChannels.smoothScrollToPosition (prev);
-							}
-						});
-					}
 				track_event ("navigation", "swipePG", "swipePG", 0);
 				previous_channel();
 				}
@@ -678,12 +644,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			{
 			track_event ("navigation", "swipeEP", "swipeEP", 0);
 			perform_fling_left();
-			if (playback_episode_adapter != null)
-				{
-				playback_episode_adapter.notifyDataSetChanged();
-				HorizontalListView vEpisodes = (HorizontalListView) findViewById (R.id.playback_episodes);			
-				vEpisodes.scrollTo (where_am_i() * (pixels_200 + pixels_20));
-				}
 			if (playback_episode_pager != null)
 				{
 				playback_episode_pager.rejigger();
@@ -698,12 +658,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			{
 			track_event ("navigation", "swipeEP", "swipeEP", 0);
 			previous_episode();
-			if (playback_episode_adapter != null)
-				{
-				playback_episode_adapter.notifyDataSetChanged();
-				HorizontalListView vEpisodes = (HorizontalListView) findViewById (R.id.playback_episodes);			
-				vEpisodes.scrollTo (where_am_i() * (pixels_200 + pixels_20));
-				}
 			if (playback_episode_pager != null)
 				{
 				playback_episode_pager.rejigger();
@@ -763,7 +717,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 			public void run()
 				{
 				/* ui needs the notification count for the Message layer */
-				messages_count = messages_gather (true).size();
+				messages_count = messages_class().messages_gather (true).size();
 				}
 			}, 4000);
 
@@ -1390,13 +1344,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 
 			case CATEGORY_ITEM:
 				log ("click on: menu category item: " + item.title);
-				for (int i = 0; i < category_list.length; i++)
-					if (category_list [i].equals (item.id))
-						{
-						load_category (i, 0);
-						close_menu();
-						track_layer (toplayer.STORE);
-						}
+				store_class().category_click (item.id);
 				break;
 				
 			case SHAKE:
@@ -1598,6 +1546,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 					}
 				}
 		
+			/*
+			 * obsolete code, also somehwat bitrot
+			 * 
 			if (menu [position].type == toplayer.CATEGORY_ITEM && current_category_index >= 0)
 				{
 				String current_category_id = category_list [current_category_index];
@@ -1615,6 +1566,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 					vAppIcon.setVisibility (View.INVISIBLE);
 					}
 				}
+				
+			 *
+			 */
 			else if (current_layer == toplayer.PASSWORD && menu [position].type == toplayer.SETTINGS)
 				{
 				/* password is part of settings */
@@ -2300,8 +2254,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 					break;
 					}
 				}
-			if (playback_episode_adapter != null)
-				playback_episode_adapter.notifyDataSetChanged();
 			
 			if (playback_episode_pager != null) ;
 				playback_episode_pager.notifyDataSetChanged();
@@ -2718,8 +2670,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		log ("update layer after subscribe: " + channel_id);
 		if (current_layer == toplayer.STORE)
 			{
-			if (store_adapter != null)
-				store_adapter.notifyDataSetChanged();
+			store_class().refresh_store_data();
 			}
 		else if (current_layer == toplayer.SEARCH)
 			{
@@ -2887,13 +2838,78 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		
 		if (layer != toplayer.SOCIAL)
 			{
-			if (soc != null)
-				{
-				soc.close();
-				soc = null;
-				}
+			social_class().close();
 			}
 			
+		if (layer != toplayer.MESSAGES)
+			{
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.message_fragment_container);		
+			if (!f.isHidden())
+				{
+				log ("hide Message fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.hide (f);  
+		        ft.commit();
+				}
+			}
+		else
+			{
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.message_fragment_container);		
+			if (f.isHidden())
+				{
+				log ("show Message fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.show (f);  
+		        ft.commit();
+				}
+			}
+		
+		if (layer != toplayer.SOCIAL)
+			{
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.social_fragment_container);		
+			if (!f.isHidden())
+				{
+				log ("hide Social fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.hide (f);  
+		        ft.commit();
+				}
+			}
+		else
+			{
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.social_fragment_container);		
+			if (f.isHidden())
+				{
+				log ("show Social fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.show (f);  
+		        ft.commit();
+				}
+			}
+
+		if (layer != toplayer.STORE)
+			{
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.store_fragment_container);		
+			if (!f.isHidden())
+				{
+				log ("hide Store fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.hide (f);  
+		        ft.commit();
+				}
+			}
+		else
+			{
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.store_fragment_container);		
+			if (f.isHidden())
+				{
+				log ("show Store fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.show (f);  
+		        ft.commit();
+				}
+			}
+		
 		View vTopBar = findViewById (R.id.sliding_top_bar);
 		vTopBar.setVisibility (layer == toplayer.TERMS || layer == toplayer.FEEDBACK ? View.GONE : View.VISIBLE);
 		
@@ -2902,9 +2918,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 
 		View guide_layer = findViewById (R.id.guidelayer);
 		guide_layer.setVisibility (layer == toplayer.GUIDE ? View.VISIBLE : View.GONE);
-
-		View store_layer = findViewById (R.id.storelayer);
-		store_layer.setVisibility (layer == toplayer.STORE ? View.VISIBLE : View.GONE);
 
 		View search_layer = findViewById (R.id.searchlayer);
 		search_layer.setVisibility (layer == toplayer.SEARCH ? View.VISIBLE : View.GONE);	
@@ -4425,8 +4438,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 
 	/*** HOME **************************************************************************************************/
 
-	LineItemAdapter channel_overlay_adapter = null;
-
 	HomeSlider home_slider = null;
 	StoppableViewPager vHomePager = null;
 	
@@ -4723,7 +4734,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		FrameLayout home_page = null;
 		String arena[] = null;
 		ListView vChannelOverlayList = null;
-		LineItemAdapter channel_overlay_adapter = null;
 		StoppableListView vChannels = null;
 		ChannelAdapter channel_adapter = null;
 		String set_id = null;
@@ -4964,13 +4974,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 					if (vRefresh != null)
 						vRefresh.setVisibility (sh.arena != null && sh.arena.length > 0 ? View.VISIBLE : View.GONE);
 					
-					sh.vChannelOverlayList = (ListView) sh.home_page.findViewById (R.id.channel_overlay_list);		
-					if (sh.vChannelOverlayList != null)
-						{
-						sh.channel_overlay_adapter = new LineItemAdapter (main.this, sh.arena, toplayer.HOME);
-						sh.vChannelOverlayList.setAdapter (sh.channel_overlay_adapter);
-						}
-					
 					sh.vChannels = (StoppableListView) sh.home_page.findViewById (R.id.channel_list);
 					if (sh.vChannels != null)
 						{
@@ -5027,51 +5030,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 				}
 			}
     	}   
-    
-	public void setup_channel_overlay (final View parent)
-		{
-		if (is_phone())
-			{
-			View vChannelOverlay = parent.findViewById (R.id.channel_overlay);
-			FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vChannelOverlay.getLayoutParams();
-			layout.topMargin = 0; // -pixels_80;
-			layout.bottomMargin = pixels_40;
-			layout.leftMargin = pixels_40;
-			layout.rightMargin = pixels_40;
-			vChannelOverlay.setLayoutParams (layout);
-			}	
-		
-		ListView vChannelOverlayList = (ListView) parent.findViewById (R.id.channel_overlay_list);		
-		if (vChannelOverlayList != null)
-			{
-			channel_overlay_adapter = new LineItemAdapter (this, arena, toplayer.HOME);
-			vChannelOverlayList.setAdapter (channel_overlay_adapter);
-			}
-		else
-			alert ("NO CHANNEL OVERLAY LIST");
-		
-		if (vChannelOverlayList != null)
-			vChannelOverlayList.setOnItemClickListener (new OnItemClickListener()
-				{
-				public void onItemClick (AdapterView parent, View v, int position, long id)
-					{
-					if (position < arena.length)
-						{
-						log ("channel overlay click: " + position);
-						toggle_channel_overlay (parent);
-						String channel_id = channel_overlay_adapter.get_id (position);
-			        	launch_player (channel_id, arena);
-						}
-					}
-				});							
-		}
-			
-	public void toggle_channel_overlay (View parent)
-		{
-		View vChannelOverlay = home_layer().findViewById (R.id.channel_overlay);
-		boolean is_visible = vChannelOverlay.getVisibility() == View.VISIBLE;
-		vChannelOverlay.setVisibility (is_visible ? View.GONE : View.VISIBLE);
-		}
 		
 	boolean have_set_positions = false;
 	int set_offsets[] = null;
@@ -6526,7 +6484,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	    
 	/*** PLAYER **************************************************************************************************/
 	    
-	EpisodeAdapter playback_episode_adapter = null;
 	PlaybackChannelAdapter playback_channel_adapter = null;
 	// PlaybackCommentsAdapter playback_comments_adapter = null;
 	
@@ -6580,8 +6537,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		{
 		public void run()
 			{
-			if (playback_episode_adapter != null)
-				playback_episode_adapter.notifyDataSetChanged();
 			if (playback_episode_pager != null)
 				playback_episode_pager.notifyDataSetChanged();
 			}
@@ -6626,8 +6581,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		
 		if (current_layer == toplayer.PLAYBACK)
 			{
-			if (playback_episode_adapter != null)
-				playback_episode_adapter.set_channel_id (channel_id);
 			if (playback_episode_pager != null)
 				{
 				String content[] = config.program_line_by_id (channel_id);
@@ -6732,30 +6685,9 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		{
 		log ("setup player adapters");
 		
-		HorizontalListView horiz = (HorizontalListView) findViewById (0 /* R.id.playback_episodes */);
-		if (horiz != null)
-			playback_episode_adapter = setup_horiz (horiz, channel_id);
-		
 		ViewPager vPager = (ViewPager) findViewById (R.id.playback_horiz);
 		if (vPager != null)			
 			playback_episode_pager = NEW_setup_horiz (vPager, channel_id);
-		
-		ListView vPlaybackChannels = (ListView) findViewById (R.id.playback_channel_list);
-		if (vPlaybackChannels != null)
-			{
-			playback_channel_adapter = new PlaybackChannelAdapter (main.this);
-			vPlaybackChannels.setAdapter (playback_channel_adapter);
-			
-			vPlaybackChannels.setOnItemClickListener (new OnItemClickListener()
-				{
-				public void onItemClick (AdapterView <?> parent, View v, int position, long id)
-					{
-					Log.i ("vtest", "playback channel click: " + position);
-					String channel_id = arena [position + 1];
-					play_channel (channel_id);	
-					}
-				});			
-			}
 		
 		/*
 		ListView vPlaybackComments = (ListView) findViewById (R.id.playback_comments_list);
@@ -9101,382 +9033,20 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
     
 	/*** SOCIAL **************************************************************************************************/
     
-    SocialAdapter social_adapter = null;
-    
-    public class social
-    	{	
-    	String username;
-    	String text;
-    	String type;
-    	String image;
-    	String post_id;
-    	String format;
-    	String object_id;
-    	String link;
-    	String date;
-    	}
-    
-    social social_feed[] = new social [0];
-    
-    Social soc = null;
-    
     public void enable_social_layer()
 		{
 		disable_video_layer();
-		set_layer (toplayer.SOCIAL);	
-	
-		Callback cb = new Callback()
-			{
-			@Override
-			public void run_two_strings (String username, String text)
-				{
-				log ("@" + username + " :: " + text);
-				
-				social new_feed[] = new social [social_feed.length + 1];
-				System.arraycopy (social_feed, 0, new_feed, 1, social_feed.length);
-				
-				social item = new social();
-				item.username = username;
-				item.text = text;
-				
-				new_feed [0] = item; 
-				social_feed = new_feed;
-				
-				// if (social_feed.length % 25 == 0)
-					in_main_thread.post (new Runnable()
-						{
-						@Override
-						public void run()
-							{
-							social_adapter.set_content (social_feed);
-							}
-						});
-					}
-			};	
-		
-		/* zap any earlier data */
-		social_feed = new social [0];
-			
-		ListView vSocial = (ListView) findViewById (R.id.social_list);
-		social_adapter = new SocialAdapter (this, social_feed);
-		vSocial.setAdapter (social_adapter);
-		
-		vSocial.setOnItemClickListener (new OnItemClickListener()
-			{
-			public void onItemClick (AdapterView parent, View v, int position, long id)
-				{
-				if (position < social_feed.length)
-					{
-					String link = social_feed [position].link;
-					if (link != null)
-						{
-						log ("social click: " + position + ", link: " + link);
-			        	Intent wIntent = new Intent (Intent.ACTION_VIEW, Uri.parse (link));
-			        	try
-			        		{
-				        	startActivity (wIntent);
-			        		}
-			        	catch (Exception ex)
-			        		{
-			        		ex.printStackTrace();
-			        		}
-						}
-					else
-						log ("social click: " + position + ", but no link");
-					}
-				}
-			});	
-		
-		/* this one streams directly from twitter's API */
-		// final Streamy s = new Streamy();
-		// s.t0 (cb);
-		
-		if (soc != null)
-			{
-			try { soc.close(); } catch (Exception ex) {};
-			soc = null;
-			}
-		
-		soc = new Social (config);
-		
-		Callback onConnected = new Callback()
-			{
-			@Override
-			public void run_string (String text)
-				{
-				log ("callback: social connected");
-				soc.post ("MSO " + config.mso);
-				}
-			};
-			
-		Callback onRead = new Callback()
-			{
-			@Override
-			public void run_string (String text)
-				{
-				log ("callback: social line read: " + text);
-				if (text.startsWith ("DATA ") || text.startsWith ("{"))
-					{
-					social new_feed[] = new social [social_feed.length + 1];
-					System.arraycopy (social_feed, 0, new_feed, 1, social_feed.length);
-					
-					String data = text.replaceAll ("^DATA ", "");
-										
-					JSONObject json = null;
-					try
-						{
-						json = new JSONObject (data);
-						}
-					catch (JSONException ex)
-						{						
-						ex.printStackTrace();
-						}
-					
-					// ** got line: {"username": "9x9.tv", "name": "9x9.tv", "text": "Thanks to all of your suggestions, we've added this feature that you've all been waiting for! http://blog.9x9.tv/2013/02/bring-your-youtube-subscriptions-sign.html You can download the app here: https://play.google.com/store/apps/details?id=tv.tv9x9.player", "userid": "283883488348574", "date": "2013-02-08T10:02:29+0000", "postid": "283883488348574_524590450895569", "type": "facebook"}
-
-					String x_username = null;
-					String x_text = null;
-					String x_type = null;
-					String x_image = null;
-					String x_post_id = null;
-					String x_object_id = null;
-					String x_format = null;
-					String x_link = null;
-					String x_date = null;
-					
-					try { x_username = json.getString ("username"); } catch (JSONException ex) {};
-					try { x_text = json.getString ("text"); } catch (JSONException ex) {};
-					try { x_type = json.getString ("type"); } catch (JSONException ex) {};
-					try { x_post_id = json.getString ("postid"); } catch (JSONException ex) {};
-					try { x_image = json.getString ("image"); } catch (JSONException ex) {};
-					try { x_format = json.getString ("format");} catch (JSONException ex) {};
-					try { x_object_id = json.getString ("objectid"); } catch (JSONException ex) {};
-					try { x_link = json.getString ("link"); } catch (JSONException ex) {};
-					try { x_date = json.getString ("date"); } catch (JSONException ex) {};
-					
-					if (x_username == null || x_text == null)
-						{
-						log ("social: incomplete data");
-						return;
-						}
-					
-					social item = new social();
-					item.username = x_type.equals ("twitter") ? "@" + x_username : x_username;
-					item.text = x_text;
-					item.type = x_type;
-					item.image = x_image;
-					item.post_id = x_post_id;
-					item.format = x_format;
-					item.object_id = x_object_id;
-					item.link = x_link;
-					item.date = x_date;
-					
-					log ("SOCIAL: user=" + item.username + " format=" + item.format + " object=" + item.object_id);
-					
-					new_feed [0] = item; 
-					social_feed = new_feed;
-					
-					in_main_thread.post (new Runnable()
-						{
-						@Override
-						public void run()
-							{
-							social_adapter.set_content (social_feed);
-							}
-						});
-					}
-				}
-			};
-			
-		Callback onError = new Callback()
-			{
-			@Override
-			public void run_string (String text)
-				{
-				log ("callback: social error: " + text);
-				soc.close();
-				soc = null;
-				}
-			};
-			
-		soc.open (onConnected, onRead, onError);
-				
-		View vStop = findViewById (R.id.soc_stop);
-		if (vStop != null)
-			vStop.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	soc.close();
-		        	}
-				});
+		set_layer (toplayer.SOCIAL);		
+		social_class().start_social (config);
 		}
-    
-	public class SocialAdapter extends BaseAdapter
-		{
-		private Context context;
-		private social socials[] = null;
-		private boolean requested_image[] = null;
-				
-		public SocialAdapter (Context context, social socials[])
-			{
-			this.context = context;
-			this.socials = socials;
-			requested_image = new boolean [socials.length];
-			Arrays.fill (requested_image, Boolean.FALSE);
-			}
-	
-		public void set_content (social socials[])
-			{
-			this.socials = socials;
-			requested_image = new boolean [socials.length];
-			Arrays.fill (requested_image, Boolean.FALSE);
-			notifyDataSetChanged();
-			}
-		
-		@Override
-		public int getCount()
-			{			
-			log ("getcount: " + socials.length);
-			return socials == null ? 0 : socials.length;
-			}
-		
-		@Override
-		public Object getItem (int position)
-			{
-			return position;
-			}
-	
-		@Override
-		public long getItemId (int position)
-			{
-			return position;
-			}
-		
-		@Override
-		public View getView (final int position, View convertView, ViewGroup parent)
-			{
-			LinearLayout rv = null;
-					
-			log ("social getView: " + position + " (of " + getCount() + ")");
-			
-			if (convertView == null)
-				rv = (LinearLayout) View.inflate (main.this, R.layout.social_item, null);				
-			else
-				rv = (LinearLayout) convertView;
-						
-			if (rv == null)
-				{
-				log ("getView: [position " + position + "] rv is null!");
-				return null;
-				}
-			
-			if (position > socials.length)
-				{
-				log ("getView: position is " + position + " but only have " + socials.length + " items!");
-				return null;
-				}
-			
-			social soc = socials [position];
-			
-			TextView vTitle = (TextView) rv.findViewById (R.id.title);
-			if (vTitle != null)
-				vTitle.setText (soc.username);
-			
-			TextView vText = (TextView) rv.findViewById (R.id.text);
-			if (vText != null)
-				vText.setText (soc.text);
-	
-			TextView vCounter = (TextView) rv.findViewById (R.id.soc_counter);
-			if (vCounter != null)
-				vCounter.setText ("#" + Integer.toString (socials.length - position));
-			
-			TextView vSource = (TextView) rv.findViewById (R.id.message_source);
-			if (vSource != null)
-				vSource.setText (" on " + soc.type);
-						
-			log ("soc image? " + soc.image);
-			
-			log ("SOCIAL #" + Integer.toString (socials.length - position) + ": user=" + soc.username + " format=" + soc.format + " object=" + soc.object_id);
-			
-			TextView vWhat = (TextView) rv.findViewById (R.id.soc_what);
-			if (vWhat != null)
-				vWhat.setText (soc.format);
-			
-			TextView vAgo = (TextView) rv.findViewById (R.id.message_ago);
-			if (vAgo != null)
-				{
-				String ago = "";
-				if (soc.date.length() == "1409103232".length())
-					ago = util.ageof (main.this, Long.parseLong (soc.date));
-				vAgo.setText (ago);
-				}
-			
-			ImageView vThumb = (ImageView) rv.findViewById (R.id.soc_image);
-			if (vThumb != null)
-				{
-				boolean used_thumbnail = false;
-				
-				if (soc.image != null && soc.image.startsWith ("http"))
-					{
-					String filename = getFilesDir() + "/" + config.api_server + "/soc/" + soc.post_id + ".png";
-					File f = new File (filename);
-					if (f.exists())
-						{
-						Bitmap bitmap = BitmapFactory.decodeFile (filename);
-						if (bitmap != null)
-							{
-							vThumb.setImageBitmap (bitmap);
-							vThumb.setVisibility (View.VISIBLE);
-							used_thumbnail = true;
-							}								
-						}
-								
-					if (!used_thumbnail && !requested_image [position])
-						{
-						String image = soc.image;
-						if (soc.format != null && soc.format.equals ("photo") && soc.object_id != null)
-							{
-							/* this might be quite large */
-							String throwaway_token = "167147783347469|PUMgsuQgK9wOOVoYecDZV4b2-sw";
-							image = "https://graph.facebook.com/" + soc.object_id + "/picture?access_token=" + throwaway_token + "&type=normal"; 
-							}
-						
-						if (image.contains ("safe_image.php"))
-							{
-							/* extract original url from an embedded field in the Facebook url. undocumented */
-							String fields[] = image.split ("&");
-							for (String field: fields)
-								{ 
-								if (field.startsWith ("url="))
-									{
-									image = util.decodeURIComponent (field.substring (4));
-									break;
-									}
-								}
-							}
-						
-						int max_width = screen_width - pixels_20;
-						
-						thumbnail.download_soc_image (main.this, config, soc.post_id, image, max_width, in_main_thread, new Runnable()
-							{
-							@Override
-							public void run()
-								{
-								notifyDataSetChanged();
-								}
-							});
-						}
-					}
-				
-				if (!used_thumbnail)
-					vThumb.setVisibility (View.GONE);
-				}
-						
-			return rv;
-			}	
-		}	
+
+    public SocialLayer social_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+	    Fragment f = fm.findFragmentById (R.id.social_fragment_container);
+	    return (tv.tv9x9.player.SocialLayer) f;
+		}
+
 
 	/*** ADVERTISING **************************************************************************************************/
     
@@ -9695,28 +9265,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	
 	/*** STORE **************************************************************************************************/
     
-    boolean store_initialized = false;
-    
-	int category_stride = 27;
-	int category_total_channels = 0;
-	
-	String category_channels[] = null;
-	
-	/* current category shown */
-	int current_category_index = -1;
-	
-	/* the final category channel (a spinner) has been exposed, and the next step is being obtained */
-	boolean outgoing_category_query = false;
-	
-	StoreAdapter store_adapter = null;
-	
 	public void enable_store_layer()
 		{
 		disable_video_layer();
 		set_layer (toplayer.STORE);
-		setup_store_buttons();
-		store_init();
-		top_categories();
+		store_class().setup_store_buttons();
+		store_class().store_init (config);
+		store_class().top_categories();
 		
 		if (is_phone())
 			{
@@ -9732,450 +9287,13 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		track_layer (toplayer.STORE);
 		}	
 	
-	public void store_init()
-		{
-		if (!store_initialized)
-			{
-			store_initialized = true;
-			AbsListView vStore = (AbsListView) findViewById (is_tablet() ? R.id.store_list_tablet : R.id.store_list_phone);
-			// String category_id = category_list [current_category_index];
-			// store_adapter = new StoreAdapter (this, (StoreAdapter.mothership) this, config, current_category_index, category_id, category_channels);
-			store_adapter = new StoreAdapter (this, (StoreAdapter.mothership) this, config, -1, null, new String [0]);
-			vStore.setAdapter (store_adapter);
-			}
+    public StoreLayer store_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+	    Fragment f = fm.findFragmentById (R.id.store_fragment_container);
+	    return (tv.tv9x9.player.StoreLayer) f;
 		}
-	
-	public void setup_store_buttons()
-		{
-		View vCategoryName = findViewById (R.id.category_handle);
-		if (vCategoryName != null)
-			vCategoryName.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	toggle_category_layer();
-		        	}
-				});	
-		
-		View vStore = findViewById (R.id.storelayer);		
-		if (vStore != null)
-			vStore.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	/* eat this */
-		        	log ("store layer ate my tap!");
-		        	}
-				});				
-		}
-	
-	public void store_refresh()
-		{
-    	config.init_query_cache();
-		top_categories();
-		}
-	
-	public void toggle_category_layer()
-		{
-		View vCategoryLayer = findViewById (R.id.category_layer);
-		boolean is_visible = vCategoryLayer.getVisibility() == View.VISIBLE;
-		vCategoryLayer.setVisibility (is_visible ? View.GONE : View.VISIBLE);
-		}
-	
-	public void top_categories()
-		{
-		final String query = "category";
-				
-		if (config.query_cache.get (query) != null)
-			{
-			log ("top_categories: using cached data");
-			top_categories_inner (config.query_cache.get (query));
-			return;
-			}
-		
-		final long vc_start = System.currentTimeMillis();
-		
-		new playerAPI (in_main_thread, config, query)
-			{
-			public void success (String[] lines)
-				{
-				try
-					{
-					long vc_end = System.currentTimeMillis();
-					long elapsed = (vc_end - vc_start) / 1000L;
-					log ("[" + query + "] lines received: " + lines.length + ", elapsed: " + elapsed);
-					config.query_cache.put (query, lines);
-					top_categories_inner (lines);
-					}
-				catch (Exception ex)
-					{
-					ex.printStackTrace();
-					finish();
-					}
-				}
-	
-			public void failure (int code, String errtext)
-				{
-				alert ("ERROR! " + errtext);
-				}
-			};		
-		}
-
-	LineItemAdapter category_adapter = null;
-	
-	String category_list[] = null;
-	
-	/* right now we only need names */
-	Hashtable < String, String > category_names = new Hashtable < String, String > ();
-	
-	ListView vCategories = null;
-	
-	public void top_categories_inner (String[] lines)
-		{
-		int section = 0;
-		int num_categories = 0;
-		
-		for (String line: lines)
-			{
-			if (line.equals ("--"))
-				section++;
-			else if (section == 1)
-				num_categories++;
-			}
-		
-		if (num_categories < 1)
-			{
-			String txt_no_store = getResources().getString (R.string.store_not_available);
-			alert (txt_no_store);
-			return;
-			}
-		
-		category_list = new String [num_categories];
-		
-		int count = 0;
-		section = 0;
-		
-		for (String line: lines)
-			{
-			log ("top category. LINE: " + line);
-			if (line.equals ("--"))
-				section++;
-			else if (section == 1)
-				{
-				String fields[] = line.split ("\t");
-				category_list [count++] = fields [0];
-				category_names.put (fields[0], fields[1]);
-				log ("category " + fields[0] + " => " + fields[1]);
-				}
-			}
-		
-		vCategories = (ListView) findViewById (R.id.category_list);		
-		if (vCategories != null)
-			{
-			category_adapter = new LineItemAdapter (this, category_list, toplayer.STORE);
-			vCategories.setAdapter (category_adapter);
-			}
-		
-		if (vCategories != null)
-			vCategories.setOnItemClickListener (new OnItemClickListener()
-				{
-				public void onItemClick (AdapterView parent, View v, int position, long id)
-					{
-					if (position < category_list.length)
-						{
-						log ("category click: " + position);
-						load_category (position, 0);
-						toggle_category_layer();
-						}
-					}
-				});					
-				
-		redraw_menu();
-		
-		/* load the first category */
-		load_category (0, 0);		
-		}
-
-	public boolean outgoing_category_queries_pending()
-		{
-		return outgoing_category_query;
-		}
-	
-	public void load_category (final int index, final int starting)
-		{
-		/* http://player.9x9.tv/playerAPI/categoryInfo?category=6&lang=en&start=30&count=3 */	
-		
-		outgoing_category_query = true;
-		
-		final AbsListView vStore = (AbsListView) findViewById (is_tablet() ? R.id.store_list_tablet : R.id.store_list_phone);
-		final View vSpinner = findViewById (R.id.store_progress);
-		
-		if (starting == 0)
-			vStore.setSelection (0);
-		
-		String category_id = category_list [index];	
-		set_store_category_name (category_id);
-		
-		final String query = "categoryInfo?category=" + category_id
-				+ "&region=" + config.region + "&count=" + category_stride + "&start=" + starting;
-		
-		if (config.query_cache.get (query) != null)
-			{
-			log ("load category " + category_id + ": using cached data");
-			load_category_inner (index, starting, config.query_cache.get (query));
-			return;
-			}
-				
-		if (starting == 0)
-			{
-			vStore.setVisibility (View.GONE);
-			vSpinner.setVisibility (View.VISIBLE);
-			}
-		
-		final long vc_start = System.currentTimeMillis();
-		
-		new playerAPI (in_main_thread, config, query)
-			{
-			public void success (String[] lines)
-				{
-				try
-					{
-					vStore.setVisibility (View.VISIBLE);
-					vSpinner.setVisibility (View.GONE);
-					store_spinner (false);
-					long vc_end = System.currentTimeMillis();
-					long elapsed = (vc_end - vc_start) / 1000L;
-					log ("[" + query + "] lines received: " + lines.length + ", elapsed: " + elapsed);
-					config.query_cache.put (query, lines);
-					load_category_inner (index, starting, lines);
-					}
-				catch (Exception ex)
-					{
-					vStore.setVisibility (View.VISIBLE);
-					vSpinner.setVisibility (View.GONE);
-					store_spinner (false);
-					ex.printStackTrace();
-					finish();
-					}
-				}
-	
-			public void failure (int code, String errtext)
-				{
-				alert ("ERROR! " + errtext);
-				}
-			};		
-		}
-	
-	public void store_spinner (boolean visible)
-		{
-		// vStore.setVisibility (visible ? View.GONE : View.VISIBLE);
-		}
-	
-	public void load_category_inner (int index, int starting, String lines[])
-		{
-		String category_id = category_list [index];
-		
-		int section = 0;
-		int count = 0;
-		int expected_count = 0;
-		
-		/* "total" and "stride" are presently unreliable, so count the lines by iteration */
-		for (String line: lines)
-			{
-			if (line.equals ("--"))
-				section++;
-			else if (section == 0)
-				{
-				log ("KV: " + line);
-				String fields[] = line.split ("\t");
-				if (fields.length >= 2)
-					{
-					if (fields[0].equals ("count"))					
-						/* category_stride = Integer.parseInt (fields[1]) */ ;
-					else if (fields[0].equals ("total"))
-						category_total_channels = Integer.parseInt (fields[1]);
-					else if (fields[0].equals ("channeltag"))
-						parse_special_tags ("store", fields[1], category_id);
-					}
-				}
-			else if (section == 2)
-				{
-				String fields[] = line.split ("\t");
-				if (fields.length > 5)
-					expected_count++;
-				}
-			}
-		/* prevent any crazy -- when higher it could download over a thousand thumbnails */
-		if (expected_count > category_stride)
-			{
-			log ("too many channels returned for this category! restricting to " + category_stride);
-			expected_count = category_stride;
-			}
-		
-		int allocation = 1 + starting + expected_count;
-		if (allocation > category_total_channels)
-			allocation = category_total_channels;
-		String new_category_channels[] = new String [allocation];
-				
-		for (int i = 0; i < starting; i++)
-			new_category_channels [i] = category_channels [i];
-	
-		section = 0;
-		count = starting;
-		
-		for (String line: lines)
-			{
-			// Log.i ("vtest", "load category inner LINE: " + line); // noisy
-			if (line.equals ("--"))
-				section++;
-			else if (section == 2)
-				{
-				String fields[] = line.split ("\t");
-				// Log.i ("vtest", "[store] in category " + category_id + ", channel: " + fields[1]); // noisy
-				config.parse_channel_info_line (line);
-				if (count < new_category_channels.length)
-					new_category_channels [count++] = fields[1];
-				}
-			}
-		
-		/* sentinel to indicate more channels available via stepping API */
-		if (allocation == 1 + starting + expected_count)
-			new_category_channels [count++] = "+";
-		
-		category_channels = new_category_channels;
-		
-		log ("load category inner (" + category_id + "): " + expected_count + " channels, total now: " + allocation);
-				
-		current_category_index = index;
-		outgoing_category_query = false;
-		
-		for (int i = 0; i < category_channels.length; i++)
-			log ("CATCH load_cat" + i + ": " + category_channels [i]);
-
-		store_adapter.set_content (current_category_index, category_id, category_channels);	
-		redraw_store_list();
-		
-		thumbnail.stack_thumbs (main.this, config, category_channels, -1, in_main_thread, store_channel_thumb_updated);
-
-		if (category_adapter != null)
-			category_adapter.notifyDataSetChanged();
-			
-		set_store_category_name (category_id);
-		
-		AbsListView vStore = (AbsListView) findViewById (is_tablet() ? R.id.store_list_tablet : R.id.store_list_phone);
-		vStore.setVisibility (View.VISIBLE);
-		
-		View vSpinner = findViewById (R.id.store_progress);
-		vSpinner.setVisibility (View.GONE);
-		}
-
-	final Runnable store_channel_thumb_updated = new Runnable()
-		{
-		public void run()
-			{
-			if (store_adapter != null)
-				store_adapter.notifyDataSetChanged();
-			}
-		};
-
-	public void set_store_category_name (String category_id)
-		{
-		String name = category_names.get (category_id);			
-		String txt_category_colon = getResources().getString (R.string.categorycolon);
-		
-		TextView vCategoryName = (TextView) findViewById (R.id.category_name);
-		if (vCategoryName != null)
-			{
-			vCategoryName.setText (txt_category_colon + " " + name);
-			if (is_phone())
-				vCategoryName.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
-			}
-		}
-	public void redraw_store_list()
-		{	
-		}
-		
-	class LineItemAdapter extends ArrayAdapter <String>
-		{
-		Activity context;
-		String list[] = null;
-		toplayer layer = null;
-	
-		LineItemAdapter (Activity context, String list[], toplayer layer)
-			{
-			super (context, R.layout.category_item, list);
-			this.context = context;
-			this.layer = layer;
-			set_content (list);
-			}
-	
-		public void set_content (String list[])
-			{
-			/* if the first element is null, generate a new array without it */
-			if (list.length > 0 && list[0] == null)
-				list = Arrays.copyOfRange (list, 1, list.length);
-			
-			log ("LineItemAdapter " + layer.toString() + " changed (" + list.length + " entries)");
-			this.list = list;
-			notifyDataSetChanged();
-			}
-		
-		public String get_id (int position)
-			{
-			return list [position];
-			}
-		
-		@Override
-		public int getCount()
-			{
-			return list.length;
-			}
-		
-		@Override
-		public View getView (int position, View convertView, ViewGroup parent)
-			{
-			log ("lineitem getView: " + position);
-			
-			if (position >= getCount())
-				{
-				Log.e ("vtest", "race condition! position=" + position + " but list.length is " + list.length);
-				return null;
-				}
-			
-			View row = convertView;			
-			
-			/* the recycled views have issues with ellipse, and these are cheap, so issue a fresh one each time */
-			if (true || row == null)
-				{
-				row = inflater.inflate (R.layout.category_item, null);
-				}
-			
-			String name = null;			
-
-			String id = list [position];
-			
-			if (layer == toplayer.STORE)
-				name = category_names.get (id);
-			else if (layer == toplayer.HOME)
-				name = config.pool_meta (id, "name");
-			
-			TextView vTitle = (TextView) row.findViewById (R.id.title);
-			vTitle.setText (name != null ? name : "?");
-
-			if (is_phone())		
-				{
-				vTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 24);
-				// LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vTitle.getLayoutParams();
-				// layout.height = pixels_70;
-				// vTitle.setLayoutParams (layout);
-				}
-			
-			return row;
-			}
-		}
-
+    
 	/*** SEARCH **************************************************************************************************/
 	
 	boolean search_initialized = false;
@@ -10324,7 +9442,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		if (encoded_term == null)
 			return;
 
-		store_spinner (true);
+		store_class().store_spinner (true);
 		prepare_search_screen (term);
 		
 		search_9x9_done = search_youtube_done = false;
@@ -10341,7 +9459,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 	
 				log ("search lines received: " + chlines.length);
 	
-				store_spinner (false);
+				store_class().store_spinner (false);
 				
 				int section = 0;
 				int num_channels = 0;
@@ -10550,403 +9668,24 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		};
 		
 	/*** MESSAGES **************************************************************************************************/
-	    
-	boolean messages_initialized = false;
-	
-	AbsListView messages_view = null;
-	MessagesAdapter messages_adapter = null;
 	
 	public void enable_messages_layer()
 		{
 		disable_video_layer();
 		set_layer (toplayer.MESSAGES);
-		setup_messages_buttons();
-		messages_init();
-		messages_display_content();
+		messages_class().setup_messages_buttons();
+		messages_class().messages_init (config);
+		messages_class().messages_display_content();
 		track_layer (toplayer.MESSAGES);
-		}	
-	
-	public void messages_init()
-		{
-		if (!messages_initialized)
-			{
-			messages_initialized = true;
-			messages_view = (AbsListView) findViewById (is_tablet() ? R.id.message_list_tablet : R.id.message_list_phone);
-			messages_adapter = new MessagesAdapter (this, new message[] {});
-			messages_view.setAdapter (messages_adapter);
-					
-			if (is_phone())
-				{
-				/* ListView supports footer but GridView does not */
-	    		LayoutInflater inflater = main.this.getLayoutInflater();
-	    		View shim = inflater.inflate (R.layout.footer_shim, null);
-	    		((ListView) messages_view).addFooterView (shim);
-				}
-			}
-		}
-	
-	public void setup_messages_buttons()
-		{
-		View vStore = findViewById (R.id.messagelayer);		
-		if (vStore != null)
-			vStore.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	/* eat this */
-		        	log ("message layer ate my tap!");
-		        	}
-				});				
-		}
-	
-	public class message
-		{
-		String mso;
-		String title;
-		String description;
-		String channel;
-		String episode;
-		String timestamp;
-		String logo;
-		}
-	
-	public message parse_notification_file (String ts)
-		{
-		message m = new message();
-    	File configfile = new File (getFilesDir(), "notifications/" + ts);
-    	try
-    		{
-    	    FileReader reader = new FileReader (configfile);
-    	    BufferedReader br = new BufferedReader (reader);
-    	    String line = br.readLine();    
-    	    while (line != null)
-    	    	{
-    	    	while (line != null)
-    	    		{
-    	    		String fields[] = line.split ("\t");
-    	    		if (fields.length >= 2)
-    	    			{
-    	    			log ("notification " + ts + " k: " + fields[0] + " v: " + fields[1]);
-    					if (fields[0].equals ("title"))
-    						m.title = fields[1];
-    					if (fields[0].equals ("mso"))
-    						m.mso = fields[1];    		
-    					if (fields[0].equals ("channel"))
-    						m.channel = fields[1];      
-    					if (fields[0].equals ("episode"))
-    						m.episode = fields[1];    
-    					if (fields[0].equals ("text"))
-    						m.description = fields[1];
-    					if (fields[0].equals ("logo"))
-    						m.logo = fields[1];
-    	    			}
-    	    		line = br.readLine();    	    		
-    	    		}
-    	    	}
-    	    reader.close();
-    	    m.timestamp = ts.replaceAll ("\\.seen", "");
-    	    if (m.title == null)
-    	    	m.title = getResources().getString (R.string.app_name);
-    		}
-    	catch (IOException ex)
-    		{
-    	    ex.printStackTrace();
-    	    return null;
-    		}
-    	return m;
-		}
-	
-	public Stack <message> messages_gather (boolean unseen_only)
-		{
-		File dir = new File (getFilesDir(), "notifications");
-		
-		File[] files = dir.listFiles();
-	
-		/* to allow filtering out duplicates */
-		HashSet <String> message_de_duper = new HashSet <String> ();
-		
-		if (files != null)
-			{
-			/* sort in the reverse of what we need, because of Stack */
-			Arrays.sort (files);
-			}
-		
-		final Stack <message> stack = new Stack <message> ();
-		
-		if (files != null)
-	        for (File f: files)
-	        	{
-	        	log ("file: " + f);
-	        	String parts[] = f.toString().split ("/");
-	        	/* last component of the filepath is mostly a timestamp */
-	        	String ts = parts [parts.length-1];
-	        	if (ts.endsWith (".seen"))
-	        		{
-	        		if (unseen_only)
-	        			continue;
-	        		}
-	        	else
-	        		{
-	        		if (!unseen_only)
-	        			{
-		        		f.renameTo (new File (f.toString() + ".seen"));
-		        		ts = ts + ".seen";
-	        			}
-	        		}
-	        	message m = parse_notification_file (ts);
-	        	if (m != null && m.title != null)
-	        		{
-	        		String ident = m.title + "\t" + m.description + "\t" + m.channel + "\t" + m.episode;
-	        		if (!message_de_duper.contains (ident))
-	        			{
-	        			stack.push (m);
-	        			message_de_duper.add (ident);
-	        			}
-	        		else
-	        			log ("a very similar notification already exists -- filtered out");
-	        		}
-	        	}
+		}		
 
-		return stack;
+    public MessagesLayer messages_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+	    Fragment vLeft = fm.findFragmentById (R.id.message_fragment_container);
+	    return (tv.tv9x9.player.MessagesLayer) vLeft;
 		}
 	
-	public void messages_display_content()
-		{
-		final Stack <message> stack = messages_gather (false);
-		
-		final Stack <String> channels = new Stack <String> ();
-		final Stack <String> unknown_channels = new Stack <String> ();
-       
-		/* for the UI badge */
-		messages_count = 0;
-		redraw_menu();
-		
-        int count = 0;
-        message messages[] = new message [stack.size()];
-        while (!stack.empty())
-        	{
-        	message m = stack.pop();
-    		if (m.channel != null)
-				{
-				channels.push (m.channel);
-				String id = config.pool_meta (m.channel, "id");
-				if (id == null || id.equals (""))
-					unknown_channels.push (m.channel);
-				}
-        	messages [count++] = m;
-        	}
-        
-		log ("[notifications] total messages: " + stack.size());
-		log ("[notifications] total channels: " + channels.size());
-		log ("[notifications] total unknown channels: " + unknown_channels.size());
-		
-		View vNo = findViewById (R.id.no_new_messages);
-		vNo.setVisibility (messages == null || messages.length == 0 ? View.VISIBLE : View.GONE);
-		messages_view.setVisibility (messages == null || messages.length == 0 ? View.GONE : View.VISIBLE);
-
-		if (messages_adapter != null)
-			{
-			messages_adapter.set_content (messages);			
-			messages_view.setOnItemClickListener (new OnItemClickListener()
-				{
-				public void onItemClick (AdapterView parent, View v, int position, long id)
-					{
-					message m = messages_adapter.get_item (position);
-					if (m.channel != null)
-						{
-			            String fake_set[] = new String[] { m.channel };
-			            if (m.episode != null)
-			            	launch_player (m.channel, m.episode, fake_set);
-			            else
-			            	launch_player (m.channel, fake_set);
-						}
-					else
-						enable_home_layer();
-					}
-				});
-			}
-		
-		final Runnable download_thumbs = new Runnable()
-			{
-			public void run()
-				{
-				if (channels.size() > 0)
-					{
-			        int count = 0;
-			        String channel_list[] = new String [channels.size()];
-			        while (!channels.empty())
-			        	channel_list [count++] = channels.pop();
-			    	
-			        final Runnable update_notify_thumbs = new Runnable()
-						{
-						public void run()
-							{
-							messages_adapter.notifyDataSetChanged();
-							}
-						};
-					
-			        thumbnail.stack_thumbs (main.this, config, channel_list, -1, in_main_thread, update_notify_thumbs);
-					}
-				}
-			};
-		
-		if (messages.length > 0)
-			{
-			if (unknown_channels.size() > 0)
-				{
-		        int uncount = 0;
-		        String ids[] = new String [unknown_channels.size()];
-		        while (!unknown_channels.empty())
-		        	ids [uncount++] = unknown_channels.pop();
-		        
-		        String channel_ids = TextUtils.join (",", ids); 
-		        
-				new playerAPI (in_main_thread, config, "channelLineup?channel=" + channel_ids)
-					{
-					public void success (String[] chlines)
-						{
-						log ("load channel for notifications, lines received: " + chlines.length);
-						config.parse_channel_info (chlines);
-						download_thumbs.run();
-						}
-			
-					public void failure (int code, String errtext)
-						{
-						log ("ERROR! " + errtext);
-						}
-					};
-				}
-			else
-				download_thumbs.run();
-			}
-		}
-		
-	public class MessagesAdapter extends BaseAdapter
-		{
-		private Context context;
-		private message messages[] = null;
-		
-		public MessagesAdapter (Context context, message messages[])
-			{
-			this.context = context;
-			this.messages = messages;
-			}
-
-		public void set_content (message messages[])
-			{
-			this.messages = messages;
-			notifyDataSetChanged();
-			}
-		
-		public message get_item (int position)
-			{
-			return messages [position];
-			}
-			
-		@Override
-		public int getCount()
-			{			
-			// log ("getcount: " + messages.length);
-			return messages == null ? 0 : messages.length;
-			}
-		
-		@Override
-		public Object getItem (int position)
-			{
-			return position;
-			}
-	
-		@Override
-		public long getItemId (int position)
-			{
-			return position;
-			}
-		
-		@Override
-		public View getView (final int position, View convertView, ViewGroup parent)
-			{
-			LinearLayout rv = null;
-					
-			log ("messages getView: " + position + " (of " + getCount() + ")");
-			
-			if (convertView == null)
-				rv = (LinearLayout) View.inflate (main.this, R.layout.message_item, null);				
-			else
-				rv = (LinearLayout) convertView;
-						
-			if (rv == null)
-				{
-				log ("getView: [position " + position + "] rv is null!");
-				return null;
-				}
-			
-			TextView vTitle = (TextView) rv.findViewById (R.id.title);
-			if (vTitle != null)
-				vTitle.setText (messages [position].title);
-			
-			TextView vDesc = (TextView) rv.findViewById (R.id.desc);
-			if (vDesc != null)
-				vDesc.setText (messages [position].description);
-
-			TextView vAgo = (TextView) rv.findViewById (R.id.message_ago);
-			if (vAgo != null)
-				{
-				String ago = util.ageof (main.this, Long.parseLong (messages [position].timestamp) / 1000);
-				vAgo.setText (ago);
-				}
-			
-			boolean icon_found = false;
-			String channel_id = messages [position].channel;
-			
-			ImageView vIcon = (ImageView) rv.findViewById (R.id.icon); 	
-			if (vIcon != null)
-				{
-				if (channel_id != null)
-					{
-					log ("[notify] channel: " + channel_id);
-					
-					String filename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + channel_id + ".png";
-						
-					File f = new File (filename);
-					if (f.exists())
-						{
-						Bitmap bitmap = BitmapFactory.decodeFile (filename);
-						if (bitmap != null)
-							{
-							icon_found = true;
-							vIcon.setImageBitmap (bitmap);
-							}
-						}
-					else
-						log ("channel icon for " + channel_id + " not found");
-					}
-				else
-					{
-					icon_found = true;
-					vIcon.setImageResource (R.drawable.home_channel);
-					}
-				}
-			
-			/* default should not be home_channel though */
-			if (!icon_found)
-				vIcon.setImageResource (R.drawable.home_channel);		
-			
-			if (is_tablet())
-				{
-				View vMessageBlock = rv.findViewById (R.id.message_block);
-				if (vMessageBlock != null)
-					{
-					LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vMessageBlock.getLayoutParams(); 
-					layout.rightMargin = pixels_4;
-					layout.leftMargin = pixels_4;
-					vMessageBlock.setLayoutParams (layout);
-					}
-				}
-			return rv;
-			}	
-		}	
-
 	/*** SETTINGS **************************************************************************************************/
 		
 	boolean original_notify_setting = false;
@@ -11029,42 +9768,18 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		
 		String vService = Context.VIBRATOR_SERVICE;
 		Vibrator vibrator = (Vibrator) getSystemService (vService);
-
-		View vSoundSection = findViewById (R.id.sound_when_notified);
-		if (vSoundSection != null)
-			vSoundSection.setVisibility (config.notifications_enabled ? View.VISIBLE : View.GONE);
-		
-		View vSoundDivider = findViewById (R.id.sound_notifications_divider);
-		if (vSoundDivider != null)
-			vSoundDivider.setVisibility (config.notifications_enabled ? View.VISIBLE : View.GONE);
-		
-		View vVibrateSection = findViewById (R.id.vibrate_when_notified);
-		if (vVibrateSection != null)
-			vVibrateSection.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
 		
 		View vVibrateSection2 = findViewById (R.id.settings_vibrate);
 		if (vVibrateSection2 != null)
 			vVibrateSection2.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);	
-		
-		View vVibrateDivider = findViewById (R.id.vibrate_notifications_divider);
-		if (vVibrateDivider != null)
-			vVibrateDivider.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
 
 		View vVibrateDivider2 = findViewById (R.id.settings_vibrate_divider);
 		if (vVibrateDivider2 != null)
 			vVibrateDivider2.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
 		
-		ImageView vNotify = (ImageView) findViewById (R.id.enable_notifications_image);
-		if (vNotify != null)
-			vNotify.setImageResource (config.notifications_enabled ? R.drawable.check_checked_52 : R.drawable.check_unchecked_52);
-		
 		ImageView vVibrateWhen = (ImageView) findViewById (R.id.vibrate_when_notified_image);
 		if (vVibrateWhen != null)
 			vVibrateWhen.setImageResource (config.notify_with_vibrate ? R.drawable.check_checked_52 : R.drawable.check_unchecked_52);
-		
-		ImageView vSoundWhen = (ImageView) findViewById (R.id.sound_when_notified_image);
-		if (vSoundWhen != null)
-			vSoundWhen.setImageResource (config.notify_with_sound ? R.drawable.check_checked_52 : R.drawable.check_unchecked_52);
 		
 		Switch vNotifySwitch = (Switch) findViewById (R.id.settings_notification_switch);
 		if (vNotifySwitch != null)
@@ -11180,16 +9895,6 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 		{
 		final View vLayer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
 		
-		/*
-		if (!is_tablet())
-			{
-			View vTopBar = vLayer.findViewById (R.id.settings_top_bar_resizable);
-			LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vTopBar.getLayoutParams();
-			layout.height = is_phone() ? pixels_60 : pixels_160;
-			vTopBar.setLayoutParams (layout);		
-			}
-		*/
-		
 		View vBanner = findViewById (R.id.settings_banner);
 		if (vBanner != null)
 			vBanner.setOnClickListener (new OnClickListener()
@@ -11213,71 +9918,7 @@ public class main extends VideoBaseActivity implements StoreAdapter.mothership, 
 				vAppIcon.setImageResource (app_icon_id);
 				}
 			}
-		
-		View vNotifications = findViewById (R.id.enable_notifications);
-		if (vNotifications != null)
-			vNotifications.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings enable notifications checkbox");
-		        	config.notifications_enabled = !config.notifications_enabled;
-		        	redraw_settings();;
-		        	}
-				});
-		
-		View vVibrateWhen = findViewById (R.id.vibrate_when_notified);
-		if (vVibrateWhen != null)
-			vVibrateWhen.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings vibrate checkbox");
-		        	config.notify_with_vibrate = !config.notify_with_vibrate;
-		        	redraw_settings();
-		        	}
-				});
-		
-		View vSoundWhen = findViewById (R.id.sound_when_notified);
-		if (vSoundWhen != null)
-			vSoundWhen.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings sound checkbox");
-		        	config.notify_with_sound = !config.notify_with_sound;
-		        	redraw_settings();
-		        	}
-				});	
-		
-		View vCancel = vLayer.findViewById (R.id.settings_cancel);
-		if (vCancel != null)
-			vCancel.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings cancel button");
-		        	restore_notification_settings();
-		        	settings_exit();
-		        	}
-				});	
-
-		View vSave = vLayer.findViewById (R.id.settings_save);
-		if (vSave != null)
-			vSave.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings save button");
-		        	save_settings();
-		        	}
-				});
-		
+	
 		View vSignout = vLayer.findViewById (R.id.settings_signout);
 		if (vSignout != null)
 			vSignout.setOnClickListener (new OnClickListener()
