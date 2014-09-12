@@ -37,6 +37,7 @@
 <!-- package="tv.flipr.demo1" -->
 <!-- package="tv.flipr.demo2" -->
 <!-- package="tv.flipr.yourapp2" -->
+<!-- package="tv.flipr.yourapp3" -->
 <!-- package="tv.dingdingtv.player9x9tv" -->
 <!-- package="tv.flipr.sundance" -->
 <!-- package="tv.flipr.iconcerts" -->
@@ -45,8 +46,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="134"
-      android:versionName="5.0.1.134">
+      android:versionCode="135"
+      android:versionName="5.0.1.135">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -88,6 +89,7 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
+			<!--		
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -103,7 +105,8 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-9x9" />        	       					   					
 			</intent-filter>
-			   		
+			-->
+						   		
 			<!-- for Joey Graceffa -->
 			<!--		
 			<intent-filter>
@@ -463,6 +466,14 @@
      			<data android:scheme="flipr-yourapp2" />        	       		   					
   			</intent-filter>
   			-->	       
+ 
+            <!-- for YourApp3 -->
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-yourapp3" />        	       		   					
+  			</intent-filter>
   			
 			<!-- for DingDingTV -->
             <!--   

@@ -3,7 +3,7 @@
     android:id="@+id/main"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-   	android:background="#FF0000">
+   	android:background="#FFFFFF">
 
     <include layout="@layout/menu_layer" />
 
@@ -23,14 +23,34 @@
  
 		    <include layout="@layout/home_layer" android:id="@+id/home_layer" />
 		    	    	        	    			
-			<include layout="@layout/apps_layer" />
-				    
+			<!-- include layout="@layout/apps_layer" / -->
+			
+			<fragment
+			    class="tv.tv9x9.player.AppsLayer"
+			    android:id="@+id/apps_fragment_container"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />
+							    
 		    <include layout="@layout/signin_phone_new" />
 		   
 		    <include layout="@layout/terms_layer_new" />
 		    	    
-		    <include layout="@layout/guide_layer" />
-	
+		    <!-- include layout="@layout/guide_layer" / -->
+		    
+			<fragment
+			    class="tv.tv9x9.player.GuideLayer"
+			    android:id="@+id/guide_fragment_container"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />
+				
 			<!-- include layout="@layout/store_layer" / -->
 	
 			<fragment
@@ -43,7 +63,17 @@
 			    android:background="#000000"
 			    />
 				
-			<include layout="@layout/search_layer" />
+			<fragment
+			    class="tv.tv9x9.player.SearchLayer"
+			    android:id="@+id/search_fragment_container"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />
+						
+			<!-- include layout="@layout/search_layer" / -->
 	
 			<!-- include layout="@layout/message_layer" / -->
 					
@@ -61,8 +91,18 @@
 	
 			<include layout="@layout/about_layer" />
 									
-			<include layout="@layout/settings_phone_new" />
+			<!-- include layout="@layout/settings_phone_new" / -->
 
+			<fragment
+			    class="tv.tv9x9.player.SettingsLayer"
+			    android:id="@+id/settings_fragment_container_phone"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />
+			
 			<include layout="@layout/password_phone" />
 					
 			<!-- include layout="@layout/social_layer" / -->
@@ -77,7 +117,17 @@
 			    android:background="#000000"
 			    />
 						
-			<include layout="@layout/feedback_layer" />
+			<!-- include layout="@layout/feedback_layer" / -->
+			
+			<fragment
+			    class="tv.tv9x9.player.FeedbackLayer"
+			    android:id="@+id/feedback_fragment_container"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />
 										
 			<include layout="@layout/test_layer" />
 												
@@ -92,8 +142,18 @@
 		
 	<include layout="@layout/nag_layer" />
 		
-	<include layout="@layout/settings_tablet_new" />
+	<!-- include layout="@layout/settings_tablet_new" / -->
 
+	<fragment
+	    class="tv.tv9x9.player.SettingsLayer"
+	    android:id="@+id/settings_fragment_container_tablet"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	   	android:layout_gravity="center"
+	   	android:gravity="top|center_horizontal"
+	    android:background="#000000"
+	    />
+				
 	<include layout="@layout/signin_tablet_new" />
 			
 	<include layout="@layout/password_tablet" />

@@ -3302,6 +3302,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			return "tablet";
 		}
 		
+	public boolean dongle_mode()
+		{
+		return dongle_mode;
+		}
+	
 	public void make_osd_visible()
 		{
 		if (!osd_visible_in_full_screen)

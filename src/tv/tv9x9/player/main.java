@@ -32,6 +32,13 @@ import tv.tv9x9.player.HorizontalListView.OnScrollListener;
 import tv.tv9x9.player.MessagesLayer.OnMessagesListener;
 import tv.tv9x9.player.SocialLayer.OnSocialListener;
 import tv.tv9x9.player.StoreLayer.OnStoreListener;
+import tv.tv9x9.player.SearchLayer.OnSearchListener;
+import tv.tv9x9.player.SettingsLayer.OnSettingsListener;
+import tv.tv9x9.player.GuideLayer.OnGuideListener;
+import tv.tv9x9.player.AppsLayer.OnAppsListener;
+import tv.tv9x9.player.FeedbackLayer.OnFeedbackListener;
+
+import tv.tv9x9.player.AppsLayer.app;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -47,14 +54,12 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.pm.Signature;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
@@ -65,7 +70,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
-import android.os.Vibrator;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -92,12 +96,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -106,8 +107,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import android.widget.Switch;
-import android.widget.TableRow;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -130,7 +129,8 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import com.google.android.gms.ads.*;
 
-public class main extends VideoBaseActivity implements OnMessagesListener, OnSocialListener, OnStoreListener
+public class main extends VideoBaseActivity 
+		implements OnMessagesListener, OnSocialListener, OnStoreListener, OnSearchListener, OnSettingsListener, OnGuideListener, OnAppsListener, OnFeedbackListener
 	{
 	boolean single_channel = false;
 	boolean single_episode = false;
@@ -325,13 +325,13 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 	    	
 	    	if (is_tablet())
 	    		{
-	    		View vSettings = findViewById (R.id.settingslayer_tablet);
-	    		if (vSettings.getVisibility() == View.VISIBLE)
-	    			{
-	    			log ("disable settings overlay");
-	    			vSettings.setVisibility (View.GONE);
-	    			return true;
-	    			}
+				Fragment f = getSupportFragmentManager().findFragmentById (R.id.settings_fragment_container_tablet);		
+				if (!f.isHidden())
+					{
+					log ("hide Settings fragment");
+					disable_settings_layer();
+					return true;
+					}
 	    		
 	    		View vSignin = findViewById (R.id.signinlayer_tablet);
 	    		if (vSignin.getVisibility() == View.VISIBLE)
@@ -487,10 +487,13 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 			((ViewManager) vNotNeededSigninLayer.getParent()).removeView (vNotNeededSigninLayer);
 		
 		/* remove the phone/tablet sublayer which we won't use */
-		View vNotNeededSettingsLayer = findViewById (is_phone() ? R.id.settingslayer_tablet : R.id.settingslayer_phone);
+		// View vNotNeededSettingsLayer = findViewById (is_phone() ? R.id.settingslayer_tablet : R.id.settingslayer_phone);
+		//if (vNotNeededSettingsLayer != null)
+		// 	((ViewManager) vNotNeededSettingsLayer.getParent()).removeView (vNotNeededSettingsLayer);
+		View vNotNeededSettingsLayer = findViewById (is_phone() ? R.id.settings_fragment_container_tablet : R.id.settings_fragment_container_phone);
 		if (vNotNeededSettingsLayer != null)
 			((ViewManager) vNotNeededSettingsLayer.getParent()).removeView (vNotNeededSettingsLayer);
-
+		
 		/* remove the phone/tablet sublayer which we won't use */
 		View vNotNeededPasswordLayer = findViewById (is_phone() ? R.id.passwordlayer_tablet : R.id.passwordlayer_phone);
 		if (vNotNeededPasswordLayer != null)
@@ -707,7 +710,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 			}
 		
 		/* this will create notification settings */
-		load_notification_settings();
+		settings_class().load_notification_settings (config);
 		
 		gcm_register();
 		
@@ -878,6 +881,11 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 			});	
 		}
 	
+	public toplayer get_current_layer()
+		{
+		return current_layer;
+		}
+	
 	public void activate_layer (toplayer layer)
 		{
     	make_layer_visible (layer);
@@ -980,7 +988,8 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: global search button");
-		        	enable_search_apparatus (R.id.sliding_top_bar);
+		        	View vBar = findViewById (R.id.sliding_top_bar);
+		        	search_class().enable_search_apparatus (config, vBar);
 		        	}
 				});	
 		
@@ -1196,6 +1205,18 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 	public boolean initialized_app_menu = false;
 	public boolean initialized_category_menu = false;
 	
+	public void refresh_menu_adapter()
+		{
+		if (menu_adapter != null)
+			menu_adapter.notifyDataSetChanged();
+		}
+	
+	public void redraw_menu_if_created()
+		{
+		if (menu_adapter != null)
+			redraw_menu();
+		}
+			
 	public void redraw_menu()
 		{
 		if (config == null)
@@ -1209,7 +1230,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 				@Override
 				public void run()
 					{
-					init_apps();
+					apps_class().init_apps (config);
 					}
 				}, 15000);
 			}
@@ -1217,7 +1238,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		setup_menu_buttons();
 		
 		/*
-		 * if we want categories in the menu
+		 * if we want categories in the menu. note: bitrot
 		if (category_list == null && !initialized_app_menu)
 			{
 			initialized_category_menu = true;
@@ -1234,7 +1255,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		items.push (new menuitem (toplayer.STORE, R.string.store, R.drawable.icon_store, R.drawable.icon_store_press));
 	
 		/*
-		 * if we want categories in the menu
+		 * if we want categories in the menu. note: bitrot
 		if (current_layer == toplayer.STORE && category_list != null)
 			{				
 			for (String category_id: category_list)
@@ -1262,6 +1283,8 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		
 		/* no help screen has been provided yet */
 		// items.push (new menuitem (toplayer.HELP, R.string.help, R.drawable.icon_help, R.drawable.icon_help));
+		
+		app[] recommended_apps = apps_class().get_recommended_apps();
 		
 		if (recommended_apps != null && recommended_apps.length > 0)
 			{
@@ -1390,7 +1413,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 	        	
 			case APP_ITEM:
 				log ("click on: menu app item: " + item.app_item.title);
-				launch_suggested_app (item.app_item.title, item.app_item.market_url);
+				apps_class().launch_suggested_app (item.app_item.title, item.app_item.market_url);
 				break;
 				
 			case SIGNOUT:
@@ -1497,9 +1520,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 			View vDownload = rv.findViewById (R.id.download);
 			if (vDownload != null)
 				vDownload.setVisibility (menu [position].type == toplayer.APP_ITEM ? View.VISIBLE : View.GONE);
-			
-			
-			
+						
 			ImageView vAppIcon = (ImageView) rv.findViewById (R.id.app_icon); 	
 			if (vAppIcon != null)
 				{		
@@ -1534,6 +1555,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 				vCount.setVisibility (count_visible ? View.VISIBLE : View.GONE);
 				if (menu [position].type == toplayer.APPS)					
 					{
+					app apps[] = apps_class().get_known_apps();
 					vCount.setText (apps == null ? "0" : ("" + apps.length));
 					vCount.setBackgroundResource (R.drawable.menu_number_bg);	
 					vCount.setTextColor (Color.BLACK);
@@ -1634,7 +1656,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		zero_signin_data();
 		
 		/* the settings view might be in the slider */
-		redraw_settings();
+		settings_class().redraw_settings();
 		}
 	
 	@Override
@@ -1644,7 +1666,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		setup_menu_buttons();
 		zero_signin_data();
 		/* the settings view might be in the slider */
-		redraw_settings();
+		settings_class().redraw_settings();
 		}
 	
 	@Override
@@ -2544,8 +2566,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 						ytchannel.subscribe_on_youtube (config, youtube_username);
 						config.subscriptions_altered = config.grid_update_required = true;
 						track_event ("function", "follow", "follow", 0, real_channel);
-						if (grid_slider != null)
-							grid_slider.notifyDataSetChanged();
+						guide_class().data_changed();
 						update_layer_after_subscribe (real_channel);
 						}
 					public void failure (int code, String errtext)
@@ -2598,8 +2619,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 						ytchannel.delete_on_youtube (config, youtube_username);
 						config.subscriptions_altered = config.grid_update_required = true;
 						track_event ("function", "unfollow", "unfollow", 0, real_channel);
-						if (grid_slider != null)
-							grid_slider.notifyDataSetChanged();
+						guide_class().data_changed();
 						update_layer_after_subscribe (real_channel);
 						}
 					public void failure (int code, String errtext)
@@ -2674,13 +2694,12 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 			}
 		else if (current_layer == toplayer.SEARCH)
 			{
-			if (search_adapter != null)
-				search_adapter.notifyDataSetChanged();
+			search_class().search_refresh();
 			}
 		else if (current_layer == toplayer.GUIDE)
 			{			
 			set_follow_icon_state (R.id.guide_follow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
-			grid_slider.notifyDataSetChanged();	
+			guide_class().data_changed();	
 			// redraw_3x3 (current_slider_view, current_set - 1);
 			}
 		else if (current_layer == toplayer.HOME)
@@ -2825,10 +2844,10 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		View password_layer = findViewById (is_phone() ? R.id.passwordlayer_phone : R.id.passwordlayer_tablet);
 		password_layer.setVisibility (layer == toplayer.PASSWORD ? View.VISIBLE : View.GONE);
 		
-		if (is_tablet() && (layer == toplayer.SETTINGS || layer == toplayer.SIGNIN || layer == toplayer.PASSWORD))
+		if (is_tablet() && (layer == toplayer.SIGNIN || layer == toplayer.PASSWORD))
 			{
-			View settings_layer = findViewById (R.id.settingslayer_tablet);
-			settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
+			// View settings_layer = findViewById (R.id.settingslayer_tablet);
+			// settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
 			
 			View signin_layer = findViewById (R.id.signinlayer_tablet);
 			signin_layer.setVisibility (layer == toplayer.SIGNIN ? View.VISIBLE : View.GONE);
@@ -2858,6 +2877,29 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 			if (f.isHidden())
 				{
 				log ("show Message fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.show (f);  
+		        ft.commit();
+				}
+			}
+
+		if (layer != toplayer.FEEDBACK)
+			{
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.feedback_fragment_container);		
+			if (!f.isHidden())
+				{
+				log ("hide Feedback fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.hide (f);  
+		        ft.commit();
+				}
+			}
+		else
+			{
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.feedback_fragment_container);		
+			if (f.isHidden())
+				{
+				log ("show Feedback fragment");
 		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
 		        ft.show (f);  
 		        ft.commit();
@@ -2910,6 +2952,80 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 				}
 			}
 		
+		if (layer != toplayer.SETTINGS)
+			{
+			int frag = is_tablet() ? R.id.settings_fragment_container_tablet : R.id.settings_fragment_container_phone;			
+			Fragment f = getSupportFragmentManager().findFragmentById (frag);		
+			if (!f.isHidden())
+				{
+				log ("hide Settings fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.hide (f);  
+		        ft.commit();
+				}
+			}
+		else
+			{
+			int frag = is_tablet() ? R.id.settings_fragment_container_tablet : R.id.settings_fragment_container_phone;
+			Fragment f = getSupportFragmentManager().findFragmentById (frag);		
+			if (f.isHidden())
+				{
+				log ("show Settings fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.show (f);  
+		        ft.commit();
+				}
+			
+			/* note! this is an overlay, return */
+			return;
+			}
+		
+		if (layer != toplayer.GUIDE)
+			{	
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.guide_fragment_container);		
+			if (!f.isHidden())
+				{
+				log ("hide Guide fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.hide (f);  
+		        ft.commit();
+				}
+			}
+		else
+			{
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.guide_fragment_container);		
+			if (f.isHidden())
+				{
+				log ("show Guide fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.show (f);  
+		        ft.commit();
+				}
+			}	
+
+		if (layer != toplayer.APPS)
+			{	
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.apps_fragment_container);		
+			if (!f.isHidden())
+				{
+				log ("hide Guide fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.hide (f);  
+		        ft.commit();
+				}
+			}
+		else
+			{
+			Fragment f = getSupportFragmentManager().findFragmentById (R.id.apps_fragment_container);		
+			if (f.isHidden())
+				{
+				log ("show Guide fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.show (f);  
+		        ft.commit();
+				}
+			}	
+		
 		View vTopBar = findViewById (R.id.sliding_top_bar);
 		vTopBar.setVisibility (layer == toplayer.TERMS || layer == toplayer.FEEDBACK ? View.GONE : View.VISIBLE);
 		
@@ -2922,8 +3038,8 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		View search_layer = findViewById (R.id.searchlayer);
 		search_layer.setVisibility (layer == toplayer.SEARCH ? View.VISIBLE : View.GONE);	
 		
-		View settings_layer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
-		settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
+		// View settings_layer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
+		// settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
 		
 		View terms_layer = findViewById (R.id.termslayer_new);
 		terms_layer.setVisibility (layer == toplayer.TERMS ? View.VISIBLE : View.GONE);
@@ -2932,8 +3048,8 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		if (signin_layer != null)
 			signin_layer.setVisibility (layer == toplayer.SIGNIN ? View.VISIBLE : View.GONE);
 		
-		View apps_layer = findViewById (R.id.appslayer);
-		apps_layer.setVisibility (layer == toplayer.APPS ? View.VISIBLE : View.GONE);
+		// View apps_layer = findViewById (R.id.appslayer);
+		// apps_layer.setVisibility (layer == toplayer.APPS ? View.VISIBLE : View.GONE);
 
 		View messages_layer = findViewById (R.id.messagelayer);
 		messages_layer.setVisibility (layer == toplayer.MESSAGES ? View.VISIBLE : View.GONE);
@@ -2979,9 +3095,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 
 		signin_layer_callback = callback;
 		setup_signin_layer_buttons (callback);
-		
-		sign_in_tab();
-		
+
 		track_layer (toplayer.SIGNIN);
 		
         signin_slider = new SigninSlider();
@@ -3298,47 +3412,6 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 			}
 		}   
 
-	public void sign_in_tab()
-		{
-		adjust_signin_tabs (true);
-		}	
-	
-	public void sign_up_tab()
-		{
-		adjust_signin_tabs (false);
-		}	
-	
-	public void adjust_signin_tabs (boolean is_sign_in)
-		{
-		/*
-		int white = Color.WHITE;
-		int gray = Color.rgb (0x77, 0x77, 0x77);
-		int yellow = Color.rgb (0xFF, 0xAA, 0x00);
-		int dark = Color.rgb (0x1D, 0x1D, 0x1D);
-		
-		View vSignInContent = findViewById (R.id.sign_in_content);
-		View vSignUpContent = findViewById (R.id.sign_up_content);	
-		
-		int not_visible = is_tablet() ? View.INVISIBLE : View.GONE;
-		not_visible = View.GONE; // TODO FIX!!!
-		
-		vSignInContent.setVisibility (is_sign_in ? View.VISIBLE : not_visible);
-		vSignUpContent.setVisibility (is_sign_in ? not_visible : View.VISIBLE);
-		
-		TextView vSignInTabText = (TextView) findViewById (R.id.sign_in_tab_text);
-		TextView vSignUpTabText = (TextView) findViewById (R.id.sign_up_tab_text);
-		vSignInTabText.setTextColor (is_sign_in ? white : gray);
-		vSignUpTabText.setTextColor (is_sign_in ? gray : white);
-		
-		View vSignInTabBar = findViewById (R.id.sign_in_tab_bar);
-		View vSignUpTabBar = findViewById (R.id.sign_up_tab_bar);
-		
-		vSignInTabBar.setBackgroundColor (is_sign_in ? yellow : dark);
-		vSignUpTabBar.setBackgroundColor (is_sign_in ? dark : yellow);
-		 * 
-		 */
-		}
-	
 	public void zero_signin_data()
 		{
 		/* and settings */
@@ -3397,7 +3470,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 						{
 						zero_signin_data();
 						/* the settings view might be in the slider */
-						redraw_settings();
+						settings_class().redraw_settings();
 						activate_layer (layer_before_signin);
 						if (callback != null)
 							callback.run();
@@ -3472,7 +3545,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 						{
 						zero_signin_data();
 						/* the settings view might be in the slider */
-						redraw_settings();
+						settings_class().redraw_settings();
 						activate_layer (layer_before_signin);
 						if (callback != null)
 							callback.run();
@@ -3529,7 +3602,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		
 		zero_signin_data();
 		/* the settings view might be in the slider */
-		redraw_settings();
+		settings_class().redraw_settings();
 		}	
 
 	/*** TERMS *****************************************************************************************************/
@@ -3656,7 +3729,6 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 	    			set_layer (terms_previous_layer);
 	    			}
 	    		enable_signin_layer (null);
-	    		sign_up_tab();
 	    		toggle_menu();
 	    		}
 	    	});
@@ -4009,284 +4081,17 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		{
 		disable_video_layer();
 		set_layer (toplayer.APPS);
-		init_apps();
-		setup_apps_buttons();
+		apps_class().init_apps (config);
+		apps_class().setup_apps_buttons();
 		track_layer (toplayer.APPS);
 		}
 	
-	public void setup_apps_buttons()
-		{
-		AbsListView vAppsList = (AbsListView) findViewById (is_phone() ? R.id.apps_list_phone : R.id.apps_list_tablet);				
-		vAppsList.setOnItemClickListener (new OnItemClickListener()
-			{
-			public void onItemClick (AdapterView parent, View v, int position, long id)
-				{
-				log ("onItemClick: " + position);
-				if (position < apps.length)
-					{
-					log ("app list click: " + position);
-					launch_suggested_app (apps [position].title, apps [position].market_url);
-					}
-				}
-			});
-		
-		View vAppsLayer = findViewById (R.id.appslayer);
-		if (vAppsLayer != null)
-			vAppsLayer.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	/* eat these */
-		        	log ("apps layer ate my tap!");
-		        	}
-				});		
+    public AppsLayer apps_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+	    Fragment f = fm.findFragmentById (R.id.apps_fragment_container);
+	    return (tv.tv9x9.player.AppsLayer) f;
 		}
-
-	public class app
-		{
-		String title;
-		String description;
-		String icon_url;
-		String market_url;
-		String basename;
-		}
-	
-	app apps[] = null;
-	app recommended_apps[] = null;
-	
-    AppsAdapter apps_adapter = null;
-    
-	public void init_apps()
-		{
-		if (apps == null)
-			{
-			new playerAPI (in_main_thread, config, "relatedApps?os=android&sphere=" + config.region)
-				{
-				public void success (String[] lines)
-					{
-					int section = 0, count0 = 0, count1 = 0;
-					for (int i = 0; i < lines.length; i++)
-						{
-						if (lines[i].equals ("--"))
-							section++;
-						else if (section == 0)
-							count0++;
-						else if (section == 1)
-							count1++;
-						}
-							
-					app new_recommended_apps[] = new app [count0];
-					app new_apps[] = new app [count1];
-
-					section = 0;
-					count0 = 0;
-					count1 = 0;
-					
-					Pattern pattern = Pattern.compile ("id=([^&]*)", Pattern.CASE_INSENSITIVE);
-					
-					for (int i = 0; i < lines.length; i++)
-						{
-						if (lines[i].equals ("--"))
-							section++;
-						else if (section == 0 || section == 1)
-							{
-							app a = new app();
-							String fields[] = lines[i].split ("\t");
-							a.title = fields.length > 0 ? fields[0] : "";
-							a.description = fields.length > 1 ? fields[1] : "";
-							a.icon_url = fields.length > 2 ? fields[2] : "";
-							a.market_url = fields.length > 3 ? fields[3] : "";
-							/* market://details?id=tv.ddtv.player9x9tv&hl=en */
-							Matcher m = pattern.matcher (a.market_url);
-							if (m.find())
-								a.basename = m.group (1);
-							if (section == 0)
-								new_recommended_apps [count0++] = a;
-							if (section == 1)
-								new_apps [count1++] = a;
-							log ("app: " + a.market_url);
-							}
-						}
-					
-					recommended_apps = new_recommended_apps;
-					apps = new_apps;
-		
-					if (menu_adapter != null)
-						redraw_menu();
-					
-					View vPhone = findViewById (R.id.apps_list_phone);
-					vPhone.setVisibility (is_phone() ? View.VISIBLE : View.GONE);
-					
-					View vTablet = findViewById (R.id.apps_list_tablet);
-					vTablet.setVisibility (is_phone() ? View.GONE : View.VISIBLE);
-					
-					AbsListView vAppsList = (AbsListView) findViewById (is_phone() ? R.id.apps_list_phone : R.id.apps_list_tablet);
-					apps_adapter = new AppsAdapter (main.this, apps);
-					vAppsList.setAdapter (apps_adapter);
-					
-					setup_apps_buttons();
-					download_app_thumbs();
-					}
-				public void failure (int code, String errtext)
-					{
-					}
-				};
-			}
-		else
-			{
-			if (apps_adapter != null)
-				apps_adapter.notifyDataSetChanged();
-			}
-		}
-	
-	public void download_app_thumbs()
-		{			
-		Runnable apps_thumberino = new Runnable()
-			{
-			public void run()
-				{
-				if (apps_adapter != null)
-					apps_adapter.notifyDataSetChanged();
-				if (menu_adapter != null && apps_expanded)
-					menu_adapter.notifyDataSetChanged();
-				}
-			};
-
-		Stack <String> filenames = new Stack <String> ();
-		Stack <String> urls = new Stack <String> ();
-
-		for (app a: apps)
-			{
-			filenames.push (a.basename);
-			urls.push (a.icon_url);
-			}
-		
-		thumbnail.download_list_of_images (main.this, config, "apps", filenames, urls, true, in_main_thread, apps_thumberino);
-		}
-	
-	public void launch_suggested_app (String name, String url)
-		{
-		if (url != null && !url.equals (""))
-			{
-			Intent intent = new Intent (Intent.ACTION_VIEW, Uri.parse (url));
-			startActivity (intent);
-			track_event ("install", "toDownload-others", name, 0);
-			}
-		}
-	
-	public class AppsAdapter extends BaseAdapter
-		{
-		private Context context;
-		private app apps[] = null;
-		
-		public AppsAdapter (Context context, app apps[])
-			{
-			this.context = context;
-			this.apps = apps;
-			}
-
-		@Override
-		public int getCount()
-			{			
-			log ("getcount: " + apps.length);
-			return apps == null ? 0 : apps.length;
-			}
-		
-		@Override
-		public Object getItem (int position)
-			{
-			return position;
-			}
-	
-		@Override
-		public long getItemId (int position)
-			{
-			return position;
-			}
-		
-		@Override
-		public View getView (final int position, View convertView, ViewGroup parent)
-			{
-			LinearLayout rv = null;
-					
-			log ("apps getView: " + position + " (of " + getCount() + ")");
-			
-			if (convertView == null)
-				rv = (LinearLayout) View.inflate (main.this, R.layout.app_item, null);				
-			else
-				rv = (LinearLayout) convertView;
-						
-			if (rv == null)
-				{
-				log ("getView: [position " + position + "] rv is null!");
-				return null;
-				}
-			
-			TextView vTitle = (TextView) rv.findViewById (R.id.title);
-			if (vTitle != null)
-				vTitle.setText (apps [position].title);
-			
-			TextView vDesc = (TextView) rv.findViewById (R.id.desc);
-			if (vDesc != null)
-				{
-				vDesc.setText (apps [position].description);
-				vDesc.setMaxLines (is_phone() ? 2 : 3);
-				if (is_tablet())
-					vDesc.setLines (3);
-				}
-
-			boolean icon_found = false;
-			
-			ImageView vIcon = (ImageView) rv.findViewById (R.id.icon); 	
-			if (vIcon != null)
-				{
-				String filename = getFilesDir() + "/" + config.api_server + "/apps/" + apps [position].basename + ".png";
-				
-				File f = new File (filename);
-				if (f.exists ())
-					{
-					Bitmap bitmap = BitmapFactory.decodeFile (filename);
-					if (bitmap != null)
-						{
-						icon_found = true;
-						vIcon.setImageBitmap (bitmap);
-						}
-					}
-				
-				if (is_phone())
-					{
-					LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vIcon.getLayoutParams();
-					layout.height = layout.width = pixels_40 + pixels_4;
-					vIcon.setLayoutParams (layout);
-					}
-				}
-			
-			String txt_download = getResources().getString (R.string.download);
-			String txt_coming_soon = getResources().getString (R.string.coming_soon);
-			
-			TextView vDownload = (TextView) rv.findViewById (R.id.download_button);
-			if (vDownload != null)
-				{
-				if (apps [position].market_url == null || apps [position].market_url.equals(""))
-					vDownload.setText (txt_coming_soon);
-				else
-					vDownload.setText (txt_download);
-				}
-			
-			return rv;
-			}	
-		}	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	/*** NAG **************************************************************************************************/
 	
@@ -4655,14 +4460,14 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 			fullUP2.setDuration (800);
 			fullDOWN2.setDuration (800);
 			
-		    as.play(animFI);
-		    as.play(halfUP).after(animFI);
-		    as.play(fullDOWN1).after(halfUP);
-		    as.play(fullUP1).after(fullDOWN1);
-		    as.play(fullDOWN2).after(fullUP1);
-		    as.play(fullUP2).after(fullDOWN2);
-		    as.play(halfDOWN).after(fullUP2);	    
-		    as.play(animFO).after(halfDOWN);
+		    as.play (animFI);
+		    as.play (halfUP).after (animFI);
+		    as.play (fullDOWN1).after (halfUP);
+		    as.play (fullUP1).after (fullDOWN1);
+		    as.play (fullDOWN2).after (fullUP1);
+		    as.play (fullUP2).after (fullDOWN2);
+		    as.play (halfDOWN).after (fullUP2);	    
+		    as.play (animFO).after (halfDOWN);
 		     
 		    int total_duration = 300 + 400 + 800 + 800 + 800 + 800 + 400 + 300;
 		    
@@ -5519,7 +5324,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 			{
 			if (current_layer == toplayer.GUIDE)
 				{
-				episode_thumbs_updated.run();
+				guide_class().episode_thumbs_updated.run();
 				}
 			}
 		};
@@ -6689,24 +6494,6 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		if (vPager != null)			
 			playback_episode_pager = NEW_setup_horiz (vPager, channel_id);
 		
-		/*
-		ListView vPlaybackComments = (ListView) findViewById (R.id.playback_comments_list);
-		if (vPlaybackComments != null)
-			{
-			playback_comments_adapter = new PlaybackCommentsAdapter (main.this);
-			vPlaybackComments.setAdapter (playback_comments_adapter);
-			
-			vPlaybackComments.setOnItemClickListener (new OnItemClickListener()
-				{
-				public void onItemClick (AdapterView parent, View v, int position, long id)
-					{
-					log ("click: revert");
-					toggle_extended_comments_view();
-					}
-				});		
-			}
-		*/
-		
 		View vExpand = findViewById (R.id.expand);
 		vExpand.setOnClickListener (new OnClickListener()
 			{
@@ -7216,147 +7003,6 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 			return row;
 			}
 		}
-	
-	/*
-	class PlaybackCommentsAdapter extends ArrayAdapter <String>
-		{
-		Activity context;
-		String episode_id = null;
-		int number_of_comments = 0;
-		
-		PlaybackCommentsAdapter (Activity context)
-			{
-			super (context, R.layout.playbackchannel, arena);
-			this.context = context;
-			}
-	
-		@Override
-		public boolean isEnabled (int position)
-			{
-			return true;			
-			}
-		
-		@Override
-		public int getCount()
-			{
-			return get_number_of_comments() + 2;
-			}
-		
-		public void set_episode_id (String episode_id)
-			{
-			this.episode_id = episode_id;
-			}
-		
-		public int get_number_of_comments()
-			{	
-			return number_of_comments;
-			}
-		
-		public void set_number_of_comments (int number_of_comments)
-			{
-			this.number_of_comments = number_of_comments;
-			}
-		
-		@Override
-		public int getItemViewType (int position)
-			{
-			if (position == 0)
-				return 1;
-			else if (position == 1)
-				return 2;
-			else
-				return 0;
-			}
-		 
-		@Override
-		public int getViewTypeCount()
-			{
-			return 3;
-			}
-		
-		@Override
-		public View getView (int position, View convertView, ViewGroup parent)
-			{
-			// log ("playback channel getView: " + position); // noisy
-			
-			if (position >= getCount())
-				{
-				Log.e ("vtest", "race condition! position=" + position + " but length is " + getCount());
-				return null;
-				}
-			
-			View row = convertView;			
-			
-			if (row == null)
-				{
-				if (position == 0)
-					row = inflater.inflate (R.layout.comment_0, null);
-				else if (position == 1)
-					row = inflater.inflate (R.layout.comment_1, null);
-				else
-					row = inflater.inflate (R.layout.comment_item, null);
-				}
-						
-			if (position == 0)
-				{
-				// TextView vTitle = (TextView) row.findViewById (R.id.episode_title);
-				// TextView vAgo = (TextView) row.findViewById (R.id.episode_age);
-				TextView vDesc = (TextView) row.findViewById (R.id.episode_desc);
-				
-				// String title = config.program_meta (episode_id, "name");
-				// String timestamp = config.program_meta (episode_id, "timestamp");
-				String desc = config.program_meta (episode_id, "desc");
-				
-				// String ago = "";
-				// if (timestamp != null && !timestamp.equals (""))
-				// 	ago = util.ageof (Long.parseLong (timestamp) / 1000);
-				
-				// vTitle.setText (title);
-				vDesc.setText (desc);
-				// vAgo.setText (ago);
-				}
-			else if (position == 1)
-				{
-				TextView vHeader = (TextView) row.findViewById (R.id.num_comments_header);
-				TextView vNum = (TextView) row.findViewById (R.id.num_comments);
-				String num_comments = config.program_meta (episode_id, "maxcomment");
-				if (num_comments == null || num_comments.equals("")) num_comments = "0";
-				vNum.setText (num_comments);
-				}
-			else
-				{
-				TextView vAuthor = (TextView) row.findViewById (R.id.author);
-				TextView vComment = (TextView) row.findViewById (R.id.comment);
-				TextView vAgo = (TextView) row.findViewById (R.id.ago);
-				vAuthor.setVisibility (View.VISIBLE);
-				vAgo.setVisibility (View.VISIBLE);
-				Comment c = config.get_comment (episode_id, Integer.toString (position - 2));
-				vAuthor.setText (c.author);
-				vComment.setText (c.text);
-				
-				// example 2012-11-11T05:57:15.000Z -- SimpleDateFormat is not documented as working with "Z" type timezones
-				String date = c.date.replace ("Z", "-0000");
-				
-				long timestamp;
-                SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-                try
-                	{
-					Date dt = sdf.parse (date);
-					timestamp = dt.getTime();
-                	}
-                catch (ParseException e1)
-                	{
-					timestamp = 0;
-                	}
-                
-        		String ago = util.ageof (main.this, timestamp / 1000);
-        		vAgo.setText (ago);
-				}
-			
-			return row;
-			}
-		}
-	*/
 	
 	boolean video_is_minimized = false;
 	
@@ -8064,712 +7710,17 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 	public void enable_guide_layer()
 		{
 		disable_video_layer();		
-		set_layer (toplayer.GUIDE);		
-		setup_guide_buttons();
-		init_3x3_grid();
+		set_layer (toplayer.GUIDE);
+		guide_class().init_3x3_grid (config);
+		guide_class().setup_guide_buttons();
 		track_layer (toplayer.GUIDE);
 		}
 	
-	public void setup_guide_buttons()
-		{
-		View vGuideLayer = findViewById (R.id.guidelayer);
-		if (vGuideLayer != null)
-			vGuideLayer.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	/* eat this */
-		        	log ("guide layer ate my tap!");
-		        	}
-				});
-		
-		if (is_phone())
-			{
-			TextView vGuideTitle = (TextView) findViewById (R.id.guide_title);
-			vGuideTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 20);
-			
-			TextView vGuideMeta = (TextView) findViewById (R.id.guide_meta);
-			vGuideMeta.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
-			}
-		
-		View vGuideAsGuest = findViewById (R.id.guide_as_guest);
-		if (vGuideAsGuest != null)
-			vGuideAsGuest.setVisibility (config.usertoken != null ? View.GONE : View.VISIBLE);
-
-		View vGuideAsGuestDialog = findViewById (R.id.guide_as_guest_dialog);
-		if (vGuideAsGuestDialog != null)
-			{
-			FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vGuideAsGuestDialog.getLayoutParams();
-			layout.width = (int) (0.8f * (float) screen_width);
-			vGuideAsGuestDialog.setLayoutParams (layout);
-			}
-		
-		View vGagHome = findViewById (R.id.guide_as_guest_home);
-		if (vGagHome != null)
-			vGagHome.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: guide as guest -- home");
-		        	toggle_menu (new Callback()
-			        	{
-			        	public void run()
-			        		{
-				        	enable_home_layer();
-				        	toggle_menu();
-			        		}
-			        	});
-		        	}
-				});		
-		
-		View vGagSignIn = findViewById (R.id.guide_as_guest_signin);
-		if (vGagSignIn != null)
-			vGagSignIn.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: guide as guest -- sign in");
-		        	toggle_menu (new Callback()
-		        		{
-		        		public void run()
-		        			{
-			        		enable_signin_layer (null);
-			        		toggle_menu();
-		        			}
-		        		});		        	
-		        	}
-				});			
-		}
-	
-	public void update_guide_metadata()
-		{
-		// TODO
-		}
-		
-	public void refresh_guide()
-		{
-		if (config.usertoken != null)
-			{
-			config.forget_subscriptions();
-			query_following (refresh_guide_inner);
-			}
-		else
-			toast_by_resource (R.string.please_login_first);
-		}
-	
-	final Callback refresh_guide_inner = new Callback()
-		{
-		@Override
-		public void run_string (String arg1)
-			{
-			init_3x3_grid();
-			}
-		};
-	
-	int current_set = 1;
-	int grid_cursor = 0;
-	
-	GridSlider grid_slider = null;	
-	StoppableViewPager vPager = null;
-
-	int top_lefts[] = { 11, 14, 17, 41, 44, 47, 71, 74, 77 };
-	
-	/* we don't want to redraw everything, but we will need to remove the background from this square */
-	FrameLayout previous_cursor_view = null;
-	
-	public void init_3x3_grid()
-		{
-		log ("init 3x3 grid");
-
-        grid_slider = new GridSlider();
-
-        vPager = (StoppableViewPager) findViewById (R.id.top3x3pager);
-        vPager.setAdapter (grid_slider);
-        
-		current_set = 1;
-		previous_cursor_view = null;	   
-		}
-
-	FrameLayout current_slider_view = null;
-	
-	class Swapgrid
-		{
-		FrameLayout box = null;
-		GridView gv = null;
-		int set = 0;
-		public Swapgrid (int a_set)
-			{
-			set = a_set;
-			}
-		};
-		
-	/* this is implemented using the base class! */
-		
-    public class GridSlider extends PagerAdapter
-    	{
-    	boolean first_time = true;
-    	
-        @Override
-        public int getCount()
-        	{
-            return 9;
-        	}
-
-        @Override
-        public void notifyDataSetChanged()
-        	{
-        	super.notifyDataSetChanged();
-        	if (current_slider_view != null)
-        		redraw_3x3 (current_slider_view, current_set - 1);
-        	}
-        
-		@Override
-		public boolean isViewFromObject (View view, Object object)
-			{
-			return (((Swapgrid) object).box) == (FrameLayout) view;
-			}
-		
-		@Override
-		public Object instantiateItem (ViewGroup container, int position)
-			{
-			log ("[PAGER] instantiate: " + position);
-			
-			final Swapgrid sg = new Swapgrid (position);			
-
-			FrameLayout box = (FrameLayout) View.inflate (main.this, R.layout.grid, null);
-			
-			box.setTag (R.id.container, position);			
-			sg.box = box;
-
-			redraw_3x3 (box, position);
-			// download_grid_thumbs_for_this_3x3();
-			
-			onInflatedSlidePage (box);
-			
-			((StoppableViewPager) container).addView (box, 0);
-			return sg;
-			}
-		
-		@Override
-		public void destroyItem (ViewGroup container, int position, Object object)
-			{
-			log ("[PAGER] destroy: " + position);
-			Swapgrid sg = (Swapgrid) object;
-			((StoppableViewPager) container).removeView (sg.box);
-			}
-		
-		@Override
-		public void setPrimaryItem (ViewGroup container, int position, Object object)
-			{
-			log ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% primary 3x3: " + position);
-			current_slider_view = ((Swapgrid) object).box;
-			
-			  /* set height and width, since ViewPager always fills the screen */
-			  Swapgrid sg = (Swapgrid) object;
-			  StoppableViewPager pager = (StoppableViewPager) container;
-			  sg.box.measure
-			  	((MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)),
-			  	 (MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)));
-			  final int width = sg.box.getMeasuredWidth();
-			  final int height = sg.box.getMeasuredHeight();
-			  log ("+++++++++++++ W:" + width + " ++++++++++ H:" + height);
-			  // pager.setLayoutParams (new LinearLayout.LayoutParams (/*width*/ screen_width, Math.max (height, 1)));
-			  LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) pager.getLayoutParams();
-			  layout.width = screen_width;
-			  layout.height = Math.max (height, 1);
-			  pager.setLayoutParams (layout);
-			  pager.invalidate();
-
-			  /* fix a rendering bug in ViewPager */
-			  if (first_time)
-			  	{
-				first_time = false;
-				pager.post (new Runnable()
-					{
-					@Override
-					public void run()
-						{
-						View altpager = findViewById (R.id.top3x3pager);
-						LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) altpager.getLayoutParams();
-						layout.width = screen_width;
-						layout.height = Math.max (height, 1);
-						altpager.setLayoutParams (layout);
-						altpager.invalidate();
-					  	}
-					});
-			  	}
-			  
-		    select (position);
-			download_grid_thumbs_for_this_3x3 (sg.box);
-			redraw_3x3 (current_slider_view, position);
-			}
-
-		public void select (int num)
-			{
-			log ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%% [PAGER] selected: " + num);			
-			current_set = num + 1;
-			onSelected3x3 (current_set);			
-			}
-    	}
-    
-	public void onInflatedSlidePage (View v)
-		{
-		/* override this */
-		}
-    
-    public void highlight_3x3_square (int grid_position, FrameLayout v, boolean changing)
-    	{
-		log ("highlight_3x3_square: " + grid_position);
-		
-		if (v == null)
-			{
-			log ("*** highlight_3x3_square: view is null!");
-			return;
-			}
-		
-		if (previous_cursor_view != null)
-			{
-			int previous_position = (Integer) previous_cursor_view.getTag (R.layout.gridsquare9x9);
-			erase_previous_cursor();
-			log ("highlight: " + previous_position + " -> " + grid_position);
-			}		
-		else
-			{
-			if (grid_cursor > 0)
-				{
-				log ("presumably the gridslider needs to be redrawn");
-				previous_cursor_view = recover_previous_view (grid_cursor);
-				if (previous_cursor_view != null)
-					log ("recovered!");
-				erase_previous_cursor();
-				// redraw_3x3 (current_slider_view, current_set - 1);
-				}
-			else
-				log ("highlight: previous is null");
-			}
-		
-		if (changing)
-			set_grid_cursor (grid_position);
-		
-		previous_cursor_view = v;		
-
-		final String channel_id = config.channel_meta (grid_position, "id");	
-		
-		ImageView vEpicon = (ImageView) v.findViewById (R.id.epicon);
-		if (vEpicon != null)
-			vEpicon.setAlpha (1.0f);
-		ImageView vPlayBall = (ImageView) v.findViewById (R.id.playball);
-		if (vPlayBall != null)
-			{
-			vPlayBall.setVisibility (channel_id != null ? View.VISIBLE : View.GONE);
-			if (is_phone())
-				{
-				FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vPlayBall.getLayoutParams();
-				layout.bottomMargin = 0;
-				vPlayBall.setLayoutParams (layout);
-				}
-			}
-		TextView vTitle = (TextView) v.findViewById (R.id.title);
-		if (vTitle != null)
-			vTitle.setTextColor (Color.rgb (0xFF, 0xFF, 0xFF));
-		
-		if (dongle_mode && !v.isFocused())
-			v.requestFocus();
-		
-		TextView vLargeTitle = (TextView) findViewById (R.id.guide_title);
-		TextView vLargeMeta = (TextView) findViewById (R.id.guide_meta);
-		ImageView vFollow = (ImageView) findViewById (R.id.guide_follow);
-		
-		vLargeTitle.setVisibility (channel_id == null ? View.INVISIBLE : View.VISIBLE);
-		vLargeMeta.setVisibility (channel_id == null ? View.INVISIBLE : View.VISIBLE);
-		vFollow.setVisibility (channel_id == null ? View.INVISIBLE : View.VISIBLE);
-
-		if (channel_id != null)
-			{
-			/* there is no longer a follow/unfollow button on individual grid items */
-			set_follow_icon_state (vFollow, channel_id, R.drawable.icon_heart, R.drawable.icon_heart_active);
-			// vFollow.setImageResource (config.is_subscribed (channel_id) ? R.drawable.icon_unfollow : R.drawable.icon_follow_black);
-			vFollow.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: guide follow/unfollow");
-		        	follow_or_unfollow (channel_id, v);
-		        	}
-		    	});
-			}
-		
-		if (channel_id != null)
-			{
-			String name = config.pool_meta (channel_id, "name"); 
-			vLargeTitle.setText (name);
-			if (config.channel_loaded (channel_id))
-				{	
-				highlight_3x3_square_inner_inner (channel_id);
-				}
-			else
-				{
-				String txt_wait = getResources().getString (R.string.wait);
-				vLargeMeta.setText (txt_wait);
-				load_channel_then (channel_id, false, highlight_3x3_square_inner, channel_id, null);
-				}
-			}			
-    	}	
-
-	final Callback highlight_3x3_square_inner = new Callback()
-		{
-		@Override
-		public void run_string_and_object (String channel_id, Object arg2)
-			{
-			highlight_3x3_square_inner_inner (channel_id);
-			}
-		};	
-	
-    public void highlight_3x3_square_inner_inner (String channel_id)
-    	{
-		int display_count = config.display_channel_count (channel_id);
-		TextView vLargeMeta = (TextView) findViewById (R.id.guide_meta);
-		if (vLargeMeta != null)
-			{
-			String txt_episode = getResources().getString (R.string.episode_lc);		
-			String txt_episodes = getResources().getString (R.string.episodes_lc);
-			vLargeMeta.setText ("" + display_count + " " + (display_count == 1 ? txt_episode : txt_episodes));
-			}
-    	}
-    
-	public void redraw_3x3 (FrameLayout v, int set_position)
-		{
-		int top_left = top_lefts [set_position];		
-	    
-		int channel_position = 0;
-		for (int j = top_left; j < top_left + 30; j += 10)
-			for (int i = j; i < j + 3; i++)
-				{
-				channel_position++;
-				log ("3x3 render: " + i);
-				int cid = getResources().getIdentifier ("c" + channel_position, "id", getPackageName());
-				if (cid != 0)
-					{
-					FrameLayout v2 = (FrameLayout) v.findViewById (cid);
-					if (v2 != null)
-						redraw_3x3_square (v2, i);
-					}
-				}
-		}    
-	
-	public void redraw_3x3_square (FrameLayout v, int grid_position)
-		{	
-		String channel_id = config.channel_meta (grid_position, "id");
-		log ("%% redraw_3x3_square: " + grid_position + ", id: " + channel_id);
-		
-		String name = config.channel_meta (grid_position, "name");
-		
-		boolean channel_thumbnail_found = false;
-		boolean episode_thumbnail_found = false;
-		
-		TextView vTitle = (TextView) v.findViewById (R.id.title);
-		ImageView vChannelicon = (ImageView) v.findViewById (R.id.chicon);
-		ImageView vEpisodeicon = (ImageView) v.findViewById (R.id.epicon);		
-		
-		if (channel_id != null && !channel_id.equals (""))
-			{
-			if (vTitle != null)
-				{
-				vTitle.setText (name);
-				vTitle.setVisibility (is_phone() ? View.GONE : View.VISIBLE);
-				}
-			
-			if (vChannelicon != null)
-				{
-				String filename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + channel_id + ".png";
-				File f = new File (filename);
-				if (f.exists ())
-					{
-					Bitmap bitmap = BitmapFactory.decodeFile (filename);
-					if (bitmap != null)
-						{
-						vChannelicon.setImageBitmap (bitmap);
-						channel_thumbnail_found = true;
-						}					
-					}
-				}
-			
-			String filename = getFilesDir() + "/" + config.api_server + "/xthumbs/" + channel_id + ".png";
-			
-			File f = new File (filename);
-			if (f.exists())
-				{
-				Bitmap bitmap = BitmapFactory.decodeFile (filename);
-				if (bitmap != null)
-					{
-					episode_thumbnail_found = true;
-					vEpisodeicon.setImageBitmap (bitmap);
-					}
-				}
-			}
-		else
-			{
-			if (vTitle != null)
-				vTitle.setVisibility (View.GONE);
-			}
-		
-		if (vChannelicon != null)
-			{
-			if (!channel_thumbnail_found)
-				vChannelicon.setImageResource (R.drawable.none);
-			}
-		
-		if (!episode_thumbnail_found)
-			vEpisodeicon.setImageResource (R.drawable.unavailable_3x3);
-		
-		if (vChannelicon != null)
-			vChannelicon.setVisibility ((channel_id != null && !channel_id.equals ("")) ? View.VISIBLE : View.GONE);
-		
-		if (!episode_thumbnail_found)
-			{
-			if (channel_id == null || channel_id.equals (""))
-				vEpisodeicon.setImageResource (R.drawable.darkgray);
-			else
-				vEpisodeicon.setImageResource (R.drawable.unavailable_3x3);
-			// when I use the below image, it artifacts with a single white line at the bottom!
-			// vEpisodeicon.setImageResource (R.drawable.bg_3x3_normal);
-			}
-		
-		ImageView bg = (ImageView) v.findViewById (R.id.bgsquare);
-		if (bg != null)
-			{
-			if (grid_position == grid_cursor)
-				{
-				log ("cursor highlight: " + grid_position);
-				highlight_3x3_square (grid_position, v, false);
-				}
-			else
-				dehighlight_3x3_square (v);
-			bg.setTag (R.id.bgsquare, grid_position);			
-			}
-
-		/* the extra 0.2 adds enough to compensate and make the squares truly square */
-		int width = (int) ((float) screen_width / 3.2);	
-	    
-	    TableRow.LayoutParams layout = (TableRow.LayoutParams) v.getLayoutParams();   
-	    layout.width = width;
-	    layout.height = width; // (int) ((float) w / 1.77f);
-	    v.setLayoutParams (layout);
-		
-		v.setTag (R.layout.gridsquare9x9, grid_position);
-		
-		v.setOnClickListener (new OnClickListener()
-			{
-	        @Override
-	        public void onClick (View v)
-	        	{
-	        	int grid_position = (Integer) v.getTag (R.layout.gridsquare9x9);
-	        	onNewClick3x3 (v, grid_position);
-	        	}
-	    	});
-		
-		if (is_phone())
-			{
-			if (vChannelicon != null)
-				{
-				FrameLayout.LayoutParams layout3 = (FrameLayout.LayoutParams) vChannelicon.getLayoutParams();
-				layout3.height = pixels_15;
-				layout3.width = pixels_15;
-				layout3.topMargin = pixels_2;
-				layout3.leftMargin = pixels_2;
-				vChannelicon.setLayoutParams (layout3);
-				}
-			
-			ImageView vPlayBall = (ImageView) v.findViewById (R.id.playball);
-			if (1 == 2 && vPlayBall != null)
-				{
-				FrameLayout.LayoutParams layout3 = (FrameLayout.LayoutParams) vPlayBall.getLayoutParams();
-				layout3.height = pixels_20;
-				layout3.width = pixels_20;
-				layout3.bottomMargin = 0;
-				vPlayBall.setLayoutParams (layout3);
-				}			
-			}
-		}
-		
-    public void onNewClick3x3 (View v, int grid_position)
-		{
-		// int grid_position = top_lefts [current_set-1] + 10 * (position / 3) + (position % 3);
-		String channel_id = config.channel_meta (grid_position, "id");						
-		log ("3x3 grid click: " + grid_position + " (current is: " + grid_cursor + "), current set: " + current_set + ", channel: " + channel_id);
-		
-		if (grid_position != grid_cursor)
-			{
-			log ("changing selection: " + grid_cursor + " -> " + grid_position);
-			highlight_3x3_square (grid_position, (FrameLayout) v, true);
-			}
-		else
-			{
-			if (channel_id == null)
-				toast_by_resource (R.string.no_channel);
-			else
-				launch_player (channel_id, config.subscribed_channels());
-			}
-		}
-    
-    public void download_grid_thumbs_for_this_3x3 (View v)
-		{
-		for (int position = 1; position <= 9; position++)
-			{
-			int grid_position = 10 * current_set + position;
-			String channel_id = config.channel_meta (grid_position, "id");
-			if (channel_id != null && !channel_id.equals (""))
-	    		{
-	    		String filename = getFilesDir() + "/" + config.api_server + "/xthumbs/" + channel_id + ".png";
-	    		File f = new File (filename);
-	    		if (!f.exists())
-	    			download_sample_thumb (channel_id);
-	    		}
-			}
-		}    
-
-	Hashtable < String, Boolean > sample_downloaded = new Hashtable < String, Boolean > ();
-	
-	public void download_sample_thumb (final String channel_id)
-		{
-		if (sample_downloaded.get (channel_id) == null)
-			{
-			sample_downloaded.put (channel_id, true);
-			new playerAPI (in_main_thread, config, "latestEpisode?channel=" + channel_id)
-				{
-				public void success (String[] lines)
-					{
-					for (int i = 0; i < lines.length; i++)
-						{
-						String fields[] = lines [i].split ("\t");
-						log ("---DOWNLOAD LINE--- " + lines[i]);
-						thumbnail.sample_thumb (main.this, config, channel_id, fields[2], in_main_thread, episode_thumbs_updated);
-						}
-					}
-				public void failure (int code, String errtext)
-					{
-					}
-				};
-			}
-		}
-    
-	final Runnable episode_thumbs_updated = new Runnable()
-		{
-		@Override
-		public void run()
-			{
-			if (grid_slider != null && current_slider_view != null)
-				{
-				for (int c = 1; c <= 9; c++)
-					{
-					int id = getResources().getIdentifier ("c" + c, "id", getPackageName());
-					if (id != 0)
-						{
-						FrameLayout v = (FrameLayout) current_slider_view.findViewById (id);
-						if (v != null)
-							{
-							int position = (Integer) v.getTag (R.layout.gridsquare9x9);
-							redraw_3x3_square (v, position);
-							}
-						}
-					}
-
-				/* TODO */
-				}
-			}
-		};	
-		
-	public void set_grid_cursor (int new_cursor)
-		{
-		if (grid_cursor != new_cursor)
-			{
-			grid_cursor = new_cursor;
-			log ("set_grid_cursor: " + new_cursor);
-			/* this is much too costly -- setting it in the onClick for now */
-			// top9x9_adapter.notifyDataSetChanged();
-			}
-		update_guide_metadata();		
-		}
-		
-	public void erase_previous_cursor()
-		{
-		if (previous_cursor_view != null)
-			{
-			log ("erase previous cursor");
-			dehighlight_3x3_square (previous_cursor_view);
-			previous_cursor_view.postInvalidate();
-			}
-		else
-			log ("erase_previous_cursor: previous is null");
-		}
-
-	public void dehighlight_3x3_square (View v)
-		{
-		if (v.getTag (R.layout.gridsquare9x9) != null)
-			{
-			int gn = (Integer) v.getTag (R.layout.gridsquare9x9);
-			log ("dehighlight_3x3_square: " + gn);
-			}
-		else
-			log ("dehighlight_3x3_square: unknown number");
-		
-		ImageView vEpicon = (ImageView) v.findViewById (R.id.epicon);
-		if (vEpicon != null)
-			vEpicon.setAlpha (0.5f);
-		ImageView vPlayBall = (ImageView) v.findViewById (R.id.playball);
-		if (vPlayBall != null)
-			vPlayBall.setVisibility (View.GONE);
-		TextView vTitle = (TextView) v.findViewById (R.id.title);
-		if (vTitle != null)
-			vTitle.setTextColor (Color.rgb (0xA0, 0xA0, 0xA0));
-		v.postInvalidate();
-		}			
-    
-    public FrameLayout recover_previous_view (int grid_position)
-		{
-		for (int c = 1; c <= 9; c++)
-			{
-			int id = getResources().getIdentifier ("c" + c, "id", getPackageName());
-			if (id != 0)
-				{
-				FrameLayout v = (FrameLayout) current_slider_view.findViewById (id);
-				if (v != null)
-					{
-					int position = (Integer) v.getTag (R.layout.gridsquare9x9);
-					log ("looking... " + position);
-					if (position == grid_position)
-						return v;
-					}
-				}
-			}
-		return null;
-		}
-    
-    public void onSelected3x3 (int set)
-    	{	
-    	redraw_dots();
-    	}
-    
-    public void redraw_dots()
-		{
-		for (int i = 1; i <= 9; i++)
-			{
-			int id = getResources().getIdentifier ("dot" + i, "id", getPackageName());
-			if (id > 0)
-				{
-	    		ImageView vDot = (ImageView) findViewById (id);
-	    		if (vDot != null)
-	    			{
-	    			int normal = dongle_mode ? R.drawable.white_dot : R.drawable.white_dot_tablet;
-	    			int highlit = dongle_mode ? R.drawable.white_dot_highlight : R.drawable.white_dot_tablet_highlight;
-	    			vDot.setImageResource (i == current_set ? highlit : normal);
-	    			}
-				}
-			}	
+    public GuideLayer guide_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+	    Fragment f = fm.findFragmentById (R.id.guide_fragment_container);
+	    return (tv.tv9x9.player.GuideLayer) f;
 		}
     
     toplayer previous_layer = toplayer.HOME;
@@ -8844,192 +7795,24 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
     	}
     
 	/*** FEEDBACK **************************************************************************************************/
-    
-    boolean feedback_initialized = false;
-    
-    enum feedbacks { CONTACT, SUGGESTION, BUG };   
-    
-    feedbacks current_feedback = feedbacks.CONTACT;    
-    toplayer layer_before_feedback = toplayer.HOME;
+
     
     public void enable_feedback_layer()
     	{
-    	if (!feedback_initialized)
-    		{
-    		View vRemove = findViewById (is_tablet() ? R.id.feedback_radio_phone : R.id.feedback_radio_tablet);
-        	if (vRemove != null)
-    			((ViewManager) vRemove.getParent()).removeView (vRemove);
-    		feedback_initialized = true;
-    		}
-    	
-    	current_feedback = feedbacks.CONTACT;
-    	
-    	if (current_layer != toplayer.FEEDBACK)
-    		layer_before_feedback = current_layer;
+    	feedback_class().feedback_init (config, current_layer);
     	
 		disable_video_layer();
 		set_layer (toplayer.FEEDBACK);
-		setup_feedback_buttons();
-		redraw_feedback();
+		feedback_class().setup_feedback_buttons();
+		feedback_class().redraw_feedback();
     	}
     
-    public void setup_feedback_buttons()
-    	{
-		ImageView vAppIcon = (ImageView) findViewById (R.id.feedback_app_icon);  
-		if (vAppIcon != null)
-			{
-			String app_icon = getResources().getString (R.string.logo);
-			if (app_icon != null)
-				{
-				int app_icon_id = getResources().getIdentifier (app_icon, "drawable", getPackageName());
-				vAppIcon.setImageResource (app_icon_id);
-				}
-			}
-		
-		if (config.email != null)
-			{
-			TextView vEmail = (TextView) findViewById (R.id.feedback_email);
-			vEmail.setText (config.email);
-			}
-		
-    	View vBack = findViewById (R.id.feedback_back);
-		vBack.setOnClickListener (new OnClickListener()
-			{
-	        @Override
-	        public void onClick (View v)
-	        	{
-	        	feedback_close();
-	        	}
-			});
-		
-		View vContact = findViewById (R.id.feedback_radio_contact);
-		if (vContact != null)
-			vContact.setOnClickListener (new OnClickListener()
-			{
-	        @Override
-	        public void onClick (View v)
-	        	{
-	        	current_feedback = feedbacks.CONTACT;
-	        	redraw_feedback();
-	        	}
-			});	
-
-		View vSuggestion = findViewById (R.id.feedback_radio_suggestion);
-		if (vSuggestion != null)
-			vSuggestion.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	current_feedback = feedbacks.SUGGESTION;
-		        	redraw_feedback();
-		        	}
-				});	
-		
-		View vBug = findViewById (R.id.feedback_radio_bug);
-		if (vBug != null)
-			vBug.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	current_feedback = feedbacks.BUG;
-		        	redraw_feedback();
-		        	}
-				});	
-		
-		View vSend = findViewById (R.id.feedback_send);
-		if (vSend != null)
-			vSend.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("feedback send");
-		        	send_feedback();
-		        	}
-				});	
-		
-		View vFeedback = findViewById (R.id.feedbacklayer);		
-		if (vFeedback != null)
-			vFeedback.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	/* eat this */
-		        	log ("feedback layer ate my tap!");
-		        	}
-				});		
-    	}
-    
-    public void redraw_feedback()
-    	{
-    	ImageView vContact = (ImageView) findViewById (R.id.feedback_radio_contact_image);
-    	vContact.setImageResource (current_feedback == feedbacks.CONTACT ? R.drawable.btn_radio_on : R.drawable.btn_radio_off);
-    	ImageView vSuggestion = (ImageView) findViewById (R.id.feedback_radio_suggestion_image);
-    	vSuggestion.setImageResource (current_feedback == feedbacks.SUGGESTION ? R.drawable.btn_radio_on : R.drawable.btn_radio_off);
-    	ImageView vBug = (ImageView) findViewById (R.id.feedback_radio_bug_image);
-    	vBug.setImageResource (current_feedback == feedbacks.BUG ? R.drawable.btn_radio_on : R.drawable.btn_radio_off);
-    	}
-    
-    public void send_feedback()
-    	{    	
-    	TextView vMessage = (TextView) findViewById (R.id.feedback_text);
-    	String message = vMessage.getText().toString();
-    	
-    	if (message.equals (""))
-    		{
-    		alert ("Please provide a message!");
-    		return;
-    		}
-    	
-    	TextView vEmail = (TextView) findViewById (R.id.feedback_email);
-    	String email = vEmail.getText().toString();
-    	
-    	String type = current_feedback.toString().toLowerCase();
-    	
-    	String email_encoded = util.encodeURIComponent (email);
-    	String message_encoded = util.encodeURIComponent (message);
-    	
-    	String version_code = "unknown";	
-		try
-			{
-			PackageInfo pInfo = getPackageManager().getPackageInfo (getPackageName(), 0);
-			version_code = pInfo.versionName;
-			}
-		catch (Exception ex)
-			{
-			ex.printStackTrace();
-			}	
-		
-    	String query = "userReport?key=email,description,os,version&value=" + email_encoded + "," + message_encoded + ",android," + version_code + "&type=" + type;
-		new playerAPI (in_main_thread, config, query)
-			{
-			public void success (String[] lines)
-				{
-				log ("userReport sent successfully");
-				toast_by_resource (R.string.feedback_thanks);
-				feedback_close();
-				}		
-			public void failure (int code, String errtext)
-				{
-				alert ("ERROR! " + errtext);
-				}
-			};	
+    public FeedbackLayer feedback_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+	    Fragment f = fm.findFragmentById (R.id.feedback_fragment_container);
+	    return (tv.tv9x9.player.FeedbackLayer) f;
 		}
-    
-    public void feedback_close()
-	    {
-		toggle_menu (new Callback()
-			{
-			public void run()
-				{
-		    	set_layer (layer_before_feedback);
-		    	toggle_menu();
-				}
-			});
-	    }
     
 	/*** SOCIAL **************************************************************************************************/
     
@@ -9046,7 +7829,6 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 	    Fragment f = fm.findFragmentById (R.id.social_fragment_container);
 	    return (tv.tv9x9.player.SocialLayer) f;
 		}
-
 
 	/*** ADVERTISING **************************************************************************************************/
     
@@ -9296,377 +8078,21 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
     
 	/*** SEARCH **************************************************************************************************/
 	
-	boolean search_initialized = false;
-	
-	StoreAdapter search_adapter = null;
-	
-	String search_channels[] = null;
-	
-	public void enable_search_apparatus (final int view_id)
-		{
-		View vContainer = findViewById (view_id);
-		if (vContainer != null)
-			{
-			View vSearchContainer = vContainer.findViewById(R.id.search_container);
-			if (vSearchContainer.getVisibility() == View.VISIBLE)
-				{
-				disable_search_apparatus (view_id);
-				return;
-				}
-			
-			View vLogo = vContainer.findViewById (R.id.logo);
-			// View vPhantomRefresh = vContainer.findViewById (R.id.phantom_refresh);
-			
-			vLogo.setVisibility (View.GONE);
-			// vPhantomRefresh.setVisibility (View.GONE);
-			vSearchContainer.setVisibility (View.VISIBLE);
-			
-			final EditText vTerm = (EditText) vContainer.findViewById (R.id.term);
-			
-			View vCancel = vContainer.findViewById (R.id.search_cancel);
-			vCancel.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: search cancel");
-		        	// disable_search_apparatus (view_id);
-		        	if (vTerm != null)
-		        		vTerm.setText ("");
-		        	}
-				});
-			
-		    vTerm.setOnKeyListener (new OnKeyListener()
-			    {
-				@Override
-				public boolean onKey (View v, int keyCode, KeyEvent event)
-					{
-					if (event.getAction() == KeyEvent.ACTION_UP)
-						{					
-						if (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
-							{
-							String term = vTerm.getText().toString();
-	
-							vTerm.clearFocus();						
-							InputMethodManager imm = (InputMethodManager) getSystemService (INPUT_METHOD_SERVICE);
-							imm.hideSoftInputFromWindow (vTerm.getWindowToken(), 0);
-							
-				        	perform_search (term);
-							return true;
-							}
-						}
-					return false;
-					}						
-			    });
-			}
-		}
-	
-	public void disable_search_apparatus (int view_id)
-		{
-		View vContainer = findViewById (view_id);
-		if (vContainer != null)
-			{
-			View vSearchContainer = vContainer.findViewById (R.id.search_container);
-			vSearchContainer.setVisibility (View.INVISIBLE);
-			View vLogo = vContainer.findViewById (R.id.logo);
-			// View vPhantomRefresh = vContainer.findViewById (R.id.phantom_refresh);
-			vLogo.setVisibility (View.VISIBLE);
-			// vPhantomRefresh.setVisibility (View.INVISIBLE);
-			}
-		}
-	
 	public void enable_search_layer()
 		{
 		disable_video_layer();
 		set_layer (toplayer.SEARCH);
-		search_init();
-		setup_search_buttons();
+		search_class().search_init (config);
+		search_class().setup_search_buttons();
 		}
-	
-	public void search_init()
-		{
-		if (!search_initialized)
-			{
-			search_initialized = true;
-			search_adapter = new StoreAdapter (this, (StoreAdapter.mothership) this, config, -1, null, search_channels);
-			AbsListView vSearch = (AbsListView) findViewById (is_tablet() ? R.id.search_list_tablet : R.id.search_list_phone);
-			vSearch.setAdapter (search_adapter);
-			}
-		}
-	
-	public void setup_search_buttons()
-		{
-		View vSearchLayer = findViewById (R.id.searchlayer);		
-		if (vSearchLayer != null)
-			vSearchLayer.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	/* eat this */
-		        	log ("search layer ate my tap!");
-		        	}
-				});				
-		}
-	
-	boolean search_9x9_done = false;
-	boolean search_youtube_done = false;
-
-	String channel_ids_9x9[] = null;
-	String channel_ids_youtube[] = null;
-	
-	public void perform_search (final String term)
-		{
-		if (term.startsWith ("server="))
-			{
-			String fields[] = term.split ("=");
-			if (fields.length >= 2)
-				{
-				signout_from_app_or_facebook();
-				config.api_server = fields[1] + ".flipr.tv";
-				log ("switching API server to: " + fields[1]);
-				String filedata = "api-server\t" + config.api_server + "\n" + "region\t" + config.region + "\n";
-                futil.write_file (main.this, "config", filedata);
-				alert_then_exit ("Please restart the app, to use API server " + config.api_server);
-				return;
-				}
-			}
-		else if (term.matches("^#\\d+"))
-			{
-			search_only_for_channel (term.replace ("#", ""));
-			return;
-			}
 		
-		String encoded_term = util.encodeURIComponent (term);
-	
-		if (encoded_term == null)
-			return;
-
-		store_class().store_spinner (true);
-		prepare_search_screen (term);
-		
-		search_9x9_done = search_youtube_done = false;
-		channel_ids_9x9 = null;
-		channel_ids_youtube = null;
-		
-		track_event ("function", "submitSearch", term, 0);
-				
-		new playerAPI (in_main_thread, config, "search?text=" + encoded_term)
-			{
-			public void success (String[] chlines)
-				{
-				int count = 0;
-	
-				log ("search lines received: " + chlines.length);
-	
-				store_class().store_spinner (false);
-				
-				int section = 0;
-				int num_channels = 0;
-				
-				for (String s: chlines)
-					{
-					if (s.equals ("--"))
-						{
-						section++;
-						continue;
-						}
-					if (section == 3) /* or 2?? */
-						{
-						config.parse_channel_info_line (s);
-						num_channels++;
-						}
-					}
-				
-				String channel_ids[] = new String [num_channels];
-				
-				section = 0;
-				count = 0;
-				
-				for (String s: chlines)
-					{
-					if (s.equals ("--"))
-						{
-						section++;
-						continue;
-						}
-					if (section == 3)
-						{
-						String[] fields = s.split ("\t");			
-						log ("__search channel (9x9): " + fields[1] + " == " + config.pool_meta(fields[1], "extra"));
-						channel_ids [count] = fields[1];
-						count++;
-						}
-					}
-			
-				search_9x9_done = true;
-				channel_ids_9x9 = channel_ids;
-				
-				search_is_ready();
-				}
-	
-			public void failure (int code, String errtext)
-				{
-				Log.i ("vtest", "ERROR! " + errtext);
-				search_9x9_done = true;
-				search_is_ready();
-				}
-			};
-			
-		ytchannel.youtube_channel_search_in_thread (config, encoded_term, in_main_thread, new Callback()
-			{
-			public void run_string_array (String a[])
-				{
-				if (a != null)
-					{
-					for (String channel: a)
-						{
-						log ("__search channel (youtube): " + channel);
-						}
-					}
-				search_youtube_done = true;
-				channel_ids_youtube = a;
-				search_is_ready();
-				}
-			});
+    public SearchLayer search_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+	    Fragment f = fm.findFragmentById (R.id.search_fragment_container);
+	    return (tv.tv9x9.player.SearchLayer) f;
 		}
-	
-	public void search_is_ready()
-		{		
-		if (search_9x9_done && search_youtube_done)
-			{
-			if (channel_ids_9x9 != null && channel_ids_youtube == null)
-				{
-				log ("search is ready: only 9x9 channels came back");
-				search_channels = channel_ids_9x9;
-				}
-			else if (channel_ids_9x9 == null && channel_ids_youtube != null)
-				{
-				log ("search is ready: only youtube channels came back");
-				search_channels = channel_ids_youtube;
-				}
-			else if (channel_ids_9x9 == null && channel_ids_youtube == null)
-				{
-				log ("search is ready: NO channels came back");
-				search_channels = new String [0];
-				}
-			else
-				{	
-				Set <String> youtubes = new HashSet <String> ();
-				
-				/* make a list of all the YouTube usernames in the 9x9 result portion */
-				for (String id: channel_ids_9x9)
-					{
-					// if (config.is_youtube (id))  <-- Unfortunately some of the channels are mirrored, and show up as type 6 (a server bug?)
-						{
-						String extra = "=" + config.pool_meta (id, "extra").toLowerCase();
-						log ("9x9 youtube channel " + id + " => " + extra);
-						youtubes.add (extra);
-						}
-					}
-								
-				int true_num_youtubes = 0;
-				
-				/* how many YouTube channels are actually not in the 9x9 results */
-				if (channel_ids_youtube != null)
-					for (String id: channel_ids_youtube)
-						{
-						if (!youtubes.contains (id.toLowerCase()))
-							true_num_youtubes++;
-						}
-				
-				/* merge */
-				int count = 0;
-				String search_channels_new[] = new String [channel_ids_9x9.length + true_num_youtubes];
-				
-				for (int i = 0; i <=  java.lang.Math.max (channel_ids_9x9.length, channel_ids_youtube.length); i++)
-					{
-					if (i < channel_ids_9x9.length)
-						search_channels_new [count++] = channel_ids_9x9 [i];	
-					if (i < channel_ids_youtube.length)
-						{
-						String id = channel_ids_youtube [i];
-						if (!youtubes.contains (id.toLowerCase()))
-							search_channels_new [count++] = id;
-						else
-							log ("omitted because it is already a 9x9 channel: " + id);
-						}
-					}				
-				log ("search is ready: merge 9x9 and youtube channels");
-				search_channels = search_channels_new;
-				}
-			
-			search_adapter.set_content (-1, null, search_channels);
-			search_adapter.notifyDataSetChanged();
-			
-			redraw_search_list();
-			
-			thumbnail.stack_thumbs (main.this, config, search_channels, screen_width / 5, in_main_thread, search_channel_thumb_updated);
-			}
-		else
-			log ("search_is_ready? search_9x9_done " + search_9x9_done + ", search_youtube_done " + search_youtube_done);
-		}
-	
-	public void search_only_for_channel (String channel_id)
-		{
-		log ("special search for channel: " + channel_id);
-		prepare_search_screen ("Channel " + channel_id);
-		search_channels = new String[] { channel_id };
-		redraw_search_list();
-		
-		final Callback search_channel_special_inner = new Callback()
-			{
-			public void run_string_and_object (String channel_id, Object o)
-				{
-				log ("search only loaded");
-				
-				search_adapter.set_content (-1, null, search_channels);
-				search_adapter.notifyDataSetChanged();
-				
-				redraw_search_list();
-				
-				thumbnail.stack_thumbs (main.this, config, search_channels, screen_width / 5, in_main_thread, search_channel_thumb_updated);
-				}
-			};
-		
-		load_channel_then (channel_id, false, search_channel_special_inner, channel_id, null);
-		}
-	
-	public void redraw_search_list()
-		{
-		AbsListView vSearch = (AbsListView) findViewById (is_tablet() ? R.id.search_list_tablet : R.id.search_list_phone);			
-		vSearch.setOnItemClickListener (new OnItemClickListener()
-			{
-			public void onItemClick (AdapterView <?> parent, View v, int position, long id)
-				{
-				if (position < search_channels.length)
-					{
-					log ("search click: " + position);
-					String channel_id = search_channels [position];
-					launch_player (channel_id, search_channels);
-					}
-				}
-			});
-		}
-	
-	public void prepare_search_screen (String term)
-		{
-		enable_search_layer();
-		enable_search_apparatus (R.id.sliding_top_bar);
-		String txt_searched_for = getResources().getString (R.string.searched_for_colon);
-		TextView vTermUsed = (TextView) findViewById (R.id.search_term_used);
-		vTermUsed.setText (txt_searched_for + " " + term);
-		}
-	
-	final Runnable search_channel_thumb_updated = new Runnable()
-		{
-		public void run()
-			{
-			if (search_adapter != null)
-				search_adapter.notifyDataSetChanged();
-			}
-		};
-		
+    
 	/*** MESSAGES **************************************************************************************************/
 	
 	public void enable_messages_layer()
@@ -9682,15 +8108,11 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
     public MessagesLayer messages_class()
 		{    	
 	    FragmentManager fm = getSupportFragmentManager();
-	    Fragment vLeft = fm.findFragmentById (R.id.message_fragment_container);
-	    return (tv.tv9x9.player.MessagesLayer) vLeft;
+	    Fragment f = fm.findFragmentById (R.id.message_fragment_container);
+	    return (tv.tv9x9.player.MessagesLayer) f;
 		}
 	
 	/*** SETTINGS **************************************************************************************************/
-		
-	boolean original_notify_setting = false;
-	boolean original_sound_setting = false;
-	boolean original_vibrate_setting = false;
 	
 	public void enable_settings_layer()
 		{
@@ -9698,405 +8120,36 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		zero_signin_data();
 		set_layer (toplayer.SETTINGS);
 		
-		load_notification_settings();
-		remember_notification_settings();
+		settings_class().init (config);
+		
+		settings_class().load_notification_settings (config);
+		settings_class().remember_notification_settings();
 
-		redraw_settings();
-		setup_settings_buttons();
+		settings_class().redraw_settings();
+		settings_class().setup_settings_buttons();
 		}	
 	
-	public void remember_notification_settings()
+	public void disable_settings_layer()
 		{
-		original_notify_setting = config.notifications_enabled;
-		original_sound_setting = config.notify_with_sound;
-		original_vibrate_setting = config.notify_with_vibrate;
-		}
-
-	public void restore_notification_settings()
-		{
-		config.notifications_enabled = original_notify_setting;
-		config.notify_with_sound = original_sound_setting;
-		config.notify_with_vibrate = original_vibrate_setting;
-		}
-	
-	public void redraw_settings()
-		{
-		View vAccountSection = findViewById (R.id.account_section);
-		if (vAccountSection != null)
-			vAccountSection.setVisibility ((config.usertoken == null || config.email.equals ("[via Facebook]")) ? View.GONE : View.VISIBLE);
-		
-		View vPasswordSection = findViewById (R.id.password_section);
-		if (vPasswordSection != null)
-			vPasswordSection.setVisibility ((config.usertoken == null || config.email.equals ("[via Facebook]")) ? View.GONE : View.VISIBLE);
-
-		View vAboutButton = findViewById (R.id.settings_about);
-		if (vAboutButton != null)
-			vAboutButton.setVisibility (config.about_us_url == null ? View.GONE : View.VISIBLE);
-
-		View vAboutDivider = findViewById (R.id.settings_about_divider);
-		if (vAboutDivider != null)
-			vAboutDivider.setVisibility (config.about_us_url == null ? View.GONE : View.VISIBLE);
-		
-		TextView vVersion = (TextView) findViewById (R.id.version);
-		if (vVersion != null)
+		int frag = is_tablet() ? R.id.settings_fragment_container_tablet : R.id.settings_fragment_container_phone;
+		Fragment f = getSupportFragmentManager().findFragmentById (frag);		
+		if (!f.isHidden())
 			{
-			String version_code = "[unknown]";			
-			try
-				{
-				PackageInfo pInfo = getPackageManager().getPackageInfo (getPackageName(), 0);
-				version_code = pInfo.versionName;
-				}
-			catch (Exception ex)
-				{
-				ex.printStackTrace();
-				}			
-			String txt_version = getResources().getString (R.string.version);
-			vVersion.setText (txt_version + " " + version_code);
-			}
-		
-		TextView vNameReadonly = (TextView) findViewById (R.id.settings_name_readonly);
-		if (vNameReadonly != null)
-			vNameReadonly.setText (config.usertoken == null ? "" : config.username);
-
-		TextView vEmailReadonly = (TextView) findViewById (R.id.settings_email_readonly);
-		if (vEmailReadonly != null)
-			vEmailReadonly.setText (config.usertoken == null ? "" : config.email);
-		
-		TextView vSettingsEmail = (TextView) findViewById (R.id.settings_email);
-		if (vSettingsEmail != null)
-			vSettingsEmail.setText (config.usertoken == null ? "" : config.email);
-		
-		String vService = Context.VIBRATOR_SERVICE;
-		Vibrator vibrator = (Vibrator) getSystemService (vService);
-		
-		View vVibrateSection2 = findViewById (R.id.settings_vibrate);
-		if (vVibrateSection2 != null)
-			vVibrateSection2.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);	
-
-		View vVibrateDivider2 = findViewById (R.id.settings_vibrate_divider);
-		if (vVibrateDivider2 != null)
-			vVibrateDivider2.setVisibility (config.notifications_enabled && vibrator.hasVibrator() ? View.VISIBLE : View.GONE);
-		
-		ImageView vVibrateWhen = (ImageView) findViewById (R.id.vibrate_when_notified_image);
-		if (vVibrateWhen != null)
-			vVibrateWhen.setImageResource (config.notify_with_vibrate ? R.drawable.check_checked_52 : R.drawable.check_unchecked_52);
-		
-		Switch vNotifySwitch = (Switch) findViewById (R.id.settings_notification_switch);
-		if (vNotifySwitch != null)
-			{
-			vNotifySwitch.setChecked (config.notifications_enabled);
-			vNotifySwitch.setOnCheckedChangeListener (new OnCheckedChangeListener()
-				{
-				@Override
-				public void onCheckedChanged (CompoundButton view, boolean isChecked)
-					{
-					config.notifications_enabled = isChecked;
-					save_notification_settings();
-					redraw_settings();
-					}
-				});
-			}
-		
-		View vVibrate = findViewById (R.id.settings_vibrate);
-		if (vVibrate != null)
-			vVibrate.setAlpha (config.notifications_enabled ? 1.0f : 0.25f);
-		
-		Switch vVibrateSwitch = (Switch) findViewById (R.id.settings_vibrate_switch);
-		if (vVibrateSwitch != null)
-			{
-			vVibrateSwitch.setClickable (config.notifications_enabled);
-			vVibrateSwitch.setChecked (config.notify_with_vibrate);
-			vVibrateSwitch.setOnCheckedChangeListener (new OnCheckedChangeListener()
-				{
-				@Override
-				public void onCheckedChanged (CompoundButton view, boolean isChecked)
-					{
-					config.notify_with_vibrate = isChecked;
-					save_notification_settings();
-					}
-				});			
-			}
-		
-		View vSound = findViewById (R.id.settings_sound);
-		if (vSound != null)
-			vSound.setAlpha (config.notifications_enabled ? 1.0f : 0.25f);
-		
-		Switch vSoundSwitch = (Switch) findViewById (R.id.settings_sound_switch);
-		if (vSoundSwitch != null)
-			{
-			vSoundSwitch.setClickable (config.notifications_enabled);
-			vSoundSwitch.setChecked (config.notify_with_sound);
-			vSoundSwitch.setOnCheckedChangeListener (new OnCheckedChangeListener()
-				{
-				@Override
-				public void onCheckedChanged (CompoundButton view, boolean isChecked)
-					{
-					config.notify_with_sound = isChecked;
-					save_notification_settings();
-					}
-				});				
-			}
+			log ("hide Settings fragment");
+		    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		    ft.hide (f);  
+		    ft.commit();
+			}	
 		}
 	
-	public void save_notification_settings()
-		{
-		log ("save notification_settings");
-		String filedata = "notifications" + "\t" + (config.notifications_enabled ? "on" : "off") + "\n"
-				+ "notify-with-sound" + "\t" + (config.notify_with_sound ? "on" : "off") + "\n"
-				+ "notify-with-vibrate" + "\t" + (config.notify_with_vibrate ? "on" : "off") + "\n";
-        futil.write_file (main.this, "config.notifications", filedata);
-        log_notification_settings();
+    public SettingsLayer settings_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+		int frag = is_tablet() ? R.id.settings_fragment_container_tablet : R.id.settings_fragment_container_phone;
+	    Fragment f = fm.findFragmentById (frag);
+	    return (tv.tv9x9.player.SettingsLayer) f;
 		}
-	
-	public void load_notification_settings()
-		{
-		String config_data = futil.read_file (this, "config.notifications");
-		
-		/* initialize */
-		if (config_data.startsWith ("ERROR:"))
-			{
-			log ("initialize notifications file");
-			config.notifications_enabled = true;
-			config.notify_with_sound = config.notify_with_sound_default;
-			config.notify_with_vibrate = config.notify_with_vibrate_default;
-			log_notification_settings();
-			save_notification_settings();
-			return;
-			}
-		else
-			{
-			String lines[] = config_data.split ("\n");
-			for (String line: lines)
-				{
-				String fields[] = line.split ("\t");
-				if (fields.length >= 2)
-					{
-					log ("k: " + fields[0] + " v: " + fields[1]);
-					if (fields[0].equals ("notifications"))
-						config.notifications_enabled = fields[1].equals ("on");
-					if (fields[0].equals ("notify-with-sound"))
-						config.notify_with_sound = fields[1].equals ("on");
-					if (fields[0].equals ("notify-with-vibrate"))
-						config.notify_with_vibrate = fields[1].equals ("on");					
-					}
-				}
-			log_notification_settings();
-			}
-		}
-	
-	public void log_notification_settings()
-		{
-		log ("notifications enabled: " + config.notifications_enabled);
-		log ("notify_with_sound: " + config.notify_with_sound);				
-		log ("notify_with_vibrate: " + config.notify_with_vibrate);		
-		}
-	
-	public void setup_settings_buttons()
-		{
-		final View vLayer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
-		
-		View vBanner = findViewById (R.id.settings_banner);
-		if (vBanner != null)
-			vBanner.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings banner");
-		        	restore_notification_settings();
-		        	settings_exit();
-		        	}
-				});
-		
-		ImageView vAppIcon = (ImageView) findViewById (R.id.settings_app_icon);  
-		if (vAppIcon != null)
-			{
-			String app_icon = getResources().getString (R.string.logo);
-			if (app_icon != null)
-				{
-				int app_icon_id = getResources().getIdentifier (app_icon, "drawable", getPackageName());
-				vAppIcon.setImageResource (app_icon_id);
-				}
-			}
-	
-		View vSignout = vLayer.findViewById (R.id.settings_signout);
-		if (vSignout != null)
-			vSignout.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings signout");
-		        	signout_from_app_or_facebook();
-		        	}
-				});
-		
-		View vEdit = vLayer.findViewById (R.id.settings_edit);
-		if (vEdit != null)
-			vEdit.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings edit account");
-		        	slide_in_password();
-		        	}
-				});		
-
-		View vAbout = vLayer.findViewById (R.id.settings_about);
-		if (vAbout != null)
-			vAbout.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings about");
-		        	enable_about_layer();
-		        	}
-				});
-		
-		View vTerms = vLayer.findViewById (R.id.settings_terms);
-		if (vTerms != null)
-			vTerms.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings terms");
-		        	slide_in_terms();
-		        	}
-				});		
-
-		View vPrivacy = vLayer.findViewById (R.id.settings_privacy);
-		if (vPrivacy != null)
-			vPrivacy.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: settings privacy");
-		        	slide_in_privacy();
-		        	}
-				});	
-		
-		if (vLayer != null)
-			vLayer.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	/* eat this */
-		        	log ("settings layer ate my tap!");
-		        	}
-				});		
-		}
-	
-	public void save_settings()
-		{
-		boolean nothing_changed = true;
-		
-		String kk = null;
-		String vv = null;
-
-		TextView vEmail = (TextView) findViewById (R.id.settings_email);
-		String email = vEmail.getText().toString();
-		
-		TextView vOldPassword = (TextView) findViewById (R.id.settings_old_password);
-		String old_password = vOldPassword.getText().toString();
-		
-		TextView vNewPassword = (TextView) findViewById (R.id.settings_new_password);
-		String new_password = vNewPassword.getText().toString();
-	
-		TextView vConfirm = (TextView) findViewById (R.id.settings_verify_password);
-		String confirm = vConfirm.getText().toString();
-		
-		if (!old_password.equals ("") && !new_password.equals (""))
-			{
-			if (!new_password.equals (confirm))
-				{
-				toast_by_resource (R.string.tlogin_pw_no_match);
-				return;
-				}		
-	
-			if (new_password.length() < 6)
-				{
-				toast_by_resource (R.string.tlogin_pw_six);
-				return;
-				}
-			
-			kk = "oldPassword,password";
-			vv = util.encodeURIComponent (old_password) + "," + util.encodeURIComponent (new_password);
-			}
-		
-		/* if true the final result of the "save" won't be known immediately */
-		boolean will_background = true;
-		
-		if (config != null && config.usertoken != null && kk != null && !kk.equals (""))
-			{
-			new playerAPI (in_main_thread, config, "setUserProfile?user=" + config.usertoken + "&key=" + kk + "&value=" + vv)
-				{
-				public void success (String[] lines)
-					{
-					toast_by_resource (R.string.saved);
-					settings_exit();
-					}
-				public void failure (int code, String errtext)
-					{
-					if (code == 201 || errtext.startsWith ("201"))
-						toast_by_resource (R.string.current_password_wrong);
-					else
-						alert ("Failure saving your changes: " + errtext);
-					}
-				};
-			nothing_changed = false;
-			}
-		else
-			will_background = false;		
-			
-		if (original_notify_setting != config.notifications_enabled
-				|| original_sound_setting != config.notify_with_sound
-				|| original_vibrate_setting != config.notify_with_vibrate)
-			{
-			save_notification_settings();
-			remember_notification_settings();
-			toast_by_resource (R.string.saved);
-			nothing_changed = false;
-			}
-		
-		if (nothing_changed)
-			toast_by_resource (R.string.nothing_changed);
-		else if (!will_background)
-			settings_exit();
-		}
-	
-	public void settings_exit()
-		{
-		if (current_layer == toplayer.SETTINGS)
-			{
-			log ("settings exit");
-			final View vLayer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
-	    	if (is_tablet())
-	    		vLayer.setVisibility (View.GONE);
-	    	else
-	    		toggle_menu();
-			}
-		else if (current_layer == toplayer.PASSWORD)
-			{
-			log ("password exit");
-			slide_away_password();
-			}
-		else
-			{
-			if (is_tablet())
-				{
-				final View vLayer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
-				vLayer.setVisibility (View.GONE);
-				}
-			else
-				log ("current layer is: " + current_layer + ", stay in settings");
-			}
-		}
-	
+    
 	/*** PASSWORD **************************************************************************************************/
 	
 	public void enable_password_layer()
@@ -10104,7 +8157,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		disable_video_layer();
 		zero_signin_data();
 		set_layer (toplayer.PASSWORD);	
-		redraw_settings();
+		settings_class().redraw_settings();
 		setup_password_buttons();
 		}	
 	
@@ -10164,7 +8217,7 @@ public class main extends VideoBaseActivity implements OnMessagesListener, OnSoc
 		        public void onClick (View v)
 		        	{
 		        	log ("password save");
-		        	save_settings();
+		        	settings_class().save_settings();
 		        	}
 				});	
 		
