@@ -1,8 +1,12 @@
 package tv.tv9x9.player;
 
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,9 +17,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +33,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -70,6 +77,7 @@ public class SocialLayer extends StandardFragment
     	public Handler get_main_thread();
     	public int actual_pixels (int dp);
     	public int screen_width();
+    	public void remember_location();
 		}    
     
     OnSocialListener mCallback; 
@@ -383,11 +391,17 @@ public class SocialLayer extends StandardFragment
 			if (vTitle != null)
 				vTitle.setText (soc.username);
 			
+			/*
+			 * option 1 - ordinary text. Does not have hotlinks
+			 * 
 			TextView vText = (TextView) rv.findViewById (R.id.text);
 			if (vText != null)
 				vText.setText (soc.text);
+			*/
 			
 			/*
+			 * option 2 - webview. has hotlinks, but problems with view height
+			 * 
 			WebView vDesc = (WebView) rv.findViewById (R.id.webtext);
 			if (vDesc != null)
 				{
@@ -401,6 +415,12 @@ public class SocialLayer extends StandardFragment
 				vDesc.loadDataWithBaseURL ("http://www.youtube.com/", soc.text, "text/html", "utf-8", null);
 				}
 			*/
+			
+			/*
+			 * option 3 - create a line-by-line fake webview-like abomination
+			 */
+			LinearLayout vLineByLine = (LinearLayout) rv.findViewById (R.id.line_by_line);
+			fill_line_by_line_view (vLineByLine, soc.text);
 			
 			TextView vCounter = (TextView) rv.findViewById (R.id.soc_counter);
 			if (vCounter != null)
@@ -596,6 +616,175 @@ public class SocialLayer extends StandardFragment
 						vThumb.setVisibility (View.GONE);
 					}
 				}
+			}
+		}
+	
+	public void fill_line_by_line_view (LinearLayout vLineByLine, String text)
+		{		
+		/*
+		ScrollView vContainer = (ScrollView) getView().findViewById (R.id.desc_scroll_container);
+		vContainer.scrollTo (0, 0);
+		*/
+		
+		// LinearLayout vLineByLine = (LinearLayout) getView().findViewById (R.id.line_by_line);
+		vLineByLine.removeAllViews();
+		
+		if (text != null)
+			{
+			String lines[] = text.split ("\n");
+			for (String line: lines)
+				{
+				// log ("LINE: |" + line + "|");				
+				add_single_line (vLineByLine, line);
+				}
+			}
+	
+		/*
+		ScrollView.LayoutParams layout = new ScrollView.LayoutParams
+				(ScrollView.LayoutParams.MATCH_PARENT, ScrollView.LayoutParams.WRAP_CONTENT);
+		
+		vContainer.updateViewLayout (vDesc, layout);
+		*/
+		}
+
+	public void add_single_line (LinearLayout vDesc, String line)
+		{
+		Pattern pattern = android.util.Patterns.WEB_URL;
+		
+		int maxchar = mCallback.is_phone() ? 16 : 24;
+		
+		int viewcount = 0;
+		View append_views[] = new View [10];
+		
+	    String process_afterwards = null;
+	    
+		Matcher matcher = pattern.matcher (line);
+		if (matcher.find (0))
+			{
+			/* create a LinearLayout */
+			int match_start = matcher.start(1);
+			int match_end = matcher.end();
+			
+			String text_to_left = match_start > 0 ? line.substring (0, match_start - 1) : "";
+			String text = line.substring (match_start, match_end);					
+			String text_to_right = line.substring (match_end);
+			
+			// log ("V1: |" + text_to_left + "|");
+			// log ("V2: |" + text + "|");
+			// log ("V3: |" + text_to_right + "|");
+			
+			TextView v1 = new TextView (getActivity());
+			v1.setText (text_to_left);
+			v1.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
+			v1.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			if (text_to_left.contains ("http") || text_to_left.contains ("HTTP"))
+				v1.setMaxLines (1);
+		    // v1.setBackgroundColor (Color.RED);
+		    
+			TextView v2 = new TextView (getActivity());
+			v2.setText (text);
+			v2.setTextColor (Color.rgb (0x00, 0x00, 0xFF));
+			v2.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			if (!text.startsWith ("http") && !text.startsWith ("Http") && !text.startsWith ("HTTP"))
+				text = "http://" + text;
+			v2.setMaxLines (1);
+			final String final_text = text;
+			v2.setOnClickListener (new OnClickListener()
+					{
+			        @Override
+			        public void onClick (View v)
+			        	{
+			        	log ("description url click: " + final_text);
+		        		mCallback.remember_location();
+			        	Intent wIntent = new Intent (Intent.ACTION_VIEW, Uri.parse (final_text));
+			        	try
+			        		{
+				        	startActivity (wIntent);
+			        		}
+			        	catch (Exception ex)
+			        		{
+			        		ex.printStackTrace();
+			        		}
+			        	}
+					});
+		    // v2.setBackgroundColor (Color.GREEN);
+		    
+			Matcher matcher3 = pattern.matcher (text_to_right);
+			if (matcher3.find (0))
+				{
+				/* the third component has more links! recurse, but must be done after processing */
+				process_afterwards = text_to_right;
+				text_to_right = "";
+				}
+				
+			TextView v3 = new TextView (getActivity());
+			v3.setText (text_to_right);
+			v3.setTextColor (Color.rgb (0xC0, 0xC0, 0xC0));
+			v3.setTextSize (TypedValue.COMPLEX_UNIT_SP, 16);
+			if (text_to_right.contains ("http") || text_to_right.contains ("HTTP"))
+			v3.setMaxLines (1);
+		    // v3.setBackgroundColor (Color.BLUE);
+		
+		    if (v1.length() > maxchar && v3.length() > maxchar)
+		    	{
+		    	// log ("scenario 1: v1 // v2 // v3");
+				append_views [viewcount++] = v1;
+				append_views [viewcount++] = v2;
+				append_views [viewcount++] = v3;				    	
+		    	}
+		    else if (v1.length() > maxchar)
+		    	{
+		    	// log ("scenario 2: v1 // v2 + v3");
+				append_views [viewcount++] = v1;
+				LinearLayout linear = new LinearLayout (getActivity());	
+				linear.addView (v2);
+				linear.addView (v3);
+				append_views [viewcount++] = linear;
+		    	}
+		    else if (v3.length() > maxchar)
+		    	{
+		    	// log ("scenario 3: v1 + v2 // v3");
+				LinearLayout linear = new LinearLayout (getActivity());	
+		    	linear.addView (v1);
+		    	linear.addView (v2);
+				append_views [viewcount++] = linear;
+				append_views [viewcount++] = v3;
+		    	}
+		    else
+		    	{
+		    	// log ("scenario 4: v1 + v2 + v3");
+				LinearLayout linear = new LinearLayout (getActivity());	
+		    	linear.addView (v1);
+		    	linear.addView (v2);
+		    	linear.addView (v3);	
+				append_views [viewcount++] = linear;
+		    	}
+			}
+		else
+			{
+			/* create just a TextView */
+			// log ("ORDINARY: |" + line + "|");
+			TextView v = new TextView (getActivity());
+		    v.setText (line);
+		    // v.setBackgroundColor (Color.WHITE);
+		    append_views [viewcount++] = v;
+			}
+		
+		for (View v: append_views)
+			{
+			if (v != null)
+				{
+				LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams (WRAP_CONTENT, WRAP_CONTENT);
+				v.setLayoutParams (layout);
+				// log ("adding append_view");
+				vDesc.addView (v);
+				}
+			}	
+		
+		if (process_afterwards != null)
+			{
+			// log ("AFTERLINE: " + process_afterwards);
+			add_single_line (vDesc, process_afterwards);
 			}
 		}	
 	}

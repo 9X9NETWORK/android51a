@@ -853,6 +853,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		return ret;
 		}
 	
+	public void set_player_real_channel (String channel_id)
+		{
+		player_real_channel = channel_id;
+		}
+	
 	/* for TV devices such as Google TV or dongle */
 	public void skip_video (int direction)
 		{

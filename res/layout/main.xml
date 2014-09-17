@@ -21,7 +21,17 @@
 	    	android:layout_width="fill_parent"
 	    	android:layout_height="fill_parent">
  
-		    <include layout="@layout/home_layer" android:id="@+id/home_layer" />
+		   	<!-- include layout="@layout/home_layer" android:id="@+id/home_layer" / -->
+		   	
+		    <fragment
+			    class="tv.tv9x9.player.HomeLayer"
+			    android:id="@+id/home_fragment_container"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />
 		    	    	        	    			
 			<!-- include layout="@layout/apps_layer" / -->
 			
@@ -102,8 +112,18 @@
 			   	android:gravity="top|center_horizontal"
 			    android:background="#000000"
 			    />
-			
-			<include layout="@layout/password_phone" />
+
+			<!-- include layout="@layout/password_phone" / -->
+						
+			<fragment
+			    class="tv.tv9x9.player.PasswordLayer"
+			    android:id="@+id/password_fragment_container_phone"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />				
 					
 			<!-- include layout="@layout/social_layer" / -->
 			
@@ -153,10 +173,20 @@
 	   	android:gravity="top|center_horizontal"
 	    android:background="#000000"
 	    />
+		
+	<!-- include layout="@layout/password_tablet" / -->
+	
+	<fragment
+	    class="tv.tv9x9.player.PasswordLayer"
+	    android:id="@+id/password_fragment_container_tablet"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	   	android:layout_gravity="center"
+	   	android:gravity="top|center_horizontal"
+	    android:background="#000000"
+	    />
 				
 	<include layout="@layout/signin_tablet_new" />
-			
-	<include layout="@layout/password_tablet" />
 		
 	<include layout="@layout/video_layer_new" />
 					
