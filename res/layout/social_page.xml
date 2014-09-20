@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	android:background="#D9D9D9">    	
+   	<ListView
+		android:id="@+id/social_list"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:layout_gravity="top|center_horizontal"
+		android:gravity="top|center_horizontal"				
+		android:drawSelectorOnTop="false"
+		android:cacheColorHint="@android:color/transparent"
+		android:dividerHeight="0dp"
+		android:divider="@null"
+		android:descendantFocusability="blocksDescendants"
+		android:background="#D9D9D9"
+		/>	 	 					  	
+</LinearLayout>	

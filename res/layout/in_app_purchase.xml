@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/testlayer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical"
+    android:visibility="gone">
+    
+    <LinearLayout           
+		android:layout_width="fill_parent" 
+		android:layout_height="2dip"
+		android:layout_gravity="bottom"
+		android:gravity="center"				
+		android:background="#000000"
+		android:orientation="horizontal"
+		/>	
+		
+   	<TextView     
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="60dip"
+		android:layout_marginBottom="30dip"
+		android:layout_marginLeft="15dip"
+		android:layout_gravity="top"
+		android:gravity="center"
+		android:textSize="28sp"
+		android:textColor="#000000"
+		android:text="In-App Purchase Proof-of-Concept"					
+		android:paddingLeft="3sp"
+		/>
+   	
+   	<Button     
+	    android:id="@+id/google_test_buy"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+	    android:layout_marginLeft="60dip"
+	    android:layout_marginRight="60dip"
+	    android:layout_marginTop="20dip"						
+		android:layout_marginBottom="20dip"
+		android:layout_gravity="bottom|center_horizontal"
+		android:textSize="16sp"
+		android:textColor="#FFFFFF"
+		android:text="Google Test Purchase (always works)"
+		android:background="#FFAA00"	
+		android:visibility="gone"							
+		/>
+   		
+	<Button     
+	    android:id="@+id/sample_1_buy"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+	    android:layout_marginLeft="60dip"
+	    android:layout_marginRight="60dip"
+	    android:layout_marginTop="20dip"						
+		android:layout_marginBottom="20dip"
+		android:layout_gravity="bottom|center_horizontal"
+		android:textSize="16sp"
+		android:textColor="#FFFFFF"
+		android:text="tv.9x9.sample1 (one-time)"
+		android:background="#FFAA00"
+		android:visibility="gone"								
+		/>	
+
+	<Button     
+	    android:id="@+id/sample_2_buy"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+	    android:layout_marginLeft="60dip"
+	    android:layout_marginRight="60dip"
+	    android:layout_marginTop="20dip"						
+		android:layout_marginBottom="20dip"
+		android:layout_gravity="bottom|center_horizontal"
+		android:textSize="16sp"
+		android:textColor="#FFFFFF"
+		android:text="samplechannel2 (subscription)"
+		android:background="#FFAA00"
+		android:visibility="gone"								
+		/>
+					
+</LinearLayout>

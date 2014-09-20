@@ -7390,7 +7390,8 @@ public class main extends VideoBaseActivity
 				{
 				log ("testing in-app-purchase");
 				query_sku();
-				test_purchase ("android.test.purchased");
+				// test_purchase ("android.test.purchased");
+				// test_purchase ("tv.9x9.sample1");
 				}
 			};
 		
@@ -7402,7 +7403,8 @@ public class main extends VideoBaseActivity
 		ArrayList <String> skuList = new ArrayList<String> ();
 		
 		skuList.add ("android.test.purchased");
-		skuList.add ("android.test.canceled");
+		skuList.add ("tv.9x9.sample1");
+		skuList.add ("samplechannel2");
 		
 		Bundle querySkus = new Bundle();
 		querySkus.putStringArrayList ("ITEM_ID_LIST", skuList);
@@ -7420,16 +7422,24 @@ public class main extends VideoBaseActivity
 		int response = skuDetails.getInt ("RESPONSE_CODE");
 		if (response == 0)
 			{
-			ArrayList<String> responseList = skuDetails.getStringArrayList ("DETAILS_LIST");
+			ArrayList <String> responseList = skuDetails.getStringArrayList ("DETAILS_LIST");
 		   
 		    for (String thisResponse : responseList)
 		   		{
 		    	try
 		    		{
 		    		JSONObject object = new JSONObject (thisResponse);
-			    	String sku = object.getString ("productId");
-			    	String price = object.getString ("price");
+			    	final String sku = object.getString ("productId");
+			    	final String price = object.getString ("price");
 			    	log ("productId: " + sku + " price: " + price);
+			    	in_main_thread.post (new Runnable()
+			    		{
+			    		@Override
+			    		public void run()
+			    			{
+					    	enable_sku (sku, price);
+			    			}
+			    		});
 		    		}
 		    	catch (JSONException ex)
 		    		{
@@ -7439,6 +7449,32 @@ public class main extends VideoBaseActivity
 			}
 		}
 	 
+	public void enable_sku (final String sku, final String price)
+		{
+		int resource_id = 0;
+		
+		if (sku.equals ("tv.9x9.sample1"))
+			resource_id = R.id.sample_1_buy;
+		else if (sku.equals ("samplechannel2"))
+			resource_id = R.id.sample_2_buy;
+		else if (sku.equals ("android.test.purchased"))
+			resource_id = R.id.google_test_buy;
+		
+		View vButton = findViewById (resource_id);
+		if (vButton != null)
+			{
+			vButton.setVisibility (View.VISIBLE);
+			vButton.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	test_purchase (sku);
+		        	}
+				});
+			}
+		}
+	
 	public void test_purchase (String sku)
 		{
 		try

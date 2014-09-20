@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
+import android.util.Log;
 
 /**
  * To be used with ViewPager to provide a tab indicator component which give constant feedback as to
@@ -254,6 +255,12 @@ public class SlidingTabLayout extends HorizontalScrollView {
     		int width = screen_width;
     		width = ((View) mTabStrip.getParent().getParent()).getWidth();
     		
+    		/* gack. sometimes this is zero. but we are too deep to do anything about it. assume full width */
+    		if (width == 0)
+    			width = screen_width;
+    		
+			Log.i ("vtest", "&&&&&& TAB STRIP WIDTH: " + width + ", DIVISOR: " + divisor);
+			
     		if (width > 0)
 	    		{
 	            SlidingTabStrip.LayoutParams layout = (SlidingTabStrip.LayoutParams) tabView.getLayoutParams();

@@ -228,13 +228,14 @@ public class thumbnail
 				if (bmp == null)
 					{
 					/* leaves a zero byte file */
-					Log.i ("vtest", "unable to download thumbnail");
+					Log.i ("vtest", "unable to download thumbnail into " + filename);
 					}
 				else
 					{
 					try
 						{
 						bmp.compress (Bitmap.CompressFormat.PNG, 100, out);
+						Log.i ("vtest", "fully downloaded: " + id + " URL: " + url);
 						}
 					catch (Exception e)
 						{
@@ -370,6 +371,40 @@ public class thumbnail
 					String filename = ctx.getFilesDir() + "/" + m.api_server + "/soc/" + post_id + "--number--" + num + ".png"; 
 							
 					download (post_id, url, filename, false);					
+					
+					if (max_width > 0)
+						{
+						bitmappery.resize_bitmap_in_place (filename, max_width);
+						}
+										
+					in_main_thread.post (update);	
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					((Activity) ctx).finish();
+					}
+				}
+			};
+		
+		t.start();
+		}
+	
+	public static void download_soc_user_thumb
+			(final Context ctx, final metadata m, final String source, final String user_id,
+					final String url, final int max_width, final Handler in_main_thread, final Runnable update)
+		{
+		Thread t = new Thread()
+			{
+			public void run()
+				{
+				try
+					{
+					if (!make_app_dir (ctx, m, "soc-user-thumb")) return;										
+					
+					String filename = ctx.getFilesDir() + "/" + m.api_server + "/soc-user-thumb/" + source + "--" + user_id + ".png"; 
+							
+					download (user_id, url, filename, false);					
 					
 					if (max_width > 0)
 						{

@@ -4,6 +4,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,31 +22,31 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.view.PagerAdapter;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.webkit.WebView;
-import android.webkit.WebSettings.LayoutAlgorithm;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+
 
 public class SocialLayer extends StandardFragment
 	{
 	metadata config = null;
-	
-    SocialAdapter social_adapter = null;
     
     public class social
     	{	
     	String username;
+    	String user_id;
+    	String user_thumb;
+    	String retweeted_by;
     	String text;
     	String type;
     	String post_id;
@@ -59,11 +60,15 @@ public class SocialLayer extends StandardFragment
     	int num_images;
     	String images[] = null;
     	}
-    
-    social social_feed[] = new social [0];
-    
+       
     Social soc = null;
     
+    /* feeds listed in order. This should be dynamic, not static as it is now */
+    String external_feeds[] = { "facebook", "twitter" };
+    
+    /* one entry for each of external_feeds above */
+	Hashtable  <String, social[]> all_feeds;
+	
     boolean soc_shim_added = false;
 	
     public interface OnSocialListener
@@ -81,6 +86,7 @@ public class SocialLayer extends StandardFragment
 		}    
     
     OnSocialListener mCallback; 
+    
     
     @Override
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -123,42 +129,13 @@ public class SocialLayer extends StandardFragment
 	    {
 	    this.config = config;
 	    
-		/* zap any earlier data */
-		social_feed = new social [0];
-			
-		ListView vSocial = (ListView) getView().findViewById (R.id.social_list);
-		social_adapter = new SocialAdapter (getActivity(), social_feed);
-		vSocial.setAdapter (social_adapter);
-		LayoutInflater inflater = getActivity().getLayoutInflater();
-		View shim = inflater.inflate (R.layout.footer_shim_d9, null);
-		vSocial.addFooterView (shim);
-		
-		vSocial.setOnItemClickListener (new OnItemClickListener()
-			{
-			public void onItemClick (AdapterView parent, View v, int position, long id)
-				{
-				if (position < social_feed.length)
-					{
-					String link = social_feed [position].link;
-					if (link != null)
-						{
-						log ("social click: " + position + ", link: " + link);
-			        	Intent wIntent = new Intent (Intent.ACTION_VIEW, Uri.parse (link));
-			        	try
-			        		{
-				        	startActivity (wIntent);
-			        		}
-			        	catch (Exception ex)
-			        		{
-			        		ex.printStackTrace();
-			        		}
-						}
-					else
-						log ("social click: " + position + ", but no link");
-					}
-				}
-			});	
-		
+        all_feeds = new Hashtable <String, social[]> ();
+        
+        soc_slider = new SocialSlider();
+        StoppableViewPager vPager = (StoppableViewPager) getView().findViewById (R.id.social_pager);
+        vPager.setAdapter (soc_slider);        
+        create_social_slider_tabs();
+        
 		if (soc != null)
 			{
 			try { soc.close(); } catch (Exception ex) {};
@@ -184,10 +161,7 @@ public class SocialLayer extends StandardFragment
 				{
 				log ("callback: social line read: " + text);
 				if (text.startsWith ("DATA ") || text.startsWith ("{"))
-					{
-					social new_feed[] = new social [social_feed.length + 1];
-					System.arraycopy (social_feed, 0, new_feed, 1, social_feed.length);
-					
+					{					
 					String data = text.replaceAll ("^DATA ", "");
 										
 					JSONObject json = null;
@@ -206,10 +180,11 @@ public class SocialLayer extends StandardFragment
 						return;
 						}
 					
-					// ** got line: {"username": "9x9.tv", "name": "9x9.tv", "text": "Thanks to all of your suggestions, we've added this feature that you've all been waiting for! http://blog.9x9.tv/2013/02/bring-your-youtube-subscriptions-sign.html You can download the app here: https://play.google.com/store/apps/details?id=tv.tv9x9.player", "userid": "283883488348574", "date": "2013-02-08T10:02:29+0000", "postid": "283883488348574_524590450895569", "type": "facebook"}
-	
 					String x_username = null;
+					String x_user_id = null;
+					String x_user_thumb = null;
 					String x_text = null;
+					String x_retweeted_by = null;
 					String x_type = null;
 					String x_post_id = null;
 					String x_object_id = null;
@@ -223,15 +198,17 @@ public class SocialLayer extends StandardFragment
 					JSONArray x_images = null;
 					
 					try { x_username = json.getString ("username"); } catch (JSONException ex) {};
+					try { x_user_id = json.getString ("userid"); } catch (JSONException ex) {};
 					try { x_text = json.getString ("text"); } catch (JSONException ex) {};
-					
-									
+													
 					if (x_username == null || x_text == null)
 						{
 						log ("social: incomplete data");
 						return;
 						}
 	
+					try { x_user_thumb = json.getString ("userthumb"); } catch (JSONException ex) {};
+					try { x_retweeted_by = json.getString ("retweeted_by"); } catch (JSONException ex) {};
 					try { x_type = json.getString ("type"); } catch (JSONException ex) {};
 					try { x_post_id = json.getString ("postid"); } catch (JSONException ex) {};
 					try { x_format = json.getString ("format");} catch (JSONException ex) {};
@@ -256,6 +233,9 @@ public class SocialLayer extends StandardFragment
 						}
 					
 					item.username = x_type.equals ("twitter") ? "@" + x_username : x_username;
+					item.user_id = x_user_id;
+					item.user_thumb = x_user_thumb;
+					item.retweeted_by = x_retweeted_by;
 					item.text = x_text;
 					item.type = x_type;
 					item.post_id = x_post_id;
@@ -269,18 +249,26 @@ public class SocialLayer extends StandardFragment
 					item.num_images = num_images;
 					
 					log ("SOCIAL: user=" + item.username + " format=" + item.format + " object=" + item.object_id);
+										
+					/* create a new feed if we have not seen this type before */
+					boolean added_a_feed = create_feed_if_necessary (item.type);
+					
+					social old_feed[] = all_feeds.get (item.type);					
+					social new_feed[] = new social [old_feed.length + 1];
+					
+					System.arraycopy (old_feed, 0, new_feed, 1, old_feed.length);
 					
 					new_feed [0] = item; 
-					social_feed = new_feed;
+					all_feeds.put (item.type, new_feed);
 					
-					mCallback.get_main_thread().post (new Runnable()
+					log ("feed for: " + item.type + " now has " + new_feed.length + " items");
+					if (soc_slider != null)
 						{
-						@Override
-						public void run()
-							{
-							social_adapter.set_content (social_feed);
-							}
-						});
+						if (added_a_feed)
+							soc_slider.update();
+						else
+							soc_slider.update_primary();
+						}
 					}
 				}
 			};
@@ -297,17 +285,6 @@ public class SocialLayer extends StandardFragment
 			};
 			
 		soc.open (onConnected, onRead, onError);
-				
-		View vStop = getView().findViewById (R.id.soc_stop);
-		if (vStop != null)
-			vStop.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	soc.close();
-		        	}
-				});
 		}
     
     public void close()
@@ -319,26 +296,79 @@ public class SocialLayer extends StandardFragment
 			}
 	    }
     
+    public boolean create_feed_if_necessary (String source)
+    	{
+		if (all_feeds.get (source) == null)
+			{
+			social empty_feed[] = new social [0];
+			all_feeds.put (source, empty_feed);
+			return true;
+			}
+		else
+			return false;
+    	}
+    
+	public void create_social_slider_tabs()
+		{	
+		mCallback.get_main_thread().post (new Runnable()
+			{
+			@Override
+			public void run()
+				{							
+			    class SimpleTabColorizer implements SlidingTabLayout.TabColorizer
+			    	{
+			        private int[] mIndicatorColors;
+			        private int[] mDividerColors;
+	
+			        @Override
+			        public final int getIndicatorColor (int position)
+			        	{
+			            return mIndicatorColors [position % mIndicatorColors.length];
+			        	}
+	
+			        @Override
+			        public final int getDividerColor (int position)
+			        	{
+			            return mDividerColors [position % mDividerColors.length];
+			        	}
+	
+			        void setIndicatorColors (int... colors)
+			        	{
+			            mIndicatorColors = colors;
+			        	}
+	
+			        void setDividerColors (int... colors)
+			        	{
+			            mDividerColors = colors;
+			        	}
+			    	}
+			    
+				SimpleTabColorizer colorizer = new SimpleTabColorizer();
+				colorizer.setIndicatorColors (Color.rgb (0xFF, 0xAA, 0x00));					
+			    colorizer.setDividerColors (Color.argb (0x60, 0xFF, 0xFF, 0xFF));
+				SlidingTabLayout mSlidingTabLayout = (SlidingTabLayout) getView().findViewById (R.id.social_tabs);
+				mSlidingTabLayout.setCustomTabColorizer (colorizer);
+		        StoppableViewPager vSigninPager = (StoppableViewPager) getView().findViewById (R.id.social_pager);
+				mSlidingTabLayout.setViewPager (vSigninPager);
+				}
+			});
+		}
+	
 	public class SocialAdapter extends BaseAdapter
 		{
-		private Context context;
 		private social socials[] = null;
-		// private boolean requested_image[] = null;
+		
 		private Set <String> requested_image = new HashSet <String> ();
 				
 		public SocialAdapter (Context context, social socials[])
 			{
-			this.context = context;
 			this.socials = socials;
-			// requested_image = new boolean [socials.length];
-			// Arrays.fill (requested_image, Boolean.FALSE);
 			}
 	
 		public void set_content (social socials[])
 			{
 			this.socials = socials;
-			// requested_image = new boolean [socials.length];
-			// Arrays.fill (requested_image, Boolean.FALSE);
+			log ("set content: " + socials.length + " items");
 			notifyDataSetChanged();
 			}
 		
@@ -480,6 +510,21 @@ public class SocialLayer extends StandardFragment
 				else
 					vLinkCaption.setVisibility (View.GONE);
 				}
+		
+			TextView vRetweeted = (TextView) rv.findViewById (R.id.retweeted);
+			if (vRetweeted != null)
+				{
+				if (soc.retweeted_by != null)
+					{
+					vRetweeted.setText ("@" + soc.retweeted_by + " retweeted");
+					vRetweeted.setVisibility (View.VISIBLE);
+					}
+				else
+					vRetweeted.setVisibility (View.GONE);
+				}
+			
+			ImageView vUserThumb = (ImageView) rv.findViewById (R.id.soc_user_thumb);
+			fill_soc_thumb (vUserThumb, soc);	
 			
 			int inside_width = mCallback.screen_width() - mCallback.actual_pixels (8) * 4;
 			
@@ -494,6 +539,17 @@ public class SocialLayer extends StandardFragment
 			View vImage5 = rv.findViewById (R.id.soc_image_5);
 			View vImage6 = rv.findViewById (R.id.soc_image_6);
 			
+			/*
+			 *   1 -   X
+			 *   2 -   X X
+			 *   3 -   X X X
+			 *   4 -   X X
+			 *         X X
+			 *   5 -   X X X
+			 *         X X      
+			 *   
+			 */
+			
 			if (soc.num_images == 0)
 				{
 				vRow1.setVisibility (View.GONE);
@@ -505,7 +561,7 @@ public class SocialLayer extends StandardFragment
 				vRow1.setVisibility (View.GONE);
 				vRow2.setVisibility (View.GONE);
 				vImage0.setVisibility (View.VISIBLE);
-				fill_soc_image (rv, R.id.soc_image, soc, 0, position);
+				fill_soc_image (rv, R.id.soc_image, soc, 0);
 				View vPlayArrow = rv.findViewById (R.id.soc_image_play);
 				vPlayArrow.setVisibility (soc.format.equals ("video") ? View.VISIBLE : View.GONE);
 				}
@@ -522,22 +578,22 @@ public class SocialLayer extends StandardFragment
 				vImage5.setVisibility (soc.num_images >= 4 ? View.VISIBLE : View.GONE);
 				vImage6.setVisibility (soc.num_images >= 6 ? View.VISIBLE : View.GONE);			
 				
-				fill_soc_image (rv, R.id.soc_image_1, soc, 0, position);
-				fill_soc_image (rv, R.id.soc_image_2, soc, 1, position);
+				fill_soc_image (rv, R.id.soc_image_1, soc, 0);
+				fill_soc_image (rv, R.id.soc_image_2, soc, 1);
 				if (soc.num_images == 3 || soc.num_images >= 5)
-					fill_soc_image (rv, R.id.soc_image_3, soc, 2, position);
+					fill_soc_image (rv, R.id.soc_image_3, soc, 2);
 				if (soc.num_images >= 4)
-					fill_soc_image (rv, R.id.soc_image_4, soc, soc.num_images == 4 ? 2 : 3, position);
+					fill_soc_image (rv, R.id.soc_image_4, soc, soc.num_images == 4 ? 2 : 3);
 				if (soc.num_images >= 5)
-					fill_soc_image (rv, R.id.soc_image_5, soc, soc.num_images == 4 ? 3 : 4, position);
+					fill_soc_image (rv, R.id.soc_image_5, soc, soc.num_images == 4 ? 3 : 4);
 				if (soc.num_images >= 6)
-					fill_soc_image (rv, R.id.soc_image_6, soc, 5, position);
+					fill_soc_image (rv, R.id.soc_image_6, soc, 5);
 				}
 			
 			return rv;
 			}	
 		
-		private void fill_soc_image (View parent, int resource_id, social soc, int image_num, int position)
+		private void fill_soc_image (View parent, int resource_id, social soc, int image_num)
 			{
 			ImageView vThumb = (ImageView) parent.findViewById (resource_id);
 			if (vThumb != null)
@@ -594,57 +650,82 @@ public class SocialLayer extends StandardFragment
 							@Override
 							public void run()
 								{
+								log ("image downloaded, notifyDataSetChanged");
 								notifyDataSetChanged();
 								}
 							});
 						}
-					
-	
-					
-					/*
-					 *   1 -   X
-					 *   2 -   X X
-					 *   3 -   X X X
-					 *   4 -   X X
-					 *         X X
-					 *   5 -   X X X
-					 *         X X      
-					 *   
-					 */
 					
 					if (!used_thumbnail)
 						vThumb.setVisibility (View.GONE);
 					}
 				}
 			}
+		
+		public void fill_soc_thumb (ImageView vThumb, social soc)	
+			{	
+			log ("fill soc thumb? " + vThumb + " -- " + soc.user_thumb);
+			if (vThumb != null)
+				{
+				boolean used_thumbnail = false;
+				
+				String image = soc.user_thumb;
+				if (image != null && image.startsWith ("http"))
+					{
+					String filename = getActivity().getFilesDir() + "/" + config.api_server + "/soc-user-thumb/" + soc.type + "--" + soc.user_id + ".png";
+					File f = new File (filename);
+					if (f.exists())
+						{
+						Bitmap bitmap = BitmapFactory.decodeFile (filename);
+						if (bitmap != null)
+							{
+							vThumb.setImageBitmap (bitmap);
+							vThumb.setVisibility (View.VISIBLE);
+							used_thumbnail = true;
+							log ("soc thumb for " + soc.user_id + " successful");
+							}								
+						else
+							log ("soc thumb for " + soc.user_id + " bitmap is null");
+						}
+					else
+						log ("soc thumb for " + soc.user_id + " does not exist yet");
+					}
+				
+				String identifier = "user-thumb | " + soc.type + " | " + soc.user_id;
+				
+				if (!used_thumbnail && !requested_image.contains (identifier))
+					{
+					log ("fill soc thumb: download " + identifier);
+					requested_image.add (identifier);
+					
+					int max_width = mCallback.actual_pixels (120);
+					
+					thumbnail.download_soc_user_thumb (getActivity(), config, soc.type, soc.user_id, image, max_width, mCallback.get_main_thread(), new Runnable()
+						{
+						@Override
+						public void run()
+							{
+							log ("soc user thumb downloaded, notifyDataSetChanged");
+							notifyDataSetChanged();
+							}
+						});
+					}
+				}
+			else
+				log ("soc thumb ImageView is null!");
+			}				
 		}
-	
+	 	
 	public void fill_line_by_line_view (LinearLayout vLineByLine, String text)
 		{		
-		/*
-		ScrollView vContainer = (ScrollView) getView().findViewById (R.id.desc_scroll_container);
-		vContainer.scrollTo (0, 0);
-		*/
-		
-		// LinearLayout vLineByLine = (LinearLayout) getView().findViewById (R.id.line_by_line);
 		vLineByLine.removeAllViews();
 		
 		if (text != null)
 			{
 			String lines[] = text.split ("\n");
-			for (String line: lines)
-				{
-				// log ("LINE: |" + line + "|");				
+			for (String line: lines)		
 				add_single_line (vLineByLine, line);
-				}
 			}
-	
-		/*
-		ScrollView.LayoutParams layout = new ScrollView.LayoutParams
-				(ScrollView.LayoutParams.MATCH_PARENT, ScrollView.LayoutParams.WRAP_CONTENT);
-		
-		vContainer.updateViewLayout (vDesc, layout);
-		*/
 		}
 
 	public void add_single_line (LinearLayout vDesc, String line)
@@ -787,4 +868,158 @@ public class SocialLayer extends StandardFragment
 			add_single_line (vDesc, process_afterwards);
 			}
 		}	
+		
+	SocialSlider soc_slider = null;
+	
+	class Swapsoc
+		{
+		int page_number = 0;
+		LinearLayout page = null;
+		String source = null;
+	    SocialAdapter social_adapter = null;
+		public Swapsoc (int page_number)
+			{
+			this.page_number = page_number;
+			}
+		};
+
+	/* this is implemented using the base class! */
+		
+	public class SocialSlider extends PagerAdapter
+		{		
+	    @Override
+	    public int getCount()
+	    	{
+	        return external_feeds.length;
+	    	}
+	
+	    @Override
+	    public CharSequence getPageTitle (int position)
+	    	{
+	    	String title = external_feeds [position];
+	    	title = Character.toUpperCase (title.charAt(0)) + title.substring(1);
+	    	return title;
+	    	}
+	    
+		@Override
+		public boolean isViewFromObject (View view, Object object)
+			{
+			return (((Swapsoc) object).page) == (LinearLayout) view;
+			}
+		
+		@Override
+		public Object instantiateItem (final ViewGroup container, final int position)
+			{
+			log ("[SOCPAGER] instantiate: " + position);
+			
+			final Swapsoc sh = new Swapsoc (position);	
+			
+			LinearLayout page = (LinearLayout) View.inflate (getActivity(), R.layout.social_page, null);
+			sh.page = page;
+			sh.source = external_feeds [position];
+						
+			log ("[SOCPAGER] instantiate: " + sh.source);
+			
+			((StoppableViewPager) container).addView (page, 0);
+			
+			ListView vSocial = (ListView) page.findViewById (R.id.social_list);
+			
+			create_feed_if_necessary (sh.source);			
+			final social feed[] = all_feeds.get (sh.source);			
+			sh.social_adapter = new SocialAdapter (getActivity(), feed);
+			
+			vSocial.setAdapter (sh.social_adapter);
+			LayoutInflater inflater = getActivity().getLayoutInflater();
+			View shim = inflater.inflate (R.layout.footer_shim_d9, null);
+			vSocial.addFooterView (shim);
+			
+			vSocial.setOnItemClickListener (new OnItemClickListener()
+				{
+				public void onItemClick (AdapterView parent, View v, int position, long id)
+					{
+					final social feed[] = all_feeds.get (sh.source);
+					if (position < feed.length)
+						{
+						String link = feed [position].link;
+						if (link != null)
+							{
+							log ("social click: " + position + ", link: " + link);
+				        	Intent wIntent = new Intent (Intent.ACTION_VIEW, Uri.parse (link));
+				        	try
+				        		{
+					        	startActivity (wIntent);
+				        		}
+				        	catch (Exception ex)
+				        		{
+				        		ex.printStackTrace();
+				        		}
+							}
+						else
+							log ("social click: " + position + ", but no link");
+						}
+					}
+				});	
+
+			return sh;
+			}
+		
+		@Override
+		public void destroyItem (ViewGroup container, int position, Object object)
+			{
+			log ("[SOCPAGER] destroy: " + position);
+			Swapsoc sh = (Swapsoc) object;
+			((StoppableViewPager) container).removeView (sh.page);
+			}
+		
+		Swapsoc primary_item = null;
+		
+		@Override
+		public void setPrimaryItem (ViewGroup container, int position, Object object)
+			{
+			log ("[SOCPAGER] setPrimaryItem: " + position);
+			Swapsoc sh = (Swapsoc) object;
+			
+			final String previous_primary_source = primary_item == null ? null : primary_item.source;
+			
+			primary_item = sh;
+			mCallback.get_main_thread().post (new Runnable()
+				{
+				@Override
+				public void run()
+					{
+					update_primary();
+					}
+				});
+			}
+		
+		public void update()
+			{
+			soc_slider.notifyDataSetChanged();
+			update_primary();
+			}
+		
+		public void update_primary()
+			{
+			if (primary_item != null)
+				{
+				if (primary_item.social_adapter != null)
+					{
+					final social feed[] = all_feeds.get (primary_item.source);	
+					if (primary_item.social_adapter.getCount() != feed.length)
+						{
+						/* only set the content if the # of items has changed. Otherwise, it will forever loop */
+						log ("update primary: " + primary_item.source + " (" + feed.length + " items)");
+						mCallback.get_main_thread().post (new Runnable()
+							{
+							@Override
+							public void run()
+								{
+								primary_item.social_adapter.set_content (feed);
+								}
+							});
+						}
+					}
+				}
+			}
+		}   	
 	}

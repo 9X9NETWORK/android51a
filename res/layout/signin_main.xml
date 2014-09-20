@@ -3,84 +3,7 @@
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"		  						    
 	android:orientation="vertical"
-	android:background="#FFFFFF">    
-    <!-- LinearLayout  
-	    android:layout_width="fill_parent"
-	    android:layout_height="55dip"			      
-	    android:orientation="horizontal">
-	    <FrameLayout
-	        android:id="@+id/sign_in_tab"
-		    android:layout_width="wrap_content"
-		    android:layout_height="fill_parent"
-		    android:layout_weight="1"			      
-		    android:orientation="vertical"
-		    android:background="#1D1D1D">
-	        <TextView	        
-				android:id="@+id/sign_in_tab_text"				            
-				android:layout_width="wrap_content"
-				android:layout_height="fill_parent"
-				android:layout_gravity="center"
-				android:gravity="center"
-				android:textSize="16sp"
-				android:textColor="#FFFFFF"
-				android:text="@string/log_in"								
-				android:padding="6dip"		
-				android:singleLine="true"
-				/>	
-		    <LinearLayout
-		        android:id="@+id/sign_in_tab_bar"
-			    android:layout_width="fill_parent"
-			    android:layout_height="8dip"		    
-				android:layout_gravity="bottom"   
-			    android:gravity="bottom" 
-			    android:orientation="vertical"
-			    android:background="#FFAA00"
-			    />					
-	    </FrameLayout>		
-	    <FrameLayout  
-		    android:layout_width="1px"
-		    android:layout_height="fill_parent"			      
-		    android:orientation="vertical"
-		    android:background="#FFFF0F">
-		    <LinearLayout
-			    android:layout_width="fill_parent"
-			    android:layout_height="8dip"		    
-				android:layout_gravity="bottom"   
-			    android:gravity="bottom" 
-			    android:orientation="vertical"
-			    android:background="#FFAA00"
-			    />				    
-		</FrameLayout>	    	
-	    <FrameLayout
-	        android:id="@+id/sign_up_tab"		        
-		    android:layout_width="wrap_content"
-		    android:layout_height="fill_parent"
-			android:layout_weight="1"			    			      
-		    android:orientation="vertical"
-		    android:background="#1D1D1D">
-	        <TextView	 
-				android:id="@+id/sign_up_tab_text"		  
-				android:layout_width="wrap_content"
-				android:layout_height="fill_parent"
-				android:layout_gravity="center"
-				android:gravity="center"
-				android:textSize="16sp"
-				android:textColor="#FFFFFF"
-				android:text="@string/si_sign_up_button"								
-				android:padding="6dip"		
-				android:singleLine="true"
-				/>			       
-		    <LinearLayout
-		        android:id="@+id/sign_up_tab_bar"
-			    android:layout_width="fill_parent"
-			    android:layout_height="8dip"		  
-			    android:layout_gravity="bottom"   
-			    android:gravity="bottom" 
-			    android:orientation="vertical"
-			    android:background="#FFAA00"
-			    />						 
-		</FrameLayout>
-	</LinearLayout-->				
+	android:background="#FFFFFF">    		
     
     <FrameLayout
 	    android:layout_width="match_parent"
@@ -88,7 +11,7 @@
 	    android:background="#1D1D1D">
 	 	<tv.tv9x9.player.SlidingTabLayout
 	          android:id="@+id/signin_tabs"
-	          android:layout_width="wrap_content"
+	          android:layout_width="match_parent"
 	          android:layout_height="wrap_content"
 	          android:gravity="center"
 	          android:layout_gravity="center"

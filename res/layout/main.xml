@@ -149,8 +149,10 @@
 			    android:background="#000000"
 			    />
 										
-			<include layout="@layout/test_layer" />
-												
+			<!-- include layout="@layout/test_layer" / -->
+			<!-- below is test_layer replacement for in_app_purchase -->
+			<include layout="@layout/in_app_purchase" />
+															
 			<FrameLayout
 		    	android:id="@+id/invisible_mask"
 		    	android:layout_width="fill_parent"
