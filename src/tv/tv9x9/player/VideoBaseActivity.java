@@ -1316,7 +1316,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public boolean is_streamable_url (String url)
 		{
-		return url.contains (".m3u8") || url.endsWith (".mp4") || url.endsWith (".MP4");
+		return url.contains (".m3u8") || url.contains (".mp4") || url.contains (".MP4");
 		}
 	
 	public void try_to_play_episode (final int episode)
@@ -1964,10 +1964,53 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void play_video_url (String url, long start_msec, long end_msec)
 		{
-		if (is_streamable_url (url))
+		String current_episode = program_line [current_episode_index - 1];
+		
+		String type = config.program_meta (current_episode, "type");
+		if (type == null || type.equals (""))
+			type = config.program_meta (current_episode, "sub-" + current_subepisode + "-type");
+		
+		log ("--> play video url, episode=" + current_episode + " subepisode=" + current_subepisode + " type=" + type);
+		if (type != null && type.equals ("5"))
+			play_protected_url (url, start_msec, end_msec);
+		else if (is_streamable_url (url))
 			play_vitamio_url (url, start_msec, end_msec);
+		else if (url.contains ("new.livestream.com"))
+			play_livestream_url (url, start_msec, end_msec);
 		else
 			play_youtube_url (url, start_msec, end_msec);	
+		}
+	
+	public void play_livestream_url (final String url, final long start_msec, final long end_msec)
+		{
+		final String current_episode = program_line [current_episode_index - 1];
+		Livestream.fetch_livestream_url_in_thread (config, current_episode, in_main_thread, new Callback()
+			{
+			@Override
+			public void run()
+				{
+				String new_url = config.best_url_or_first_subepisode (current_episode);
+				if (!url.equals (new_url))
+					play_video_url (new_url, start_msec, end_msec);
+				else
+					log ("play_livestream_url: couldn't resolve to a true Livestream URL");
+				}
+			});
+		}
+
+	public void play_protected_url (final String url, final long start_msec, final long end_msec)
+		{
+		final String current_episode = program_line [current_episode_index - 1];
+		ProtectedUrl.fetch_protected_url_in_thread (config, current_episode, in_main_thread, new Callback()
+			{
+			@Override
+			public void run()
+				{
+				/* this will have changed from type 5 to type 0 */
+				String new_url = config.best_url_or_first_subepisode (current_episode);
+				play_video_url (new_url, start_msec, end_msec);
+				}
+			});
 		}
 	
 	public void after_begin_titlecard_inner (float abt_percent)
@@ -4364,9 +4407,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        	if (timestamp == null)
 		        		timestamp = "";
 		        	
-		        	String url = config.best_url (arena_episode_id);			        	
-		        	if (url == null || url.equals (""))
-		        		url = config.program_meta (arena_episode_id, "sub-1-url");
+		        	String url = config.best_url_or_first_subepisode (arena_episode_id);			        	
 		        	
 		        	episode_structure.put ("id", arena_episode_id);
 		        	episode_structure.put ("name", name);

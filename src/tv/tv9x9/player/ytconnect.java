@@ -237,7 +237,7 @@ public class ytconnect
 					{
 					Log.i ("vtest", "[ytconnect] SUBSCRIPTION URL: " + url);
 					
-					String result = futil.get_any_webfile (null, url, header_keys, header_values);
+					String result = futil.get_any_webfile (url, header_keys, header_values);
 					
 					if (result.startsWith ("ERROR:"))
 						{
@@ -554,7 +554,7 @@ public class ytconnect
 		
 		Log.i ("vtest", "getting whatsnew feed from YouTube");
 		
-		String result = futil.get_any_webfile (null, url, header_keys, header_values);
+		String result = futil.get_any_webfile (url, header_keys, header_values);
 		
 		if (result.startsWith ("ERROR:"))
 			send_up_error (nice_error (result));

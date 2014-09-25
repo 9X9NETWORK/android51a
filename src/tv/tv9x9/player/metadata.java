@@ -853,20 +853,55 @@ public class metadata
 			return first_position_of (channel) > 0;
 		}
 	
-	public String best_url (String program)
+	public String best_url (String episode_id)
 		{
-		String  u1 = program_meta (program, "url1");
+		String  u1 = program_meta (episode_id, "url1");
 		if (u1 != null && !u1.equals(""))
 			return u1;
-		String  u2 = program_meta (program, "url2");
+		String  u2 = program_meta (episode_id, "url2");
 		if (u2 != null && !u2.equals(""))
 			return u2;
-		String  u3 = program_meta (program, "url3");
+		String  u3 = program_meta (episode_id, "url3");
 		if (u3 != null && !u3.equals(""))
 			return u1;
 		return null;
 		}
 
+	public String best_url_or_first_subepisode (String episode_id)
+		{
+		String result = best_url (episode_id);
+		if (result == null || result.equals (""))
+			{
+			result = program_meta (episode_id, "sub-1-url");
+			}
+		return result;
+		}
+	
+	/* this changes a URL, so it looks for one first. It might be in any number of places. */
+	
+	public void set_main_episode_url (String episode_id, String url)
+		{
+		String u1 = program_meta (episode_id, "url1");
+		if (u1 != null && !u1.equals(""))
+			{
+			set_program_meta (episode_id, "url1", url);
+			return;
+			}
+		String u2 = program_meta (episode_id, "url2");
+		if (u2 != null && !u2.equals(""))
+			{
+			set_program_meta (episode_id, "url2", url);
+			return;
+			}
+		String u3 = program_meta (episode_id, "url3");
+		if (u3 != null && !u3.equals(""))
+			{
+			set_program_meta (episode_id, "url3", url);
+			return;
+			}
+		set_program_meta (episode_id, "sub-1-url", url);
+		}
+	
 	public String parse_setinfo (String virtual_channel_id, String[] lines)
 		{
 		int section = 0;
@@ -1492,6 +1527,7 @@ public class metadata
 		String episode_id = fields [1];
 		String name = fields [2];
 		String desc = fields [3];
+		String type = fields [4];
 		String duration = fields [5];
 		String thumb = fields [6];
 		String url = fields [8];
@@ -1512,10 +1548,12 @@ public class metadata
 			String durations[] = duration.split ("\\|");
 			String urls[] = url.split ("\\|");
 			String thumbs[] = thumb.split ("\\|");
-	
+			String types[] = type.split ("\\|");
+			
 			name = names.length > 0 ? names [0] : "";	
 			url = "";
 			thumb = (thumbs.length > 0) ? thumbs [0] : "";
+			type = (types.length > 0) ? types [0] : "";
 			
 			program.put ("total-subepisodes", Integer.toString (Math.min (names.length, urls.length) - 1));
 			program.put ("total-duration", durations [0]);
@@ -1573,6 +1611,7 @@ public class metadata
 				program.put ("sub-" + i + "-thumb", thumbs.length > i ? thumbs [i] : "");
 				program.put ("sub-" + i + "-duration", durations.length > i ? durations [i] : "");
 				program.put ("sub-" + i + "-offset", Integer.toString (present_offset));
+				program.put ("sub-" + i + "-type", types.length > i ? types [i] : "");
 				
 				present_offset += Integer.parseInt (durations [i]);
 				

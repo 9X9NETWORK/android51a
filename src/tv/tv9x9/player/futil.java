@@ -78,7 +78,7 @@ public class futil
 		return ret;
 		}
 
-	public static String get_any_webfile (Handler handler, String url, String header_keys[], String header_values[])
+	public static String get_any_webfile (String url, String header_keys[], String header_values[])
 		{
 		Log.i ("fl", "get_any_webfile: " + url);
 	
