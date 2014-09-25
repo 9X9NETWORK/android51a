@@ -33,15 +33,19 @@ public class ProtectedUrl
 					}
 				log (">>>>>>>>>>> protected " + episode_id + ": " + url);
 				
-				// String query = "generateSignedUrl?url=" + util.encodeURIComponent (url);
-				String query = "generateSignedUrls?url=" + url;
+				String query = "generateSignedUrls?url=" + util.encodeURIComponent (url);
+				// String query = "generateSignedUrls?url=" + url;
 	    		new playerAPI (handler, config, query)
 					{
 					public void success (String[] lines)
 						{
-						String new_url = lines [0];
-						config.set_main_episode_url (episode_id, new_url);
-						log (">>>>>>>>>>> protected new url: " + new_url);
+						log (">>>>>>>>>>> protected response: " + lines[0]);
+						String fields[] = lines [0].split ("\t");
+						if (fields.length > 1)
+							{
+							config.set_main_episode_url (episode_id, fields[1]);
+							log (">>>>>>>>>>> protected new url: " + fields[1]);
+							}
 						/* change away from type 5 so this isn't called again */
 						config.set_program_meta (episode_id, "type", "0");
 						if (update != null)

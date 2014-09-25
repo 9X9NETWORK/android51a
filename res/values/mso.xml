@@ -4,7 +4,7 @@
    	<string name="app_name">9x9.tv</string>
 	<drawable name="app_icon_ptr">@drawable/nine_launch_logo</drawable>       	
     <string name="white_label">portal</string>
-    <string name="mso">9x9</string>
+    <string name="mso">test</string>
     <string name="default_region">en</string>
     <string name="logo">nine_logo</string>
     <string name="splash_background">nine_bg_open</string>
