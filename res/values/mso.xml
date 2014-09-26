@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
+    <!-- 
    	<string name="app_name">9x9.tv</string>
 	<drawable name="app_icon_ptr">@drawable/nine_launch_logo</drawable>       	
     <string name="white_label">portal</string>
-    <string name="mso">test</string>
+    <string name="9x9">9x9</string>
     <string name="default_region">en</string>
     <string name="logo">nine_logo</string>
     <string name="splash_background">nine_bg_open</string>
@@ -14,6 +15,7 @@
     <string name="signin_bg">nine_bg_open</string>      
     <string name="set_banner">nine_banner</string>     
 	<string name="fb_app_id">1429057570658015</string>
+    -->
 		  		
     <!-- Joey Graceffa -->
     <!-- 
@@ -594,9 +596,8 @@
     --> 
      
     <!-- YourApp -->
-    <!-- 
-    <string name="app_name">Your FLIPr App</string>
-    <string name="app_icon">@drawable/yourapp_launch_logo</string>
+    <string name="app_name">FLIPr Life</string>
+   	<drawable name="app_icon_ptr">@drawable/yourapp_launch_logo</drawable>       	
     <string name="white_label">yourapp</string>
     <string name="mso">yourapp</string>
     <string name="default_region">en</string>
@@ -608,7 +609,6 @@
     <string name="signin_bg">yourapp_bg_open</string>
     <string name="set_banner">yourapp_banner</string>
     <string name="fb_app_id">361253423962738</string>
-    -->
      
     <!-- Demo1 -->
     <!-- 
@@ -762,4 +762,22 @@
     <string name="set_banner">musicsounds_banner</string>
     <string name="fb_app_id">271923529673066</string>
     -->	
+   
+   	<!-- Portico -->
+    <!--
+    <string name="app_name">Portico</string>
+  	<drawable name="app_icon_ptr">@drawable/portico_launch_logo</drawable>       	
+    <string name="white_label">portico</string>
+    <string name="mso">portico</string>
+    <string name="default_region">zh</string>
+    <string name="logo">portico_logo</string>
+    <string name="splash_background">portico_bg_open</string>
+    <string name="splash_foreground">portico_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">portico_logo_signin</string>
+    <string name="signin_bg">portico_bg_open</string>
+    <string name="set_banner">portico_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->	
+    
 </resources>

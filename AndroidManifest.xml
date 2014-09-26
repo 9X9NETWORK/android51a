@@ -43,9 +43,10 @@
 <!-- package="tv.flipr.iconcerts" -->
 <!-- package="tv.flipr.cw" -->
 <!-- package="tv.flipr.musicsounds" -->
+<!-- package="tv.flipr.portico" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.tv9x9.player"
+      package="tv.flipr.yourapp"
       android:versionCode="138"
       android:versionName="5.0.1.138">
           
@@ -430,14 +431,12 @@
 			-->	
                                                                                                                                                                   
             <!-- for YourApp -->
-            <!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-yourapp" />        	       					   					
 			</intent-filter>
-			-->	                                                                                                                                                                  
 
             <!-- for Demo1 -->
             <!--  
@@ -470,12 +469,14 @@
   			-->	       
  
             <!-- for YourApp3 -->
+            <!--  
  			<intent-filter>
  				<action android:name="android.intent.action.VIEW" />
      			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
      			<data android:scheme="flipr-yourapp3" />        	       		   					
   			</intent-filter>
+  			-->	       
   			
 			<!-- for DingDingTV -->
             <!--   
@@ -525,6 +526,16 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="flipr-musicsounds" />                     
             </intent-filter>
+            -->			
+            
+ 			<!-- for Portico -->
+           	<!--
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+    			<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-portico" />        	       		   					
+ 			</intent-filter>
             -->			
             
         </activity>
