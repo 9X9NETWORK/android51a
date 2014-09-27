@@ -1975,6 +1975,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			play_protected_url (url, start_msec, end_msec);
 		else if (is_streamable_url (url))
 			play_vitamio_url (url, start_msec, end_msec);
+		else if (url.contains ("vimeo.com"))
+			play_vimeo_url (url, start_msec, end_msec);
 		else if (url.contains ("new.livestream.com"))
 			play_livestream_url (url, start_msec, end_msec);
 		else
@@ -1997,7 +1999,24 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				}
 			});
 		}
-
+	
+	public void play_vimeo_url (final String url, final long start_msec, final long end_msec)
+		{
+		final String current_episode = program_line [current_episode_index - 1];
+		VimeoUrl.fetch_vimeo_url_in_thread (config, current_episode, in_main_thread, new Callback()
+			{
+			@Override
+			public void run()
+				{
+				String new_url = config.best_url_or_first_subepisode (current_episode);
+				if (!url.equals (new_url))
+					play_video_url (new_url, start_msec, end_msec);
+				else
+					log ("play_vimeo_url: couldn't resolve to a true Vimeo URL");
+				}
+			});
+		}	
+	
 	public void play_protected_url (final String url, final long start_msec, final long end_msec)
 		{
 		final String current_episode = program_line [current_episode_index - 1];

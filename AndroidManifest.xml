@@ -47,8 +47,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.flipr.yourapp"
-      android:versionCode="138"
-      android:versionName="5.0.1.138">
+      android:versionCode="139"
+      android:versionName="5.0.1.139">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
