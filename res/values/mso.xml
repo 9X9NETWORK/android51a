@@ -596,6 +596,7 @@
     --> 
      
     <!-- YourApp -->
+    <!--  
     <string name="app_name">FLIPr Life</string>
    	<drawable name="app_icon_ptr">@drawable/yourapp_launch_logo</drawable>       	
     <string name="white_label">yourapp</string>
@@ -609,6 +610,7 @@
     <string name="signin_bg">yourapp_bg_open</string>
     <string name="set_banner">yourapp_banner</string>
     <string name="fb_app_id">361253423962738</string>
+    --> 
      
     <!-- Demo1 -->
     <!-- 
@@ -779,5 +781,54 @@
     <string name="set_banner">portico_banner</string>
     <string name="fb_app_id">361253423962738</string>
     -->	
+    
+    <!-- FLIPr CTV Bay Area -->
+    <!--
+    <string name="app_name">FLIPr CTV Bay Area</string>
+   	<drawable name="app_icon_ptr">@drawable/fliprctvbayarea_launch_logo</drawable>       	
+    <string name="white_label">fliprctvbayarea</string>
+    <string name="mso">fliprctvbayarea</string>
+    <string name="default_region">en</string>
+    <string name="logo">fliprtv_logo</string>
+    <string name="splash_background">fliprctvbayarea_bg_open</string>
+    <string name="splash_foreground">fliprctvbayarea_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">fliprctvbayarea_logo_signin</string>
+    <string name="signin_bg">fliprctvbayarea_bg_open</string>
+    <string name="set_banner">fliprctvbayarea_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->	
+       
+    <!-- FLIPr.tv -->
+    <string name="app_name">FLIPr.tv</string>
+   	<drawable name="app_icon_ptr">@drawable/fliprtv_launch_logo</drawable>       	
+    <string name="white_label">fliprtv</string>
+    <string name="mso">fliprtv</string>
+    <string name="default_region">en</string>
+    <string name="logo">fliprtv_logo</string>
+    <string name="splash_background">fliprtv_bg_open</string>
+    <string name="splash_foreground">fliprtv_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">fliprtv_logo_signin</string>
+    <string name="signin_bg">fliprtv_bg_open</string>
+    <string name="set_banner">fliprtv_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+     
+    <!-- TEST2 -->
+    <!-- 
+    <string name="app_name">TEST2</string>
+   	<drawable name="app_icon_ptr">@drawable/test2_launch_logo</drawable>       	
+    <string name="white_label">test2</string>
+    <string name="mso">test2</string>
+    <string name="default_region">zh</string>
+    <string name="logo">test2_logo</string>
+    <string name="splash_background">test2_bg_open</string>
+    <string name="splash_foreground">test2_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">test2_logo_signin</string>
+    <string name="signin_bg">test2_bg_open</string>
+    <string name="set_banner">test2_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
     
 </resources>

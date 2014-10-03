@@ -44,9 +44,12 @@
 <!-- package="tv.flipr.cw" -->
 <!-- package="tv.flipr.musicsounds" -->
 <!-- package="tv.flipr.portico" -->
+<!-- package="tv.flipr.fliprctvbayarea" -->
+<!-- package="tv.flipr.fliprtv" -->
+<!-- package="tv.flipr.test2" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.flipr.yourapp"
+      package="tv.flipr.fliprtv"
       android:versionCode="139"
       android:versionName="5.0.1.139">
           
@@ -80,7 +83,7 @@
     <!-- android:debuggable="@bool/debuggable" -->
     
     <!--uses-feature android:name="com.google.android.tv" android:required="true" /-->
-    <application android:icon="@drawable/app_icon_ptr" android:label="@string/app_name" android:largeHeap="true" android:hardwareAccelerated="true">
+    <application android:debuggable="@bool/debuggable" android:icon="@drawable/app_icon_ptr" android:label="@string/app_name" android:largeHeap="true" android:hardwareAccelerated="true">
         <!--meta-data android:name="com.facebook.sdk.ApplicationId" android:value="361253423962738"/-->    
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/fb_app_id"/>
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />            
@@ -431,12 +434,14 @@
 			-->	
                                                                                                                                                                   
             <!-- for YourApp -->
+            <!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-yourapp" />        	       					   					
 			</intent-filter>
+			-->	
 
             <!-- for Demo1 -->
             <!--  
@@ -538,6 +543,34 @@
  			</intent-filter>
             -->			
             
+ 			<!-- for FLIPr CTV Bay Area -->
+           	<!--
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+    			<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-fliprctvbayarea" />        	       		   					
+ 			</intent-filter>
+            -->			
+            
+ 			<!-- for FLIPr.tv -->
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+    			<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-fliprtv" />        	       		   					
+ 			</intent-filter>
+             
+ 			<!-- for TEST2 -->
+ 			<!-- 
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+    			<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-test2" />        	       		   					
+ 			</intent-filter>
+            -->
+ 			
         </activity>
         
 <!-- entire Manifest file as provided from RC company:
