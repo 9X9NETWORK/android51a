@@ -640,6 +640,8 @@ public class main extends VideoBaseActivity
 			if (unlaunch_player)	
 				unlaunch_player();
 			}
+		
+		home_class().refresh();
 		}
 	
 	@Override
@@ -719,6 +721,9 @@ public class main extends VideoBaseActivity
 		if (config.flurry_id != null)
 			FlurryAgent.onStartSession (this, config.flurry_id);
 		flurry_id_sent = true;
+		
+		/* redraw buttons, because config is now available and may disable some of them */
+		setup_global_buttons();
 		
 		resume_as_logged_in_user();
 		home_class().setup_home_buttons();
@@ -1015,6 +1020,13 @@ public class main extends VideoBaseActivity
 		
 		View vSearch = vSlidingTopBar.findViewById (R.id.searchbutton);
 		if (vSearch != null)
+			{
+			if (config != null && config.search_on_off.equals ("off"))
+				{
+				/* search can be disabled on the server side */
+				vSearch.setVisibility (View.GONE);
+				}
+			
 			vSearch.setOnClickListener (new OnClickListener()
 				{
 		        @Override
@@ -1025,6 +1037,7 @@ public class main extends VideoBaseActivity
 		        	search_class().enable_search_apparatus (config, vBar);
 		        	}
 				});	
+			}
 		
 		vSlidingTopBar.setOnClickListener (new OnClickListener()
 			{
@@ -1270,7 +1283,9 @@ public class main extends VideoBaseActivity
 		
 		items.push (new menuitem (toplayer.HOME, R.string.home, R.drawable.icon_home, R.drawable.icon_home_press));
 		items.push (new menuitem (toplayer.GUIDE, R.string.my_following, R.drawable.icon_heart_black, R.drawable.icon_heart_press));
-		items.push (new menuitem (toplayer.STORE, R.string.store, R.drawable.icon_store, R.drawable.icon_store_press));
+		
+		if (config != null && !config.store_on_off.equals ("off"))
+			items.push (new menuitem (toplayer.STORE, R.string.store, R.drawable.icon_store, R.drawable.icon_store_press));
 	
 		/*
 		 * if we want categories in the menu. note: bitrot
@@ -4255,6 +4270,7 @@ public class main extends VideoBaseActivity
 		track_layer (toplayer.HOME);
 		
 		home_class().bouncy_home_hint_animation();
+		home_class().refresh();
 		}
 		
     public HomeLayer home_class()
@@ -5093,8 +5109,10 @@ public class main extends VideoBaseActivity
 			update_channel_icon (channel_id);			
 			}
 		}
-
-	public void update_channel_icon (String channel_id)
+	
+	Set <String> real_channel_thumb_download_requests = new HashSet <String> ();
+	
+	public void update_channel_icon (final String channel_id)
 		{
 		ImageView vChannelIcon = (ImageView) findViewById (R.id.playback_channel_icon);
 		ImageView vChannelIconLandscape = (ImageView) findViewById (R.id.playback_channel_icon_landscape);
@@ -5118,6 +5136,116 @@ public class main extends VideoBaseActivity
 					}			
 				}
 			}		
+		
+		View vVirtualLink = findViewById (R.id.virtual_link);
+		if (vVirtualLink != null)
+			{			
+			program_line = config.program_line_by_id (channel_id);
+			
+			if (program_line == null || current_episode_index > program_line.length)
+				{
+				vVirtualLink.setVisibility (View.GONE);
+				return;
+				}
+			
+			String episode_id = program_line [current_episode_index - 1];
+			final String real_channel = config.program_meta (episode_id, "real_channel");		
+			
+			if (real_channel != null && !real_channel.equals ("") && !real_channel.equals (channel_id))
+				{
+				String filename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + real_channel + ".png";
+				File f = new File (filename);
+				boolean thumb_exists = f.exists();
+				
+				final View vRealChannelProgress = findViewById (R.id.real_channel_progress);
+				final ImageView vRealChannelIcon = (ImageView) findViewById (R.id.real_channel_icon);	
+				
+				if (!thumb_exists)
+					{
+					/* spinner! */
+					}
+				
+				if (!config.channel_loaded (real_channel))
+					{
+					vRealChannelProgress.setVisibility (View.VISIBLE);
+					vRealChannelIcon.setVisibility (View.GONE);
+					
+					vVirtualLink.setOnClickListener (new OnClickListener()
+						{
+				        @Override
+				        public void onClick (View v)
+				        	{
+				        	/* disable taps until channel is loaded */
+				        	}
+						});	
+					
+					final Callback after_real_load = new Callback()
+						{
+						public void run_string_and_object (String channel_id, Object o)
+							{
+							update_channel_icon (channel_id);
+							vRealChannelProgress.setVisibility (View.GONE);
+							vRealChannelIcon.setVisibility (View.VISIBLE);
+							}
+						};
+					load_channel_then (real_channel, false, after_real_load, channel_id, null);
+					}
+				else
+					{
+					vRealChannelProgress.setVisibility (View.GONE);
+					vRealChannelIcon.setVisibility (View.VISIBLE);
+					
+					vVirtualLink.setOnClickListener (new OnClickListener()
+						{
+				        @Override
+				        public void onClick (View v)
+				        	{
+				        	log ("click on: virtual channel link");
+				        	/* launch channel but with a set only of itself */
+				        	launch_player (real_channel, new String[] { real_channel });
+				        	}
+						});	
+					}
+				
+				String name = config.pool_meta (real_channel, "name");
+				
+				TextView vRealName = (TextView) findViewById (R.id.real_channel_name);
+				vRealName.setText (name != null ? name : "");
+					
+				if (thumb_exists)
+					{
+					Bitmap bitmap = BitmapFactory.decodeFile (filename);
+					if (bitmap != null)
+						{
+						Bitmap bitmap2 = bitmappery.getRoundedCornerBitmap (bitmap, 70);
+						if (bitmap2 != null)
+							{
+							vRealChannelIcon.setImageBitmap (bitmap2);
+							}
+						}			
+					}
+				else
+					{
+					/* don't have a thumb. download one if possible */
+					String thumb = config.pool_meta (real_channel, "thumb");
+					if (thumb != null && !thumb.equals ("") && !real_channel_thumb_download_requests.contains (real_channel))
+						{
+						real_channel_thumb_download_requests.add (real_channel);
+						thumbnail.stack_thumbs (main.this, config, new String[] { real_channel }, -1, in_main_thread, new Runnable()
+							{
+							public void run()
+								{
+								update_channel_icon (channel_id);
+								}
+							});
+						}
+					}
+				
+				vVirtualLink.setVisibility (View.VISIBLE);
+				}
+			else
+				vVirtualLink.setVisibility (View.GONE);
+			}
 		}
 	
 	public void update_episode_count (String channel_id)

@@ -27,35 +27,6 @@ import com.flurry.android.FlurryAgent;
 
 import com.google.android.youtube.player.YouTubePlayer;
 
-/* comment this block in if using Firefly */
-/* then replace any GoogleApiClient with FireflyApiClient in this file */
-/*
-import com.fireflycast.cast.ApplicationMetadata;
-import com.fireflycast.cast.Cast;
-import com.fireflycast.cast.Cast.ApplicationConnectionResult;
-import com.fireflycast.cast.Cast.MessageReceivedCallback;
-import com.fireflycast.cast.CastDevice;
-import com.fireflycast.cast.CastMediaControlIntent;
-import com.fireflycast.cast.ConnectionResult;
-import com.fireflycast.cast.FireflyApiClient;
-import com.fireflycast.cast.ResultCallback;
-import com.fireflycast.cast.Status;
-*/
-
-/* comment this block out if using Firefly */
-/* then replace any FireflyApiClient with GoogleApiClient in this file */
-import com.google.android.gms.cast.ApplicationMetadata;
-import com.google.android.gms.cast.Cast;
-import com.google.android.gms.cast.Cast.ApplicationConnectionResult;
-import com.google.android.gms.cast.Cast.MessageReceivedCallback;
-import com.google.android.gms.cast.CastDevice;
-import com.google.android.gms.cast.CastMediaControlIntent;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.common.GooglePlayServicesClient;
-
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -259,6 +230,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	public VideoFragment videoFragment = null;
 	public PlayerFragment playerFragment = null;
 	
+	PlasterCast plasterCast = null;
+	
 	public void log (String text)
 		{
 		Log.i ("vtest", "[" + identity + "] " + text);
@@ -275,6 +248,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
 
 		setContentView (R.layout.main);
+		
+		plasterCast = new PlasterCast (plasterListener);
 		
 		/* save this, to avoid passing context many layers deep */
 		inflater = getLayoutInflater();
@@ -3510,17 +3485,19 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     private MediaRouter gcast_media_router = null;
     private MediaRouteSelector gcast_media_route_selector = null;
     private MediaRouter.Callback gcast_media_router_callback = null;
-    private CastDevice gcast_selected_device = null;
-    private Cast.Listener gcast_listener;
-    private boolean gcast_application_started;
-    private boolean gcast_waiting_for_reconnect;
-    private Cast9x9Channel gcast_channel;
-    /* private FireflyApiClient gcast_api_client; /* FIREFLY */
-    private GoogleApiClient gcast_api_client; /* CHROMECAST */
+    //=CHROMECAST private CastDevice gcast_selected_device = null;
+    // private FlingDevice gcast_selected_device = null;
+    //=CHROMECAST private Cast.Listener gcast_listener;
+    //=MATCHSTICK private Fling.Listener gcast_listener;
+    // private boolean gcast_application_started;
+    // private boolean gcast_waiting_for_reconnect;
+    /* private FireflyApiClient gcast_api_client; /* OLD FIREFLY */
+    //=CHROMECAST private GoogleApiClient gcast_api_client; /* CHROMECAST */
+    // FlingManager gcast_api_client;
     
     /* private GoogleApiClient gcast_api_client; */
-    private ConnectionCallbacks gcast_connection_callbacks;
-    private ConnectionFailedListener gcast_connection_failed_listener;
+    //=CHROMECAST private ConnectionCallbacks gcast_connection_callbacks;
+    //==MATCHSTICKprivate FlingManager.ConnectionCallbacks gcast_connection_callbacks;
     
     public boolean gcast_created = false;
     public boolean gcast_start_pending = false;
@@ -3537,7 +3514,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         try
         	{
         	gcast_media_route_selector = new MediaRouteSelector.Builder().addControlCategory
-        			(CastMediaControlIntent.categoryForCast (config.chromecast_app_name)).build();
+        			(plasterCast.categoryForCast (config.chromecast_app_name)).build();
         	}
         catch (Exception ex)
         	{
@@ -3613,7 +3590,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         public void onRouteSelected (MediaRouter router, RouteInfo info)
         	{
             log ("CCX onRouteSelected");
-            gcast_selected_device = CastDevice.getFromBundle (info.getExtras());
+            plasterCast.selectDevice (router, info);
             gcast_launch_receiver();
         	}
         
@@ -3623,61 +3600,49 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
             log ("CCX onRouteUnselected: info=" + info);
             track_event ("uncast", "uncast", "uncast", 0);
             teardown();
-            gcast_selected_device = null;
+            plasterCast.selectDevice (null, null);
         	}
     	}
 
-    private void gcast_launch_receiver()
-    	{
-        try
+    /* P L A S T E R C A S T */
+    PlasterCast.PlasterListener plasterListener = new PlasterCast.PlasterListener()
+		{
+    	@Override
+        public void onApplicationDisconnected (int errorCode)
         	{
-            gcast_listener = new Cast.Listener()
-            	{
-                @Override
-                public void onApplicationDisconnected (int errorCode)
-                	{
-                    log ("CCX application has stopped");
-                    teardown();
-                	}
-                
-                @Override
-                public void onVolumeChanged()
-                	{
-                	log ("CCX volume changed");
-                	}
-            	};
-            	
-            gcast_connection_callbacks = new ConnectionCallbacks();
-            gcast_connection_failed_listener = new ConnectionFailedListener();
-            Cast.CastOptions.Builder api_options_builder = Cast.CastOptions.builder (gcast_selected_device, gcast_listener);
-            gcast_api_client = new /* FireflyApiClient */ GoogleApiClient
-            		.Builder (this)
-                    .addApi (Cast.API, api_options_builder.build())
-                    .addConnectionCallbacks (gcast_connection_callbacks)
-                    .addOnConnectionFailedListener (gcast_connection_failed_listener)
-                    .build();
-
-            gcast_api_client.connect();
+            log ("CCX application has stopped");
+            teardown();
         	}
-        catch (Exception ex)
+        
+    	@Override
+        public void onVolumeChanged()
         	{
-            log ("CCX failed gcast_launch_receiver");
-            ex.printStackTrace();
+        	log ("CCX volume changed");
         	}
-    	}
-
-    class Cast9x9Channel implements MessageReceivedCallback
-    	{
-        public String getNamespace()
-        	{
+        
+    	@Override
+		public String getNamespace()
+			{
             return "urn:x-cast:tv.9x9.cast";
-        	}
-
-        @Override
-        public void onMessageReceived (CastDevice castDevice, String namespace, String message)
-        	{
-            log ("CCX Chromecast Raw onMessageReceived: " + message);
-            if (message.startsWith ("{"))
+			}
+		
+    	@Override
+    	public void onConnected (Bundle connectionHint)
+    		{
+    		gcast_connected();
+    		}
+    	
+    	@Override
+    	public void onApplicationCouldNotLaunch (int statusCode)
+    		{    		
+    		alert ("Chromecast could not launch! code " + statusCode);
+    		}
+    	
+    	@Override
+        public void onMessageReceived (String namespace, String message)
+	    	{
+	        log ("CCX Chromecast Raw onMessageReceived: " + message);
+	        if (message.startsWith ("{"))
 	            {
 	            try
 	            	{
@@ -3689,72 +3654,67 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					ex.printStackTrace();
 	            	}
 	        	}
-            else
-            	log ("CCX does not seem to be a JSON message: " + message);
+	        else
+	        	log ("CCX does not seem to be a JSON message: " + message);
+	    	}
+		
+    	@Override
+    	public void onConnectionSuspended (int cause)
+    		{
+    	    log ("onConnectionSuspended");
+    		}
+    	
+    	@Override
+		public void onConnectionFailed()
+			{
+            log ("onConnectionFailed");	
+            teardown();
+			}
+		
+    	@Override
+		public void onTeardown()
+			{
+	        pending_seek = false;
+	        pending_seek_count = 0;
+	         
+	        chromecast_volume = 100;
+	         
+	        chromecasted = false;
+	         
+	        View vChromecastWindow = findViewById (R.id.chromecast_window);
+	        vChromecastWindow.setVisibility (View.GONE);
+	         
+	        if (player == videoFragment)
+	        	show_video_fragment();
+	        else if (player == playerFragment)
+	        	show_player_fragment();
+	         
+	        if (player_real_channel != null && program_line != null && current_episode_index <= program_line.length)
+	        	{
+	        	log ("**** resuming episode, position: " + chromecast_position);
+	        	play_nth (player_real_channel, current_episode_index, chromecast_position);
+	        	}  
+			}
+		};
+    
+    private void gcast_launch_receiver()
+    	{
+        try
+        	{
+            plasterCast.createClient (this, plasterListener);
+        	}
+        catch (Exception ex)
+        	{
+            log ("CCX failed gcast_launch_receiver");
+            ex.printStackTrace();
         	}
     	}
 
     private void teardown()
     	{
-    	log ("CCX teardown");
-    	
-        if (gcast_api_client != null)
-        	{
-            if (gcast_application_started)
-            	{
-                try
-                	{
-                    Cast.CastApi.stopApplication (gcast_api_client);
-                    if (gcast_channel != null)
-                    	{
-                        Cast.CastApi.removeMessageReceivedCallbacks (gcast_api_client, gcast_channel.getNamespace());
-                        gcast_channel = null;
-                    	}
-                	}
-                catch (Exception ex)
-                	{
-                    log ("Exception while removing channel");
-                    ex.printStackTrace();
-                	}
-                gcast_application_started = false;
-            	}
-            
-            try
-	            {
-	            if (gcast_api_client.isConnected())
-	                gcast_api_client.disconnect();
-	            }
-            catch (Exception ex)
-	            {
-	            ex.printStackTrace();
-	            }
-            
-            gcast_api_client = null;            
-        	}       
-        
-        gcast_selected_device = null;
-        gcast_waiting_for_reconnect = false;
-        
-        pending_seek = false;
-        pending_seek_count = 0;
-        
-        chromecast_volume = 100;
-        
-        chromecasted = false;
-        
-        View vChromecastWindow = findViewById (R.id.chromecast_window);
-        vChromecastWindow.setVisibility	(View.GONE);
-        
-        if (player == videoFragment)
-        	show_video_fragment();
-        else if (player == playerFragment)
-        	show_player_fragment();
-        
-        if (player_real_channel != null && program_line != null && current_episode_index <= program_line.length)
-        	{
-        	log ("**** resuming episode, position: " + chromecast_position);
-        	play_nth (player_real_channel, current_episode_index, chromecast_position);
-        	}        
+    	log ("CCX teardown");	
+    	if (plasterCast != null)
+    		plasterCast.teardown();      
     	}
     
     public void chromecast_volume_up()
@@ -3782,142 +3742,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     		chromecast_send_volume (chromecast_volume);
     		}
     	}
-    
-    private class ConnectionFailedListener implements /* FireflyApiClient */ GoogleApiClient.OnConnectionFailedListener
-    	{
-        @Override
-        public void onConnectionFailed (ConnectionResult result)
-        	{
-            log ("onConnectionFailed");	
-            teardown();
-        	}
-    	}
-    
 
-    
-    
-    
-    private class ConnectionCallbacks implements /* FireflyApiClient */ GoogleApiClient.ConnectionCallbacks
-    	{
-    	@Override
-    	public void onConnected (Bundle connectionHint)
-    		{
-    		log ("CCX onConnected");
-
-    		if (gcast_api_client == null)
-    			{
-    			log ("CCX: we were disconnected, gcast_api_client is null");
-    			return;
-    			}
-
-    		if (!gcast_api_client.isConnected())
-    			{
-    			log ("CCX: gcast_api_client says it is not connected");
-    			return;
-    			}
-    		
-    		try
-    			{
-		        if (gcast_waiting_for_reconnect)
-		        	{
-		        	gcast_waiting_for_reconnect = false;
-		
-		            if ((connectionHint != null) && connectionHint.getBoolean (Cast.EXTRA_APP_NO_LONGER_RUNNING))
-		            	{
-		            	log ("CCX receiver app is no longer running");
-		                teardown();
-		            	}
-		            else
-		            	{
-		                /* re-create the custom message channel */
-		                try
-		                	{
-		                    Cast.CastApi.setMessageReceivedCallbacks (gcast_api_client, gcast_channel.getNamespace(), gcast_channel);
-		                    log ("CCX setMessageReceivedCallbacks successful");
-		                	}
-		                catch (IOException ex)
-		                	{
-		                    log ("CCX exception while creating channel");
-		                    ex.printStackTrace();
-		                	}
-		            	}
-		        	}
-		        else
-			        	{
-			            /* launch receiver app */
-			            Cast.CastApi
-			                    .launchApplication(gcast_api_client, config.chromecast_app_name, false)
-			                    .setResultCallback(
-			                            new ResultCallback<Cast.ApplicationConnectionResult>() {
-			                                @Override
-			                                public void onResult(
-			                                        ApplicationConnectionResult result) {
-			                                    Status status = result.getStatus();
-			                                    log ("CCX ApplicationConnectionResultCallback.onResult: statusCode " + status.getStatusCode());
-			                                    if (status.isSuccess())
-			                                    	{
-			                                        ApplicationMetadata applicationMetadata = result
-			                                                .getApplicationMetadata();
-			                                        String sessionId = result
-			                                                .getSessionId();
-			                                        String applicationStatus = result
-			                                                .getApplicationStatus();
-			                                        boolean wasLaunched = result
-			                                                .getWasLaunched();
-			                                        log ("CCX application name: "
-			                                                        + applicationMetadata
-			                                                                .getName()
-			                                                        + ", status: "
-			                                                        + applicationStatus
-			                                                        + ", sessionId: "
-			                                                        + sessionId
-			                                                        + ", wasLaunched: "
-			                                                        + wasLaunched);
-			                                        gcast_application_started = true;
-			
-			                                        /* custom channel */
-			                                        gcast_channel = new Cast9x9Channel();
-			                                        try
-			                                        	{
-			                                            Cast.CastApi
-			                                                    .setMessageReceivedCallbacks(
-			                                                            gcast_api_client,
-			                                                            gcast_channel
-			                                                                    .getNamespace(),
-			                                                            gcast_channel);
-			                                        	}
-			                                        catch (IOException ex)
-			                                        	{
-			                                            log ("CCX exception while creating channel");
-			                                            ex.printStackTrace();
-			                                        	}
-			
-			                                        gcast_connected();
-			                                    } else {
-			                                        log ("CCX application could not launch");
-			                                        alert ("Chromecast could not launch! code " + status.getStatusCode());
-			                                        teardown();
-			                                    }
-			                                }
-			                            });
-			        }
-			    } 
-			    catch (Exception ex)
-			    	{
-			        log ("CCX failed to launch application");
-			        ex.printStackTrace();
-			    	}
-    		}
-
-	@Override
-	public void onConnectionSuspended(int cause)
-		{
-	    log ("CCX onConnectionSuspended");
-	    gcast_waiting_for_reconnect = true;
-		}
-    }
-
-    
     private void gcast_connected()
     	{
     	log ("CCX connected!");
@@ -4154,34 +3979,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
     private void sendMessage (String message)
     	{
     	log ("SEND MESSAGE: " + message);
-        if (gcast_api_client != null && gcast_channel != null)
-        	{
-            try
-            	{
-                Cast.CastApi.sendMessage (gcast_api_client, gcast_channel.getNamespace(), message)
-                        .setResultCallback (new ResultCallback<Status>()
-                        		{
-                            	@Override
-                            	public void onResult(Status result)
-                            		{
-                            		if (!result.isSuccess())
-	                                    log ("Sending message failed");                            }
-                        });
-            	} 
-            catch (Exception ex)
-            	{
-                log ("Exception while sending message");
-                ex.printStackTrace();
-            	}
-        	}
-        else
-        	{
-        	log ("CCX: not sent");
-        	if (gcast_api_client == null)
-        		log ("CCX: gcast_api_client is null");
-        	if (gcast_channel == null)
-        		log ("CCX: gcast_channel is null");
-        	}
+    	plasterCast.sendMessage (message);
     	}            
 
     boolean chromecasted = false;
@@ -4427,6 +4225,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		        		timestamp = "";
 		        	
 		        	String url = config.best_url_or_first_subepisode (arena_episode_id);			        	
+		        	
+		        	if (url == null)
+		        		{
+		        		log ("episode \"" + arena_episode_id + "\" has no url! (channel " + channel_id + ")");		
+		        		config.dump_episode_details (arena_episode_id);
+		        		}
 		        	
 		        	episode_structure.put ("id", arena_episode_id);
 		        	episode_structure.put ("name", name);

@@ -464,7 +464,7 @@ public class start extends Activity
 		
 		final long frontpage_start = System.currentTimeMillis();
 		
-		String type = "portal"; // "portal", "whatson"
+		String type = config.homepage_style_override != null ? config.homepage_style_override : config.homepage_style; // "portal", "whatson"
 		
 		new playerAPI (in_main_thread, config, "portal?time=" + hour + "&type=" + type + "&minimal=true")
 			{
@@ -628,6 +628,12 @@ public class start extends Activity
 						config.admob_key = value;
 					else if (key.equals ("ad"))
 						config.advertising_regime = value;
+					else if (key.equals ("homepage"))
+						config.homepage_style = value;
+					else if (key.equals ("store"))
+						config.store_on_off = value;
+					else if (key.equals ("search"))
+						config.search_on_off = value;
 					else if (key.equals ("social-feeds-server"))
 						{
 						String subfields[] = value.split (" ");

@@ -290,8 +290,8 @@
 			    	/>				   
 				<tv.tv9x9.player.CircleImageView
 			    	android:id="@+id/playback_channel_icon_landscape"
-			        android:layout_width="70dip" 
-			        android:layout_height="70dip"
+			        android:layout_width="60dip" 
+			        android:layout_height="60dip"
 					android:layout_gravity="center"
 					android:gravity="center"			        
 			        android:padding="6dip"
@@ -523,6 +523,67 @@
 				    android:background="#1D1D1D"
 				    android:orientation="vertical">					
 
+		            <!-- The linkback from a virtual channel to a real channel -->
+			        <LinearLayout
+				    	android:id="@+id/virtual_link"			            
+						android:layout_width="match_parent" 
+						android:layout_height="60dip"				
+						android:layout_marginBottom="4dip"
+					    android:background="#303030"
+					    android:orientation="horizontal">	
+					    <TextView		        
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_marginLeft="20dip"
+							android:layout_marginRight="10dip"
+							android:layout_gravity="left|center_vertical"							
+							android:textSize="18sp"
+							android:textColor="#777777"
+							android:gravity="left|center_vertical"
+							android:text="@string/real_channel_source"
+					    	/>	
+						<FrameLayout
+					        android:layout_width="40dip" 
+					        android:layout_height="40dip"
+							android:layout_gravity="center"
+							android:gravity="center"			        
+					        android:padding="6dip"
+					        android:adjustViewBounds="true"
+					        android:scaleType="fitXY">				    						    	
+							<tv.tv9x9.player.CircleImageView
+						    	android:id="@+id/real_channel_icon"
+						        android:layout_width="match_parent" 
+						        android:layout_height="match_parent"
+								android:layout_gravity="center"
+								android:gravity="center"			        
+						        android:adjustViewBounds="true"
+						        android:scaleType="fitXY"
+						        />						
+						    <ProgressBar
+							  	android:id="@+id/real_channel_progress"          
+						    	android:layout_width="match_parent"
+						    	android:layout_height="match_parent"
+						        android:layout_gravity="center"
+					        	android:gravity="center"						    	
+						    	style="@android:style/Widget.ProgressBar.Inverse"
+						    	android:visibility="gone"
+						    	/>	    		
+						</FrameLayout>	
+					    <TextView
+			    	    	android:id="@+id/real_channel_name"			        
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_marginLeft="20dip"							
+							android:layout_gravity="left|center_vertical"
+							android:textSize="18sp"
+							android:textColor="#FF9000"
+							android:gravity="left|center_vertical"
+							android:singleLine="true"	
+							android:ellipsize="end"	
+							android:text="Some channel name"
+					    	/>					    
+					</LinearLayout>            
+					
 					<FrameLayout
 					    android:layout_width="match_parent"
 					    android:layout_height="0dip"
@@ -607,8 +668,8 @@
 					    	/>				
 						<tv.tv9x9.player.CircleImageView
 					    	android:id="@+id/playback_channel_icon"
-					        android:layout_width="60dip" 
-					        android:layout_height="60dip"
+					        android:layout_width="50dip" 
+					        android:layout_height="50dip"
 					        android:layout_gravity="center"
 					        android:gravity="center"
 					        android:padding="6dip"

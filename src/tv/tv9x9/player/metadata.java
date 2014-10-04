@@ -35,6 +35,13 @@ public class metadata
 	public String admob_key = null;
 	public String advertising_regime = null;
 	
+	public String homepage_style = "portal";
+	/* set the override to "portal" or "whatson" to test the opposite of brandInfo "homepage=" setting */
+	public String homepage_style_override = null;
+	
+	public String store_on_off = "on";
+	public String search_on_off = "on"; 
+	
 	public String chromecast_app_name = null;
 	
 	public boolean shake_and_discover_feature = false;
@@ -1532,6 +1539,20 @@ public class metadata
 		String thumb = fields [6];
 		String url = fields [8];
 		
+		if (name.contains ("\\|"))
+			{
+			String oldname = name;
+			name = name.replace ("\\|", ":");
+			// Log.i ("vtest", "*** " + oldname + " -> " + name);
+			}
+		
+		if (desc.contains ("\\|"))
+			{
+			String olddesc = desc;
+			desc = desc.replace ("\\|", ":");
+			// Log.i ("vtest", "*** " + olddesc + " -> " + desc);
+			}
+		
 		String submeta = "";
 		if (fields.length >= 15)
 			submeta = util.decodeURIComponent (fields [14]);
@@ -2330,7 +2351,7 @@ public class metadata
 					{
 					String key = entry.getKey();
 					String value = entry.getValue();
-					Log.i ("vtest", "program " + episode_id + " :: " + key + "=" + value);
+					Log.i ("vtest", "episode " + episode_id + " :: " + key + "=" + value);
 					}
 				}
 			}

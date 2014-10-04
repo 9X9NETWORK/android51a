@@ -1,7 +1,7 @@
 package tv.tv9x9.player;
 
-import com.fireflycast.server.cast.service.CastDeviceService;
+import tv.matchstick.fling.service.FlingDeviceService;
 
-public class AppCastDeviceService extends CastDeviceService
+public class AppCastDeviceService extends FlingDeviceService
 	{
 	}

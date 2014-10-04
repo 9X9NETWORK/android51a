@@ -153,6 +153,12 @@ public class HomeLayer extends StandardFragment
 		setup_home_buttons();
 	    }
 	
+    public void refresh()
+    	{
+    	if (home_slider != null)
+    		home_slider.refresh();
+    	}
+    
 	public void setup_home_buttons()
 		{
 		View vHomeLayer = getView();
@@ -316,7 +322,7 @@ public class HomeLayer extends StandardFragment
 		
 		frontpage_start = System.currentTimeMillis();
 		
-		String type = "portal"; // "portal", "whatson"
+		String type = config.homepage_style_override != null ? config.homepage_style_override : config.homepage_style; // "portal", "whatson"
 		
 		new playerAPI (mCallback.get_main_thread(), config, "portal?time=" + hour + "&type=" + type + "&minimal=true")
 			{
@@ -886,6 +892,7 @@ public class HomeLayer extends StandardFragment
 		boolean requested_channel_thumbs[] = null;
 		Swaphome sh = null;
 		Bitmap thumbits[] = null;
+		String which_thumbs[] = null;
 		String first_episode[] = null;
 		boolean saved_mini_mode = false;
 		
@@ -921,6 +928,8 @@ public class HomeLayer extends StandardFragment
 			Arrays.fill (thumbits, null);
 			first_episode = new String [content.length];
 			Arrays.fill (first_episode, null);
+			which_thumbs = new String [content.length];
+			Arrays.fill (which_thumbs, null);
 			}
 		
 		public int set_primary ()
@@ -1145,12 +1154,23 @@ public class HomeLayer extends StandardFragment
 			String program_line[] = config.program_line_by_id (channel_id);	
 			fill_in_large_episode_thumb (position, channel_id, program_line, row);
 			
+			/* determine the current thumb lineup, to compare with actual thumb lineup. If these differ, the
+			   underlying channel has been updated and the triple_thumb should be redrawn */
+			
+			String expected_thumbs = null;
+			if (program_line != null && program_line.length > 0)
+				{
+				String e1 = program_line.length >= 2 ? program_line [1] : null;
+				String e2 = program_line.length >= 3 ? program_line [2] : null;
+				expected_thumbs = e1 + " | " + e2;
+				}
+			
 			if (vTriple != null)
 				{
 				Bitmap bm = null;
-				if (thumbits [position] == null)
+				if (thumbits [position] == null || (expected_thumbs != null && !expected_thumbs.equals (which_thumbs [position])))
 					{
-					bm = triple_thumbnail (channel_id, program_line, big_thumb_width);
+					bm = triple_thumbnail (channel_id, position, program_line, big_thumb_width);
 					thumbits [position] = bm;
 					}
 				else
@@ -1406,47 +1426,51 @@ public class HomeLayer extends StandardFragment
 					}
 				}
 			}
-		}
-	
-	public Bitmap triple_thumbnail (String channel_id, String program_line[], int big_thumb_width)
-		{
-		int margin_cruft = mCallback.actual_pixels (6 + 12 + 12 + 6 + 6 + 6);
 		
-		// int thumb_width = (screen_width - margin_cruft - big_thumb_width) / 3;
-		int thumb_width = (mCallback.screen_width() - margin_cruft - big_thumb_width) / 2;		
-		int thumb_height = (int) ((float) thumb_width / 1.77);
-		
-		log ("-->THUMB WIDTH :: " + thumb_width + " (big thumb width: " + big_thumb_width + ", screen width: " + mCallback.screen_width() + ")");
-		
-		if (program_line != null && program_line.length > 1)
+		public Bitmap triple_thumbnail (String channel_id, int position, String program_line[], int big_thumb_width)
 			{
-			String e1 = program_line.length >= 2 ? program_line [1] : null;
-			String e2 = program_line.length >= 3 ? program_line [2] : null;
-			String e3 = program_line.length >= 4 ? program_line [3] : null;
+			int margin_cruft = mCallback.actual_pixels (6 + 12 + 12 + 6 + 6 + 6);
 			
-			String f1 = (e1 == null) ? null : getActivity().getFilesDir() + "/" + config.episode_in_cache (e1);
-			String f2 = (e2 == null) ? null : getActivity().getFilesDir() + "/" + config.episode_in_cache (e2);
-			String f3 = (e3 == null) ? null : getActivity().getFilesDir() + "/" + config.episode_in_cache (e3);
-		
-			return bitmappery.generate_double_thumbnail (channel_id, thumb_width, thumb_height, mCallback.actual_pixels (10), f1, f2);
-			}
-		else
-			{
-			String e2 = config.pool_meta (channel_id, "episode_thumb_2");
-			String e3 = config.pool_meta (channel_id, "episode_thumb_3");	
-			String e4 = config.pool_meta (channel_id, "episode_thumb_4");
+			// int thumb_width = (screen_width - margin_cruft - big_thumb_width) / 3;
+			int thumb_width = (mCallback.screen_width() - margin_cruft - big_thumb_width) / 2;		
+			int thumb_height = (int) ((float) thumb_width / 1.77);
 			
-			if ((e2 != null && !e2.equals("")) || (e3 != null && !e3.equals("")) || (e4 != null && !e4.equals("")))
+			log ("-->THUMB WIDTH :: " + thumb_width + " (big thumb width: " + big_thumb_width + ", screen width: " + mCallback.screen_width() + ")");
+			
+			if (program_line != null && program_line.length > 1)
 				{
-				String f2 = (e2 == null) ? null : getActivity().getFilesDir() + "/" + config.api_server + "/qthumbs/" + channel_id + "/" + util.md5 (e2) + ".png";
-				String f3 = (e3 == null) ? null : getActivity().getFilesDir() + "/" + config.api_server + "/qthumbs/" + channel_id + "/" + util.md5 (e3) + ".png";
-				String f4 = (e4 == null) ? null : getActivity().getFilesDir() + "/" + config.api_server + "/qthumbs/" + channel_id + "/" + util.md5 (e4) + ".png";
+				String e1 = program_line.length >= 2 ? program_line [1] : null;
+				String e2 = program_line.length >= 3 ? program_line [2] : null;
+				String e3 = program_line.length >= 4 ? program_line [3] : null;
 				
-				return bitmappery.generate_double_thumbnail (channel_id, thumb_width, thumb_height, mCallback.actual_pixels (10), f2, f3);
+				String f1 = (e1 == null) ? null : getActivity().getFilesDir() + "/" + config.episode_in_cache (e1);
+				String f2 = (e2 == null) ? null : getActivity().getFilesDir() + "/" + config.episode_in_cache (e2);
+				String f3 = (e3 == null) ? null : getActivity().getFilesDir() + "/" + config.episode_in_cache (e3);
+			
+				which_thumbs [position] = e1 + " | " + e2;
+				
+				return bitmappery.generate_double_thumbnail (channel_id, thumb_width, thumb_height, mCallback.actual_pixels (10), f1, f2);
 				}
 			else
-				return null;
-			}		
+				{
+				String e2 = config.pool_meta (channel_id, "episode_thumb_2");
+				String e3 = config.pool_meta (channel_id, "episode_thumb_3");	
+				String e4 = config.pool_meta (channel_id, "episode_thumb_4");
+				
+				if ((e2 != null && !e2.equals("")) || (e3 != null && !e3.equals("")) || (e4 != null && !e4.equals("")))
+					{
+					String f2 = (e2 == null) ? null : getActivity().getFilesDir() + "/" + config.api_server + "/qthumbs/" + channel_id + "/" + util.md5 (e2) + ".png";
+					String f3 = (e3 == null) ? null : getActivity().getFilesDir() + "/" + config.api_server + "/qthumbs/" + channel_id + "/" + util.md5 (e3) + ".png";
+					String f4 = (e4 == null) ? null : getActivity().getFilesDir() + "/" + config.api_server + "/qthumbs/" + channel_id + "/" + util.md5 (e4) + ".png";
+				
+					which_thumbs [position] = e2 + " | " + e3;
+					
+					return bitmappery.generate_double_thumbnail (channel_id, thumb_width, thumb_height, mCallback.actual_pixels (10), f2, f3);
+					}
+				else
+					return null;
+				}		
+		}
 		}
 	
 	public void bouncy_home_hint_animation()

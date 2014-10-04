@@ -49,9 +49,9 @@
 <!-- package="tv.flipr.test2" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.flipr.fliprtv"
-      android:versionCode="139"
-      android:versionName="5.0.1.139">
+      package="tv.tv9x9.player"
+      android:versionCode="140"
+      android:versionName="5.0.1.140">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -708,26 +708,20 @@
 		</receiver>
 		
     
+		<!-- Matchstick -->
 		<service android:name="tv.tv9x9.player.AppCastDeviceService" android:exported="false">
     		<intent-filter>
         		<action android:name="android.media.MediaRouteProviderService" />
     		</intent-filter>
-    		<intent-filter>
-        		<action android:name="com.fireflycast.cast.service.INTENT" />
-       			<category android:name="android.intent.category.DEFAULT" />
-    		</intent-filter>
-    		<intent-filter>
-        		<action android:name="com.fireflycast.cast.service.DEVICE_SCANNER_INTENT" />
-        		<category android:name="android.intent.category.DEFAULT" />
-    		</intent-filter> 
 		</service>
 
+		<!-- Matchstick -->
 		<service android:name="tv.tv9x9.player.AppCastService" android:exported="false">
     		<intent-filter>
-        		<action android:name="com.fireflycast.cast.service.BIND_CAST_DEVICE_CONTROLLER_SERVICE" />
+        		<action android:name="tv.matchstick.fling.service.FLING" />
         		<category android:name="android.intent.category.DEFAULT" />
     		</intent-filter> 
-		</service>
+		</service>	
 
     </application>
 
