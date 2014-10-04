@@ -1307,7 +1307,7 @@ public class main extends VideoBaseActivity
 		
 		items.push (new menuitem (toplayer.SETTINGS, R.string.settings, R.drawable.icon_setting, R.drawable.icon_setting_press));
 		
-		items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
+		// items.push (new menuitem (toplayer.TEST, R.string.test, R.drawable.icon_setting, R.drawable.icon_setting_press));
 
 		if (config.social_server != null)
 			items.push (new menuitem (toplayer.SOCIAL, R.string.social, R.drawable.icon_social, R.drawable.icon_social_gray));
