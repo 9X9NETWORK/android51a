@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 --> 
+    <!--  
    	<string name="app_name">9x9.tv</string> 
 	<drawable name="app_icon_ptr">@drawable/nine_launch_logo</drawable>    	  	
     <string name="white_label">portal</string>
@@ -14,11 +15,12 @@
     <string name="signin_bg">nine_bg_open</string>      
     <string name="set_banner">nine_banner</string>        
 	<string name="fb_app_id">1429057570658015</string>
-			  			
+    -->
+				  			
 	<!-- Joey Graceffa -->
     <!--  
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/joeygraceffa_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/joeygraceffa_launch_logo</drawable>       	   
     <string name="white_label">joeygraceffa</string>
     <string name="mso">joeygraceffa</string>
     <string name="default_region">en</string>
@@ -35,7 +37,7 @@
     <!-- Jenna Marbles -->
     <!--   
     <string name="app_name">Flipr - Jenna Marbles Edition</string>
-    <string name="app_icon">@drawable/jennamarbles_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/jennamarbles_launch_logo</drawable>       	   
     <string name="white_label">jennamarbles</string>
     <string name="mso">jennamarbles</string>
     <string name="default_region">en</string>
@@ -52,7 +54,7 @@
     <!-- Ray William Johnson -->
     <!-- 
     <string name="app_name">Flipr - Ray William Johnson Edition</string>
-    <string name="app_icon">@drawable/raywilliamjohnson_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/raywilliamjohnson_launch_logo</drawable>       	   
     <string name="white_label">raywilliamjohnson</string>
     <string name="mso">raywilliamjohnson</string>
     <string name="default_region">en</string>
@@ -69,7 +71,7 @@
     <!-- The Ellen Show -->
     <!-- 
     <string name="app_name">Flipr - The Ellen Show Edition</string>
-    <string name="app_icon">@drawable/theellenshow_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/theellenshow_launch_logo</drawable>       	   
     <string name="white_label">theellenshow</string>
     <string name="mso">theellenshow</string>
     <string name="default_region">en</string>
@@ -86,7 +88,7 @@
     <!-- The Rooster Teeth -->
     <!-- 
     <string name="app_name">Flipr - The Rooster Teeth Edition</string>
-    <string name="app_icon">@drawable/roosterteeth_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/roosterteeth_launch_logo</drawable>       	   
     <string name="white_label">roosterteeth</string>
     <string name="mso">roosterteeth</string>
     <string name="default_region">en</string>
@@ -103,7 +105,7 @@
     <!-- Freddiew -->
     <!-- 
     <string name="app_name">Flipr - The Freddiew Edition</string>
-    <string name="app_icon">@drawable/freddiew_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/freddiew_launch_logo</drawable>       	   
     <string name="white_label">freddiew</string>
     <string name="mso">freddiew</string>
     <string name="default_region">en</string>
@@ -120,7 +122,7 @@
     <!-- Spinnin' Records -->
     <!--   
     <string name="app_name">SpinninRec on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/spinninrec_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/spinninrec_launch_logo</drawable>       	   
     <string name="white_label">spinninrec</string>
     <string name="mso">spinninrec</string>
     <string name="default_region">en</string>
@@ -137,7 +139,7 @@
     <!-- The Fine Bros -->
     <!-- 
     <string name="app_name">The Fine Bros on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/thefinebros_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/thefinebros_launch_logo</drawable>       	   
     <string name="white_label">thefinebros</string>
     <string name="mso">thefinebros</string>
     <string name="default_region">en</string>
@@ -154,7 +156,7 @@
     <!-- History -->
     <!-- 
     <string name="app_name">History Channel on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/history_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/history_launch_logo</drawable>       	   
     <string name="white_label">history</string>
     <string name="mso">history</string>
     <string name="default_region">en</string>
@@ -171,7 +173,7 @@
     <!-- NBA -->
     <!-- 
     <string name="app_name">NBA on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/nba_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/nba_launch_logo</drawable>       	   
     <string name="white_label">nba</string>
     <string name="mso">nba</string>
     <string name="default_region">en</string>
@@ -188,7 +190,7 @@
     <!-- Smosh -->
     <!-- 
     <string name="app_name">Smosh on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/smosh_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/smosh_launch_logo</drawable>       	   
     <string name="white_label">smosh</string>
     <string name="mso">smosh</string>
     <string name="default_region">en</string>
@@ -205,7 +207,7 @@
     <!-- Shane -->
     <!-- 
     <string name="app_name">Shane on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/shane_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/shane_launch_logo</drawable>       	   
     <string name="white_label">shane</string>
     <string name="mso">shane</string>
     <string name="default_region">en</string>
@@ -222,7 +224,7 @@
     <!-- College Humor -->
     <!-- 
     <string name="app_name">Collegehumor on Flipr Unofficial</string>
-    <string name="app_icon">@drawable/collegehumor_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/collegehumor_launch_logo</drawable>       	   
     <string name="white_label">collegehumor</string>
     <string name="mso">collegehumor</string>
     <string name="default_region">en</string>
@@ -239,7 +241,7 @@
     <!-- Network_A -->
     <!-- 
     <string name="app_name">Network_A on FLIPr</string>
-    <string name="app_icon">@drawable/networka_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/networka_launch_logo</drawable>       	   
     <string name="white_label">networka</string>
     <string name="mso">networka</string>
     <string name="default_region">en</string>
@@ -256,7 +258,7 @@
     <!-- crash course -->
     <!-- 
     <string name="app_name">Crash Course on FLIPr</string>
-    <string name="app_icon">@drawable/crashcourse_launch_logo</string>    
+    <drawable name="app_icon_ptr">@drawable/crashcourse_launch_logo</drawable>       	   
     <string name="white_label">crashcourse</string>     
     <string name="mso">crashcourse</string>
     <string name="default_region">en</string>           
@@ -273,7 +275,7 @@
     <!-- EchoMusic -->
     <!--   
     <string name="app_name">音樂圖書館</string>
-    <string name="app_icon">@drawable/launch_logo_echomusic</string>
+    <drawable name="app_icon_ptr">@drawable/launch_logo_echomusic</drawable>       	   
     <string name="white_label">echomusic</string>
     <string name="mso">echomusic</string>
     <string name="default_region">zh</string>
@@ -291,7 +293,7 @@
     <!-- cts festival -->  
     <!--    
     <string name="app_name">華視 FLIPr</string>
-    <string name="app_icon">@drawable/cts_icon_new</string>
+    <drawable name="app_icon_ptr">@drawable/cts_icon_new</drawable>       	   
     <string name="white_label">cts</string>
     <string name="mso">cts</string>    
     <string name="default_region">zh</string>    
@@ -308,7 +310,7 @@
     <!-- thenewslens -->
     <!--
     <string name="app_name">關鍵評論網 FLIPr</string>
-    <string name="app_icon">@drawable/launch_logo_thenewslens</string>    
+    <drawable name="app_icon_ptr">@drawable/launch_logo_thenewslens</drawable>       	   
     <string name="white_label">thenewslens</string>     
     <string name="mso">thenewslens</string>
     <string name="default_region">zh</string>               
@@ -325,7 +327,7 @@
     <!-- goodtv -->
     <!--    
     <string name="app_name">GOODTV</string>
- 	<string name="app_icon">@drawable/launch_logo_goodtv</string>         
+    <drawable name="app_icon_ptr">@drawable/launch_logo_goodtv</drawable>       	   
     <string name="white_label">goodtv</string>
     <string name="mso">goodtv</string>
     <string name="default_region">zh</string>    
@@ -343,7 +345,7 @@
     <!-- ddtv -->
     <!--       
     <string name="app_name">丁丁電視</string>
-    <string name="app_icon">@drawable/ddtv_launch_logo</string>    
+    <drawable name="app_icon_ptr">@drawable/ddtv_launch_logo</drawable>       	   
     <string name="white_label">ddtv</string>     
     <string name="mso">ddtv</string>
     <string name="default_region">en</string>               
@@ -360,7 +362,7 @@
     <!-- fcu -->
     <!--        
     <string name="app_name">逢甲影音</string>
-    <string name="app_icon">@drawable/launch_logo_fcu</string>    
+    <drawable name="app_icon_ptr">@drawable/launch_logo_fcu</drawable>       	   
     <string name="white_label">fcu</string>     
     <string name="mso">fcu</string>
     <string name="default_region">zh</string>               
@@ -377,7 +379,7 @@
     <!-- Tzu Chi -->
     <!--    
     <string name="app_name">慈濟</string>
-	<string name="app_icon">@drawable/tc_icon_new</string>    
+    <drawable name="app_icon_ptr">@drawable/tc_icon_new</drawable>       	   
     <string name="white_label">tc</string>
     <string name="mso">tzuchi</string>    
     <string name="default_region">zh</string>    
@@ -393,7 +395,7 @@
 	<!-- superstar -->
     <!--   
     <string name="app_name">網路大明星</string>
-    <string name="app_icon">@drawable/launch_logo_superstar</string>    
+    <drawable name="app_icon_ptr">@drawable/launch_logo_superstar</drawable>       	   
     <string name="white_label">superstar</string>     
     <string name="mso">superstar</string>
     <string name="default_region">zh</string>               
@@ -410,7 +412,7 @@
     <!-- musicvideo -->
     <!--   
     <string name="app_name">MV不解釋</string>
-    <string name="app_icon">@drawable/musicvideo_launch_logo</string>    
+    <drawable name="app_icon_ptr">@drawable/musicvideo_launch_logo</drawable>       	   
     <string name="white_label">musicvideo</string>     
     <string name="mso">musicvideo</string>
     <string name="default_region">zh</string>               
@@ -427,7 +429,7 @@
     <!-- newsflipr -->
     <!--      
     <string name="app_name">喇新聞 FLIPr</string>
-    <string name="app_icon">@drawable/launch_logo_newsflipr</string>    
+    <drawable name="app_icon_ptr">@drawable/launch_logo_newsflipr</drawable>       	   
     <string name="white_label">news</string>     
     <string name="mso">news</string>
     <string name="default_region">zh</string>               
@@ -444,7 +446,7 @@
     <!-- ktsf26 -->
     <!--  
     <string name="app_name">KTSF26</string>
-    <string name="app_icon">@drawable/ktsf_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/ktsf_launch_logo</drawable>       	   
     <string name="white_label">ktsf26</string>
     <string name="mso">ktsf26</string>
     <string name="default_region">en</string>
@@ -461,7 +463,7 @@
     <!-- Power ng Pinoy TV -->
     <!-- 
     <string name="app_name">Pinoy TV</string>
-    <string name="app_icon">@drawable/pinoytv_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/pinoytv_launch_logo</drawable>       	   
     <string name="white_label">pinoytv</string>
     <string name="mso">pinoytv</string>
     <string name="default_region">en</string>
@@ -478,7 +480,7 @@
     <!-- YuenFoongYu -->
     <!-- 
     <string name="app_name">Demo</string>
-    <string name="app_icon">@drawable/demo_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/demo_launch_logo</drawable>       	   
     <string name="white_label">demo</string>
     <string name="mso">demo</string>
     <string name="default_region">en</string>
@@ -495,24 +497,24 @@
     <!-- Demo -->
     <!--
    	<string name="app_name">Demo</string>
-	<string name="app_icon">@drawable/tt_icon_new</string>       	
+    <drawable name="app_icon_ptr">@drawable/demo_launch_logo</drawable>       	   
 	<string name="white_label">demo</string>
     <string name="mso">demo</string>
     <string name="default_region">en</string>
-    <string name="logo">tvlogo</string>
-    <string name="splash_background">bgnew</string>
-    <string name="splash_foreground">splash_generic_logo</string>        
-    <string name="splash_slogan">Empowering Cloud TV</string>     
-    <string name="signin_logo">tvlogo</string>    
-    <string name="signin_bg">bgnew</string>      
-    <string name="set_banner">banner_9x9</string>     
+    <string name="logo">demo_logo</string>
+    <string name="splash_background">demo_bg_open</string>
+    <string name="splash_foreground">demo_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">demo_logo_signin</string>
+    <string name="signin_bg">demo_bg_open</string>
+    <string name="set_banner">demo_banner01</string>
 	<string name="fb_app_id">292201190939231</string>
 	-->
 			
     <!-- Magazine -->
     <!--  
     <string name="app_name">癮雜誌</string>
-    <string name="app_icon">@drawable/magazine_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/magazine_launch_logo</drawable>       	   
     <string name="white_label">magazine</string>
     <string name="mso">magazine</string>
     <string name="default_region">zh</string>
@@ -529,7 +531,7 @@
     <!-- test -->
     <!--   
     <string name="app_name">test FLIPr</string>
-    <string name="app_icon">@drawable/launch_logo_test</string>    
+    <drawable name="app_icon_ptr">@drawable/launch_logo_test</drawable>       	   
     <string name="white_label">test</string>     
     <string name="mso">test</string>
     <string name="default_region">zh</string>               
@@ -546,7 +548,7 @@
     <!-- Gametube -->
     <!--    
     <string name="app_name">GameTube</string>
-    <string name="app_icon">@drawable/gametube_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/gametube_launch_logo</drawable>       	   
     <string name="white_label">gametube</string>
     <string name="mso">gametube</string>
     <string name="default_region">zh</string>
@@ -563,7 +565,7 @@
     <!-- Daaitv -->
     <!--   
     <string name="app_name">大愛 FLIPr</string>
-    <string name="app_icon">@drawable/daaitv_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/daaitv_launch_logo</drawable>       	   
     <string name="white_label">daaitv</string>
     <string name="mso">daaitv</string>
     <string name="default_region">zh</string>
@@ -580,7 +582,7 @@
     <!-- Ytower -->
     <!--  
     <string name="app_name">楊桃美食網</string>
-    <string name="app_icon">@drawable/ytower_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/ytower_launch_logo</drawable>       	   
     <string name="white_label">ytower</string>
     <string name="mso">ytower</string>
     <string name="default_region">zh</string>
@@ -614,41 +616,41 @@
     <!-- Demo1 -->
     <!-- 
    	<string name="app_name">Demo1</string>
-	<string name="app_icon">@drawable/tt_icon_new</string>       	
+    <drawable name="app_icon_ptr">@drawable/demo_launch_logo</drawable>       	   
 	<string name="white_label">demo1</string>
     <string name="mso">demo1</string>
     <string name="default_region">en</string>
-    <string name="logo">tvlogo</string>
-    <string name="splash_background">bgnew</string>
-    <string name="splash_foreground">splash_generic_logo</string>        
-    <string name="splash_slogan">Empowering Cloud TV</string>     
-    <string name="signin_logo">tvlogo</string>    
-    <string name="signin_bg">bgnew</string>      
-    <string name="set_banner">banner_9x9</string>     
+    <string name="logo">demo_logo</string>
+    <string name="splash_background">demo_bg_open</string>
+    <string name="splash_foreground">demo_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">demo_logo_signin</string>
+    <string name="signin_bg">demo_bg_open</string>
+    <string name="set_banner">demo_banner01</string>
 	<string name="fb_app_id">361253423962738</string>
     -->
       
     <!-- Demo2 -->
    	<!-- 
    	<string name="app_name">Demo2</string>
-	<string name="app_icon">@drawable/tt_icon_new</string>       	
+    <drawable name="app_icon_ptr">@drawable/demo_launch_logo</drawable>       	   
 	<string name="white_label">demo2</string>
     <string name="mso">demo2</string>
     <string name="default_region">en</string>
-    <string name="logo">tvlogo</string>
-    <string name="splash_background">bgnew</string>
-    <string name="splash_foreground">splash_generic_logo</string>        
-    <string name="splash_slogan">Empowering Cloud TV</string>     
-    <string name="signin_logo">tvlogo</string>    
-    <string name="signin_bg">bgnew</string>      
-    <string name="set_banner">banner_9x9</string>     
+    <string name="logo">demo_logo</string>
+    <string name="splash_background">demo_bg_open</string>
+    <string name="splash_foreground">demo_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">demo_logo_signin</string>
+    <string name="signin_bg">demo_bg_open</string>
+    <string name="set_banner">demo_banner01</string>
 	<string name="fb_app_id">361253423962738</string>
 	-->
 
     <!-- YourApp2 -->
    	<!-- 
     <string name="app_name">Your FLIPr App2</string>
-    <string name="app_icon">@drawable/yourapp_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/yourapp_launch_logo</drawable>       	   
     <string name="white_label">yourapp2</string>
     <string name="mso">yourapp2</string>
     <string name="default_region">en</string>
@@ -682,7 +684,7 @@
     <!-- dingdingtv -->
     <!-- 
     <string name="app_name">DingDingTV</string>
-    <string name="app_icon">@drawable/ddtv_launch_logo</string>    
+    <drawable name="app_icon_ptr">@drawable/ddtv_launch_logo</drawable>       	   
     <string name="white_label">dingdingtv</string>     
     <string name="mso">dingdingtv</string>
     <string name="default_region">en</string>               
@@ -699,7 +701,7 @@
 	<!-- Sundance -->
     <!-- 
    	<string name="app_name">日舞電影 FLIPr</string>
-	<string name="app_icon">@drawable/sundance_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/sundance_launch_logo</drawable>       	   
     <string name="white_label">sundance</string>
     <string name="mso">sundance</string>
     <string name="default_region">zh</string>
@@ -716,7 +718,7 @@
     <!-- Iconcerts -->
     <!-- 
    	<string name="app_name">愛現場</string>
-	<string name="app_icon">@drawable/iconcerts_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/iconcerts_launch_logo</drawable>       	   
     <string name="white_label">iconcerts</string>
     <string name="mso">iconcerts</string>
     <string name="default_region">zh</string>
@@ -733,7 +735,7 @@
     <!-- CW -->
     <!-- 
     <string name="app_name">天下影音</string>
-    <string name="app_icon">@drawable/cw_launch_logo</string>    
+    <drawable name="app_icon_ptr">@drawable/cw_launch_logo</drawable>       	   
     <string name="white_label">cw</string>     
     <string name="mso">cw</string>
     <string name="default_region">zh</string>               
@@ -748,9 +750,8 @@
     -->
 
     <!-- Musicsounds -->
-    <!--
     <string name="app_name">音樂頌</string>
-    <string name="app_icon">@drawable/musicsounds_launch_logo</string>
+    <drawable name="app_icon_ptr">@drawable/musicsounds_launch_logo</drawable>       	   
     <string name="white_label">musicsounds</string>
     <string name="mso">musicsounds</string>
     <string name="default_region">zh</string>
@@ -762,7 +763,6 @@
     <string name="signin_bg">musicsounds_bg_open</string>
     <string name="set_banner">musicsounds_banner</string>
     <string name="fb_app_id">271923529673066</string>
-    -->
     
     <!-- Portico -->
     <!--
@@ -813,8 +813,8 @@
     <string name="signin_bg">fliprtv_bg_open</string>
     <string name="set_banner">fliprtv_banner</string>
     <string name="fb_app_id">361253423962738</string>
-    -->
-    
+     -->
+     
     <!-- TEST2 -->
     <!-- 
     <string name="app_name">TEST2</string>
