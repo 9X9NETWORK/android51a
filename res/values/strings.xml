@@ -270,4 +270,5 @@
 	<string name="feedback_thanks">Thank you for your feedback!</string>
 	<string name="social_feed">Social Feed</string>
 	<string name="real_channel_source">Episode originally from</string>
+	<string name="log_in_sign_up">Log in / Sign up</string>
 </resources>

@@ -50,8 +50,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="140"
-      android:versionName="5.0.1.140">
+      android:versionCode="141"
+      android:versionName="5.0.1.141">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -709,20 +709,24 @@
 		
     
 		<!-- Matchstick -->
+		<!-- 
 		<service android:name="tv.tv9x9.player.AppCastDeviceService" android:exported="false">
     		<intent-filter>
         		<action android:name="android.media.MediaRouteProviderService" />
     		</intent-filter>
 		</service>
-
+		-->
+		
 		<!-- Matchstick -->
+		<!-- 
 		<service android:name="tv.tv9x9.player.AppCastService" android:exported="false">
     		<intent-filter>
         		<action android:name="tv.matchstick.fling.service.FLING" />
         		<category android:name="android.intent.category.DEFAULT" />
     		</intent-filter> 
 		</service>	
-
+		-->
+		
     </application>
 
 </manifest>

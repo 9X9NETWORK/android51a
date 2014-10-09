@@ -39,6 +39,7 @@ public class WrapChromecast implements PlasterCast.PlasterInterface
     
 	WrapChromecast()
 		{
+		log ("WrapChromecast start");
 		}	
 	
 	public void log (String text)
@@ -49,6 +50,7 @@ public class WrapChromecast implements PlasterCast.PlasterInterface
 	public String categoryForCast (String app_name)
 		{
 		this.app_name = app_name;
+		log ("categoryForCast: " + app_name);
 		return CastMediaControlIntent.categoryForCast (app_name);
 		}
 	
@@ -62,6 +64,7 @@ public class WrapChromecast implements PlasterCast.PlasterInterface
 	
 	public void stopApplication()
 		{
+		log ("stopApplication");
 		Cast.CastApi.stopApplication (gcast_api_client);
 		}
 	

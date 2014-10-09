@@ -228,7 +228,7 @@ public class main extends VideoBaseActivity
 			
 		reset_time_played();
 		
-		if (restore_video_location)
+		if (any_remembered_locations())
 			{
 			log ("will restore video");
 			if (videoFragment != null)
@@ -376,7 +376,17 @@ public class main extends VideoBaseActivity
 	    	if (current_layer == toplayer.PLAYBACK)
 	    		{
 	    		track_event ("navigation", "back", "back", 0);
-	    		player_full_stop (true);
+	    		
+	    		if (any_remembered_locations())
+	    			{
+	    			log ("BACK in playback: return to remembered location");
+	    			restore_location();	    			
+	    			}
+	    		else
+	    			{
+	    			log ("BACK in playback: full stop");
+	    			player_full_stop (true);
+	    			}
 	    		}
 	    	else if (current_layer == toplayer.HOME)
 	    		{
@@ -5459,7 +5469,18 @@ public class main extends VideoBaseActivity
 			onVideoActivityLayout();
 			}
     	else
-    		player_full_stop (true);	
+    		{
+    		if (any_remembered_locations())
+				{
+				log ("BACK in playback: return to remembered location");
+				restore_location();	    			
+				}
+			else
+				{
+				log ("BACK in playback: full stop");
+				player_full_stop (true);
+				}
+    		}
 		}
 	
 	public void setup_playback_buttons()
@@ -5476,6 +5497,19 @@ public class main extends VideoBaseActivity
 		        	playback_back();
 		        	}
 				});	
+		
+		View vReturnPOI = findViewById (R.id.portrait_poi_return_instruction);
+		if (vReturnPOI != null)
+			vReturnPOI.setOnClickListener (new OnClickListener()
+				{
+		        @Override
+		        public void onClick (View v)
+		        	{
+		        	log ("click on: POI back");
+		        	track_event ("navigation", "back", "back", 0);
+		        	playback_back();
+		        	}
+				});		
 		
 		View vPausePlay = findViewById (R.id.pause_or_play);
 		if (vPausePlay != null)
@@ -6535,6 +6569,7 @@ public class main extends VideoBaseActivity
     	launch_player (channel_id, null, channels);
     	}
  
+    @Override
     public void launch_player (String channel_id, String episode_id, String channels[])
 		{
     	/* bug #12465: when waking, sometimes time will accumulate even if the player is not playing */
@@ -6647,7 +6682,7 @@ public class main extends VideoBaseActivity
 	    	{
     		if (config.advertising_regime.equals ("direct-video"))
     			{		 
-    			restore_video_location = false;
+    			forget_video_location();
     			videoFragment.set_startup_function (in_main_thread, r);
     			int adnum = config.next_advert();
     			log ("next advert is: " + adnum);
@@ -6662,7 +6697,7 @@ public class main extends VideoBaseActivity
     			}
     		else if (config.advertising_regime.equals ("admob"))
 	    		{
-		    	restore_video_location = false;
+    			forget_video_location();
 				videoFragment.set_startup_function (in_main_thread, r);
 		    	admob_interstitial_advertisement (r);
 		    	return true;

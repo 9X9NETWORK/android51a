@@ -23,6 +23,7 @@ public interface OnPlayerListener
 	public void alert (String text);
 	public void set_poi_trigger (boolean use_current_offset);
 	public void start_playing();
+	public void restart_playing (long start_msec);
 	public void ready();
 	public void accumulate_episode_time (long t);
 	public View findViewById (int id);
@@ -32,4 +33,6 @@ public interface OnPlayerListener
 	public void onVideoActivityVideoStarted();
 	public void onVideoActivityLayout();
 	public void onVideoActivityPauseOrPlay (boolean paused);
+	
+	public boolean any_remembered_locations();
 	}   

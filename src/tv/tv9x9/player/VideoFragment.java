@@ -546,7 +546,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 						log ("onStopped: exit in progress, won't move to next episode");
 						return;
 						}
-					else if (ctx.restore_video_location)
+					else if (mCallback.any_remembered_locations())
 						{
 						log ("onstopped: restore_video_location is set, won't move to next episode");
 						return;
@@ -573,7 +573,7 @@ public final class VideoFragment extends YouTubePlayerSupportFragment implements
 						{
 						log ("onStopped: pending_restart, re-kicking the video");
 						ctx.pending_restart = false;
-						mCallback.start_playing();
+						mCallback.restart_playing (start_time_workaround);
 						return;
 						}					
 					else if (ctx.video_has_started)

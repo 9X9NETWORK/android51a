@@ -7,11 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import tv.tv9x9.player.main.menuitem;
 import tv.tv9x9.player.switchboard.LocalBinder;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -39,6 +41,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -152,9 +155,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	/* the index number of the POI (for debugging purposes) */
 	int video_trigger_id = -1;
-	
-	/* after launching POI, remember where we are */
-	boolean restore_video_location = false;
 	
 	/* with above. This is a hack to re-kick the video when trying to restart it upon return to the app. It seems that
 	   sometimes after an app launches on low-memory devices, the YouTube API has problems */
@@ -1256,6 +1256,19 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		player.reset_time_played();
 		}
 	
+	public void restart_playing (long start_msec)
+		{
+		if (start_msec > 0)
+			{
+			/* something bad happened probably when returning to a video after a POI or something. The video
+			   needs to be kickstarted, but at the remembered location */
+			try_to_play_episode (current_episode_index, start_msec);
+			/* sure hope that worked out */
+			}
+		else
+			start_playing();
+		}
+	
 	public void start_playing()
 		{
 		log ("start playing");
@@ -1326,7 +1339,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					log ("[try to play episode] player real channel is null! setting to: " + channel);
 					player_real_channel = channel;
 					}
-				try_to_play_episode_msec (episode, start_msec);		
+				try_to_play_episode_msec (episode, start_msec);
 				}			
 			};
 		
@@ -1368,7 +1381,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void try_to_play_episode_msec (int episode, long start_msec)
 		{
-		log ("try to play episode: " + episode);		
+		if (start_msec > 0)
+			log ("try to play episode: " + episode + ", start_msec: " + start_msec);
+		else
+			log ("try to play episode: " + episode);		
 		
 		video_has_started = false;
 		playing_begin_titlecard = playing_end_titlecard = false;
@@ -1438,7 +1454,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					{
 					/* ignore start_msec problem here, since subepisodes seem to be on their way out */
 					log ("play first subepisode of: " + episode_id + " (of " + subepisodes_this_episode + ")");
-					play_current_subepisode();
+					play_current_subepisode (0, start_msec);
 					}
 				
 				put_dots_on_progress_bar (episode_id);
@@ -1672,7 +1688,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 					log ("new offset: " + new_offset + ", offset: " + offset + ", percent into this subepisode: " + percent_into_subepisode);
 					log ("current subepisode: " + current_subepisode + ", will drop into subepisode: " + i);
 					current_subepisode = i;
-					play_current_subepisode (percent_into_subepisode);
+					play_current_subepisode (percent_into_subepisode, 0);
 					break;
 					}
 				}
@@ -1756,13 +1772,14 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	/* starting at the beginning of the subepisode */
 	public void play_current_subepisode()
 		{
-		play_current_subepisode (0f);
+		play_current_subepisode (0f, 0);
 		}
 	
 	/* save these to detect when we've moved on */
 	String current_begin_titlecard_id = null, current_end_titlecard_id = null;
 	
-	public void play_current_subepisode (final float percent)
+	/* if percent is nonzero, use that. Otherwise, if start_msec is nonzero, use that. Otherwise, use default */
+	public void play_current_subepisode (final float percent, long start_msec)
 		{
 		video_has_started = false;
 		
@@ -1917,7 +1934,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				String t_end = config.program_meta (episode_id, "sub-" + current_subepisode + "-end");	
 				String t_duration = config.program_meta (episode_id, "sub-" + current_subepisode + "-duration");				
 				
-				int start_msec = (t_start != null && !t_start.equals("")) ? Integer.parseInt (t_start) * 1000 : 0;
+				if (percent > 0 || start_msec == 0)
+					start_msec = (t_start != null && !t_start.equals("")) ? Integer.parseInt (t_start) * 1000 : 0;
 				int end_msec = (t_end != null && !t_end.equals("")) ? Integer.parseInt (t_end) * 1000 : -1;
 				int duration_msec = (t_duration != null && !t_duration.equals ("")) ? Integer.parseInt (t_duration) * 1000 : -1;
 				
@@ -2176,7 +2194,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (url != null)
 			{
 			String video_id = video_id_of (url);
-			log ("[playvideo] YouTube id: " + video_id);
+			if (start_msec > 0)
+				log ("[playvideo] YouTube id: " + video_id + ", start msec: " + start_msec);
+			else
+				log ("[playvideo] YouTube id: " + video_id);
 			set_poi_trigger (false);
 			play_youtube (video_id, start_msec, end_msec);
 			}
@@ -2202,8 +2223,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				play_youtube_using_new_api (id, start_msec, end_msec);
 				
 				/* save these so that in case of interruption, we can restart */
-				restore_video_id = id;
-				restore_video_end_msec = end_msec;
+				set_most_recent_restore_video_information (id, end_msec);
 				
 				in_main_thread.post (update_metadata);
 				// submit_pdr();
@@ -2241,7 +2261,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				playerFragment.play_video (final_url);
 				
 				/* save these so that in case of interruption, we can restart */
-				restore_video_id = final_url;
+				set_most_recent_restore_video_information (final_url, -1);
 				}
 			});
 		}
@@ -2412,7 +2432,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	 * -3 = trigger executed
 	 */
 		
-	boolean haz_poi = false;
+	boolean haz_poi = true;
 		
 	final Runnable trigger_poi = new Runnable()
 		{
@@ -2441,7 +2461,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			        @Override
 			        public void onClick (View v)
 			        	{		        	
-			        	// alert ("POI CLICKED: " + poi_action_1_url);
 			        	log ("POI CLICKED: " + poi_action_1_url);
 						vPOI.setVisibility (View.GONE);
 						remember_location();
@@ -2468,8 +2487,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		set_poi_trigger (true);
 		}
 	
-	// {"message": "更多壹傳媒內幕,盡在媒體停看聽","button": [{ "text": "了解更多", "actionUrl": "http://www.9x9.tv/view?ch=1380&ep=6789]" }]}
-		
+	// A: {"message":"Testing","button":[{"text":"Tap me","actionUrl":"https://www.youtube.com/watch?v=iG4SBGwohMc&list=PLbpi6ZahtOH5Jymgxb1MgladAL0eMSpmp"}]}
+	// B: {"message":"POI to Flipr EP: iPhone Snowboard Video 2","button":[{"text":"Press","actionUrl":"http://yourapp2.flipr.tv/view/p34985/e908312"}]}"
+	// C: {"message":"POI to Flipr CH: Product Reviews & Tutorials","button":[{"text":"Press","actionUrl":"http://yourapp2.flipr.tv/view/p34984"}]}
+	
 	String poi_message = null;		
 	String poi_button_1_text = null;
 	String poi_action_1_url = null;
@@ -2560,8 +2581,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		reset_poi();
 		
 		/* there presently aren't any POIs, and this function may not be stable */
-		boolean always = true;
-		if (always)
+		if (!haz_poi)
 			return;
 		
 		if (program_line == null || program_line.length == 0)
@@ -2625,109 +2645,186 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		}
 	
-	String restore_video_id = null;
-	long restore_video_position = -1;
-	long restore_video_end_msec = -1;
-	String restore_video_channel = null;
-	int restore_video_current_episode_index = -1;
-	int restore_video_current_subepisode = -1;
-	int restore_video_visibility = -1;
+	public class VideoLocation
+		{
+		String restore_video_id = null;
+		long restore_video_position = -1;
+		long restore_video_end_msec = -1;
+		String restore_video_channel = null;
+		String restore_arena[] = null;
+		int restore_video_current_episode_index = -1;
+		int restore_video_current_subepisode = -1;
+		int restore_video_visibility = -1;
+		}
 	
+	Stack <VideoLocation> videoStack = new Stack <VideoLocation> ();
+	
+	public void forget_video_location()
+		{
+		videoStack = new Stack <VideoLocation> ();
+		poi_instruction_visibility (false);
+		}
+	
+	public boolean any_remembered_locations()
+		{
+		return videoStack != null && videoStack.size() > 0;
+		}
+			
 	public void remember_location()
 		{
 		if (!chromecasted)
 			{
-			restore_video_location = true;
-			restore_video_position = player.get_most_recent_offset();
-			restore_video_current_episode_index = current_episode_index;
-			restore_video_current_subepisode = current_subepisode;
-			restore_video_channel = player_real_channel;
-			log ("VIDEO remember location: " + restore_video_position);
+			if (videoStack == null)
+				forget_video_location();
+			
+			VideoLocation vloc = new VideoLocation();
+			
+			vloc.restore_video_position = player.get_most_recent_offset();
+			vloc.restore_video_current_episode_index = current_episode_index;
+			vloc.restore_video_current_subepisode = current_subepisode;
+			vloc.restore_video_channel = player_real_channel;
+			vloc.restore_arena = arena;
+			log ("VIDEO remember location: " + vloc.restore_video_position);
+			vloc.restore_video_visibility = get_video_visibility();
+			
+			videoStack.push (vloc);
+			
 			pause_video();
-		
-			restore_video_visibility = get_video_visibility();
 			set_video_visibility (View.INVISIBLE);
+			
+			poi_instruction_visibility (true);
 			}
 		}
-		
+
+	public void poi_instruction_visibility (boolean visible)
+		{
+		View vInstruction = findViewById (R.id.portrait_poi_return_instruction);
+		if (vInstruction != null)
+			vInstruction.setVisibility (visible ? View.VISIBLE : View.GONE);
+		}
+	
+	public void set_most_recent_restore_video_information (String video_id, long end_msec)
+		{
+		if (any_remembered_locations())
+			{
+			/* this is particularly nasty */
+			VideoLocation vloc = videoStack.peek();
+			vloc.restore_video_id = video_id;
+			if (end_msec > 0)
+				vloc.restore_video_end_msec = end_msec;
+			}
+		}
+	
 	public void restore_location()
 		{
-		restore_video_location = false;
-		pending_restart = true;
-		/* note: leave pending_restart as true! */
-		log ("VIDEO restore location: " + restore_video_position);
-		log ("VIDEO restore video_id: " + restore_video_id);
-		log ("VIDEO restore visibility == View.VISIBLE: " + (restore_video_visibility == View.VISIBLE));		
-		log ("VIDEO restore able to play video: " + able_to_play_video());
-		
-		current_episode_index = restore_video_current_episode_index;
-		current_subepisode = restore_video_current_subepisode;
-		player_real_channel = restore_video_channel;
-		
-		set_video_visibility (restore_video_visibility);
-		if (restore_video_id != null && able_to_play_video() && restore_video_visibility == View.VISIBLE)
-			play_video_url (restore_video_id, restore_video_position, restore_video_end_msec);
+		if (any_remembered_locations())
+			{
+			pending_restart = true;
+			/* note: leave pending_restart as true! */
+			
+			VideoLocation vloc = videoStack.pop();
+			
+			log ("VIDEO restore location: " + vloc.restore_video_position);
+			log ("VIDEO restore video_id: " + vloc.restore_video_id);
+			log ("VIDEO restore visibility == View.VISIBLE: " + (vloc.restore_video_visibility == View.VISIBLE));		
+			log ("VIDEO restore able to play video: " + able_to_play_video());
+			log ("VIDEO restore left in stack: " + videoStack.size());
+			
+			current_episode_index = vloc.restore_video_current_episode_index;
+			current_subepisode = vloc.restore_video_current_subepisode;
+			player_real_channel = vloc.restore_video_channel;
+			arena = vloc.restore_arena;
+			
+			set_video_visibility (vloc.restore_video_visibility);
+			if (vloc.restore_video_id != null && able_to_play_video() && vloc.restore_video_visibility == View.VISIBLE)
+				play_video_url (vloc.restore_video_id, vloc.restore_video_position, vloc.restore_video_end_msec);
+			
+			if (videoStack.size() == 0)
+				poi_instruction_visibility (false);
+			}
+		else
+			{
+			log ("restore_location: nothing in video stack!");
+			poi_instruction_visibility (false);
+			}
 		}
 	
 	public void launch_player_url (String url)
 		{
 		// http://beagle.9x9.tv/playback?ch=9754&ep=15952
 
-		String channel = null, episode = null;
+		// A: {"message":"Testing","button":[{"text":"Tap me","actionUrl":"https://www.youtube.com/watch?v=iG4SBGwohMc&list=PLbpi6ZahtOH5Jymgxb1MgladAL0eMSpmp"}]}
+		// B: {"message":"POI to Flipr EP: iPhone Snowboard Video 2","button":[{"text":"Press","actionUrl":"http://yourapp2.flipr.tv/view/p34985/e908312"}]}"
+		// C: {"message":"POI to Flipr CH: Product Reviews & Tutorials","button":[{"text":"Press","actionUrl":"http://yourapp2.flipr.tv/view/p34984"}]}
 		
-		Pattern chPattern = Pattern.compile ("ch=(\\d+)");
-		Matcher chMatcher = chPattern.matcher (url);
-		if (chMatcher.find())
-			channel = chMatcher.group (1);
-
-		Pattern epPattern = Pattern.compile ("ep=([\\w\\d]+)");
-		Matcher epMatcher = epPattern.matcher (url);
-		if (epMatcher.find())
-			episode = epMatcher.group (1);
-		
-		log ("launch player URL: ch=|" + channel + "| episode=|" + episode + "|");
-		launch_player_with_episode (channel, episode);
-		}
-
-	String poi_episode_id = null;
+		if (url.contains ("flipr.tv"))
+			{
+			String channel = null, episode = null;
+			
+			Pattern pattern1 = Pattern.compile ("/view/p(\\d+)/([a-z0-9]*)$");			
+			Matcher m1 = pattern1.matcher (url);
+			if (m1.find())
+				{
+				channel = m1.group (1);
+				episode = m1.group (2);
+				}
 	
-	public void launch_player_with_episode (String channel_id, String episode_id)
+			if (channel == null)
+				{
+				Pattern pattern2 = Pattern.compile ("/view/p(\\d+)$");			
+				Matcher m2 = pattern1.matcher (url);
+				if (m2.find())
+					{
+					channel = m1.group (1);
+					}
+				}
+			
+			log ("launch player URL: ch=|" + channel + "| episode=|" + episode + "|");
+			launch_player_with_episode (channel, episode);
+			}
+		else
+			{
+			/* launch a browser */
+    		remember_location();
+        	Intent wIntent = new Intent (Intent.ACTION_VIEW, Uri.parse (url));
+        	try
+        		{
+	        	startActivity (wIntent);
+        		}
+        	catch (Exception ex)
+        		{
+        		ex.printStackTrace();
+        		}
+			}
+		}
+	
+	public void launch_player_with_episode (final String channel_id, final String episode_id)
 		{
 		if (channel_id != null && !channel_id.equals("") && !launch_in_progress)
 			{
 			launch_in_progress = true; 
 			if (channel_id.contains (":"))
-				launch_tv_specific_episode (channel_id, episode_id);
+				launch_player (channel_id, episode_id, new String[] { channel_id });
 			else
 				{
-				poi_episode_id = episode_id; /* HACK */
+				final Callback launch_episode_inner = new Callback()
+					{
+					@Override
+					public void run_string (String channel_id)
+						{
+						launch_player (channel_id, episode_id, new String[] { channel_id });
+						}
+					};
+					
 				ytchannel.full_channel_fetch (in_main_thread, launch_episode_inner, config, channel_id);
 				}
 			}
 		}
-	
-	final Callback launch_episode_inner = new Callback()
-		{
-		@Override
-		public void run_string (String channel_id)
-			{
-			launch_tv_specific_episode (channel_id, poi_episode_id);
-			}
-		};
 
-	public void launch_tv_specific_episode (String channel_id, String episode_id)
+	public void launch_player (String channel_id, String episode_id, String channels[])
 		{
-		/*
-		Intent wIntent = new Intent (VideoBaseActivity.this, tv4.class);
-		wIntent.putExtra ("tv.9x9.channel", channel_id);
-		if (episode_id != null)
-			wIntent.putExtra ("tv.9x9.episode", episode_id);
-		wIntent.putExtra ("tv.9x9.single-channel", true);
-		if (episode_id != null)
-			wIntent.putExtra ("tv.9x9.single-episode", true);			
-		startActivity (wIntent);
-		*/
-		}	
+		/* override this */
+		}
 	
 	final Runnable update_progress_bar = new Runnable()
 		{
