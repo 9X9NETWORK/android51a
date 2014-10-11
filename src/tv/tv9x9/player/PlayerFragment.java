@@ -1,6 +1,7 @@
 package tv.tv9x9.player;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ public class PlayerFragment extends Fragment implements Player
 
     private String pending_url = null;
 	private SurfaceView mPreview = null;
+	// private VideoView mPreview = null;
 	private SurfaceHolder holder = null;
 	private MediaPlayer mMediaPlayer = null;
 	
@@ -81,6 +83,7 @@ public class PlayerFragment extends Fragment implements Player
 		
 		log ("onCreateView 2");
 
+		// mPreview = (VideoView) v.findViewById (R.id.surface);
 		mPreview = (SurfaceView) v.findViewById (R.id.surface);
 		setup_holder();
 		
@@ -395,7 +398,9 @@ public class PlayerFragment extends Fragment implements Player
                 	View vProgress = getView().findViewById (R.id.vitamio_spinner);
                     if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START)
                     	{
-                        vProgress.setVisibility (View.VISIBLE);
+                    	// This triggers at inappropriate times! So never show the progress indicator.
+                        // vProgress.setVisibility (View.VISIBLE);
+                        vProgress.setVisibility (View.GONE);
                     	}
                     else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END)
                     	{
@@ -420,4 +425,13 @@ public class PlayerFragment extends Fragment implements Player
 		holder.setFixedSize (mVideoWidth, mVideoHeight);
 		mMediaPlayer.start();
 		}
+	
+	/*
+	@Override
+	public void onConfigurationChanged (Configuration newConfig)
+		{
+		if (mPreview != null)
+			mPreview.setVideoLayout (VideoView.VIDEO_LAYOUT_STRETCH, 0);
+		}
+	*/
 	}

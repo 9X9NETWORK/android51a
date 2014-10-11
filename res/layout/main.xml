@@ -162,7 +162,17 @@
     	</FrameLayout>	   	    	    	    		
 	</LinearLayout>
 		
-	<include layout="@layout/nag_layer" />
+	<!-- include layout="@layout/nag_layer" / -->
+		
+	<fragment
+	    class="tv.tv9x9.player.NagLayer"
+	    android:id="@+id/nag_fragment_container"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	   	android:layout_gravity="center"
+	   	android:gravity="top|center_horizontal"
+	    android:background="#000000"
+	    />
 		
 	<!-- include layout="@layout/settings_tablet_new" / -->
 

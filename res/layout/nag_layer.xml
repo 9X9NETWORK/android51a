@@ -5,8 +5,7 @@
     android:layout_gravity="top|center_horizontal"
     android:gravity="top|center_horizontal"        
     android:background="#FFFFFF"
-    android:orientation="vertical"
-    android:visibility="gone">
+    android:orientation="vertical">
 			
 	<tv.tv9x9.player.StoppableViewPager
 	    xmlns:android="http://schemas.android.com/apk/res/android"

@@ -39,6 +39,7 @@ import tv.tv9x9.player.AppsLayer.OnAppsListener;
 import tv.tv9x9.player.FeedbackLayer.OnFeedbackListener;
 import tv.tv9x9.player.PasswordLayer.OnPasswordListener;
 import tv.tv9x9.player.HomeLayer.OnHomeListener;
+import tv.tv9x9.player.NagLayer.OnNagListener;
 
 import tv.tv9x9.player.AppsLayer.app;
 
@@ -127,8 +128,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-// import com.google.android.gms.gcm;
-
 import com.facebook.*;
 import com.facebook.Session.StatusCallback;
 import com.facebook.android.Util;
@@ -142,7 +141,7 @@ import com.google.android.gms.ads.*;
 import com.android.vending.billing.IInAppBillingService; 
 
 public class main extends VideoBaseActivity 
-		implements OnMessagesListener, OnSocialListener, OnStoreListener, OnSearchListener,
+		implements OnMessagesListener, OnSocialListener, OnStoreListener, OnSearchListener, OnNagListener,
 						OnSettingsListener, OnGuideListener, OnAppsListener, OnFeedbackListener, OnPasswordListener, OnHomeListener
 	{
 	boolean single_channel = false;
@@ -755,7 +754,8 @@ public class main extends VideoBaseActivity
 		/* this will create notification settings */
 		settings_class().load_notification_settings (config);
 		
-		gcm_register();
+		GcmSetup gcmInstance = new GcmSetup (main.this, config, in_main_thread);
+		gcmInstance.gcm_register();
 		
 		in_main_thread.postDelayed (new Runnable()
 			{
@@ -839,9 +839,6 @@ public class main extends VideoBaseActivity
 			int bg = getResources().getIdentifier (signin_bg, "drawable", getPackageName());
 			if (bg != 0)
 				{
-				// View vSigninLayer = findViewById (is_phone() ? R.id.signinlayer_phone : R.id.signinlayer_tablet);
-				// vSigninLayer.setBackgroundResource (bg);
-	
 				View vTermsLayer = findViewById (R.id.termslayer_new);
 				vTermsLayer.setBackgroundResource (bg);
 				}
@@ -1612,7 +1609,7 @@ public class main extends VideoBaseActivity
 				}
 		
 			/*
-			 * obsolete code, also somehwat bitrot
+			 * obsolete code, also somewhat bitrot
 			 * 
 			if (menu [position].type == toplayer.CATEGORY_ITEM && current_category_index >= 0)
 				{
@@ -1973,63 +1970,6 @@ public class main extends VideoBaseActivity
 		reset_video_size();
 		}
 	
-	public void OLD_onVideoActivityLayout()
-  		{
-		if (current_layer != toplayer.PLAYBACK)
-			return;
-		
-		if (1 == 1) return;
-		
-		View vContainer = findViewById (R.id.video_fragment_container);
-		SpecialFrameLayout.LayoutParams playerParams = (SpecialFrameLayout.LayoutParams) vContainer.getLayoutParams();
-		
-	    float px120 = TypedValue.applyDimension (TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics());
-	    
-		// final View vPOI = findViewById (R.id.poi_h);
-		boolean make_chrome_visible = osd_visible_in_full_screen; // || vPOI.getVisibility() == View.VISIBLE;
-		
-		if (fullscreen)
-			{
-			log ("Fullscreen layout");
-			
-			// When in fullscreen, the visibility of all other views than the player should be set to
-			// GONE and the player should be laid out across the whole screen.
-			playerParams.width = LayoutParams.MATCH_PARENT;
-			playerParams.height = LayoutParams.MATCH_PARENT;
-			
-			// playerParams.setMargins (0, 0, 0, 0);
-			vContainer.setLayoutParams (playerParams);
-			}
-		else
-			{
-			if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-				{
-				/* DON'T THINK THIS CASE OCCURS */
-				log ("Landscape but w/o fullscreen mode");				
-				
-				// playerParams.width = uiParams.width = 0;
-				// playerParams.height = uiParams.height = MATCH_PARENT;
-				playerParams.width = MATCH_PARENT;
-				playerParams.height = MATCH_PARENT;
-				// playerParams.weight = 1;
-				// baseLayout.setOrientation(LinearLayout.HORIZONTAL);
-				playerParams.setMargins (0, 0, 0, 0);
-				vContainer.setLayoutParams (playerParams);
-				}
-			else
-				{
-				log ("Portrait layout");
-				// playerParams.width = uiParams.width = MATCH_PARENT;
-				playerParams.width = MATCH_PARENT;
-				playerParams.height = WRAP_CONTENT;
-				playerParams.setMargins (/*left*/ 0, /* top */ 0, /*right*/ 0, /*bottom*/ 0);
-				vContainer.setLayoutParams (playerParams);
-				// if (started == 3)
-				// 	add_images_to_h();
-				}
-			}
-  		}
-	
 	public int where_am_i()
 		{
 		int you_are_here = 0;
@@ -2214,8 +2154,7 @@ public class main extends VideoBaseActivity
 				
 		if (!actual_channel_id.contains (":"))
 			channel_name = config.pool_meta (actual_channel_id, "name");
-		
-		// TextView vChannel = (TextView) findViewById (R.id.tunedchannel);
+
 		TextView vChannel = (TextView) findViewById (R.id.playback_channel);
 		TextView vLandscapeChannel = (TextView) findViewById (R.id.landscape_channel_name);
 		
@@ -2378,7 +2317,7 @@ public class main extends VideoBaseActivity
 			// this is used as the default encoding of decode.
 			vDesc.getSettings().setDefaultTextEncodingName ("utf-8");
 
-			// vDesc.loadData (episode_desc == null ? "" : episode_desc, "text/html", "utf-8");
+			/* loadData is too buggy. Must use loadDataWithBaseURL */
 			vDesc.loadDataWithBaseURL ("http://www.youtube.com/", episode_desc == null ? "" : episode_desc, "text/html", "utf-8", null);
 			}
 		}
@@ -2591,6 +2530,7 @@ public class main extends VideoBaseActivity
 	    		
 	    		if (real_channel.startsWith ("="))
 	    			{
+	    			/* this channel is not in our database, and resides on YouTube only. add to database */
 	    			subscribe_via_post (real_channel, position, v);
 	    			return;
 	    			}
@@ -2952,144 +2892,34 @@ public class main extends VideoBaseActivity
 			{
 			social_class().close();
 			}
-			
-		if (layer != toplayer.MESSAGES)
-			{
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.message_fragment_container);		
-			if (!f.isHidden())
-				{
-				log ("hide Message fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.hide (f);  
-		        ft.commit();
-				}
-			}
-		else
-			{
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.message_fragment_container);		
-			if (f.isHidden())
-				{
-				log ("show Message fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.show (f);  
-		        ft.commit();
-				}
-			}
-
-		if (layer != toplayer.FEEDBACK)
-			{
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.feedback_fragment_container);		
-			if (!f.isHidden())
-				{
-				log ("hide Feedback fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.hide (f);  
-		        ft.commit();
-				}
-			}
-		else
-			{
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.feedback_fragment_container);		
-			if (f.isHidden())
-				{
-				log ("show Feedback fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.show (f);  
-		        ft.commit();
-				}
-			}
 		
-		if (layer != toplayer.SOCIAL)
-			{
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.social_fragment_container);		
-			if (!f.isHidden())
-				{
-				log ("hide Social fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.hide (f);  
-		        ft.commit();
-				}
-			}
-		else
-			{
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.social_fragment_container);		
-			if (f.isHidden())
-				{
-				log ("show Social fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.show (f);  
-		        ft.commit();
-				}
-			}
-
-		if (layer != toplayer.STORE)
-			{
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.store_fragment_container);		
-			if (!f.isHidden())
-				{
-				log ("hide Store fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.hide (f);  
-		        ft.commit();
-				}
-			}
-		else
-			{
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.store_fragment_container);		
-			if (f.isHidden())
-				{
-				log ("show Store fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.show (f);  
-		        ft.commit();
-				}
-			}
 		
-		if (layer != toplayer.GUIDE)
-			{	
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.guide_fragment_container);		
-			if (!f.isHidden())
-				{
-				log ("hide Guide fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.hide (f);  
-		        ft.commit();
-				}
-			}
-		else
-			{
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.guide_fragment_container);		
-			if (f.isHidden())
-				{
-				log ("show Guide fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.show (f);  
-		        ft.commit();
-				}
-			}	
+		Fragment f;
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction(); 
+		
+		f = getSupportFragmentManager().findFragmentById (R.id.message_fragment_container);
+		if (layer == toplayer.MESSAGES) ft.show (f); else ft.hide (f);
+		
+		f = getSupportFragmentManager().findFragmentById (R.id.feedback_fragment_container);
+		if (layer == toplayer.FEEDBACK) ft.show (f); else ft.hide (f);
 
-		if (layer != toplayer.APPS)
-			{	
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.apps_fragment_container);		
-			if (!f.isHidden())
-				{
-				log ("hide Guide fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.hide (f);  
-		        ft.commit();
-				}
-			}
-		else
-			{
-			Fragment f = getSupportFragmentManager().findFragmentById (R.id.apps_fragment_container);		
-			if (f.isHidden())
-				{
-				log ("show Guide fragment");
-		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
-		        ft.show (f);  
-		        ft.commit();
-				}
-			}	
+		f = getSupportFragmentManager().findFragmentById (R.id.social_fragment_container);
+		if (layer == toplayer.SOCIAL) ft.show (f); else ft.hide (f);
+
+		f = getSupportFragmentManager().findFragmentById (R.id.store_fragment_container);
+		if (layer == toplayer.STORE) ft.show (f); else ft.hide (f);
+
+		f = getSupportFragmentManager().findFragmentById (R.id.guide_fragment_container);
+		if (layer == toplayer.GUIDE) ft.show (f); else ft.hide (f);
+		
+		f = getSupportFragmentManager().findFragmentById (R.id.apps_fragment_container);
+		if (layer == toplayer.APPS) ft.show (f); else ft.hide (f);
+
+		f = getSupportFragmentManager().findFragmentById (R.id.nag_fragment_container);
+		if (layer == toplayer.NAG) ft.show (f); else ft.hide (f);
+		
+		ft.commit();
+		
 		
 		View vTopBar = findViewById (R.id.sliding_top_bar);
 		vTopBar.setVisibility (layer == toplayer.TERMS || layer == toplayer.FEEDBACK ? View.GONE : View.VISIBLE);
@@ -3125,8 +2955,8 @@ public class main extends VideoBaseActivity
 		View shake_layer = findViewById (R.id.shakelayer);
 		shake_layer.setVisibility (layer == toplayer.SHAKE ? View.VISIBLE : View.GONE);
 
-		View nag_layer = findViewById (R.id.nag_layer);
-		nag_layer.setVisibility (layer == toplayer.NAG ? View.VISIBLE : View.GONE);
+		// View nag_layer = findViewById (R.id.nag_layer);
+		// nag_layer.setVisibility (layer == toplayer.NAG ? View.VISIBLE : View.GONE);
 		
 		View test_layer = findViewById (R.id.testlayer);
 		test_layer.setVisibility (layer == toplayer.TEST ? View.VISIBLE : View.GONE);
@@ -3640,7 +3470,7 @@ public class main extends VideoBaseActivity
 		setup_terms_buttons();
 		terms_tab();
 		
-		/* sometimes the terms layer background is not redrawing! force it here */
+		/* sometimes the terms layer background is not redrawing! bugs with Android WebView. force it here */
 		View vTermsLayer = findViewById (R.id.termslayer_new);
 		vTermsLayer.postInvalidate();
 		
@@ -3822,25 +3652,7 @@ public class main extends VideoBaseActivity
 	
 	public GraphUser user = null;
 	
-    private UiLifecycleHelper uiHelper = null;
-    
-	/* this formerly worked. After an update (Android? Facebook?) it has broken! */
-	public boolean OLD_has_facebook()
-		{
-	    Intent intent = new Intent (Intent.ACTION_SEND);
-	    intent.putExtra (Intent.EXTRA_TEXT, "test probe");
-	    intent.setType ("text/plain");
-
-	    final PackageManager pm = this.getApplicationContext().getPackageManager();
-	    for (ResolveInfo resolveInfo: pm.queryIntentActivities (intent, PackageManager.MATCH_DEFAULT_ONLY))
-	    	{
-	        ActivityInfo activity = resolveInfo.activityInfo;
-	        // log ("activity:: " +  activity.name);
-	        if (activity.name.contains ("com.facebook.katana"))
-	            return true;
-	    	}
-	    return false;
-		}		
+    private UiLifecycleHelper uiHelper = null;	
 	
 	public boolean has_facebook()
 		{
@@ -4115,152 +3927,21 @@ public class main extends VideoBaseActivity
 		}
 	
 	/*** NAG **************************************************************************************************/
-	
-	NagSlider nag_slider = null;
-	
+
 	public void enable_nag_layer()
 		{
 		disable_video_layer();
-		set_layer (toplayer.NAG);
-		
+		set_layer (toplayer.NAG);		
 		layer_before_signin = toplayer.HOME;
-		
-        nag_slider = new NagSlider();
-        StoppableViewPager vHomePager = (StoppableViewPager) findViewById (R.id.nagpager);
-        vHomePager.setAdapter (nag_slider);
+		nag_class().init (config);
 		}
 	
-	class Swapnag
-		{
-		int page_number = 0;
-		LinearLayout page = null;
-		public Swapnag (int page_number)
-			{
-			this.page_number = page_number;
-			}
-		};
-
-	/* this is implemented using the base class! */
-		
-	public class NagSlider extends PagerAdapter
-		{		
-	    @Override
-	    public int getCount()
-	    	{
-	        return 3;
-	    	}
-	
-		@Override
-		public boolean isViewFromObject (View view, Object object)
-			{
-			return (((Swapnag) object).page) == (LinearLayout) view;
-			}
-		
-		@Override
-		public Object instantiateItem (final ViewGroup container, final int position)
-			{
-			log ("[NAG] instantiate: " + position);
-			
-			final Swapnag sh = new Swapnag (position);			
-	
-			int layout_resource = 0;
-			switch (position)
-				{
-				case 0: layout_resource = R.layout.nag1; break;
-				case 1: layout_resource = R.layout.nag2; break;
-				case 2: layout_resource = R.layout.nag3; break;				
-				}
-			
-			LinearLayout page = (LinearLayout) View.inflate (main.this, layout_resource, null);
-			sh.page = page;
-			
-			((StoppableViewPager) container).addView (page, 0);
-			
-			String signin_logo = getResources().getString (R.string.signin_logo);
-			if (signin_logo != null)
-				{
-				int logo_id = getResources().getIdentifier (signin_logo, "drawable", getPackageName());
-				
-				ImageView vLogo = (ImageView) page.findViewById (R.id.nag_logo);
-				if (vLogo != null)
-					vLogo.setImageResource (logo_id);
-				}
-			
-			TextView vSkip = (TextView) page.findViewById (R.id.skip_this_step);
-			if (vSkip != null)
-				{
-				vSkip.setPaintFlags (Paint.UNDERLINE_TEXT_FLAG);
-				vSkip.setOnClickListener (new OnClickListener()
-					{
-			        @Override
-			        public void onClick (View v)
-			        	{
-			        	log ("click on: nag skip");
-			        	enable_home_layer();
-			        	}
-					});	
-				}
-			
-			TextView vSignUp = (TextView) page.findViewById (R.id.nag3_sign_up);
-			if (vSignUp != null)
-				{
-				vSignUp.setPaintFlags (Paint.UNDERLINE_TEXT_FLAG);
-				vSignUp.setOnClickListener (new OnClickListener()
-					{
-			        @Override
-			        public void onClick (View v)
-			        	{
-			        	log ("click on: nag sign up");
-						track_event ("signIn", "signInWithEmail-enforce", "signInWithEmail-enforce", 0);
-		        		enable_signin_layer (new Runnable()
-			    			{
-			        		@Override
-			        		public void run()
-				        		{
-			        			enable_home_layer();
-				        		}
-			    			});
-			        	}
-					});	
-				}
-			
-			/* disable facebook buttons if there is no facebook app on this device */
-			if (!has_facebook())
-				{
-				log ("no facebook, disabling buttons");
-				for (int button: new int[] { R.id.nag2_fblogin, R.id.nag3_fblogin })
-					{
-					LoginButton vButton = (LoginButton) page.findViewById (button);
-				    if (vButton != null)
-					    vButton.setVisibility (View.GONE);
-					}
-				}
-			else
-				fezbuk2 (page);
-			
-			return sh;
-			}
-		
-		@Override
-		public void destroyItem (ViewGroup container, int position, Object object)
-			{
-			log ("[NAG] destroy: " + position);
-			Swapnag sh = (Swapnag) object;
-			((StoppableViewPager) container).removeView (sh.page);
-			}
-		
-		@Override
-		public void setPrimaryItem (ViewGroup container, int position, Object object)
-			{
-			Swapnag sh = (Swapnag) object;
-			ImageView vDot1 = (ImageView) findViewById (R.id.nag_dot1);
-			ImageView vDot2 = (ImageView) findViewById (R.id.nag_dot2);
-			ImageView vDot3 = (ImageView) findViewById (R.id.nag_dot3);			
-			vDot1.setImageResource (position == 0 ? R.drawable.walkthrough_dot_active : R.drawable.walkthrough_dot);
-			vDot2.setImageResource (position == 1 ? R.drawable.walkthrough_dot_active : R.drawable.walkthrough_dot);
-			vDot3.setImageResource (position == 2 ? R.drawable.walkthrough_dot_active : R.drawable.walkthrough_dot);			
-			}
-		}   
+    public NagLayer nag_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+	    Fragment f = fm.findFragmentById (R.id.nag_fragment_container);
+	    return (tv.tv9x9.player.NagLayer) f;
+		}
 
 	/*** HOME **************************************************************************************************/
 	
@@ -4919,76 +4600,7 @@ public class main extends VideoBaseActivity
 	    	}
 	    };
 	
-    public class SetsAdapter extends PagerAdapter
-    	{
-    	 Context ctx;
-    	 String text_array[];
-
-    	 public SetsAdapter (Context ctx, String[] text_array)
-    	 	{
-    		this.text_array = text_array;
-    		this.ctx = ctx;
-    	 	}
-
-    	 public int getCount()
-    	 	{
-    		return text_array.length;
-    	 	}
-
-    	 @Override
-    	 public Object instantiateItem (View collection, int position)
-    	 	{
-    		// TextView view = new TextView (ctx);
-    		// view.setText (text_array [position]);
-    		View view = inflater.inflate (R.layout.set_item, null); 
-    		TextView vTitle = (TextView) view.findViewById (R.id.set_title);
-    		vTitle.setText (text_array [position]);
-    		LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) vTitle.getLayoutParams();  
-    		layout.width = (int) ((float) screen_width * 0.8);
-    		vTitle.setLayoutParams (layout);
-    		view.setLayoutParams (new LayoutParams ((int) ((float) screen_width * 0.33), LayoutParams.MATCH_PARENT));
-    		((ViewPager) collection).addView (view, 0);
-    		return view;
-    	 	}
-
-    	View previous_primary_item = null;
-    	
- 		@Override
- 		public void setPrimaryItem (ViewGroup container, int position, Object object)
- 			{
- 			View view = (View) object;
-
-    		TextView vTitle = (TextView) view.findViewById (R.id.set_title);
-    		vTitle.setBackgroundColor (Color.rgb (0xA0, 0xA0, 0xA0));   	  		
-    		if (previous_primary_item != null)
-    			{
-        		TextView vPrevTitle = (TextView) previous_primary_item.findViewById (R.id.set_title);
-    			vPrevTitle.setBackgroundColor (Color.rgb (0xFF, 0xFF, 0xFF));
-    			}
-    		vTitle.setBackgroundColor (Color.rgb (0xA0, 0xA0, 0xA0));  	
-    		previous_primary_item = view;
- 			}
- 		
-    	@Override
-    	public void destroyItem (View arg0, int arg1, Object arg2)
-    		{
-    		((ViewPager) arg0).removeView ((View) arg2);
-    	 	}
-
-    	@Override
-    	public boolean isViewFromObject (View arg0, Object arg1)
-    	 	{
-    		return arg0 == ((View) arg1);
-    	 	}
-
-    	@Override
-    	public Parcelable saveState()
-    	 	{
-    		return null;
-    	 	}
-    	}
-	    
-	/*** PLAYER **************************************************************************************************/
+ 	/*** PLAYER **************************************************************************************************/
 	    
 	PlaybackChannelAdapter playback_channel_adapter = null;
 	// PlaybackCommentsAdapter playback_comments_adapter = null;
@@ -6581,6 +6193,8 @@ public class main extends VideoBaseActivity
 		previous_arena = arena;
 		set_arena (channels);
 		
+		launch_in_progress = false;
+		
 		if (episode_id != null)
 			play_episode_in_channel (channel_id, episode_id);
 		else
@@ -6617,6 +6231,8 @@ public class main extends VideoBaseActivity
     
 	/*** TEST **************************************************************************************************/
     
+    /* The test layer is a quick place used to test whatever the thing-of-the-moment is. Not for deployment into production. */
+ 
     public void enable_test_layer()
     	{
 		disable_video_layer();
@@ -6750,20 +6366,6 @@ public class main extends VideoBaseActivity
 	    	.build();
 	    
 	    interstitial.loadAd (adRequest);
-    	}
-    
-	/*** ADVERT **************************************************************************************************/
-    
-    /* This isn't used. Moved it to its own activity (like Admob) */
-    
-    public void enable_advert_layer()
-    	{
-    	pause_video();
-		disable_video_layer();
-		
-		// hide_both_fragments();
-		
-		set_layer (toplayer.ADVERT);
     	}
     
 	/*** SHAKE **************************************************************************************************/
@@ -7193,132 +6795,7 @@ public class main extends VideoBaseActivity
 			/* dragging to switch sets */
 			}
 		}
-	
-	/* Google Cloud Messaging */
-	
-    GoogleCloudMessaging gcm = null;
-    
-    String EXTRA_MESSAGE = "message";
-    String PROPERTY_REG_ID = "registration_id";
-    String PROPERTY_APP_VERSION = "appVersion";
-    int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    
-	public void gcm_register()
-		{
-		if (config != null && config.gcm_sender_id != null)
-			{
-	        gcm = GoogleCloudMessaging.getInstance (this);
-	        String regid = get_gcm_registration_id (getApplicationContext());
-
-	        if (regid.isEmpty())
-	        	register_in_background();
-			}
-		}
 		
-	public String get_gcm_registration_id (Context context)
-		{
-	    SharedPreferences prefs = get_gcm_preferences (context);
-	    
-	    String registration_id = prefs.getString (PROPERTY_REG_ID, "");
-	    if (registration_id.isEmpty())
-	    	{
-	        log ("gcm: registration not found");
-	        return "";
-	    	}
-	    
-	    int registered_version = prefs.getInt (PROPERTY_APP_VERSION, Integer.MIN_VALUE);
-	    int current_version = get_app_version (context);
-	    if (current_version >= 0 && registered_version != current_version)
-	    	{
-	        log ("gcm: App version changed");
-	        return "";
-	    	}
-	    
-	    log ("gcm: obtained saved GCM id: " + registration_id);
-	    return registration_id;
-		}
-	
-	private SharedPreferences get_gcm_preferences (Context context)
-		{
-	    return getSharedPreferences (main.class.getSimpleName(), Context.MODE_PRIVATE);
-		}
-	
-	private void store_registration_id (Context context, String regId)
-		{
-	    final SharedPreferences prefs = get_gcm_preferences (context);
-	    int appVersion = get_app_version (context);
-	    log ("gcm: saving regId on app version " + appVersion);
-	    SharedPreferences.Editor editor = prefs.edit();
-	    editor.putString (PROPERTY_REG_ID, regId);
-	    editor.putInt (PROPERTY_APP_VERSION, appVersion);
-	    editor.commit();
-		}
-	
-	public int get_app_version (Context context)
-		{
-		try
-			{
-	        PackageInfo packageInfo = context.getPackageManager().getPackageInfo (context.getPackageName(), 0);
-	        return packageInfo.versionCode;
-			}
-		catch (Exception ex)
-			{
-			ex.printStackTrace();
-			return -1;
-			}
-		}
-	
-	public void register_in_background()
-		{
-        try
-        	{
-        	final Context context = getApplicationContext();
-                
-    		Thread t = new Thread()
-				{
-				public void run()
-					{
-					log ("in a thread");
-					
-					gcm = GoogleCloudMessaging.getInstance (context);
-					
-		            log ("trying to register with GCM sender id: " + config.gcm_sender_id);                     
-		            String regid = null;
-					try
-						{
-						regid = gcm.register (config.gcm_sender_id);
-						}
-					catch (Exception ex)
-						{
-						ex.printStackTrace();
-						return;
-						}
-		            log ("gcm: device registered, registration ID=" + regid);
-		            store_registration_id (getApplicationContext(), regid);
-		            
-					// http://api.flipr.tv/playerAPI/deviceRegister?mso=crashcourse&type=gcm&token=xxxxxxxx
-		    		new playerAPI (in_main_thread, config, "deviceRegister?type=gcm&token=" + regid)
-						{
-						public void success (String[] lines)
-							{
-							log ("gcm: successfully registered GCM on 9x9 server");
-							}
-						public void failure (int code, String errtext)
-							{
-							log ("gcm: failure registering GCM: " + errtext);
-							}
-						};
-					}
-				};
-			
-			t.start();
-        	}
-        catch (Exception ex)
-        	{
-        	ex.printStackTrace();
-        	}
-		}
-	
 	private ShakeDetector mShakeDetector = null;
 	private SensorManager mSensorManager = null;
 	private Sensor mAccelerometer = null;

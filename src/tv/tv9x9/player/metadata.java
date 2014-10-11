@@ -34,10 +34,10 @@ public class metadata
 	public String gcm_sender_id = null;
 	public String admob_key = null;
 	public String advertising_regime = null;
-	
+
 	public String homepage_style = "portal";
 	/* set the override to "portal" or "whatson" to test the opposite of brandInfo "homepage=" setting */
-	public String homepage_style_override = null;
+	public String homepage_style_override = "portal";
 	
 	public String store_on_off = "on";
 	public String search_on_off = "on"; 

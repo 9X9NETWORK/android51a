@@ -2800,9 +2800,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void launch_player_with_episode (final String channel_id, final String episode_id)
 		{
-		if (channel_id != null && !channel_id.equals("") && !launch_in_progress)
+		if (launch_in_progress)
 			{
-			launch_in_progress = true; 
+			log ("launch is in progress, won't launch player");
+			return;
+			}
+		
+		if (channel_id != null && !channel_id.equals(""))
+			{
+			launch_in_progress = true;
+			
 			if (channel_id.contains (":"))
 				launch_player (channel_id, episode_id, new String[] { channel_id });
 			else

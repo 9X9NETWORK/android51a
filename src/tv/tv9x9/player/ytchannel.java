@@ -281,6 +281,11 @@ public class ytchannel
 	
 	public static void extend_channel (final metadata config, final String channel_id, final Handler h, final Runnable callback)
 		{
+		if (channel_id == null)
+			{
+			return;
+			}
+		
 		String extending = config.pool_meta (channel_id, "extending");
 		
 		/* avoid overhead of creating thread */
