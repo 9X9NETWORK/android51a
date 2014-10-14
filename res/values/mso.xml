@@ -337,7 +337,7 @@
     <string name="signin_bg">bg_open_goodtv</string>        	
     <string name="set_banner">banner01_goodtv</string>
  	<string name="fb_app_id">555946694494117</string>       
-	 -->  
+	-->  
  	
     <!-- ddtv -->
     <!-- 
@@ -371,7 +371,7 @@
     <string name="signin_bg">bg_open_fcu</string>
     <string name="set_banner">banner01_fcu</string>      
 	<string name="fb_app_id">180687745468145</string>           
-     -->  
+    -->  
   	           
     <!-- Tzu Chi -->
     <!--    
@@ -421,7 +421,7 @@
     <string name="signin_bg">musicvideo_bg_open</string>
     <string name="set_banner">musicvideo_banner01</string>            
 	<string name="fb_app_id">463854980410020</string>
-	 --> 	
+	--> 	
 	
 	<!-- newsflipr -->
     <!--    
@@ -574,7 +574,7 @@
     <string name="signin_bg">daaitv_bg_open</string>
     <string name="set_banner">daaitv_banner</string>
     <string name="fb_app_id">280807262096612</string>
-     -->
+    -->
      
     <!-- Ytower -->
     <!--  
@@ -712,7 +712,7 @@
     <string name="fb_app_id">249416341849120</string>
 	-->	
 	 
-	 <!-- Iconcerts -->
+	<!-- Iconcerts -->
     <!-- 
    	<string name="app_name">Iconcerts FLIPr</string>
     <drawable name="app_icon_ptr">@drawable/iconcerts_launch_logo</drawable>       	   
@@ -812,8 +812,8 @@
     <string name="signin_bg">fliprtv_bg_open</string>
     <string name="set_banner">fliprtv_banner</string>
     <string name="fb_app_id">361253423962738</string>
-     -->
-     
+    -->	
+    
     <!-- TEST2 -->
     <!-- 
     <string name="app_name">TEST2</string>
@@ -828,6 +828,23 @@
     <string name="signin_logo">test2_logo_signin</string>
     <string name="signin_bg">test2_bg_open</string>
     <string name="set_banner">test2_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+       
+    <!-- Culture Machine -->
+    <!--  
+    <string name="app_name">Culture Machine</string>
+   	<drawable name="app_icon_ptr">@drawable/culturemachine_launch_logo</drawable>       	
+    <string name="white_label">culturemachine</string>
+    <string name="mso">culturemachine</string>
+    <string name="default_region">en</string>
+    <string name="logo">culturemachine_logo</string>
+    <string name="splash_background">culturemachine_bg_open</string>
+    <string name="splash_foreground">culturemachine_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">culturemachine_logo_signin</string>
+    <string name="signin_bg">culturemachine_bg_open</string>
+    <string name="set_banner">culturemachine_banner</string>
     <string name="fb_app_id">361253423962738</string>
     -->
     

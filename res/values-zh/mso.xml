@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 9x9 --> 
+    <!-- 9x9 -->
    	<string name="app_name">9x9.tv</string> 
 	<drawable name="app_icon_ptr">@drawable/nine_launch_logo</drawable>    	  	
     <string name="white_label">portal</string>
@@ -14,7 +14,7 @@
     <string name="signin_bg">nine_bg_open</string>      
     <string name="set_banner">nine_banner</string>        
 	<string name="fb_app_id">1429057570658015</string>
-				  			
+	 				  			
 	<!-- Joey Graceffa -->
     <!--  
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -303,7 +303,7 @@
     <string name="signin_bg">bg_open_cts</string> 
     <string name="set_banner">banner_cts</string>           
 	<string name="fb_app_id">1110847978946712</string>              
-     -->
+    -->
 	
     <!-- thenewslens -->
     <!--
@@ -338,7 +338,7 @@
     <string name="signin_bg">bg_open_goodtv</string>        	
     <string name="set_banner">banner01_goodtv</string>
  	<string name="fb_app_id">555946694494117</string>       
-     --> 
+    --> 
  	
     <!-- ddtv -->
     <!--       
@@ -372,7 +372,7 @@
     <string name="signin_bg">bg_open_fcu</string>
     <string name="set_banner">banner01_fcu</string>      
 	<string name="fb_app_id">180687745468145</string>
-     -->  
+    -->  
 	
     <!-- Tzu Chi -->
     <!--    
@@ -422,7 +422,7 @@
     <string name="signin_bg">musicvideo_bg_open</string>
     <string name="set_banner">musicvideo_banner01</string>            
 	<string name="fb_app_id">463854980410020</string>
- 	 -->   
+ 	-->   
     
     <!-- newsflipr -->
     <!--      
@@ -575,7 +575,7 @@
     <string name="signin_bg">daaitv_bg_open</string>
     <string name="set_banner">daaitv_banner</string>
     <string name="fb_app_id">280807262096612</string>
-     -->
+    -->
     
     <!-- Ytower -->
     <!--  
@@ -782,7 +782,7 @@
     -->
     
     <!-- FLIPr CTV Bay Area -->
-    <!--
+    <!-- 
     <string name="app_name">灣區華人電視 FLIPr</string>
    	<drawable name="app_icon_ptr">@drawable/fliprctvbayarea_launch_logo</drawable>       	
     <string name="white_label">fliprctvbayarea</string>
@@ -796,7 +796,7 @@
     <string name="signin_bg">fliprctvbayarea_bg_open</string>
     <string name="set_banner">fliprctvbayarea_banner</string>
     <string name="fb_app_id">361253423962738</string>
-    -->	
+    -->
        
     <!-- FLIPr.tv -->
     <!-- 
@@ -813,8 +813,8 @@
     <string name="signin_bg">fliprtv_bg_open</string>
     <string name="set_banner">fliprtv_banner</string>
     <string name="fb_app_id">361253423962738</string>
-     -->
-     
+    -->	
+    
     <!-- TEST2 -->
     <!-- 
     <string name="app_name">TEST2</string>
@@ -829,6 +829,23 @@
     <string name="signin_logo">test2_logo_signin</string>
     <string name="signin_bg">test2_bg_open</string>
     <string name="set_banner">test2_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+       
+    <!-- Culture Machine -->
+    <!-- 
+    <string name="app_name">Culture Machine</string>
+   	<drawable name="app_icon_ptr">@drawable/culturemachine_launch_logo</drawable>       	
+    <string name="white_label">culturemachine</string>
+    <string name="mso">culturemachine</string>
+    <string name="default_region">en</string>
+    <string name="logo">culturemachine_logo</string>
+    <string name="splash_background">culturemachine_bg_open</string>
+    <string name="splash_foreground">culturemachine_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">culturemachine_logo_signin</string>
+    <string name="signin_bg">culturemachine_bg_open</string>
+    <string name="set_banner">culturemachine_banner</string>
     <string name="fb_app_id">361253423962738</string>
     -->
 

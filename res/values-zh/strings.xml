@@ -266,7 +266,7 @@
 	<string name="feedback_your_email">您的 Email:</string>
 	<string name="feedback_your_message">您的留言:</string>
 	<string name="feedback_thanks">謝謝您的意見回饋!</string>	
-	<string name="social_feed">Social Feed</string>	
-	<string name="real_channel_source">這個劇集出自</string>	
+	<string name="social_feed"> 社群首頁</string>	
+	<string name="real_channel_source">劇集出自</string>	
 	<string name="log_in_sign_up">登入 / 註冊</string>
 </resources>

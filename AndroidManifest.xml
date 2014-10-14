@@ -47,6 +47,7 @@
 <!-- package="tv.flipr.fliprctvbayarea" -->
 <!-- package="tv.flipr.fliprtv" -->
 <!-- package="tv.flipr.test2" -->
+<!-- package="tv.flipr.culturemachine" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
@@ -95,7 +96,6 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!--		
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -111,7 +111,6 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-9x9" />        	       					   					
 			</intent-filter>
-			-->
 						   		
 			<!-- for Joey Graceffa -->
 			<!--		
@@ -191,7 +190,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-thefinebros" />        	       					   					
 			</intent-filter>
-			 -->	
+			-->	
 					
 			<!-- for History -->
 			<!-- 
@@ -271,7 +270,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-cts" />        	       					   					
 			</intent-filter>	
-			 -->	
+			-->	
 	
 			<!-- for GOODTV -->
 			<!--  
@@ -281,7 +280,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-goodtv" />        	       					   					
 			</intent-filter>
-			 -->	
+			-->	
 
 			<!-- for DDTV -->
 			<!-- 
@@ -411,7 +410,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="flipr-daaitv" />
             </intent-filter>
-             -->
+            -->
             																				
             <!-- for echomusic -->
             <!--  
@@ -544,7 +543,7 @@
             -->			
             
  			<!-- for FLIPr CTV Bay Area -->
-           	<!--
+ 			<!-- 
  			<intent-filter>
  				<action android:name="android.intent.action.VIEW" />
      			<category android:name="android.intent.category.DEFAULT" />
@@ -554,12 +553,14 @@
             -->			
             
  			<!-- for FLIPr.tv -->
+ 			<!-- 
  			<intent-filter>
  				<action android:name="android.intent.action.VIEW" />
      			<category android:name="android.intent.category.DEFAULT" />
     			<category android:name="android.intent.category.BROWSABLE" />  	
      			<data android:scheme="flipr-fliprtv" />        	       		   					
  			</intent-filter>
+            -->			
              
  			<!-- for TEST2 -->
  			<!-- 
@@ -570,7 +571,17 @@
      			<data android:scheme="flipr-test2" />        	       		   					
  			</intent-filter>
             -->
- 			
+            
+ 			<!-- for Culture Machine -->
+ 			<!-- 
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+    			<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-culturemachine" />        	       		   					
+ 			</intent-filter>
+			-->
+ 						
         </activity>
         
 <!-- entire Manifest file as provided from RC company:
