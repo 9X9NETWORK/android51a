@@ -1746,7 +1746,8 @@ public class metadata
 		if (episode_id.contains ("."))
 			{
 			String fields[] = episode_id.split (".");
-			episode_id = fields[1];
+			if (fields.length > 1)
+				episode_id = fields[1];
 			}
 		return episode_id;
 		}
