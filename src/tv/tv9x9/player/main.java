@@ -2064,7 +2064,7 @@ public class main extends VideoBaseActivity
 			playback_episode_pager.set_content (channel_id, program_line);
 		
 		onVideoActivityRefreshMetadata (player_real_channel, episode_id);
-		}		
+		}	
 	
 	/* updates just the channel thumb, not other metadata -- to prevent endless looping */
 		
@@ -2077,10 +2077,18 @@ public class main extends VideoBaseActivity
 				String actual_channel_id = player_real_channel;			
 				if (program_line != null)
 					{
-					String episode_id = program_line [current_episode_index - 1];
-					
-					if (player_real_channel.contains (":"))				
-						actual_channel_id = config.program_meta (episode_id, "real_channel");
+					if (current_episode_index < program_line.length)
+						{
+						String episode_id = program_line [current_episode_index - 1];
+						
+						if (player_real_channel.contains (":"))				
+							actual_channel_id = config.program_meta (episode_id, "real_channel");
+						}
+					else
+						{
+						log ("episode index out of range. current episode line:");
+						config.dump_episode_line (program_line);
+						}
 					}
 				if (!actual_channel_id.contains (":"))
 					update_channel_thumb_inner (actual_channel_id);
@@ -2252,7 +2260,7 @@ public class main extends VideoBaseActivity
 			for (int i = 0; i < program_line.length; i++)
 				{
 				String potential_episode_id = program_line [i];
-				if (episode_id.equals (potential_episode_id))
+				if (config.equal_episodes (episode_id, potential_episode_id))
 					{
 					current_episode_index = i + 1;
 					break;
@@ -4402,7 +4410,8 @@ public class main extends VideoBaseActivity
 		return thumbnail_found;
 		}
 	
-	public EpisodeAdapter setup_horiz (HorizontalListView horiz, final String channel_id)
+	/* obsolete */
+	public EpisodeAdapter OLD_setup_horiz (HorizontalListView horiz, final String channel_id)
 		{
 		final EpisodeAdapter horiz_adapter = new EpisodeAdapter (this, channel_id);
 				       
@@ -4438,13 +4447,14 @@ public class main extends VideoBaseActivity
 				}
 			});
 			
-			
-		load_channel_then (channel_id, false, setup_horiz_inner, channel_id, horiz);
+		log ("setup_horiz: load_channel " + channel_id);	
+		load_channel_then (channel_id, false, OLD_setup_horiz_inner, channel_id, horiz);
 
 		return horiz_adapter;
 		}
 	
-	final Callback setup_horiz_inner = new Callback()
+	/* obsolete */
+	final Callback OLD_setup_horiz_inner = new Callback()
 		{
 		@Override
 		public void run_string_and_object (final String channel_id, Object horiz_obj)
@@ -4471,7 +4481,8 @@ public class main extends VideoBaseActivity
 		if (horiz == null)
 			return null;
 		
-		horiz.setAdapter (horiz_adapter);						
+		horiz.setAdapter (horiz_adapter);
+		log ("new setup horiz load channel: " + channel_id);
 		load_channel_then (channel_id, false, NEW_setup_horiz_inner, channel_id, horiz);
 
 		return horiz_adapter;
@@ -4639,16 +4650,24 @@ public class main extends VideoBaseActivity
 	public void play_nth_episode_in_channel (String channel_id, int position)
 		{
 		program_line = config.program_line_by_id (channel_id);
-		String episode_id = program_line [position - 1];
-		
-		if (current_layer != toplayer.PLAYBACK)
+		if (program_line != null)
 			{
-			enable_player_layer();
-			setup_player_adapters (channel_id);
+			if (position < program_line.length)
+				{
+				String episode_id = program_line [position - 1];
+				
+				if (current_layer != toplayer.PLAYBACK)
+					{
+					enable_player_layer();
+					setup_player_adapters (channel_id);
+					}
+				
+				redraw_playback (channel_id, episode_id);
+				play_nth (channel_id, position);
+				}
+			else
+				config.dump_episode_line (program_line);
 			}
-		
-		redraw_playback (channel_id, episode_id);
-		play_nth (channel_id, position);
 		}
 
 	final Runnable playback_episode_thumb_updated = new Runnable()
@@ -4732,6 +4751,7 @@ public class main extends VideoBaseActivity
 			}
 		}
 	
+	Set <String> real_channel_load_requests = new HashSet <String> ();
 	Set <String> real_channel_thumb_download_requests = new HashSet <String> ();
 	
 	public void update_channel_icon (final String channel_id)
@@ -4810,7 +4830,14 @@ public class main extends VideoBaseActivity
 							vRealChannelIcon.setVisibility (View.VISIBLE);
 							}
 						};
-					load_channel_then (real_channel, false, after_real_load, channel_id, null);
+					
+					if (!real_channel_load_requests.contains (real_channel))
+						{
+						log ("requesting real channel information for: " + real_channel + " (channel=" + channel_id + ", current episode_index=" + current_episode_index + ")");
+						// config.dump_episode_line (program_line);
+						real_channel_load_requests.add (real_channel);
+						load_channel_then (real_channel, false, after_real_load, channel_id, null);
+						}
 					}
 				else
 					{

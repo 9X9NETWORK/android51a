@@ -588,7 +588,7 @@ public class HomeLayer extends StandardFragment
 		public void setPrimaryItem (ViewGroup container, int position, Object object)
 			{
 			Swaphome sh = (Swaphome) object;
-			log ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% primary 3x3: " + position);
+			// log ("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% primary 3x3: " + position); // noisy!
 			current_swap_object = sh;
 			if (sh != null)
 				{
@@ -829,11 +829,14 @@ public class HomeLayer extends StandardFragment
 			});
 		}
 	
+	/* when we wanted a customized set slider, instead of SlidingTabStrip.java */
+	boolean haz_custom_set_slider = false;
+	
 	/* obsolete! */
 	public void position_set_slider()
 		{	
 		final View vIndicator = getView().findViewById (R.id.set_indicator);
-		if (have_set_positions && current_swap_object != null)
+		if (haz_custom_set_slider && have_set_positions && current_swap_object != null)
 			{
 			vIndicator.post(new Runnable()
 				{
@@ -841,7 +844,7 @@ public class HomeLayer extends StandardFragment
 				public void run()
 					{
 					int set = current_swap_object.set;
-					log ("positioning set slider to: " + set + " left: " + set_offsets [set] + " width: " + set_widths [set]);
+					log ("positioning set slider to: " + set + " left: " + set_offsets [set] + " width: " + set_widths [set]); // noisy
 					vIndicator.setVisibility (View.VISIBLE);
 					final FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) vIndicator.getLayoutParams();
 					// layout.leftMargin = (int) (1.5 * (float) set_offsets [set]);

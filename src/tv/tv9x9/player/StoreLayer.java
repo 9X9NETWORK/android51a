@@ -546,7 +546,7 @@ public class StoreLayer extends StandardFragment implements StoreAdapter.mothers
 		@Override
 		public View getView (int position, View convertView, ViewGroup parent)
 			{
-			log ("lineitem getView: " + position);
+			// log ("lineitem getView: " + position);
 			
 			if (position >= getCount())
 				{

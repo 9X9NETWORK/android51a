@@ -43,11 +43,16 @@
 <!-- package="tv.flipr.iconcerts" -->
 <!-- package="tv.flipr.cw" -->
 <!-- package="tv.flipr.musicsounds" -->
+<!-- package="tv.flipr.portico" -->
+<!-- package="tv.flipr.fliprctvbayarea" -->
+<!-- package="tv.flipr.fliprtv" -->
+<!-- package="tv.flipr.test2" -->
+<!-- package="tv.flipr.culturemachine" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="137"
-      android:versionName="5.0.1.137">
+      android:versionCode="143"
+      android:versionName="5.0.1.143">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -79,7 +84,7 @@
     <!-- android:debuggable="@bool/debuggable" -->
     
     <!--uses-feature android:name="com.google.android.tv" android:required="true" /-->
-    <application android:icon="@drawable/app_icon_ptr" android:label="@string/app_name" android:largeHeap="true" android:hardwareAccelerated="true">
+    <application android:debuggable="@bool/debuggable" android:icon="@drawable/app_icon_ptr" android:label="@string/app_name" android:largeHeap="true" android:hardwareAccelerated="true">
         <!--meta-data android:name="com.facebook.sdk.ApplicationId" android:value="361253423962738"/-->    
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/fb_app_id"/>
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />            
@@ -91,7 +96,6 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!--		
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -107,7 +111,6 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-9x9" />        	       					   					
 			</intent-filter>
-			-->
 						   		
 			<!-- for Joey Graceffa -->
 			<!--		
@@ -187,7 +190,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-thefinebros" />        	       					   					
 			</intent-filter>
-			 -->	
+			-->	
 					
 			<!-- for History -->
 			<!-- 
@@ -267,7 +270,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-cts" />        	       					   					
 			</intent-filter>	
-			 -->	
+			-->	
 	
 			<!-- for GOODTV -->
 			<!--  
@@ -277,7 +280,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-goodtv" />        	       					   					
 			</intent-filter>
-			 -->	
+			-->	
 
 			<!-- for DDTV -->
 			<!-- 
@@ -407,7 +410,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="flipr-daaitv" />
             </intent-filter>
-             -->
+            -->
             																				
             <!-- for echomusic -->
             <!--  
@@ -437,7 +440,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-yourapp" />        	       					   					
 			</intent-filter>
-			-->	                                                                                                                                                                  
+			-->	
 
             <!-- for Demo1 -->
             <!--  
@@ -470,12 +473,14 @@
   			-->	       
  
             <!-- for YourApp3 -->
+            <!--  
  			<intent-filter>
  				<action android:name="android.intent.action.VIEW" />
      			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
      			<data android:scheme="flipr-yourapp3" />        	       		   					
   			</intent-filter>
+  			-->	       
   			
 			<!-- for DingDingTV -->
             <!--   
@@ -527,6 +532,56 @@
             </intent-filter>
             -->			
             
+ 			<!-- for Portico -->
+           	<!--
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+    			<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-portico" />        	       		   					
+ 			</intent-filter>
+            -->			
+            
+ 			<!-- for FLIPr CTV Bay Area -->
+ 			<!-- 
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+    			<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-fliprctvbayarea" />        	       		   					
+ 			</intent-filter>
+            -->			
+            
+ 			<!-- for FLIPr.tv -->
+ 			<!-- 
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+    			<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-fliprtv" />        	       		   					
+ 			</intent-filter>
+            -->			
+             
+ 			<!-- for TEST2 -->
+ 			<!-- 
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+    			<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-test2" />        	       		   					
+ 			</intent-filter>
+            -->
+            
+ 			<!-- for Culture Machine -->
+ 			<!-- 
+ 			<intent-filter>
+ 				<action android:name="android.intent.action.VIEW" />
+     			<category android:name="android.intent.category.DEFAULT" />
+    			<category android:name="android.intent.category.BROWSABLE" />  	
+     			<data android:scheme="flipr-culturemachine" />        	       		   					
+ 			</intent-filter>
+			-->
+ 						
         </activity>
         
 <!-- entire Manifest file as provided from RC company:
@@ -664,27 +719,25 @@
 		</receiver>
 		
     
+		<!-- Matchstick -->
+		<!-- 
 		<service android:name="tv.tv9x9.player.AppCastDeviceService" android:exported="false">
     		<intent-filter>
         		<action android:name="android.media.MediaRouteProviderService" />
     		</intent-filter>
-    		<intent-filter>
-        		<action android:name="com.fireflycast.cast.service.INTENT" />
-       			<category android:name="android.intent.category.DEFAULT" />
-    		</intent-filter>
-    		<intent-filter>
-        		<action android:name="com.fireflycast.cast.service.DEVICE_SCANNER_INTENT" />
-        		<category android:name="android.intent.category.DEFAULT" />
-    		</intent-filter> 
 		</service>
-
+		-->
+		
+		<!-- Matchstick -->
+		<!-- 
 		<service android:name="tv.tv9x9.player.AppCastService" android:exported="false">
     		<intent-filter>
-        		<action android:name="com.fireflycast.cast.service.BIND_CAST_DEVICE_CONTROLLER_SERVICE" />
+        		<action android:name="tv.matchstick.fling.service.FLING" />
         		<category android:name="android.intent.category.DEFAULT" />
     		</intent-filter> 
-		</service>
-
+		</service>	
+		-->
+		
     </application>
 
 </manifest>

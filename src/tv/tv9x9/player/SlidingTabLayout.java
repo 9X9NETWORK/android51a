@@ -259,7 +259,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
     		if (width == 0)
     			width = screen_width;
     		
-			Log.i ("vtest", "&&&&&& TAB STRIP WIDTH: " + width + ", DIVISOR: " + divisor);
+			// Log.i ("vtest", "&&&&&& TAB STRIP WIDTH: " + width + ", DIVISOR: " + divisor); // very noisy
 			
     		if (width > 0)
 	    		{

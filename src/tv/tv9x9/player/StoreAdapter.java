@@ -95,7 +95,7 @@ public class StoreAdapter extends BaseAdapter
 		{
 		FrameLayout rv = null;
 				
-		ms.log ("store getView: " + position);
+		// ms.log ("store getView: " + position);
 		
 		if (convertView == null)
 			rv = (FrameLayout) View.inflate (context, ms.is_tablet() ? R.layout.store_item_tablet : R.layout.store_item, null);				
@@ -150,10 +150,6 @@ public class StoreAdapter extends BaseAdapter
 							icount = Integer.parseInt (count);
 						}
 					
-					String txt_episode = context.getResources().getString (R.string.episode_lc);		
-					String txt_episodes = context.getResources().getString (R.string.episodes_lc);
-					
-					// vMeta.setText (ago + " • " + icount + " " + (icount == 1 ? txt_episode : txt_episodes));
 					vMeta.setText (ago);
 					}
 				

@@ -991,6 +991,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		player_real_channel = channel_id;
 		video_play_pending = true;
+		log ("play first load channel " + channel_id);
 		load_channel_then (channel_id, false, play_inner, "1", null);
 		}
 	
@@ -998,6 +999,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		player_real_channel = channel_id;
 		video_play_pending = true;
+		log ("play nth(" + position + ") load channel " + channel_id);
 		load_channel_then (channel_id, false, play_inner, Long.toString (position), null);
 		}	
 
@@ -1005,6 +1007,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		player_real_channel = channel_id;
 		video_play_pending = true;
+		log ("play nth(" + position + ") load channel " + channel_id);
 		load_channel_then (channel_id, false, play_inner, Long.toString (position), new Long (start_msec));
 		}
 	
@@ -1037,6 +1040,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		playerFragment.stop();
 		
 		video_play_pending = true;
+		
+		log ("play load channel " + channel_id);
 		load_channel_then (channel_id, false, play_episode_inner, episode_id, null);
 		}
 	
@@ -1115,7 +1120,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			for (int i = 0; i < program_line.length; i++)
 				{
 				log ("[ch " + player_real_channel + "] #" + i + ": " + program_line [i]);
-				if (program_line [i].equals (episode_id))
+				if (config.equal_episodes (program_line [i], episode_id))
 					{
 					final int index = i + 1;
 					in_main_thread.post (new Runnable()
@@ -2769,13 +2774,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				episode = m1.group (2);
 				}
 	
-			if (channel == null)
+			if (episode == null)
 				{
 				Pattern pattern2 = Pattern.compile ("/view/p(\\d+)$");			
-				Matcher m2 = pattern1.matcher (url);
+				Matcher m2 = pattern2.matcher (url);
 				if (m2.find())
 					{
-					channel = m1.group (1);
+					channel = m2.group (1);
 					}
 				}
 			
@@ -3252,9 +3257,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			String channel_name = config.pool_meta (cumulative_channel_id, "name");
 			String episode_name = config.program_meta (cumulative_episode_id, "name");			
 			
+			/* must share the external version of the episode. Some virtual channels have an altered internal format */
+			String outside_episode_id = config.outside_episode_id (cumulative_episode_id);
+			
 			if (duration >= 12)
 				{
-				track_event ("p" + cumulative_channel_id + "/" + cumulative_episode_id, "epWatched", channel_name + "/" + episode_name, duration);
+				track_event ("p" + cumulative_channel_id + "/" + outside_episode_id, "epWatched", channel_name + "/" + episode_name, duration);
 				/* this is the advertising counter */
 				config.total_play_count++;
 				}
@@ -3398,8 +3406,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				{
 				if (program_line != null)
 					{
-					String episode_id = program_line [current_episode_index - 1];
-					share_episode (channel_id, episode_id);
+					/* must share the external version of the episode id. Some virtual channels have an altered format */
+					String outside_episode_id = config.outside_episode_id (program_line [current_episode_index - 1]);
+					share_episode (channel_id, outside_episode_id);
 					}
 				else
 					share_episode (channel_id, null);

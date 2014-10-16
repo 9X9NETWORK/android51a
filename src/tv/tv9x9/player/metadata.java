@@ -23,7 +23,6 @@ public class metadata
 	public String mso_preferred_lang_code = null;
 	
 	public String api_server = "api.flipr.tv";
-	// public String api_server = "beagle.9x9.tv";
 	public String relay_server = "relay-dev.9x9.tv";
 	public int relay_port = 909;
 	public String social_server = null;
@@ -1540,18 +1539,10 @@ public class metadata
 		String url = fields [8];
 		
 		if (name.contains ("\\|"))
-			{
-			String oldname = name;
 			name = name.replace ("\\|", ":");
-			// Log.i ("vtest", "*** " + oldname + " -> " + name);
-			}
 		
 		if (desc.contains ("\\|"))
-			{
-			String olddesc = desc;
 			desc = desc.replace ("\\|", ":");
-			// Log.i ("vtest", "*** " + olddesc + " -> " + desc);
-			}
 		
 		String submeta = "";
 		if (fields.length >= 15)
@@ -1661,7 +1652,12 @@ public class metadata
 			if (ch_fields.length > 1)
 				{
 				channel = ch_fields[0];
-				program.put ("real_channel",  ch_fields[1]);
+				String real_channel = ch_fields[1];
+				/* reassign this episode_id, because there is only a single episode pool. As of October 2014, the server has
+				   started to use the same episode id in multiple virtual channels, which messes up the sorting of episode lines
+				   as the content from new channels are added into the episode pool. */ 
+				episode_id = real_channel + "." + episode_id;
+				program.put ("real_channel",  real_channel);
 				}
 			}
 		
@@ -1727,12 +1723,34 @@ public class metadata
 			program_lock.unlock();
 			}
 		}
-
-	public boolean OLD_occupied (int channel)
+	
+	/* confirm whether two episode ids match. Some episodes are qualified with the channel id prefixed, because
+	   they share a common episode pool. But this is internal, and can't be exposed outside via share, etc. */
+	
+	public boolean equal_episodes (String episode1, String episode2)
 		{
-		return (channelgrid.containsKey (channel));
+		if (episode1 != null && episode2 != null)
+			{
+			episode1 = outside_episode_id (episode1);
+			episode2 = outside_episode_id (episode2);
+			return episode1.equals (episode2);
+			}
+		else
+			return false;
 		}
-
+	
+	/* strips off any qualification to the episode id, to share with outside applications or urls */
+	
+	public String outside_episode_id (String episode_id)
+		{
+		if (episode_id.contains ("."))
+			{
+			String fields[] = episode_id.split (".");
+			episode_id = fields[1];
+			}
+		return episode_id;
+		}
+		
 	public boolean occupied (int channel)
 		{
 		Hashtable <String, String> meta = channelgrid.get (channel);
@@ -1791,10 +1809,7 @@ public class metadata
 				channel_lock.lock();
 				meta = channelgrid.get (channel);
 				if (meta != null)
-					{
-					// Log.i ("vtest", "(meta " + channel + ") field " + field);
 					ret = meta.get (field);
-					}
 				}
 			finally
 				{
@@ -1820,7 +1835,6 @@ public class metadata
 				{
 				channel_lock.unlock();
 				}
-			// Log.i ("vtest", "set meta by id, channel=" + channel_id + ", field=" + field + ", value=" + value);
 			}
 		}
 
@@ -1842,18 +1856,6 @@ public class metadata
 			}
 		}
 	
-	public boolean OBSOLETE_is_youtube_channel (int channel)
-		{
-		if (!occupied (channel))
-			{
-			Log.i ("vtest", "Youtube? " + channel + " NOT OCCUPIED");
-			return false;
-			}
-		String s = channel_meta (channel, "thumb");
-		Log.i ("vtest", "Youtube? " + channel + " " + s);
-		return s != null && s.contains ("ytimg.com");
-		}
-
 	public String program_meta (String episode, String field)
 		{
 		if (episode != null && field != null)
@@ -2358,6 +2360,21 @@ public class metadata
 		finally
 			{
 			program_lock.unlock();
+			}
+		}
+	
+	public void dump_episode_line (String episodes[])
+		{
+		for (int i = 1; i < episodes.length; i++)
+			{
+			String episode_id = episodes [i];
+			String episode_name = program_meta (episode_id, "name");
+			String sort = program_meta (episode_id, "sort");
+			String real_channel = program_meta (episode_id, "real_channel");
+			if (real_channel != null)
+				Log.i ("vtest", "#" + i + " (" + episode_id + " in channel " + real_channel + ") [#" + sort + "]: " + episode_name);		
+			else
+				Log.i ("vtest", "#" + i + " (" + episode_id + ") [#" + sort + ": " + episode_name);
 			}
 		}
 	
