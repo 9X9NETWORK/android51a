@@ -36,7 +36,7 @@ public class metadata
 
 	public String homepage_style = "portal";
 	/* set the override to "portal" or "whatson" to test the opposite of brandInfo "homepage=" setting */
-	public String homepage_style_override = "portal";
+	public String homepage_style_override = null;
 	
 	public String store_on_off = "on";
 	public String search_on_off = "on"; 
