@@ -2601,7 +2601,18 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			
 			int nth = -1;
 			
-			/* TODO: this line can crash! maybe reset program_line */
+			if (program_line == null || current_episode_index >= program_line.length)
+				{
+				log ("program_line is out of date, resetting");
+				program_line = config.program_line_by_id (player_real_channel);
+				}
+			
+			if (program_line == null || current_episode_index >= program_line.length)
+				{
+				log ("program line can't reconcile with current_episode_index, which is " + current_episode_index + " -- will not set POIs");
+				return;
+				}
+			
 			String episode_id = program_line [current_episode_index - 1];
 			
 			long offset = 0;

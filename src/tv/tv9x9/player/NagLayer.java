@@ -80,6 +80,8 @@ public class NagLayer extends StandardFragment
         nag_slider = new NagSlider();
         StoppableViewPager vHomePager = (StoppableViewPager) getView().findViewById (R.id.nagpager);
         vHomePager.setAdapter (nag_slider);
+        View vLayer = getView().findViewById (R.id.nag_layer);
+        vLayer.setVisibility (View.VISIBLE);
     	}
     
 	class Swapnag
