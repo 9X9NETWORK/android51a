@@ -45,8 +45,18 @@
 			    android:background="#000000"
 			    />
 							    
-		    <include layout="@layout/signin_phone_new" />
+		    <!-- include layout="@layout/signin_phone_new" / -->
 		   
+		   	<fragment
+			    class="tv.tv9x9.player.SigninLayer"
+			    android:id="@+id/signin_fragment_container_phone"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />
+		   			
 		    <include layout="@layout/terms_layer_new" />
 		    	    
 		    <!-- include layout="@layout/guide_layer" / -->
@@ -198,7 +208,17 @@
 	    android:background="#000000"
 	    />
 				
-	<include layout="@layout/signin_tablet_new" />
+	<!-- include layout="@layout/signin_tablet_new" / -->
+			
+	<fragment
+	    class="tv.tv9x9.player.SigninLayer"
+	    android:id="@+id/signin_fragment_container_tablet"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	   	android:layout_gravity="center"
+	   	android:gravity="top|center_horizontal"
+	    android:background="#000000"
+	    />
 		
 	<include layout="@layout/video_layer_new" />
 					

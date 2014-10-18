@@ -40,6 +40,7 @@ import tv.tv9x9.player.FeedbackLayer.OnFeedbackListener;
 import tv.tv9x9.player.PasswordLayer.OnPasswordListener;
 import tv.tv9x9.player.HomeLayer.OnHomeListener;
 import tv.tv9x9.player.NagLayer.OnNagListener;
+import tv.tv9x9.player.SigninLayer.OnSigninListener;
 
 import tv.tv9x9.player.AppsLayer.app;
 
@@ -141,7 +142,7 @@ import com.google.android.gms.ads.*;
 import com.android.vending.billing.IInAppBillingService; 
 
 public class main extends VideoBaseActivity 
-		implements OnMessagesListener, OnSocialListener, OnStoreListener, OnSearchListener, OnNagListener,
+		implements OnMessagesListener, OnSocialListener, OnStoreListener, OnSearchListener, OnNagListener, OnSigninListener,
 						OnSettingsListener, OnGuideListener, OnAppsListener, OnFeedbackListener, OnPasswordListener, OnHomeListener
 	{
 	boolean single_channel = false;
@@ -157,7 +158,6 @@ public class main extends VideoBaseActivity
 					HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG, TEST, PASSWORD, ADVERT, SOCIAL, FEEDBACK };
 	
 	toplayer current_layer = toplayer.HOME;
-	toplayer layer_before_signin = toplayer.HOME;
 	
 	String current_home_stack = null;
 	
@@ -421,7 +421,7 @@ public class main extends VideoBaseActivity
 		    			}
 		    		}
 	    		toggle_menu();
-	    		zero_signin_data();
+	    		signin_class().zero_signin_data();
 	    		}
 	    	else if (current_layer == toplayer.ADVERT)
 	    		{
@@ -1693,7 +1693,7 @@ public class main extends VideoBaseActivity
 			else
 				signout();
 			}
-		zero_signin_data();
+		signin_class().zero_signin_data();
 		
 		/* the settings view might be in the slider */
 		settings_class().redraw_settings();
@@ -1704,7 +1704,7 @@ public class main extends VideoBaseActivity
 		{
 		redraw_menu();
 		setup_menu_buttons();
-		zero_signin_data();
+		signin_class().zero_signin_data();
 		/* the settings view might be in the slider */
 		settings_class().redraw_settings();
 		}
@@ -2820,22 +2820,47 @@ public class main extends VideoBaseActivity
 		t.start();
 		}
 	
-	public View home_layer()
-		{
-		// return findViewById (is_tablet() ? R.id.home_tablet : R.id.home_layer);
-		return findViewById (R.id.home_layer);
-		}
-	
 	public void set_layer (toplayer layer)
 		{
 		log ("set layer: " + layer.toString());
 		
+		/*
 		if (is_tablet() && layer == toplayer.SIGNIN)
 			{
 			View signin_layer = findViewById (R.id.signinlayer_tablet);
 			signin_layer.setVisibility (layer == toplayer.SIGNIN ? View.VISIBLE : View.GONE);			
 			return;
 			}	
+		*/
+		
+		/* overlay! */
+		if (layer != toplayer.SIGNIN)
+			{
+			int frag = is_tablet() ? R.id.signin_fragment_container_tablet : R.id.signin_fragment_container_phone;			
+			Fragment f = getSupportFragmentManager().findFragmentById (frag);		
+			if (!f.isHidden())
+				{
+				log ("hide Signin fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.hide (f);  
+		        ft.commit();
+				}
+			}
+		else
+			{
+			int frag = is_tablet() ? R.id.signin_fragment_container_tablet : R.id.signin_fragment_container_phone;
+			Fragment f = getSupportFragmentManager().findFragmentById (frag);		
+			if (f.isHidden())
+				{
+				log ("show Signin fragment");
+		        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		        ft.show (f);  
+		        ft.commit();
+				}
+			
+			/* note! this is an overlay, return */
+			return;
+			}
 		
 		/* overlay! */
 		if (layer != toplayer.PASSWORD)
@@ -2932,7 +2957,7 @@ public class main extends VideoBaseActivity
 		View vTopBar = findViewById (R.id.sliding_top_bar);
 		vTopBar.setVisibility (layer == toplayer.TERMS || layer == toplayer.FEEDBACK ? View.GONE : View.VISIBLE);
 		
-		View home_layer = home_layer();
+		View home_layer = findViewById (R.id.home_layer);
 		home_layer.setVisibility (layer == toplayer.HOME ? View.VISIBLE : View.GONE);
 
 		View guide_layer = findViewById (R.id.guidelayer);
@@ -2941,18 +2966,12 @@ public class main extends VideoBaseActivity
 		View search_layer = findViewById (R.id.searchlayer);
 		search_layer.setVisibility (layer == toplayer.SEARCH ? View.VISIBLE : View.GONE);	
 		
-		// View settings_layer = findViewById (is_phone() ? R.id.settingslayer_phone : R.id.settingslayer_tablet);
-		// settings_layer.setVisibility (layer == toplayer.SETTINGS ? View.VISIBLE : View.GONE);
-		
 		View terms_layer = findViewById (R.id.termslayer_new);
 		terms_layer.setVisibility (layer == toplayer.TERMS ? View.VISIBLE : View.GONE);
 		
 		View signin_layer = findViewById (is_phone() ? R.id.signinlayer_phone : R.id.signinlayer_tablet); // TODO FIX
 		if (signin_layer != null)
 			signin_layer.setVisibility (layer == toplayer.SIGNIN ? View.VISIBLE : View.GONE);
-		
-		// View apps_layer = findViewById (R.id.appslayer);
-		// apps_layer.setVisibility (layer == toplayer.APPS ? View.VISIBLE : View.GONE);
 
 		View messages_layer = findViewById (R.id.messagelayer);
 		messages_layer.setVisibility (layer == toplayer.MESSAGES ? View.VISIBLE : View.GONE);
@@ -2962,9 +2981,6 @@ public class main extends VideoBaseActivity
 		
 		View shake_layer = findViewById (R.id.shakelayer);
 		shake_layer.setVisibility (layer == toplayer.SHAKE ? View.VISIBLE : View.GONE);
-
-		// View nag_layer = findViewById (R.id.nag_layer);
-		// nag_layer.setVisibility (layer == toplayer.NAG ? View.VISIBLE : View.GONE);
 		
 		View test_layer = findViewById (R.id.testlayer);
 		test_layer.setVisibility (layer == toplayer.TEST ? View.VISIBLE : View.GONE);
@@ -2982,488 +2998,31 @@ public class main extends VideoBaseActivity
 	
 	/*** SIGNIN ************************************************************************************************/
 	
-	SigninSlider signin_slider = null;
-	
-	Runnable signin_layer_callback = null;
-	
 	public void enable_signin_layer (Runnable callback)
 		{
 		disable_video_layer();
 		
 		/* terms layer can only be started from signin, so ignore it */
 		if (current_layer != toplayer.TERMS && current_layer != toplayer.SIGNIN && current_layer != toplayer.NAG)
-			layer_before_signin = current_layer;
+			signin_class().set_layer_before_signin (current_layer);
 		
 		set_layer (toplayer.SIGNIN);		
 
-		signin_layer_callback = callback;
-		setup_signin_layer_buttons (callback);
+		signin_class().init (config);
+		signin_class().set_signin_layer_callback (callback);
+		signin_class().setup_signin_layer_buttons (callback);
 
 		track_layer (toplayer.SIGNIN);
-		
-        signin_slider = new SigninSlider();
-        StoppableViewPager vSigninPager = (StoppableViewPager) findViewById (R.id.signin_pager);
-        vSigninPager.setAdapter (signin_slider);
-        
-        create_signin_slider();
 		}
 
-	public void setup_signin_layer_buttons (final Runnable callback)
-		{
-		ViewGroup vSigninGroup = (ViewGroup) findViewById (R.id.sign_in_content);
-		setup_edit_containers (vSigninGroup);
-		
-		ViewGroup vSignupGroup = (ViewGroup) findViewById (R.id.sign_up_content);
-		setup_edit_containers (vSignupGroup);
-		
-		View vBanner = findViewById (R.id.signin_banner);
-		if (vBanner != null)
-			vBanner.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: signin banner");
-					zero_signin_data();
-					activate_layer (layer_before_signin);
-					if (callback != null)
-						callback.run();
-		        	}
-				});		
-		
-		ImageView vAppIcon = (ImageView) findViewById (R.id.signin_app_icon);  
-		if (vAppIcon != null)
-			{
-			String app_icon = getResources().getString (R.string.logo);
-			if (app_icon != null)
-				{
-				int app_icon_id = getResources().getIdentifier (app_icon, "drawable", getPackageName());
-				vAppIcon.setImageResource (app_icon_id);
-				}
-			}
-
-		View vSigninLayer = findViewById (R.id.signinlayer);
-		if (vSigninLayer != null)
-			vSigninLayer.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	/* eat this */
-		        	log ("signin layer ate my tap!");
-		        	}
-				});
+    public SigninLayer signin_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+		int frag = is_tablet() ? R.id.signin_fragment_container_tablet : R.id.signin_fragment_container_phone;
+		Fragment f = fm.findFragmentById (frag);	
+	    return (tv.tv9x9.player.SigninLayer) f;
 		}
-	
-	public void setup_signin_buttons (View v)
-		{
-		View vSignin = findViewById (R.id.sign_in_button);
-		if (vSignin != null)
-			vSignin.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: signin");
-		        	proceed_with_signin (signin_layer_callback);
-		        	}
-				});
-	
-		fezbuk2 (v);
-		}
-
-	public void setup_signup_buttons (View v)
-		{
-		TextView vTermsButton = (TextView) v.findViewById (R.id.terms_button);
-		if (vTermsButton != null)
-			{
-			vTermsButton.setPaintFlags (vTermsButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-			vTermsButton.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: terms");
-		        	slide_in_terms();
-		        	}
-				});
-			}
-		TextView vPrivacyButton = (TextView) v.findViewById (R.id.privacy_button);
-		if (vPrivacyButton != null)
-			{
-			vPrivacyButton.setPaintFlags (vPrivacyButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-			vPrivacyButton.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: privacy");
-		        	slide_in_privacy();
-		        	}
-				});
-			}		
-		
-		View vSignup = v.findViewById (R.id.sign_up_button);
-		if (vSignup != null)
-			vSignup.setOnClickListener (new OnClickListener()
-				{
-		        @Override
-		        public void onClick (View v)
-		        	{
-		        	log ("click on: signup");
-		        	proceed_with_signup (signin_layer_callback);
-		        	}
-				});		
-		}
-	
-	/* look for "editcontainer"s and set them up as a larger touchable region to bring up the soft keyboard */
-	
-	public void setup_edit_containers (ViewGroup vBody)
-		{
-		if (vBody != null)
-			{
-			int n_children = vBody.getChildCount();
-		    for (int i = 0; i < n_children; i++)
-		    	{
-		        final View vChild = vBody.getChildAt (i);
-		        
-		        String tag = (String) vChild.getTag();
-		        if (tag != null && tag.equals ("editcontainer"))
-		        	{
-					vChild.setOnClickListener (new OnClickListener()
-						{
-				        @Override
-				        public void onClick (View v)
-				        	{
-				        	EditText vEditable = (EditText) vChild.findViewWithTag ("editable");
-				        	if (vEditable != null)
-				        		{
-				        		vEditable.requestFocusFromTouch();
-					        	InputMethodManager imm = (InputMethodManager) getSystemService (Context.INPUT_METHOD_SERVICE); 
-					            imm.showSoftInput (vEditable, 0);
-				        		}
-				        	}
-			        	});
-		        	}
-		        else
-		        	{
-		        	/* only need to descend into ViewGroups that don't have tag "editcontainer" */
-			        if (vChild instanceof ViewGroup)
-			        	setup_edit_containers ((ViewGroup) vChild);
-		        	}
-		        }
-			}
-		}
-	
-	public void create_signin_slider()
-		{	
-		in_main_thread.post (new Runnable()
-			{
-			@Override
-			public void run()
-				{							
-			    class SimpleTabColorizer implements SlidingTabLayout.TabColorizer
-			    	{
-			        private int[] mIndicatorColors;
-			        private int[] mDividerColors;
-
-			        @Override
-			        public final int getIndicatorColor (int position)
-			        	{
-			            return mIndicatorColors [position % mIndicatorColors.length];
-			        	}
-
-			        @Override
-			        public final int getDividerColor (int position)
-			        	{
-			            return mDividerColors [position % mDividerColors.length];
-			        	}
-
-			        void setIndicatorColors (int... colors)
-			        	{
-			            mIndicatorColors = colors;
-			        	}
-
-			        void setDividerColors (int... colors)
-			        	{
-			            mDividerColors = colors;
-			        	}
-			    	}
-			    
-				SimpleTabColorizer colorizer = new SimpleTabColorizer();
-				colorizer.setIndicatorColors (Color.rgb (0xFF, 0xAA, 0x00));					
-			    colorizer.setDividerColors (Color.argb (0x60, 0xFF, 0xFF, 0xFF));
-				SlidingTabLayout mSlidingTabLayout = (SlidingTabLayout) findViewById (R.id.signin_tabs);
-				mSlidingTabLayout.setCustomTabColorizer (colorizer);
-		        StoppableViewPager vSigninPager = (StoppableViewPager) findViewById (R.id.signin_pager);
-				mSlidingTabLayout.setViewPager (vSigninPager);
-				}
-			});
-		}
-
-	class Swapsign
-		{
-		int page_number = 0;
-		ScrollView page = null;
-		public Swapsign (int page_number)
-			{
-			this.page_number = page_number;
-			}
-		};
-
-	/* this is implemented using the base class! */
-		
-	public class SigninSlider extends PagerAdapter
-		{		
-	    @Override
-	    public int getCount()
-	    	{
-	        return 2;
-	    	}
-	
-	    @Override
-	    public CharSequence getPageTitle (int position)
-	    	{
-	    	return getResources().getString (position == 0 ? R.string.log_in : R.string.si_sign_up_button);
-	    	}
-	    
-		@Override
-		public boolean isViewFromObject (View view, Object object)
-			{
-			return (((Swapsign) object).page) == (ScrollView) view;
-			}
-		
-		@Override
-		public Object instantiateItem (final ViewGroup container, final int position)
-			{
-			log ("[NAG] instantiate: " + position);
-			
-			Swapsign sh = new Swapsign (position);				
-			int layout_resource = position == 0 ? R.layout.sign_in_content : R.layout.sign_up_content;
-			
-			ScrollView page = (ScrollView) View.inflate (main.this, layout_resource, null);
-			sh.page = page;
-			
-			((StoppableViewPager) container).addView (page, 0);
-			
-			setup_edit_containers (page);
-			
-			if (position == 0)
-				setup_signin_buttons (page);
-			else
-				setup_signup_buttons (page);
-
-			return sh;
-			}
-		
-		@Override
-		public void destroyItem (ViewGroup container, int position, Object object)
-			{
-			log ("[NAG] destroy: " + position);
-			Swapsign sh = (Swapsign) object;
-			((StoppableViewPager) container).removeView (sh.page);
-			}
-		
-		@Override
-		public void setPrimaryItem (ViewGroup container, int position, Object object)
-			{
-			Swapsign sh = (Swapsign) object;		
-			}
-		}   
-
-	public void zero_signin_data()
-		{
-		/* and settings */
-		int editables[] = { R.id.sign_in_email, R.id.sign_in_password, R.id.sign_up_name, R.id.sign_up_email,
-				R.id.sign_up_password, R.id.sign_up_verify, R.id.settings_old_password, R.id.settings_new_password, R.id.settings_verify_password };
-		for (int editable: editables)
-			{
-			EditText v = (EditText) findViewById (editable);
-			if (v != null)
-				v.setText ("");
-			}
-		}
-	
-	public void proceed_with_signin (final Runnable callback)
-		{
-		EditText emailView = (EditText) findViewById (R.id.sign_in_email);
-		final String email = emailView.getText().toString();
-	
-		/* use any view to turn off soft keyboard */
-		InputMethodManager imm = (InputMethodManager) getSystemService (Context.INPUT_METHOD_SERVICE);
-	    imm.hideSoftInputFromWindow (emailView.getApplicationWindowToken(), 0);
-	    
-		EditText passwordView = (EditText) findViewById (R.id.sign_in_password);
-		String password = passwordView.getText().toString();
-		
-		password = util.encodeURIComponent (password);
-		String encoded_email = util.encodeURIComponent (email);
-		
-		if (!email.contains ("@") || email.contains (" "))
-			{
-			toast_by_resource (R.string.tlogin_valid_email);
-			return;
-			}
-		
-		if (password.length() < 6)
-			{
-			toast_by_resource (R.string.tlogin_pw_six);
-			return;
-			}
-		
-		log ("email: " + email + " password: " + password);
-		new playerAPI (in_main_thread, config, "login?email=" + encoded_email + "&password=" + password)
-			{
-			public void success (String[] lines)
-				{
-				signed_in_with_facebook = false;
-				config.email = email;
-				process_login_data (email, lines);
-				toast_by_resource (R.string.signed_in);
-				query_following (null);
-				track_event ("signIn", "signInWithEmail", "signInWithEmail", 0);
-	        	toggle_menu (new Callback()
-		        	{
-					@Override
-					public void run()
-						{
-						zero_signin_data();
-						/* the settings view might be in the slider */
-						settings_class().redraw_settings();
-						activate_layer (layer_before_signin);
-						if (callback != null)
-							callback.run();
-						}		        	
-		        	});
-				}
-			public void failure (int code, String errtext)
-				{
-				if (code == 201)
-					toast_by_resource (R.string.login_failure);
-				else
-					{
-					String txt_failure = getResources().getString (R.string.login_failure);
-					alert (txt_failure + ": " + errtext);
-					}
-				}
-			};
-		}
-	
-	public void proceed_with_signup (final Runnable callback)
-		{
-		TextView emailView = (TextView) findViewById (R.id.sign_up_email);
-		final String email = emailView.getText().toString();
-	
-		/* use any view to turn off soft keyboard */
-		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-	    imm.hideSoftInputFromWindow (emailView.getApplicationWindowToken(), 0);
-	    
-		TextView nameView = (TextView) findViewById (R.id.sign_up_name);
-		String name = nameView.getText().toString();
-		
-		TextView passwordView = (TextView) findViewById (R.id.sign_up_password);
-		String password = passwordView.getText().toString();
-		
-		TextView confirmView = (TextView) findViewById (R.id.sign_up_verify);
-		String confirm = confirmView.getText().toString();
-		
-		if (!password.equals (confirm))
-			{
-			toast_by_resource (R.string.tlogin_pw_no_match);
-			return;
-			}
-		
-		if (password.length() < 6)
-			{
-			toast_by_resource (R.string.tlogin_pw_six);
-			return;
-			}
-		
-		if (!email.contains ("@") || email.contains (" "))
-			{
-			toast_by_resource (R.string.tlogin_valid_email);
-			return;
-			}
-		
-		String encoded_email = util.encodeURIComponent (email);
-		String encoded_password = util.encodeURIComponent (password);
-		
-		new playerAPI (in_main_thread, config, "signup?name=" + name + "&email=" + encoded_email + "&password=" + encoded_password)
-			{
-			public void success (String[] lines)
-				{
-				signed_in_with_facebook = false;
-				config.email = email;
-				process_login_data (email, lines);
-				toast_by_resource (R.string.sign_up_successful);
-				track_event ("signUp", "signUpWithEmail", "signUpWithEmail", 0);
-	        	toggle_menu (new Callback()
-		        	{
-					@Override
-					public void run()
-						{
-						zero_signin_data();
-						/* the settings view might be in the slider */
-						settings_class().redraw_settings();
-						activate_layer (layer_before_signin);
-						if (callback != null)
-							callback.run();
-						}		        	
-		        	});				
-				}
-			public void failure (int code, String errtext)
-				{
-				String txt_failure = getResources().getString (R.string.login_failure);	
-				alert (txt_failure + ": " + errtext);
-				}
-			};
-		}
-
-	public void process_login_data (String email, String[] lines)
-		{
-		String token = null;
-		String name = null;
-		
-		log ("login accepted for: " + email);
-		
-		for (String line: lines)
-			{
-			log ("login text: " + line);
-			String[] fields = line.split ("\t");
-			if (fields[0].equals ("token"))
-				{
-				if (fields.length >= 2)
-					token = config.usertoken = fields[1];
-				}
-			if (fields[0].equals ("name"))
-				{
-				if (fields.length >= 2)
-					name = config.username = fields[1];
-				}
-			}
-		
-		if (email == null && signed_in_with_facebook)
-			{
-			if (current_layer == toplayer.SIGNIN)
-				track_event ("signIn", "signInWithFB", "signInWithFB", 0);
-			email = config.email = "[via Facebook]";
-			}
-		else if (email != null)
-			config.email = email;
-		
-		futil.write_file (main.this, "user@" + config.api_server, token);
-		
-		if (name != null)
-			futil.write_file (main.this, "name@" + config.api_server, name);
-		
-		if (email != null)
-			futil.write_file (main.this, "email@" + config.api_server, email);
-		
-		zero_signin_data();
-		/* the settings view might be in the slider */
-		settings_class().redraw_settings();
-		}	
-
+    
 	/*** TERMS *****************************************************************************************************/
 	
 	toplayer terms_previous_layer;
@@ -3485,7 +3044,7 @@ public class main extends VideoBaseActivity
 		/* and even then that doesn't always work! Also the only purpose a "postInvalidateDelayed" method
 		   can possibly have is as workarounds for Android layout bugs exactly like this */		
 		for (int i: new int[] { 500, 1000, 5000 })
-			vTermsLayer.postInvalidateDelayed (i);;
+			vTermsLayer.postInvalidateDelayed (i);
 		}
 
 	public void setup_terms_buttons()
@@ -3662,6 +3221,16 @@ public class main extends VideoBaseActivity
 	
     private UiLifecycleHelper uiHelper = null;	
 	
+    public boolean signed_in_with_facebook()
+    	{
+    	return signed_in_with_facebook;
+    	}
+    
+    public void set_signed_in_with_facebook (boolean value)
+    	{
+    	signed_in_with_facebook = value;
+    	}
+    
 	public boolean has_facebook()
 		{
 		/* can something on the system handle a fb:// intent? */
@@ -3803,7 +3372,7 @@ public class main extends VideoBaseActivity
 					signed_in_with_facebook = true;
 					for (String line: lines)
 						log ("FB LOGIN: " + line);
-					process_login_data ("[via Facebook]", lines);
+					signin_class().process_login_data ("[via Facebook]", lines);
 					alert ("Logged in via Facebook: " + user.getName());					
 					query_following (null);
 		        	toggle_menu (new Callback()
@@ -3814,7 +3383,7 @@ public class main extends VideoBaseActivity
 							if (current_layer == toplayer.NAG)
 								enable_home_layer();
 							else
-								activate_layer (layer_before_signin);
+								activate_layer (signin_class().get_layer_before_signin());
 							}		        	
 			        	});
 					}
@@ -3837,7 +3406,7 @@ public class main extends VideoBaseActivity
 	public void signout()
 		{
 		super.signout();
-		zero_signin_data();
+		signin_class().zero_signin_data();
 		}
 	
 	public void facebook_logout()
@@ -3940,7 +3509,7 @@ public class main extends VideoBaseActivity
 		{
 		disable_video_layer();
 		set_layer (toplayer.NAG);		
-		layer_before_signin = toplayer.HOME;
+		signin_class().set_layer_before_signin (toplayer.HOME);
 		nag_class().init (config);
 		}
 	
@@ -4961,9 +4530,8 @@ public class main extends VideoBaseActivity
 	public void swap_orientation()
 		{
     	int orientation = getRequestedOrientation();
-    	// setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		setRequestedOrientation
-		(orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT ?
+			(orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT ?
 				ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}
 	
@@ -6588,7 +6156,7 @@ public class main extends VideoBaseActivity
 	public void enable_settings_layer()
 		{
 		disable_video_layer();
-		zero_signin_data();
+		signin_class().zero_signin_data();
 		set_layer (toplayer.SETTINGS);
 		
 		settings_class().init (config);
@@ -6641,7 +6209,7 @@ public class main extends VideoBaseActivity
 		{
 		password_class().init (config);
 		disable_video_layer();
-		zero_signin_data();
+		signin_class().zero_signin_data();
 		set_layer (toplayer.PASSWORD);	
 		password_class().redraw_password();
 		password_class().setup_password_buttons();
