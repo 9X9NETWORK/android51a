@@ -914,7 +914,7 @@ public class ytchannel
 		Calendar now = Calendar.getInstance();
 		int hour = now.get (Calendar.HOUR_OF_DAY);
 		
-		String userstuff = config.usertoken == null ? "" : ("&user=" + config.usertoken); 
+		String userstuff = config.usertoken == null ? "" : ("&user=" + config.usertoken + "&userToken=" + config.usertoken); // TODO: remove userToken= 
 		String query = "programInfo?channel=" + channel_id + userstuff + "&start=" + start + "&count=50" + "&time=" + hour;
 		
 		new playerAPI (h, config, query)
@@ -924,7 +924,6 @@ public class ytchannel
 				if (ctx != null && start == 1)
 					{
 					String data = null;
-					// String data = TextUtils.join ("\n", lines);
 					for (String line: lines)
 						{
 						if (data == null)
@@ -950,7 +949,13 @@ public class ytchannel
 	
 			public void failure (int code, String errtext)
 				{
-				Log.i ("vtest", "ERROR! " + errtext);
+				if (code == 1000)
+					{
+					// 1000 can occur here: NOT PURCHASED
+					Log.i ("vtest", "Channel not purchased!");
+					}
+				else
+					Log.i ("vtest", "ERROR! " + errtext);	
 				}
 			};
 		}

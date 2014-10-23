@@ -48,8 +48,7 @@ public class SearchLayer extends StandardFragment implements StoreAdapter.mother
 	String search_channels[] = null;
 	
 	View vSearchContainer = null;
-	
-	
+		
     public interface OnSearchListener
 		{
     	public boolean is_tablet();

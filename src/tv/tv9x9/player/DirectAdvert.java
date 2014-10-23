@@ -40,7 +40,7 @@ public class DirectAdvert extends RelayActivity
 	String advert_id = null;
 	String advert_name = null;
 	
-	long duration = -1;
+	long last_current_position = -1;
 	Timer update_timer = null;
 	
 	private boolean mIsVideoSizeKnown = false;
@@ -277,7 +277,7 @@ public class DirectAdvert extends RelayActivity
 			update_timer.scheduleAtFixedRate (new UpdateTask(), 500, 500);
 			}
 		
-		duration = mMediaPlayer.getDuration();
+		last_current_position = mMediaPlayer.getCurrentPosition();
 		}
 	
 	public void post_countdown()
@@ -394,7 +394,7 @@ public class DirectAdvert extends RelayActivity
 		{		
 		if (current_phase == 2)
 			{
-			track_event (advert_id, "impression", advert_name, duration);
+			track_event (advert_id, "impression", advert_name, last_current_position);
 			}
 		}
 	
@@ -446,12 +446,21 @@ public class DirectAdvert extends RelayActivity
 				cancel();
 				return;
 				}
-			long new_duration = 0;
-			try { new_duration = mMediaPlayer.getDuration(); } catch (Exception ex) {};
-			if (new_duration > 0)
-				duration = new_duration;
+			
+			long duration = 0;
 			long offset = 0;
-			try { offset = mMediaPlayer.getCurrentPosition(); } catch (Exception ex) {};
+
+			try
+				{
+				duration = mMediaPlayer.getDuration();
+				offset = mMediaPlayer.getCurrentPosition();
+				}
+			catch (Exception ex)
+				{				
+				};
+				
+			if (offset > 0)
+				last_current_position = offset;
 			
 			float percent = (float) offset / (float) duration;
 			

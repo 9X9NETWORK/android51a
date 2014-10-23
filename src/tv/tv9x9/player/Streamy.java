@@ -1,5 +1,13 @@
 package tv.tv9x9.player;
 
+/*
+ *  Streamy
+ *  
+ *  This reads data from Twitter directly. We decided to read from an intermediate server,
+ *  so this code probably will be kept around only for a while and then archived.
+ *  
+ */
+
 import android.util.Log;
 import twitter4j.*;
 import twitter4j.conf.Configuration;

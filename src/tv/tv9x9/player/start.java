@@ -89,12 +89,12 @@ public class start extends Activity
 		if (mBound)
 			{
 			started = 3;
-			Log.i ("vtest", "switchboard service ready, starting");
+			log ("switchboard service ready, starting");
 			ready();
 			}
 		else
 			{
-			Log.i ("vtest", "waiting for switchboard service");
+			log ("waiting for switchboard service");
 			started = 2;
 			}
 		
@@ -103,7 +103,7 @@ public class start extends Activity
 		    @Override
 		    public void uncaughtException (Thread thread, Throwable throwable)
 		    	{
-		    	Log.i ("vtest", "Uncaught exception!");
+		    	log ("Uncaught exception!");
 		    	throwable.printStackTrace();
 			    finish();
 		    	}
@@ -176,11 +176,11 @@ public class start extends Activity
 	protected void onResume()
 		{
 		super.onResume();
-		Log.i ("vtest", "[start] onResume");
+		log ("onResume");
 		
 		if (config != null && config.television_turning_off)
 			{
-			Log.i ("vtest", "television turning off -- exit");
+			log ("television turning off -- exit");
 			finish();
 			return;
 			}
@@ -193,7 +193,7 @@ public class start extends Activity
 			String future_action = config.future_action;
 			config.future_action = null;
 			
-			Log.i ("vtest", "EXECUTING FUTURE ACTION: " + future_action);
+			log ("EXECUTING FUTURE ACTION: " + future_action);
 						
 			if (future_action.equals ("tv"))
 				launch_tv();		
@@ -250,14 +250,14 @@ public class start extends Activity
 		{
 		try
 			{
-			Log.i ("vtest", "MODEL: " + android.os.Build.MODEL);
+			log ("MODEL: " + android.os.Build.MODEL);
 			DisplayMetrics dm = new DisplayMetrics();
 		    getWindowManager().getDefaultDisplay().getMetrics (dm);
 		    double x = Math.pow (dm.widthPixels / dm.xdpi, 2);
 		    double y = Math.pow (dm.heightPixels / dm.ydpi, 2);
 		    screen_inches = Math.sqrt (x+y);
-		    Log.i ("vtest", "screen size in pixels: width=" + dm.widthPixels + " height=" + dm.heightPixels);
-		    Log.i ("vtest", "screen size in inches : " + screen_inches);
+		    log ("screen size in pixels: width=" + dm.widthPixels + " height=" + dm.heightPixels);
+		    log ("screen size in inches : " + screen_inches);
 		    
 		    tablet = ((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE);
 			}
@@ -269,7 +269,7 @@ public class start extends Activity
 
 	public void launch_tv()
 		{
-		// Log.i ("vtest", "becoming a television!");
+		// log ("becoming a television!");
 		// launch_inner (tvgrid.class);
 		}
 	
@@ -425,8 +425,8 @@ public class start extends Activity
 		config.region = getResources().getString (R.string.default_region);		
 		config.app_name = getResources().getString (R.string.app_name);
 		
-		Log.i ("vtest", "white label: " + config.white_label);
-		Log.i ("vtest", "mso: " + config.mso);
+		log ("white label: " + config.white_label);
+		log ("mso: " + config.mso);
 		
 		read_config_file();
 		
@@ -450,7 +450,7 @@ public class start extends Activity
 
 			public void failure (int code, String errtext)
 				{				
-				Log.i ("vtest", "brandInfo error: " + errtext);
+				log ("brandInfo error: " + errtext);
 				alert_then_exit ("Server error! Please try again later.");
 				}
 			};
@@ -552,19 +552,19 @@ public class start extends Activity
 		long end_time = System.currentTimeMillis();
 				
 		long delay = 2500 - (end_time - start_time);
-		Log.i ("vtest", "delay would be: " + delay + " milliseconds");
+		log ("launch delay would be: " + delay + " milliseconds");
 		
 		/* 3-Jun-2014 no delay ever */
 		delay = 0;
 		
 		if (delay > 0)
 			{
-			Log.i ("vtest", "delayed launch: " + delay + " milliseconds");
+			log ("delayed launch: " + delay + " milliseconds");
 			in_main_thread.postDelayed (new Runnable()
 				{
 				public void run()
 					{
-					Log.i ("vtest", "delayed launch!");
+					log ("delayed launch!");
 					launch();
 					in_main_thread.postDelayed (new Runnable()
 						{
@@ -585,7 +585,7 @@ public class start extends Activity
 		int section = 0;		
 		for (String line: lines)
 			{
-			Log.i ("vtest", "brandInfo: " + line);
+			log ("brandInfo: " + line);
 			
 			if (line.equals ("--"))
 				{
@@ -692,7 +692,7 @@ public class start extends Activity
 
 	public void alert (String text)
 		{
-		Log.i ("vtest", "[start] ALERT: " + text);
+		log ("[start] ALERT: " + text);
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder (start.this);
 
@@ -732,12 +732,12 @@ public class start extends Activity
 		{
 		if (mService.is_connected())
 			{
-			Log.i ("vtest", "start: attach to relay");
+			log ("start: attach to relay");
 			mService.set_callbacks ("start", relay_receive, relay_error);
 			}
 		else
 			{
-			Log.i ("vtest", "start: start relay");
+			log ("start: start relay");
 			/* to prevent stack overflow, post this in the main thread, in case this was called from a thread */
 			in_main_thread.postDelayed (start_relay_task, relay_retries > 20 ? 30000 : 2000);
 			}
@@ -748,10 +748,10 @@ public class start extends Activity
 		@Override
 		public void run()
 			{
-			Log.i ("vtest", "[start] start_relay_task");
+			log ("[start] start_relay_task");
 			config = mService.get_metadata ("start");
 			if (mService.is_connected())
-				Log.i ("vtest", "[start] start_relay_task -- am connected, carry on");
+				log ("start_relay_task -- am connected, carry on");
 			else
 				mService.open_relay ("start", relay_started, relay_receive, relay_error);
 			}
@@ -762,7 +762,7 @@ public class start extends Activity
 		@Override
 		public void run_string (String s)
 			{
-			Log.i ("rc", "start: relay started");
+			log ("start: relay started");
 			mService.relay_post ("DEVICE Android");
 			mService.relay_post ("WHO");
 			}
@@ -773,8 +773,8 @@ public class start extends Activity
 		@Override
 		public void run_string (String s)
 			{
-			Log.i ("vtest", "start: relay error: " + s);
-			Log.i ("vtest", "** start: RECONNECT **");
+			log ("start: relay error: " + s);
+			log ("** start: RECONNECT **");
 			relay_retries++;
 			start_relay();
 			}
@@ -785,7 +785,7 @@ public class start extends Activity
 		@Override
 		public void run_string (String s)
 			{
-			Log.i ("vtest", "start: relay received: " + s);
+			log ("start: relay received: " + s);
 			}
 		};
 		

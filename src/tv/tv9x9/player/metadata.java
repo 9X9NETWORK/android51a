@@ -111,6 +111,8 @@ public class metadata
 	Hashtable  <String,  Hashtable <String, String>>   special_tags;
 	Hashtable  <String,  Hashtable <String, String>>   adverts;	
 	Hashtable  <String,  Hashtable <String, String>>   sets;
+	Hashtable  <String,  Hashtable <String, String>>   pay_info_by_channel;
+	Hashtable  <String,  Hashtable <String, String>>   pay_info_by_sku;
 	
 	/* episode id -> Integer.toString() -> Comment */
 	Hashtable  <String,  Hashtable <String, Comment>>  comments;
@@ -175,6 +177,8 @@ public class metadata
 		channels_by_youtube = new Hashtable <String,  Hashtable <String, String>> ();	
 		titlecards = new Hashtable <String,  Hashtable <String, String>> ();
 		sets = new Hashtable <String, Hashtable <String, String>> ();
+		pay_info_by_channel = new Hashtable <String, Hashtable <String, String>> ();
+		pay_info_by_sku = new Hashtable <String, Hashtable <String, String>> ();
 		comments = new Hashtable <String,  Hashtable <String, Comment>> ();
 		special_tags = new Hashtable <String,  Hashtable <String, String>> ();
 		adverts = new Hashtable <String,  Hashtable <String, String>> ();	
@@ -1267,6 +1271,7 @@ public class metadata
 		channel.put ("nature", fields[8]);
 		channel.put ("extra", fields[9]);
 		channel.put ("timestamp", fields[10]);
+		channel.put ("payflag", fields[12]);
 		
 		if (virtual_channel != null)
 			{
@@ -2471,5 +2476,63 @@ public class metadata
 		if (advert != null)
 			Log.i ("vtest", "obtained an advert for " + id);
 		return advert != null ? advert.get (field) : null;
+		}
+	
+	/* information about pay channels */
+	
+	public void set_pay_info (String channel_id, String k, String v)
+		{
+		Hashtable <String, String> info = pay_info_by_channel.get (channel_id);
+		
+		if (info == null)
+			{
+			info = new Hashtable <String, String> ();
+			info.put ("channel", channel_id);
+			}
+		
+		info.put (k, v);
+		
+		pay_info_by_channel.put (channel_id, info);
+		
+		if (k.equals ("sku"))
+			pay_info_by_sku.put (v, info);
+		}
+
+	public void set_pay_info_by_sku (String sku, String k, String v)
+		{
+		Hashtable <String, String> info = pay_info_by_sku.get (sku);
+		
+		if (info == null)
+			{
+			info = new Hashtable <String, String> ();
+			info.put ("sku", sku);
+			}
+		
+		info.put (k, v);
+		
+		pay_info_by_sku.put (sku, info);
+		
+		if (k.equals ("channel"))
+			pay_info_by_channel.put (v, info);
+		}
+	
+	public String get_pay_info (String channel_id, String k)
+		{
+		Hashtable <String, String> info = pay_info_by_channel.get (channel_id);
+		
+		if (info == null)
+			return null;
+		
+		return info.get (k);
+		}
+	
+	public String get_pay_info_by_sku (String sku, String k)
+		{
+		Hashtable <String, String> info = pay_info_by_sku.get (sku);
+		
+		if (info == null)
+			return null;
+		
+		return info.get (k);
 		}
 	}

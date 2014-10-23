@@ -762,6 +762,15 @@ public class main extends VideoBaseActivity
 			@Override
 			public void run()
 				{
+				get_pay_channel_info();
+				}
+			}, 15000);
+		
+		in_main_thread.postDelayed (new Runnable()
+			{
+			@Override
+			public void run()
+				{
 				/* ui needs the notification count for the Message layer */
 				messages_count = messages_class().messages_gather (true).size();
 				}
@@ -1707,6 +1716,8 @@ public class main extends VideoBaseActivity
 		signin_class().zero_signin_data();
 		/* the settings view might be in the slider */
 		settings_class().redraw_settings();
+		/* force the guide to redraw, or it keeps the old squares */
+		guide_class().data_changed();
 		}
 	
 	@Override
@@ -2638,6 +2649,7 @@ public class main extends VideoBaseActivity
 			set_follow_icon_state (v, channel_id, follow_resource_id, unfollow_resource_id);
 		}
 
+	@Override
 	public void set_follow_icon_state (View v, String channel_id, int follow_resource_id, int unfollow_resource_id)
 		{
 		if (v != null && channel_id != null)
@@ -2820,6 +2832,7 @@ public class main extends VideoBaseActivity
 		t.start();
 		}
 	
+	@Override
 	public void set_layer (toplayer layer)
 		{
 		log ("set layer: " + layer.toString());
@@ -2891,7 +2904,6 @@ public class main extends VideoBaseActivity
 			return;
 			}
 	
-		
 		/* overlay! */
 		if (layer != toplayer.SETTINGS)
 			{
@@ -3029,9 +3041,15 @@ public class main extends VideoBaseActivity
 	
 	public void enable_terms_layer()
 		{
+		enable_terms_layer (current_layer);
+		}
+	
+	public void enable_terms_layer (toplayer layer)
+		{
 		disable_video_layer();
 		
-		terms_previous_layer = current_layer;
+		if (layer != toplayer.TERMS)
+			terms_previous_layer = layer;
 		set_layer (toplayer.TERMS);
 		
 		setup_terms_buttons();
@@ -3111,24 +3129,34 @@ public class main extends VideoBaseActivity
 
 	public void slide_in_terms()
 		{
-		toggle_menu (new Callback()
-	    	{
-	    	public void run()
-	    		{
-	    		enable_terms_layer();
-	    		terms_tab();
-	    		toggle_menu();
-	    		}
-	    	});
+		slide_in_terms (current_layer);
 		}
 	
-	public void slide_in_privacy()
+	public void slide_in_terms (final toplayer layer)
 		{
 		toggle_menu (new Callback()
 	    	{
 	    	public void run()
 	    		{
-	    		enable_terms_layer();
+	    		enable_terms_layer (layer);
+	    		terms_tab();
+	    		toggle_menu();
+	    		}
+	    	});
+		}
+
+	public void slide_in_privacy()
+		{
+		slide_in_privacy (current_layer);
+		}
+	
+	public void slide_in_privacy (final toplayer layer)
+		{
+		toggle_menu (new Callback()
+	    	{
+	    	public void run()
+	    		{
+	    		enable_terms_layer (layer);
 	    		privacy_tab();
 	    		toggle_menu();
 	    		}
@@ -3141,12 +3169,15 @@ public class main extends VideoBaseActivity
 	    	{
 	    	public void run()
 	    		{
-	    		if (is_tablet())
-	    			{
-	    			/* set the background layer. on tablets, signin is an overlay */
-	    			set_layer (terms_previous_layer);
-	    			}
-	    		enable_signin_layer (null);
+	    		log ("terms: setting previous layer: " + terms_previous_layer);
+	    		set_layer (terms_previous_layer);
+	    		
+	    		//if (is_tablet())
+	    			// {
+	    			// /* set the background layer. on tablets, signin is an overlay */
+	    			// set_layer (terms_previous_layer);
+	    			// }
+	    		// enable_signin_layer (null);
 	    		toggle_menu();
 	    		}
 	    	});
@@ -3763,7 +3794,6 @@ public class main extends VideoBaseActivity
 		loaded_hint_settings = true;
 		}
 	
-	
 	public void reset_arena_to_home()
 		{
 		if (current_home_stack != null)
@@ -3789,9 +3819,6 @@ public class main extends VideoBaseActivity
 		}
 	
 	/* ------------------------------------ frontpage ------------------------------------ */
-	
-
-	
 
 	public void query_pile (String id, Callback callback)
 		{
@@ -3978,70 +4005,6 @@ public class main extends VideoBaseActivity
 		
 		return thumbnail_found;
 		}
-	
-	/* obsolete */
-	public EpisodeAdapter OLD_setup_horiz (HorizontalListView horiz, final String channel_id)
-		{
-		final EpisodeAdapter horiz_adapter = new EpisodeAdapter (this, channel_id);
-				       
-		if (horiz == null)
-			return null;
-		
-		horiz.setAdapter (horiz_adapter);
-	       
-		horiz.setOnItemClickListener (new OnItemClickListener()
-			{
-			public void onItemClick (AdapterView <?> parent, View v, int position, long id)
-				{
-				Log.i ("vtest", "playback click: " + position);
-				track_event ("navigation", "selectEP", "selectEP", 0);
-				play_nth_episode_in_channel (horiz_adapter.get_channel_id(), position + 1);
-				}
-			});
-	
-		horiz.setOnScrollListener (new OnScrollListener()
-			{
-			@Override
-			public void onScrollStarted()
-				{
-				StoppableListView vChannel = (StoppableListView) findViewById (R.id.channel_list);
-				vChannel.setPagingEnabled (false);
-				}
-
-			@Override
-			public void onScrollFinished()
-				{
-				StoppableListView vChannel = (StoppableListView) findViewById (R.id.channel_list);
-				vChannel.setPagingEnabled (true);
-				}
-			});
-			
-		log ("setup_horiz: load_channel " + channel_id);	
-		load_channel_then (channel_id, false, OLD_setup_horiz_inner, channel_id, horiz);
-
-		return horiz_adapter;
-		}
-	
-	/* obsolete */
-	final Callback OLD_setup_horiz_inner = new Callback()
-		{
-		@Override
-		public void run_string_and_object (final String channel_id, Object horiz_obj)
-			{
-			final HorizontalListView horiz = (HorizontalListView) horiz_obj;
-			Runnable horiz_update_thumbs = new Runnable()
-				{
-				@Override
-				public void run()
-					{
-					EpisodeAdapter horiz_adapter = (EpisodeAdapter) horiz.getAdapter();
-					horiz_adapter.notifyDataSetChanged();
-					}
-				};
-
-			// thumbnail.download_episode_thumbnails (main.this, config, channel_id, in_main_thread, horiz_update_thumbs);
-			}
-		};
 	
 	public EpisodeSlider NEW_setup_horiz (ViewPager horiz, final String channel_id)
 		{
@@ -5767,6 +5730,8 @@ public class main extends VideoBaseActivity
 	    return (tv.tv9x9.player.GuideLayer) f;
 		}
     
+	/*** LAUNCH **************************************************************************************************/
+    
     toplayer previous_layer = toplayer.HOME;
     String previous_arena[] = null;
     String unlaunched_player_arena[] = null;
@@ -5781,6 +5746,11 @@ public class main extends VideoBaseActivity
 		{
     	/* bug #12465: when waking, sometimes time will accumulate even if the player is not playing */
     	reset_time_played();
+    	
+    	if (!check_pay_access (channel_id))
+    		{
+    		return;
+    		}
     	
 		if (current_layer != toplayer.PLAYBACK)
 			previous_layer = current_layer;
@@ -6618,40 +6588,49 @@ public class main extends VideoBaseActivity
 	
 	public void test_in_app_purchase()
 		{
+		log ("testing in-app-purchase");
+		
+		ArrayList <String> skuList = new ArrayList <String> ();
+		
+		skuList.add ("android.test.purchased");
+		skuList.add ("tv.9x9.sample1");
+		skuList.add ("samplechannel2");
+		
+		query_sku_in_thread (skuList);
+		}
+	
+	public void query_sku_in_thread (final ArrayList <String> skuList)
+		{
 		Thread t = new Thread ()
 			{
 			@Override
 			public void run()
 				{
 				log ("testing in-app-purchase");
-				query_sku();
-				// test_purchase ("android.test.purchased");
-				// test_purchase ("tv.9x9.sample1");
+				query_sku (skuList);
 				}
 			};
 		
 		t.start();
 		}
 	
-	public void query_sku()
+	public void query_sku (final ArrayList <String> skuList)
 		{
-		ArrayList <String> skuList = new ArrayList<String> ();
-		
-		skuList.add ("android.test.purchased");
-		skuList.add ("tv.9x9.sample1");
-		skuList.add ("samplechannel2");
-		
 		Bundle querySkus = new Bundle();
 		querySkus.putStringArrayList ("ITEM_ID_LIST", skuList);
 
 		Bundle skuDetails = null;
 		try
 			{
-			skuDetails = billing_service.getSkuDetails (3, getPackageName(), "inapp", querySkus);
+			log ("Google Play: calling getSkuDetails");
+			String purchase_type = "subs"; // might be "inapp", but Lili says we will only be using subscriptions
+			skuDetails = billing_service.getSkuDetails (3, getPackageName(), purchase_type, querySkus);
 			}
 		catch (RemoteException ex)
 			{
+			log ("error obtaining SKU details from Google Play:");
 			ex.printStackTrace();
+			return;
 			}
 		
 		int response = skuDetails.getInt ("RESPONSE_CODE");
@@ -6659,7 +6638,9 @@ public class main extends VideoBaseActivity
 			{
 			ArrayList <String> responseList = skuDetails.getStringArrayList ("DETAILS_LIST");
 		   
-		    for (String thisResponse : responseList)
+			log ("Google Play: getSkuDetails number of items returned: " + responseList.size());
+			
+		    for (String thisResponse: responseList)
 		   		{
 		    	try
 		    		{
@@ -6673,6 +6654,8 @@ public class main extends VideoBaseActivity
 			    		public void run()
 			    			{
 					    	enable_sku (sku, price);
+					    	config.set_pay_info_by_sku (sku, "productId", price);
+					    	config.set_pay_info_by_sku (sku, "price", price);
 			    			}
 			    		});
 		    		}
@@ -6682,6 +6665,8 @@ public class main extends VideoBaseActivity
 		    		}
 		   		}
 			}
+		else
+			log ("Google Play: getSkuDetails response code is: " + response);
 		}
 	 
 	public void enable_sku (final String sku, final String price)
@@ -6738,7 +6723,18 @@ public class main extends VideoBaseActivity
 					{
 					JSONObject jo = new JSONObject (purchaseData);
 					String sku = jo.getString ("productId");
-					log ("sku \"" + sku + "\" purchase successful");
+					String purchaseToken = jo.getString ("purchaseToken");
+					log ("sku \"" + sku + "\" purchase successful, token is: " + purchaseToken);
+					String channel_id = config.get_pay_info (sku, "channel");
+					if (channel_id != null && !channel_id.equals (""))
+						{
+						/* launch this channel without an arena */
+						launch_player (channel_id, new String[] { channel_id });
+						}
+					else
+						{
+						/* this might be a test purchase, do nothing */
+						}
 					}
 				catch (JSONException e)
 					{
@@ -6747,5 +6743,101 @@ public class main extends VideoBaseActivity
 					}
 				}
 			}
+		}
+	
+	public void get_pay_channel_info()
+		{
+		if (config.usertoken == null)
+			{
+			get_pay_channel_info_ii();
+			return;
+			}
+		
+		Thread t = new Thread()
+			{
+			@Override
+			public void run()
+				{
+	    		new playerAPI (in_main_thread, config, "getPurchases?user=" + config.usertoken)
+					{
+					public void success (String[] lines)
+						{
+						for (String line: lines)
+							{
+							log ("pay channel I: " + line);
+							String fields[] = line.split ("\t");
+							if (fields.length > 2)
+								{
+								config.set_pay_info (fields[0], "sku", fields[1]);
+								config.set_pay_info (fields[0], "paid", "true");
+								}
+							}
+						get_pay_channel_info_ii();
+						}
+					public void failure (int code, String errtext)
+						{
+						}
+					};
+				}
+			};
+		
+		t.start();
+		}
+	
+	public void get_pay_channel_info_ii()
+		{
+		Thread t = new Thread()
+			{
+			@Override
+			public void run()
+				{
+	    		new playerAPI (in_main_thread, config, "getItems?os=android")
+					{
+					public void success (String[] lines)
+						{
+						ArrayList <String> skuList = new ArrayList <String> ();
+						
+						for (String line: lines)
+							{
+							log ("pay channel II: " + line);
+							String fields[] = line.split ("\t");
+							if (fields.length > 2)
+								{
+								if (fields[2].equals ("1"))
+									{
+									/* 1 for Google Play, 2 for AppStore */
+									config.set_pay_info (fields[0], "sku", fields[1]);
+									skuList.add (fields[1]);
+									}
+								}							
+							}
+						
+						log ("known sku's for this domain: " + skuList.size());
+						if (skuList.size() > 0)
+							{
+							/* information returned by playerAPI is inadequate. Ask Google for the rest */
+							query_sku (skuList);
+							}
+						}
+					public void failure (int code, String errtext)
+						{
+						}
+					};
+				}
+			};
+		
+		t.start();
+		}
+	
+	@Override
+	public void onNoPayAccess (final String channel_id)
+		{
+		alert ("You don't have access to this pay channel!");
+		log ("onNoPayAccess: no access to this pay channel: " + channel_id);
+		String sku = config.get_pay_info (channel_id, "sku");
+		if (sku != null)
+			test_purchase (sku);
+		else
+			alert ("This channel does not have an SKU!");
 		}
 	}

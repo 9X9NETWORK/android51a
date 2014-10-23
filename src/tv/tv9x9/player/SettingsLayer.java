@@ -55,8 +55,8 @@ public class SettingsLayer extends StandardFragment
     	public void enable_about_layer();
     	public void slide_in_password();
     	public void toast_by_resource (int resource_id);
-    	public void slide_in_terms();
-    	public void slide_in_privacy();
+    	public void slide_in_terms (toplayer layer);
+    	public void slide_in_privacy (toplayer layer);
     	public void toggle_menu();
     	public void slide_away_password();
     	public void alert (String text);
@@ -109,7 +109,7 @@ public class SettingsLayer extends StandardFragment
     	super.onResume();
     	log ("onResume");
     	}
-   	
+
     public void init (metadata config)
     	{
     	this.config = config;
@@ -386,7 +386,7 @@ public class SettingsLayer extends StandardFragment
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: settings terms");
-		        	mCallback.slide_in_terms();
+		        	mCallback.slide_in_terms (toplayer.SETTINGS);
 		        	}
 				});		
 
@@ -398,7 +398,7 @@ public class SettingsLayer extends StandardFragment
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: settings privacy");
-		        	mCallback.slide_in_privacy();
+		        	mCallback.slide_in_privacy (toplayer.SETTINGS);
 		        	}
 				});	
 		
@@ -507,6 +507,11 @@ public class SettingsLayer extends StandardFragment
 			{
 			log ("password exit");
 			mCallback.slide_away_password();
+			}
+		else if (mCallback.get_current_layer() == toplayer.TERMS)
+			{
+			/* don't ever want to return to TERMS, but settings isn't a proper layer on a tablet, etc. */
+			mCallback.enable_home_layer();
 			}
 		else
 			{

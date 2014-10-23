@@ -252,8 +252,8 @@
 				android:textCursorDrawable="@null"		
 				android:password="true"		
 				android:background="@drawable/textfield_tray"
-				android:nextFocusDown="@+id/sign_in_button"									
-				android:nextFocusForward="@+id/sign_in_button"								
+				android:nextFocusDown="@+id/sign_up_button"									
+				android:nextFocusForward="@+id/sign_up_button"								
 				/>											    
 		</LinearLayout>  									
 		<LinearLayout

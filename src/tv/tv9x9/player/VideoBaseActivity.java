@@ -1074,6 +1074,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (name != null && !name.equals (""))
 			{
 			log ("load channel " + channel_id + " then: known, but no programs (allow_cache: " + allow_cache + ")");
+			
+			/* if this is a pay channel we won't be able to get episodes */
+			if (!check_pay_access (channel_id, false))
+				{
+				log ("load channel " + channel_id + " is a pay channel and we have no access");
+				if (callback != null)
+					callback.run_string_and_object (arg1, arg2);
+				return;
+				}
+			
 			ytchannel.fetch_and_parse_by_id_in_thread (VideoBaseActivity.this, config, channel_id, allow_cache, in_main_thread, new Runnable()
 				{
 				@Override
@@ -1098,6 +1108,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				{
 				log ("load channel " + channel_id + ", lines received: " + chlines.length);
 				config.parse_channel_info (chlines);
+				
+				/* if this is a pay channel we won't be able to get episodes */		
+				if (!check_pay_access (channel_id, false))
+					{
+					log ("load channel " + channel_id + " is a pay channel and we have no access");
+					if (callback != null)
+						callback.run_string_and_object (arg1, arg2);
+					return;
+					}
+				
 				ytchannel.fetch_and_parse_by_id_in_thread (VideoBaseActivity.this, config, channel_id, allow_cache, in_main_thread, callback, arg1, arg2);
 				return;
 				}
@@ -1259,6 +1279,36 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		log ("++ analytics exit (" + cumulative_channel_id + ", " + cumulative_episode_id + ")");
 		
 		player.reset_time_played();
+		}
+	
+	public boolean check_pay_access (String channel_id)
+		{
+		return check_pay_access (channel_id, true);
+		}
+	
+	public boolean check_pay_access (String channel_id, boolean trigger_callback)
+		{
+		String payflag = config.pool_meta (channel_id, "payflag");
+		if (payflag != null && payflag.equals ("true"))
+			{
+			/* verify that we have access to this pay channel */
+			String pf = config.get_pay_info (channel_id, "paid");
+			if (pf != null && pf.equals ("true"))
+				{
+				log ("access granted to this pay channel");
+				return true;
+				}
+			if (trigger_callback)
+				onNoPayAccess (channel_id);
+			return false;
+			}
+		else
+			return true;
+		}
+	
+	public void onNoPayAccess (String channel_id)
+		{
+		/* override this */
 		}
 	
 	public void restart_playing (long start_msec)

@@ -44,8 +44,8 @@ public class SigninLayer extends StandardFragment
     	public void enable_signin_layer (Runnable callback);
     	public boolean has_facebook();
     	public void fezbuk2 (View parent);
-    	public void slide_in_terms();
-    	public void slide_in_privacy();
+    	public void slide_in_terms (toplayer layer);
+    	public void slide_in_privacy (toplayer layer);
     	public void toast_by_resource (int id);
     	public void toggle_menu	(final Callback cb);
     	public void query_following (final Callback callback);
@@ -183,6 +183,25 @@ public class SigninLayer extends StandardFragment
 	
 	public void setup_signin_buttons (View v)
 		{
+		/* this catches the "Next" button on the final field, and removes any soft keyboard. Android's
+		   keyboard APIs are downright awful, and setting the signin button to focusable will require double
+		   tapping it. This seems the safest way to disappear the keyboard in an innocuous manner. */
+
+		View vPassword = v.findViewById (R.id.sign_in_password);
+		vPassword.setOnFocusChangeListener (new View.OnFocusChangeListener()
+			{
+	        @Override
+	        public void onFocusChange (View v, boolean hasFocus)
+	        	{
+	        	if (!hasFocus)
+	        		{
+	        		/* turn off soft keyboard */
+	        		InputMethodManager imm = (InputMethodManager) getActivity().getSystemService (Context.INPUT_METHOD_SERVICE);
+	        	    imm.hideSoftInputFromWindow (v.getApplicationWindowToken(), 0);
+	        		}
+	            }
+	        });
+		
 		View vSignin = getView().findViewById (R.id.sign_in_button);
 		if (vSignin != null)
 			vSignin.setOnClickListener (new OnClickListener()
@@ -210,7 +229,7 @@ public class SigninLayer extends StandardFragment
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: terms");
-		        	mCallback.slide_in_terms();
+		        	mCallback.slide_in_terms (toplayer.SIGNIN);
 		        	}
 				});
 			}
@@ -224,10 +243,29 @@ public class SigninLayer extends StandardFragment
 		        public void onClick (View v)
 		        	{
 		        	log ("click on: privacy");
-		        	mCallback.slide_in_privacy();
+		        	mCallback.slide_in_privacy (toplayer.SIGNIN);
 		        	}
 				});
 			}		
+		
+		/* this catches the "Next" button on the final field, and removes any soft keyboard. Android's
+		   keyboard APIs are downright awful, and setting the signup button to focusable will require double
+		   tapping it. This seems the safest way to disappear the keyboard in an innocuous manner. */
+
+		View vVerify = v.findViewById (R.id.sign_up_verify);
+		vVerify.setOnFocusChangeListener (new View.OnFocusChangeListener()
+			{
+	        @Override
+	        public void onFocusChange (View v, boolean hasFocus)
+	        	{
+	        	if (!hasFocus)
+	        		{
+	        		/* turn off soft keyboard */
+	        		InputMethodManager imm = (InputMethodManager) getActivity().getSystemService (Context.INPUT_METHOD_SERVICE);
+	        	    imm.hideSoftInputFromWindow (v.getApplicationWindowToken(), 0);
+	        		}
+	            }
+	        });
 		
 		View vSignup = v.findViewById (R.id.sign_up_button);
 		if (vSignup != null)
@@ -239,7 +277,7 @@ public class SigninLayer extends StandardFragment
 		        	log ("click on: signup");
 		        	proceed_with_signup (signin_layer_callback);
 		        	}
-				});		
+				});
 		}
 	
 	/* look for "editcontainer"s and set them up as a larger touchable region to bring up the soft keyboard */
