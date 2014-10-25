@@ -2836,16 +2836,7 @@ public class main extends VideoBaseActivity
 	public void set_layer (toplayer layer)
 		{
 		log ("set layer: " + layer.toString());
-		
-		/*
-		if (is_tablet() && layer == toplayer.SIGNIN)
-			{
-			View signin_layer = findViewById (R.id.signinlayer_tablet);
-			signin_layer.setVisibility (layer == toplayer.SIGNIN ? View.VISIBLE : View.GONE);			
-			return;
-			}	
-		*/
-		
+
 		/* overlay! */
 		if (layer != toplayer.SIGNIN)
 			{
@@ -3171,13 +3162,6 @@ public class main extends VideoBaseActivity
 	    		{
 	    		log ("terms: setting previous layer: " + terms_previous_layer);
 	    		set_layer (terms_previous_layer);
-	    		
-	    		//if (is_tablet())
-	    			// {
-	    			// /* set the background layer. on tablets, signin is an overlay */
-	    			// set_layer (terms_previous_layer);
-	    			// }
-	    		// enable_signin_layer (null);
 	    		toggle_menu();
 	    		}
 	    	});
@@ -5925,12 +5909,19 @@ public class main extends VideoBaseActivity
             	}
 	    	});
         
-	    AdRequest adRequest = new AdRequest.Builder()
+	    try
+	    	{
+		    AdRequest adRequest = new AdRequest.Builder()
 	    	.addTestDevice (AdRequest.DEVICE_ID_EMULATOR)
 	    	.addTestDevice ("9B1327240A0F06351FD043013CDD9072")
 	    	.build();
-	    
-	    interstitial.loadAd (adRequest);
+		    
+	    	interstitial.loadAd (adRequest);
+	    	}
+	    catch (Exception ex)
+	    	{
+	    	ex.printStackTrace();
+	    	}
     	}
     
 	/*** SHAKE **************************************************************************************************/

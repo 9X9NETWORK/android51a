@@ -842,6 +842,9 @@ public class metadata
 	
 	public boolean is_subscribed (String channel)
 		{
+		if (channel == null)
+			return false;
+		
 		if (channel.startsWith ("="))
 			{
 			String username = channel.replaceAll ("^=", "");

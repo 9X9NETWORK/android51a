@@ -820,7 +820,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	String actual_channel()
 		{
 		String ret = player_real_channel;
-		if (ret.contains (":"))
+		if (ret != null && ret.contains (":"))
 			{
 			String episode_id = program_line [current_episode_index - 1];
 			ret = config.program_meta (episode_id, "real_channel");
@@ -1931,6 +1931,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			{
 			log ("playing subepisode #" + current_subepisode);
 			
+			if (current_subepisode > 0)
+				set_poi_trigger (false);
+			
 			if (begin_title_id != null && !begin_title_id.equals ("") && percent == 0f)
 				{
 				playing_begin_titlecard = true;
@@ -2637,11 +2640,14 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		/* there presently aren't any POIs, and this function may not be stable */
 		if (!haz_poi)
+			{
+			log ("POI feature disabled for this build, ignoring");
 			return;
+			}
 		
 		if (program_line == null || program_line.length == 0)
 			{
-			log ("set poi trigger: no programs");
+			log ("set POI trigger: no programs");
 			return;
 			}
 		
@@ -2651,13 +2657,17 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			
 			int nth = -1;
 			
-			if (program_line == null || current_episode_index >= program_line.length)
+			if (program_line == null || current_episode_index > program_line.length)
 				{
-				log ("program_line is out of date, resetting");
+				log ("episode line is out of date (channel=" + player_real_channel + "), resetting");
 				program_line = config.program_line_by_id (player_real_channel);
+				if (program_line == null)
+					log ("episode line is null, but shouldn't be");
+				else
+					log ("episode line length: " + program_line.length);
 				}
 			
-			if (program_line == null || current_episode_index >= program_line.length)
+			if (program_line == null || current_episode_index > program_line.length)
 				{
 				log ("program line can't reconcile with current_episode_index, which is " + current_episode_index + " -- will not set POIs");
 				return;
@@ -2709,6 +2719,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	    	else
 	    		video_next_trigger = video_release_trigger = -2;
 			}
+		else
+			log ("POI exists only for subepisodes, won't set any");
 		}
 	
 	public class VideoLocation
@@ -2736,6 +2748,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		return videoStack != null && videoStack.size() > 0;
 		}
 			
+	public String most_recent_video_id = null;
+	
 	public void remember_location()
 		{
 		if (!chromecasted)
@@ -2752,6 +2766,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			vloc.restore_arena = arena;
 			log ("VIDEO remember location: " + vloc.restore_video_position);
 			vloc.restore_video_visibility = get_video_visibility();
+			vloc.restore_video_id = most_recent_video_id;
 			
 			videoStack.push (vloc);
 			
@@ -2771,6 +2786,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void set_most_recent_restore_video_information (String video_id, long end_msec)
 		{
+		most_recent_video_id = video_id;
+		
 		if (any_remembered_locations())
 			{
 			/* this is particularly nasty */
@@ -4420,6 +4437,43 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		    	    	}
 		    	    else
 			    	    video_structure.put ("id", video_id_of (url));
+		    	    
+		    	    /* insert the POI information */
+		    	    JSONArray poi_array = new JSONArray();
+		    	    
+		    	    /* traverse only the first subepisode for POI, ignoring any others */
+		    	    int counter = 0;
+		    	    while (true)
+		    	    	{
+		    	    	counter++;
+		    	    	String poi_type = config.program_meta (episode_id, "sub-1-poi-" + counter + "-type");
+		    	    	if (poi_type != null && !poi_type.equals (""))
+			    	    	{
+		    	    		final String sub = "1";
+		    	    		
+				    	    JSONObject poi_entry = new JSONObject();
+				    	    
+		    	    		String poi_start = config.program_meta (episode_id, "sub-" + sub + "-poi-" + counter + "-start");
+		    	    		String poi_end = config.program_meta (episode_id, "sub-" + sub + "-poi-" + counter + "-end");
+		    	    		String poi_json_string = config.program_meta (episode_id, "sub-" + sub + "-poi-" + counter + "-data");
+		    	    		
+		    	    		JSONObject poi_json = new JSONObject (poi_json_string);
+		    	    		
+		    	    		poi_entry.put ("id", channel_id + "." + episode_id + "." + sub + "." + counter);
+		    	    		
+		    	    		poi_entry.put ("type", poi_type);
+		    	    		poi_entry.put ("start", poi_start);
+		    	    		poi_entry.put ("end", poi_end);
+		    	    		poi_entry.put ("content", poi_json);
+		    	    		
+				    	    poi_array.put (poi_entry);
+			    	    	}
+		    	    	else
+		    	    		break;
+		    	    	}
+
+		    	    // video_structure.put ("poi", poi_array); TODO: uncomment this to send POI data to receiver
+		    	    
 		    	    videos.put (video_structure);
 		    	    episode_structure.put ("videos", videos);		    	    
 		        	episode_arena.put (episode_structure);
