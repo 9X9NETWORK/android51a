@@ -1984,14 +1984,18 @@ public class main extends VideoBaseActivity
 	public int where_am_i()
 		{
 		int you_are_here = 0;
-		for (int i = 0; i < arena.length; i++)
+		
+		if (arena != null && player_real_channel != null)
 			{
-			String a = arena [i];
-			log ("ARENA: " + a);
-			if (a != null && player_real_channel.equals (a))
+			for (int i = 0; i < arena.length; i++)
 				{
-				you_are_here = i;
-				break;
+				String a = arena [i];
+				log ("ARENA: " + a);
+				if (a != null && player_real_channel.equals (a))
+					{
+					you_are_here = i;
+					break;
+					}
 				}
 			}
 		return you_are_here;
