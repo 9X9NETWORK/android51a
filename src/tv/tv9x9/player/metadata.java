@@ -60,6 +60,10 @@ public class metadata
 	/* transition between personalities -- tv, tablet, or portal */
 	public String future_action = null;
 	
+	/* distinguish features wanted by Taiwan/China ("panda") vs wanted by USA ("grizzly") */
+	enum Bears { PANDA, GRIZZLY, BLACK, TEDDY, CARE };
+	public Bears bear = Bears.GRIZZLY; 
+	
 	public String renderer = null;
 	public String rendering_token = null;
 	public String rendering_username = null;
@@ -73,6 +77,7 @@ public class metadata
 	public String usertoken = null;
 	public String username = null;
 	public String email = null;
+	public String userid = null;
 	
 	public boolean sign_status_changed = false;	
 	public boolean fresh_signup = false, fresh_signin = false, fresh_signout = false, fresh_fb_signout = false;
@@ -88,9 +93,13 @@ public class metadata
 	public boolean notifications_enabled = false;
 	public boolean notify_with_sound = false;
 	public boolean notify_with_vibrate = false;	
-
+	public boolean skip_setting = false;
+	public boolean autoplay_setting = true;
+	
 	public boolean notify_with_sound_default = false;
 	public boolean notify_with_vibrate_default = false;
+	public boolean skip_setting_default = false;
+	public boolean autoplay_setting_default = true;
 	
 	public Runnable interrupt_with_notification = null;
 	

@@ -62,6 +62,7 @@ public class HomeLayer extends StandardFragment
 	String portal_stack_episode_thumbs[] = null;
 	String portal_stack_channel_thumbs[] = null;	
 	String portal_stack_banners[] = null;
+	boolean portal_stack_visited[] = null;
 	
     public interface OnHomeListener
 		{
@@ -90,6 +91,7 @@ public class HomeLayer extends StandardFragment
     	public void query_pile (String id, Callback callback);
     	public void exit_stage_left();
     	public void parse_special_tags (String type, String tags, String set_id);
+    	public void actual_alert (String text);
 		}    
     
     OnHomeListener mCallback; 
@@ -202,6 +204,7 @@ public class HomeLayer extends StandardFragment
 		portal_stack_episode_thumbs = new String [num_stacks];
 		portal_stack_channel_thumbs = new String [num_stacks];
 		portal_stack_banners = new String [num_stacks];
+		portal_stack_visited = new boolean [num_stacks];
 		
 		int section = 0;		
 		int stack_count = 0;
@@ -219,6 +222,7 @@ public class HomeLayer extends StandardFragment
 				/* sets */
 				portal_stack_ids [stack_count] = fields [0];
 				portal_stack_names [stack_count] = fields [1];
+				portal_stack_visited [stack_count] = false;
 				if (fields.length >= 4)
 					portal_stack_episode_thumbs [stack_count] = fields [3];
 				if (fields.length >= 6)
@@ -241,46 +245,7 @@ public class HomeLayer extends StandardFragment
 				// parse_program_info_32_line (virtual_channel_id, pcount++, s);
 				}
 			}
-		
-		String original_portal_stack_ids[] = portal_stack_ids;
-		String original_portal_stack_banners[] = portal_stack_banners;
-		
-		if (portal_stack_ids.length > 1)
-			{
-			/* makin' copies: the only sensible way to loop around the home pages is to use ViewPager with
-			   duplicate data repeated. The user will never reach the end unless she is a nutter. */
-			
-			int repeat = 100;
-			int new_num_stacks = repeat * num_stacks;
-			
-			String new_portal_stack_ids[] = new String [new_num_stacks];
-			String new_portal_stack_names[] = new String [new_num_stacks];
-			String new_portal_stack_episode_thumbs[] = new String [new_num_stacks];
-			String new_portal_stack_channel_thumbs[] = new String [new_num_stacks];
-			String new_portal_stack_banners[] = new String [new_num_stacks];
-			
-			int count = 0;
-			
-			for (int i = 0; i < repeat; i++)
-				for (int j = 0; j < num_stacks; j++)
-					{
-					new_portal_stack_ids [count] = portal_stack_ids [j];
-					new_portal_stack_names [count] = portal_stack_names [j];
-					new_portal_stack_episode_thumbs [count] = portal_stack_episode_thumbs [j];
-					new_portal_stack_channel_thumbs [count] = portal_stack_channel_thumbs [j];
-					new_portal_stack_banners [count] = portal_stack_banners [j];
-					count++;
-					}
-			
-			/*
-			portal_stack_ids = new_portal_stack_ids;
-			portal_stack_names = new_portal_stack_names;
-			portal_stack_episode_thumbs = new_portal_stack_episode_thumbs;
-			portal_stack_channel_thumbs = new_portal_stack_channel_thumbs;		
-			portal_stack_banners = new_portal_stack_banners;
-			*/
-			}
-		
+				
 		create_set_slider();
 		
 		final Runnable update = new Runnable()
@@ -295,8 +260,7 @@ public class HomeLayer extends StandardFragment
 		if (mCallback.is_tablet())
 			{
 			thumbnail.download_set_banners (getActivity(), config, 
-					original_portal_stack_ids, original_portal_stack_banners, 
-						mCallback.get_main_thread(), update);
+					portal_stack_ids, portal_stack_banners, mCallback.get_main_thread(), update);
 			}
 		}	
 
@@ -618,6 +582,20 @@ public class HomeLayer extends StandardFragment
 						sh.channel_adapter.notifyDataSetChanged();
 					}
 				position_set_slider();
+				}
+			
+			portal_stack_visited [position] = true;
+			
+			if (portal_stack_visited.length > 1)
+				{
+				int still_to_visit = 0;
+				for (boolean b: portal_stack_visited)
+					{
+					if (!b)
+						still_to_visit++;
+					}
+				if (still_to_visit == 0)
+					display_hint_please_visit_store();
 				}
 			}
 		
@@ -1473,7 +1451,7 @@ public class HomeLayer extends StandardFragment
 				else
 					return null;
 				}		
-		}
+			}
 		}
 	
 	public void bouncy_home_hint_animation()
@@ -1555,6 +1533,15 @@ public class HomeLayer extends StandardFragment
 		    as.play(animFO).after(halfRIGHT);
 		     
 			as.start();		
+			}
+		}
+	
+	public void display_hint_please_visit_store()
+		{
+		if (mCallback.get_hint_setting ("seen-visit-store-hint") == false)
+			{
+			mCallback.set_hint_setting ("seen-visit-store-hint", true);
+			mCallback.actual_alert ("Find more content in our Store!");
 			}
 		}
 	}

@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import tv.tv9x9.player.main.menuitem;
+import tv.tv9x9.player.metadata.Bears;
 import tv.tv9x9.player.switchboard.LocalBinder;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -869,6 +870,24 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		Toast.makeText (this, text, Toast.LENGTH_LONG).show();
 		}
 	
+	public void actual_alert (String text)
+		{
+		log ("ALERT: " + text);
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder (VideoBaseActivity.this);
+	
+		builder.setMessage (text);
+		builder.setNeutralButton ("OK", new DialogInterface.OnClickListener()
+			{
+			@Override
+			public void onClick (DialogInterface arg0, int arg1)
+				{
+				}
+			});
+		
+		builder.create().show();
+		}
+	
 	public void toast (String text)
 		{
 		log ("TOAST: " + text);
@@ -992,8 +1011,20 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		player_real_channel = channel_id;
 		video_play_pending = true;
 		log ("play first load channel " + channel_id);
-		load_channel_then (channel_id, false, play_inner, "1", null);
+		load_channel_then (channel_id, false, play_first_inner, null, null);
 		}
+	
+	final Callback play_first_inner = new Callback()
+		{
+		@Override
+		public void run_string_and_object (String arg1, Object arg2)
+			{
+			program_line = config.program_line_by_id (player_real_channel);
+			current_subepisode = 0;
+			current_episode_index = 0;
+			next_episode();
+			}
+		};
 	
 	public void play_nth (String channel_id, long position)
 		{
@@ -1641,7 +1672,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				return;
 			}
 		
-		FrameLayout vProgress = (FrameLayout) findViewById (R.id.dottistan);
+		View vProgress = findViewById (R.id.dottistan);
 		if (haz_dotz && vProgress != null)
 			{
 			// if creating dots programmatically
@@ -1705,7 +1736,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void erase_all_dots()
 		{
-		FrameLayout vProgress = (FrameLayout) findViewById (R.id.dottistan);
+		View vProgress = findViewById (R.id.dottistan);
 		if (haz_dotz && vProgress != null)
 			{
 			for (int i = 1; i <= 40; i++)
@@ -1841,9 +1872,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		/* always clear the OSD for POI */
 		remove_poi_inner();
 		
-		update_metadata_inner();
+		if (!reconcile_program_line())
+			return;
 		
 		String episode_id = program_line [current_episode_index - 1];
+		
+		update_metadata_inner();
 		
 		/* if percent is nonzero, this was from a drag-and-drop of the control bar knob. Thus don't play titlecard */
 		
@@ -2212,6 +2246,25 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			if (current_episode_index + 1 <= program_line.length)
 				{
 				log ("next episode");
+				if (config.bear == Bears.GRIZZLY)
+					{
+					if (config.skip_setting)
+						{
+						String episode_id = program_line [current_episode_index]; /* actually the next */
+						boolean seen = was_video_seen (episode_id);
+						if (seen)
+							{
+							log ("seen this episode(" + episode_id + ") already, and skip-setting is active, so we will skip this");
+							current_episode_index++;
+							next_episode();
+							return;
+							}
+						else
+							log ("have not seen this episode(" + episode_id + ")");
+						}
+					else
+						log ("skip setting is off, continue merrily");
+					}
 				try_to_play_episode (current_episode_index + 1);
 				}
 			else
@@ -2224,6 +2277,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			log ("next episode: no program line");
 		}
 
+	public boolean was_video_seen (String episode_id)
+		{
+		/* override this */
+		return false;
+		}
+	
 	public void onLastEpisode()
 		{
 		/* override this */
@@ -2657,21 +2716,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			
 			int nth = -1;
 			
-			if (program_line == null || current_episode_index > program_line.length)
-				{
-				log ("episode line is out of date (channel=" + player_real_channel + "), resetting");
-				program_line = config.program_line_by_id (player_real_channel);
-				if (program_line == null)
-					log ("episode line is null, but shouldn't be");
-				else
-					log ("episode line length: " + program_line.length);
-				}
-			
-			if (program_line == null || current_episode_index > program_line.length)
-				{
-				log ("program line can't reconcile with current_episode_index, which is " + current_episode_index + " -- will not set POIs");
+			if (!reconcile_program_line())
 				return;
-				}
 			
 			String episode_id = program_line [current_episode_index - 1];
 			
@@ -2721,6 +2767,27 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			}
 		else
 			log ("POI exists only for subepisodes, won't set any");
+		}
+	
+	public boolean reconcile_program_line()
+		{
+		if (program_line == null || current_episode_index > program_line.length)
+			{
+			log ("episode line is out of date (channel=" + player_real_channel + "), resetting");
+			program_line = config.program_line_by_id (player_real_channel);
+			if (program_line == null)
+				log ("episode line is null, but shouldn't be");
+			else
+				log ("episode line length: " + program_line.length);
+			}
+		
+		if (program_line == null || current_episode_index > program_line.length)
+			{
+			log ("program line can't reconcile with current_episode_index, which is " + current_episode_index + " -- will not set POIs");
+			return false;
+			}
+		
+		return true;
 		}
 	
 	public class VideoLocation
@@ -3322,7 +3389,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		else
 			log ("track eof: was not tracking");
 		}
-			
+	
 	public void submit_episode_analytics (String why)
 		{
 		if (!cumulative_channel_id.equals ("?UNDEFINED"))
@@ -3343,6 +3410,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				track_event ("p" + cumulative_channel_id + "/" + outside_episode_id, "epWatched", channel_name + "/" + episode_name, duration);
 				/* this is the advertising counter */
 				config.total_play_count++;
+				/* now called from here instead of via submit_pdr */
+				onVideoWatched (cumulative_channel_id, outside_episode_id);
 				}
 			}
 		cumulative_episode_id = null;
@@ -4472,7 +4541,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		    	    		break;
 		    	    	}
 
-		    	    // video_structure.put ("poi", poi_array); TODO: uncomment this to send POI data to receiver
+		    	    video_structure.put ("poi", poi_array); // TODO: uncomment this to send POI data to receiver
 		    	    
 		    	    videos.put (video_structure);
 		    	    episode_structure.put ("videos", videos);		    	    

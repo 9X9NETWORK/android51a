@@ -62,7 +62,7 @@ public class CircleImageView extends ImageView
 	    else
 	        sbmp = bmp;
 	    Bitmap output = Bitmap.createBitmap (sbmp.getWidth(), sbmp.getHeight(), Config.ARGB_8888);
-	    Canvas canvas = new Canvas(output);
+	    Canvas canvas = new Canvas (output);
 	
 	    final Paint paint = new Paint();
 	    final Rect rect = new Rect (0, 0, sbmp.getWidth(), sbmp.getHeight());

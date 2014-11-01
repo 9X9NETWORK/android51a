@@ -596,6 +596,7 @@ public class SigninLayer extends StandardFragment
 		{
 		String token = null;
 		String name = null;
+		String userid = null;
 		
 		log ("login accepted for: " + email);
 		
@@ -608,10 +609,15 @@ public class SigninLayer extends StandardFragment
 				if (fields.length >= 2)
 					token = config.usertoken = fields[1];
 				}
-			if (fields[0].equals ("name"))
+			else if (fields[0].equals ("name"))
 				{
 				if (fields.length >= 2)
 					name = config.username = fields[1];
+				}
+			else if (fields[0].equals ("userid"))
+				{
+				if (fields.length >= 2)
+					userid = config.userid = fields[1];
 				}
 			}
 		
@@ -631,6 +637,9 @@ public class SigninLayer extends StandardFragment
 		
 		if (email != null)
 			futil.write_file (getActivity(), "email@" + config.api_server, email);
+		
+		if (userid != null)
+			futil.write_file (getActivity(), "userid@" + config.api_server, userid);
 		
 		zero_signin_data();
 		/* the settings view might be in the slider */

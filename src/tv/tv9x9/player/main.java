@@ -41,6 +41,7 @@ import tv.tv9x9.player.PasswordLayer.OnPasswordListener;
 import tv.tv9x9.player.HomeLayer.OnHomeListener;
 import tv.tv9x9.player.NagLayer.OnNagListener;
 import tv.tv9x9.player.SigninLayer.OnSigninListener;
+import tv.tv9x9.player.metadata.Bears;
 
 import tv.tv9x9.player.AppsLayer.app;
 
@@ -129,6 +130,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import jdbm.PrimaryTreeMap;
+import jdbm.RecordManager;
+import jdbm.RecordManagerFactory;
+
 import com.facebook.*;
 import com.facebook.Session.StatusCallback;
 import com.facebook.android.Util;
@@ -171,6 +176,9 @@ public class main extends VideoBaseActivity
 	
 	/* a count of subscribes and unsubscribes, to optimize redrawing */
 	int subscription_changes_this_session = 0;
+	
+	/* videos marked as "Watched", viewed successively -- used for hint trigger */
+	int watched_videos_clicked_in_a_row = 0;
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState)
@@ -286,6 +294,7 @@ public class main extends VideoBaseActivity
         if (uiHelper != null)
         	uiHelper.onDestroy();
         billing_destroy();
+        close_watch_db();
     	}    
     
     @Override
@@ -383,8 +392,16 @@ public class main extends VideoBaseActivity
 	    			}
 	    		else
 	    			{
-	    			log ("BACK in playback: full stop");
-	    			player_full_stop (true);
+	    			if (config.bear == Bears.GRIZZLY)
+		    			{
+	    				log ("BACK in playback: minimize");
+	    				video_minimize (true);
+		    			}
+	    			else
+		    			{
+		    			log ("BACK in playback: full stop");
+		    			player_full_stop (true);
+		    			}
 	    			}
 	    		}
 	    	else if (current_layer == toplayer.HOME)
@@ -493,18 +510,32 @@ public class main extends VideoBaseActivity
 			vPlaybackEpisodePlural.setTextSize (TypedValue.COMPLEX_UNIT_SP, 14);
 			
 			/* video_layer_new.xml */
-			View vChannelIcon = findViewById (R.id.playback_channel_icon);
-			LinearLayout.LayoutParams layout2 = (LinearLayout.LayoutParams) vChannelIcon.getLayoutParams();
+			View vChannelIconSquare = findViewById (R.id.playback_channel_icon_square);
+			LinearLayout.LayoutParams layout2 = (LinearLayout.LayoutParams) vChannelIconSquare.getLayoutParams();
 			layout2.height = pixels_40;
 			layout2.width = pixels_40;
-			vChannelIcon.setLayoutParams (layout2);
-			
+			vChannelIconSquare.setLayoutParams (layout2);
+
 			/* video_layer_new.xml */
-			View vChannelIconLandscape = findViewById (R.id.playback_channel_icon_landscape);
-			LinearLayout.LayoutParams layout6 = (LinearLayout.LayoutParams) vChannelIconLandscape.getLayoutParams();
+			View vChannelIconCircle = findViewById (R.id.playback_channel_icon_circle);
+			LinearLayout.LayoutParams layout2c = (LinearLayout.LayoutParams) vChannelIconCircle.getLayoutParams();
+			layout2c.height = pixels_40;
+			layout2c.width = pixels_40;
+			vChannelIconCircle.setLayoutParams (layout2c);
+			
+			/* video_layer_new.xml */	
+			View vChannelIconLandscapeSquare = findViewById (R.id.playback_channel_icon_landscape_square);
+			LinearLayout.LayoutParams layout6 = (LinearLayout.LayoutParams) vChannelIconLandscapeSquare.getLayoutParams();
 			layout6.height = pixels_40;
 			layout6.width = pixels_40;
-			vChannelIconLandscape.setLayoutParams (layout6);
+			vChannelIconLandscapeSquare.setLayoutParams (layout6);
+			
+			/* video_layer_new.xml */	
+			View vChannelIconLandscapeCircle = findViewById (R.id.playback_channel_icon_landscape_circle);
+			LinearLayout.LayoutParams layout6c = (LinearLayout.LayoutParams) vChannelIconLandscapeCircle.getLayoutParams();
+			layout6c.height = pixels_40;
+			layout6c.width = pixels_40;
+			vChannelIconLandscapeCircle.setLayoutParams (layout6c);
 			
 			/* video_layer_new.xml */
 			View vPlaybackShare = findViewById (R.id.playback_share);
@@ -731,6 +762,8 @@ public class main extends VideoBaseActivity
 			FlurryAgent.onStartSession (this, config.flurry_id);
 		flurry_id_sent = true;
 		
+		adjust_layouts_for_bear_type();
+		
 		/* redraw buttons, because config is now available and may disable some of them */
 		setup_global_buttons();
 		
@@ -816,13 +849,29 @@ public class main extends VideoBaseActivity
 			}
 		
 		config.interrupt_with_notification = interrupt_with_notification;
+		
+		open_watch_db();
+		}
+	
+	public void adjust_layouts_for_bear_type()
+		{
+		/* remove circle icons from USA layout, or square icons from Taiwan layout */
+		
+		int disappear_real_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.real_channel_icon_circle : R.id.real_channel_icon_square;
+		int disappear_portrait_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.playback_channel_icon_circle : R.id.playback_channel_icon_square;
+		int disappear_landscape_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.playback_channel_icon_landscape_circle : R.id.playback_channel_icon_landscape_square;
+
+		for (int icon: new Integer[] { disappear_real_icon_id, disappear_portrait_icon_id, disappear_landscape_icon_id })
+			{
+			View vIcon = findViewById (icon);
+			if (vIcon != null)
+				((ViewManager) vIcon.getParent()).removeView (vIcon);
+			}
 		}
 	
 	public void home_configure_white_label()
 		{
-		int top_bars[] = { R.id.sliding_top_bar };
-		
-		for (int top_bar: top_bars)
+		for (int top_bar: new Integer[] { R.id.sliding_top_bar })
 			{
 			View vTopBar = findViewById (top_bar);
 			configure_white_label_for (vTopBar);
@@ -896,6 +945,12 @@ public class main extends VideoBaseActivity
 			config.email = u;
 			log ("GOT SAVED EMAIL: " + config.email);
 			}
+		u = futil.read_file (this, "userid@" + config.api_server);
+		if (!u.startsWith ("ERROR:"))
+			{
+			config.userid = u;
+			log ("GOT SAVED USERID: " + config.userid);
+			}		
 		if (config.username != null && config.username.startsWith ("YOUTUBE::"))
 			{
 			alert ("YouTube accounts not supported with this version!");
@@ -1978,7 +2033,90 @@ public class main extends VideoBaseActivity
 		titles_layout.width = (int) ((float) screen_height / 3f);
 		vLandscapeTitles.setLayoutParams (titles_layout);
 		
+		/* the "skip" already seen video button */
+		update_skippistan();
+		
 		reset_video_size();
+		}
+	
+	/* the "skip videos" hint/control just below the video, which can have three different states when enabled */
+	public void update_skippistan()
+		{
+		View vSkippistan = findViewById (R.id.skippistan);
+		if (vSkippistan != null)
+			{
+			int orientation = getResources().getConfiguration().orientation;
+			boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
+			
+			if (landscape || config == null || config.bear != Bears.GRIZZLY)
+				{
+				vSkippistan.setVisibility (View.GONE);
+				return;
+				}
+			if (!reconcile_program_line())
+				{
+				/* data is bad, nonexistent, or is being updated */
+				vSkippistan.setVisibility (View.GONE);
+				return;
+				}
+
+			String episode_id = program_line [current_episode_index - 1];
+			boolean seen = was_video_seen (episode_id);
+			vSkippistan.setVisibility (seen ? View.VISIBLE : View.GONE);
+			
+			if (seen)
+				{
+				final View vShould = findViewById (R.id.should_i_skip);
+				final View vJust = findViewById (R.id.i_just_skipped);
+				final View vThree = findViewById (R.id.three_in_a_row);
+				
+				if (config.skip_setting)
+					{
+					if (watched_videos_clicked_in_a_row >= 3)
+						{
+						log ("skippistan: three watched videos clicked in a row");
+						vShould.setVisibility (View.GONE);
+						vJust.setVisibility (View.GONE);
+						vThree.setVisibility (View.VISIBLE);
+						vSkippistan.setOnClickListener (new OnClickListener()
+							{
+					        @Override
+					        public void onClick (View v)
+					        	{
+					        	log ("click on: skippistan: activate settings");
+					        	player_full_stop (true);
+					        	enable_settings_layer();
+					        	}
+							});
+						}
+					else
+						{
+						log ("skippistan: skip setting is on, do not display message");
+						vSkippistan.setVisibility (View.GONE);
+						}
+					}
+				else
+					{
+					log ("skippistan: video already seen, and skip setting is off");
+					vShould.setVisibility (View.VISIBLE);
+					vJust.setVisibility (View.GONE);
+					vThree.setVisibility (View.GONE);
+					vSkippistan.setOnClickListener (new OnClickListener()
+						{
+				        @Override
+				        public void onClick (View v)
+				        	{
+				        	log ("click on: skippistan: user wants to skip");
+				        	config.skip_setting = true;
+				        	set_preference ("skip-setting", "on");
+							vShould.setVisibility (View.GONE);
+							vJust.setVisibility (View.VISIBLE);
+							vThree.setVisibility (View.GONE);
+				        	}
+						});
+					}
+				}
+			}
 		}
 	
 	public int where_am_i()
@@ -2250,6 +2388,7 @@ public class main extends VideoBaseActivity
 			}
 		
 		update_episode_count (player_real_channel);
+		update_skippistan();
 		
 		log ("update_metadata: channel=|" + channel_name + "|");
 		log ("update_metadata: episode=|" + episode_name + "|");		
@@ -3559,12 +3698,36 @@ public class main extends VideoBaseActivity
 		home_class().bouncy_home_hint_animation();
 		home_class().refresh();
 		}
+	
+	public void populate_home()
+		{
+		home_class().portal_frontpage (config);
+		}
 		
     public HomeLayer home_class()
 		{    	
 	    FragmentManager fm = getSupportFragmentManager();
 	    Fragment f = fm.findFragmentById (R.id.home_fragment_container);
 	    return (tv.tv9x9.player.HomeLayer) f;
+		}
+	
+	public void reset_arena_to_home()
+		{
+		if (current_home_stack != null)
+			{
+			if (config.number_of_channels_in_set (current_home_stack) > 0)
+				{
+				log ("reset arena to set: " + current_home_stack);
+				arena = config.list_of_channels_in_set (current_home_stack);
+				}
+			else
+				{
+				log ("set \"" + current_home_stack + "\" seems to have vanished, repopulating...");				
+				populate_home();
+				}
+			}
+		else
+			log ("reset_arena_to_home: current home stack is null!");
 		}
 	
     /* shared by HomeLayer and StoreLayer */
@@ -3589,6 +3752,8 @@ public class main extends VideoBaseActivity
 			}
 		}
 	
+	/*** HINTS **************************************************************************************************/
+
 	public void bouncy_playback_hint_animation()
 		{
 		if (!seen_bouncy_playback_hint)
@@ -3715,6 +3880,7 @@ public class main extends VideoBaseActivity
 	
 	boolean seen_bouncy_home_hint = false;
 	boolean seen_bouncy_playback_hint = false;
+	boolean seen_visit_store_hint = false;
 	
 	public boolean get_hint_setting (String hint)
 		{
@@ -3725,6 +3891,8 @@ public class main extends VideoBaseActivity
 			return seen_bouncy_home_hint;
 		else if (hint.equals ("seen-bouncy-playback-hint"))
 			return seen_bouncy_playback_hint;
+		else if (hint.equals ("seen-visit-store-hint"))
+			return seen_visit_store_hint;
 		else
 			return false;
 		}
@@ -3738,6 +3906,8 @@ public class main extends VideoBaseActivity
 			seen_bouncy_home_hint = value;
 		else if (hint.equals ("seen-bouncy-playback-hint"))
 			seen_bouncy_playback_hint = value;
+		else if (hint.equals ("seen-visit-store-hint"))
+			seen_visit_store_hint = value;
 		
 		save_hint_settings();
 		}
@@ -3746,7 +3916,8 @@ public class main extends VideoBaseActivity
 		{
 		log ("save hint_settings");
 		String filedata = "seen-bouncy-home-hint" + "\t" + (seen_bouncy_home_hint ? "yes" : "no") + "\n"
-				        + "seen-bouncy-playback-hint" + "\t" + (seen_bouncy_playback_hint ? "yes" : "no") + "\n";
+				        + "seen-bouncy-playback-hint" + "\t" + (seen_bouncy_playback_hint ? "yes" : "no") + "\n"
+				        + "seen-visit-store-hint" + "\t" + (seen_visit_store_hint ? "yes" : "no") + "\n";
         futil.write_file (main.this, "config.hints", filedata);
 		}
 	
@@ -3760,6 +3931,7 @@ public class main extends VideoBaseActivity
 			log ("initialize notifications file");
 			seen_bouncy_home_hint = false;
 			seen_bouncy_playback_hint = false;
+			seen_visit_store_hint = false;
 			save_hint_settings();
 			}
 		else
@@ -3774,36 +3946,14 @@ public class main extends VideoBaseActivity
 					if (fields[0].equals ("seen-bouncy-home-hint"))
 						seen_bouncy_home_hint = fields[1].equals ("yes");
 					if (fields[0].equals ("seen-bouncy-playback-hint"))
-						seen_bouncy_playback_hint = fields[1].equals ("yes");				
+						seen_bouncy_playback_hint = fields[1].equals ("yes");			
+					if (fields[0].equals ("seen-visit-store-hint"))
+						seen_visit_store_hint = fields[1].equals ("yes");						
 					}
 				}
 			}
 		
 		loaded_hint_settings = true;
-		}
-	
-	public void reset_arena_to_home()
-		{
-		if (current_home_stack != null)
-			{
-			if (config.number_of_channels_in_set (current_home_stack) > 0)
-				{
-				log ("reset arena to set: " + current_home_stack);
-				arena = config.list_of_channels_in_set (current_home_stack);
-				}
-			else
-				{
-				log ("set \"" + current_home_stack + "\" seems to have vanished, repopulating...");				
-				populate_home();
-				}
-			}
-		else
-			log ("reset_arena_to_home: current home stack is null!");
-		}
-	
-	public void populate_home()
-		{
-		home_class().portal_frontpage (config);
 		}
 	
 	/* ------------------------------------ frontpage ------------------------------------ */
@@ -4276,8 +4426,11 @@ public class main extends VideoBaseActivity
 	
 	public void update_channel_icon (final String channel_id)
 		{
-		ImageView vChannelIcon = (ImageView) findViewById (R.id.playback_channel_icon);
-		ImageView vChannelIconLandscape = (ImageView) findViewById (R.id.playback_channel_icon_landscape);
+		int real_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.real_channel_icon_square : R.id.real_channel_icon_circle;
+		int portrait_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.playback_channel_icon_square : R.id.playback_channel_icon_circle;
+		int landscape_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.playback_channel_icon_landscape_square : R.id.playback_channel_icon_landscape_circle;		
+		ImageView vChannelIcon = (ImageView) findViewById (portrait_icon_id);
+		ImageView vChannelIconLandscape = (ImageView) findViewById (landscape_icon_id);
 		if (vChannelIcon != null || vChannelIconLandscape != null)
 			{
 			String filename = getFilesDir() + "/" + config.api_server + "/cthumbs/" + channel_id + ".png";
@@ -4319,8 +4472,8 @@ public class main extends VideoBaseActivity
 				File f = new File (filename);
 				boolean thumb_exists = f.exists();
 				
-				final View vRealChannelProgress = findViewById (R.id.real_channel_progress);
-				final ImageView vRealChannelIcon = (ImageView) findViewById (R.id.real_channel_icon);	
+				final View vRealChannelProgress = findViewById (R.id.real_channel_progress);				
+				final ImageView vRealChannelIcon = (ImageView) findViewById (real_icon_id);	
 				
 				if (!thumb_exists)
 					{
@@ -4633,6 +4786,11 @@ public class main extends VideoBaseActivity
 				log ("BACK in playback: return to remembered location");
 				restore_location();	    			
 				}
+    		else if (config.bear == Bears.GRIZZLY)
+    			{
+				log ("BACK in playback: minimize");
+				video_minimize (true);
+    			}
 			else
 				{
 				log ("BACK in playback: full stop");
@@ -5574,6 +5732,7 @@ public class main extends VideoBaseActivity
 					int resource_id = getResources().getIdentifier ("ep" + i, "id", getPackageName());
 					int title_id = getResources().getIdentifier ("eptitle" + i, "id", getPackageName());
 					int box_id = getResources().getIdentifier ("ep" + i + "_box", "id", getPackageName());
+					int watched_id = getResources().getIdentifier ("epwatched" + i, "id", getPackageName());
 					String episode = null;
 					if (content != null)
 						episode = base + i < content.length ? content [base + i] : null;
@@ -5621,6 +5780,8 @@ public class main extends VideoBaseActivity
 					vBox.setVisibility (episode == null ? View.INVISIBLE : View.VISIBLE);
 					// log ("[HORIZ] current: " + (current_episode_index - 1) + ", this one: " + (base + i)); // busy
 					
+					final boolean was_seen = was_video_seen (episode);
+					
 					final int i_final = i;
 					vBox.setOnClickListener (new OnClickListener()
 						{
@@ -5631,8 +5792,15 @@ public class main extends VideoBaseActivity
 				        	log ("playback click: " + index);
 							track_event ("navigation", "selectEP", "selectEP", 0);
 				        	play_nth_episode_in_channel (channel_id, index);
+				        	if (was_seen)
+				        		watched_videos_clicked_in_a_row++;
+				        	else
+				        		watched_videos_clicked_in_a_row = 0;
 				        	}
 						});					
+					
+					View vWatched = hrow.findViewById (watched_id);
+					vWatched.setVisibility (was_seen ? View.VISIBLE : View.GONE);
 					}
 						
 				if (!is_phone())
@@ -5806,7 +5974,6 @@ public class main extends VideoBaseActivity
     	}
     
 	/*** FEEDBACK **************************************************************************************************/
-
     
     public void enable_feedback_layer()
     	{
@@ -6547,8 +6714,110 @@ public class main extends VideoBaseActivity
 				});
 			}
 		};
-				
 		
+	/********* VIEWING HISTORY **************************************************************************************/				
+		
+	RecordManager recMan = null;
+		
+	public String dbfile()
+		{
+		String userid = config.userid == null ? "guest" : config.userid;
+		return getFilesDir() + "/watched." + config.mso + "." + userid + ".db";
+		}
+	
+	public void open_watch_db()
+		{
+		close_watch_db();
+		try
+			{
+			recMan = RecordManagerFactory.createRecordManager (dbfile());
+			}
+		catch (IOException ex)
+			{
+			ex.printStackTrace();
+			}
+		}
+	
+	public void close_watch_db()
+		{
+		if (recMan != null)
+			{
+			try
+				{
+				recMan.commit();
+				recMan.close();
+				}
+			catch (IOException ex)
+				{
+				ex.printStackTrace();
+				}
+			}
+		}
+	
+	@Override
+	public boolean was_video_seen (String episode_id)
+		{        
+		log ("-------------------- >>> wasVideoSeen (" + episode_id + ") " + recMan + " <<< --------------------");
+		if (episode_id != null && recMan != null)
+			{
+	        String recordName = "watched";
+	        PrimaryTreeMap <String, Integer> map = recMan.treeMap (recordName);         
+	        
+	        if (map != null)
+	        	{
+	        	Integer count = map.get (episode_id);
+	        	if (count != null)
+	        		return count > 0;
+	        	}
+	        
+	        return false;
+			}
+		else
+			return false;
+		}
+        
+	public void set_video_watched (String episode_id)
+		{
+		String recordName = "watched";
+        PrimaryTreeMap <String, Integer> map = recMan.treeMap (recordName);
+                
+        Integer count = map.get (episode_id);
+        if (count == null)
+        	count = 0;
+        
+        map.put (episode_id, count + 1);
+        
+		try
+			{
+			recMan.commit();
+			}
+		catch (IOException ex)
+			{
+			ex.printStackTrace();
+			}
+		}
+	
+	@Override
+	public void onVideoWatched (String channel_id, String episode_id)
+		{
+		log ("-------------------- >>> onVideoWatched (" + channel_id + ") episode(" + episode_id + ")" + " <<< --------------------");
+		set_video_watched (episode_id);
+		}
+	
+	public String get_preference (String preference)
+		{
+		SharedPreferences prefs = getSharedPreferences (main.class.getSimpleName(), Context.MODE_PRIVATE);
+		return prefs.getString (preference, "");
+		}
+
+	public void set_preference (String preference, String value)
+		{
+		SharedPreferences prefs = getSharedPreferences (main.class.getSimpleName(), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = prefs.edit();
+	    editor.putString (preference, value);
+	    editor.commit();
+		}
+
 	/********* IN-APP BILLING **************************************************************************************/
 		
 	IInAppBillingService billing_service = null;

@@ -41,6 +41,9 @@ public class SettingsLayer extends StandardFragment
 	boolean original_sound_setting = false;
 	boolean original_vibrate_setting = false;
 
+	boolean original_skip_setting = false;
+	boolean original_autoplay_setting = true;
+	
 	metadata config = null;
 	
     public interface OnSettingsListener
@@ -62,6 +65,8 @@ public class SettingsLayer extends StandardFragment
     	public void alert (String text);
     	public toplayer get_current_layer();
     	public void disable_settings_layer();
+    	public String get_preference (String preference);
+    	public void set_preference (String preference, String value);
 		}    
     
     OnSettingsListener mCallback; 
@@ -131,6 +136,8 @@ public class SettingsLayer extends StandardFragment
 		original_notify_setting = config.notifications_enabled;
 		original_sound_setting = config.notify_with_sound;
 		original_vibrate_setting = config.notify_with_vibrate;
+		original_skip_setting = config.skip_setting;
+		original_autoplay_setting = config.autoplay_setting;
 		}
 
 	public void restore_notification_settings()
@@ -138,6 +145,8 @@ public class SettingsLayer extends StandardFragment
 		config.notifications_enabled = original_notify_setting;
 		config.notify_with_sound = original_sound_setting;
 		config.notify_with_vibrate = original_vibrate_setting;
+		config.skip_setting = original_skip_setting;
+		config.autoplay_setting = original_autoplay_setting;
 		}
 	
 	public void redraw_settings()
@@ -257,6 +266,36 @@ public class SettingsLayer extends StandardFragment
 					}
 				});				
 			}
+		
+		Switch vSkipSwitch = (Switch) getView().findViewById (R.id.skip_watched_setting_switch);
+		if (vSkipSwitch != null)
+			{
+			vSkipSwitch.setChecked (config.skip_setting);
+			vSkipSwitch.setOnCheckedChangeListener (new OnCheckedChangeListener()
+				{
+				@Override
+				public void onCheckedChanged (CompoundButton view, boolean isChecked)
+					{
+					config.skip_setting = isChecked;
+					save_notification_settings();
+					}
+				});			
+			}	
+		
+		Switch vAutoplaySwitch = (Switch) getView().findViewById (R.id.auto_play_setting_switch);
+		if (vAutoplaySwitch != null)
+			{
+			vAutoplaySwitch.setChecked (config.autoplay_setting);
+			vAutoplaySwitch.setOnCheckedChangeListener (new OnCheckedChangeListener()
+				{
+				@Override
+				public void onCheckedChanged (CompoundButton view, boolean isChecked)
+					{
+					config.autoplay_setting = isChecked;
+					save_notification_settings();
+					}
+				});			
+			}		
 		}
 	
 	public void save_notification_settings()
@@ -266,6 +305,10 @@ public class SettingsLayer extends StandardFragment
 				+ "notify-with-sound" + "\t" + (config.notify_with_sound ? "on" : "off") + "\n"
 				+ "notify-with-vibrate" + "\t" + (config.notify_with_vibrate ? "on" : "off") + "\n";
         futil.write_file (getActivity(), "config.notifications", filedata);
+        
+		mCallback.set_preference ("skip-setting", config.skip_setting ? "on" : "off");
+		mCallback.set_preference ("autoplay-setting", config.autoplay_setting ? "on" : "off");
+		
         log_notification_settings();
 		}
 	
@@ -282,6 +325,8 @@ public class SettingsLayer extends StandardFragment
 			config.notifications_enabled = true;
 			config.notify_with_sound = config.notify_with_sound_default;
 			config.notify_with_vibrate = config.notify_with_vibrate_default;
+			config.skip_setting = config.skip_setting_default;
+			config.autoplay_setting = config.autoplay_setting_default;
 			log_notification_settings();
 			save_notification_settings();
 			return;
@@ -303,6 +348,8 @@ public class SettingsLayer extends StandardFragment
 						config.notify_with_vibrate = fields[1].equals ("on");					
 					}
 				}
+			config.skip_setting = mCallback.get_preference ("skip-setting").equals ("on");
+			config.autoplay_setting = !mCallback.get_preference ("autoplay-setting").equals ("off");
 			log_notification_settings();
 			}
 		}
@@ -311,7 +358,9 @@ public class SettingsLayer extends StandardFragment
 		{
 		log ("notifications enabled: " + config.notifications_enabled);
 		log ("notify_with_sound: " + config.notify_with_sound);				
-		log ("notify_with_vibrate: " + config.notify_with_vibrate);		
+		log ("notify_with_vibrate: " + config.notify_with_vibrate);
+		log ("skip_setting: " + config.skip_setting);
+		log ("autoplay_setting: " + config.autoplay_setting);
 		}
 	
 	public void setup_settings_buttons()
@@ -478,7 +527,9 @@ public class SettingsLayer extends StandardFragment
 			
 		if (original_notify_setting != config.notifications_enabled
 				|| original_sound_setting != config.notify_with_sound
-				|| original_vibrate_setting != config.notify_with_vibrate)
+				|| original_vibrate_setting != config.notify_with_vibrate
+				|| original_skip_setting != config.skip_setting
+				|| original_autoplay_setting != config.autoplay_setting)
 			{
 			save_notification_settings();
 			remember_notification_settings();

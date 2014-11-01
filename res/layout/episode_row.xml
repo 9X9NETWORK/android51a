@@ -31,7 +31,20 @@
 			android:background="#40000000"
 			android:paddingLeft="3dip"
 			android:paddingRight="3dip"			
-			/>				
+			/>		
+		<TextView
+	  		android:id="@+id/epwatched0"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top|right"
+			android:textSize="16sp"
+			android:textColor="#FFFF00"
+			android:singleLine="true"
+			android:background="#40000000"
+			android:paddingLeft="3dip"
+			android:paddingRight="3dip"
+			android:text="Watched"			
+			/>						
 	</FrameLayout>		
 	<FrameLayout
 	    android:id="@+id/ep1_box"
@@ -60,6 +73,19 @@
 			android:paddingLeft="3dip"
 			android:paddingRight="3dip"				
 			/>			
+		<TextView
+	  		android:id="@+id/epwatched1"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top|right"
+			android:textSize="16sp"
+			android:textColor="#FFFF00"
+			android:singleLine="true"
+			android:background="#40000000"
+			android:paddingLeft="3dip"
+			android:paddingRight="3dip"
+			android:text="Watched"			
+			/>				
 	</FrameLayout>
 	<FrameLayout
 	    android:id="@+id/ep2_box"	
@@ -88,6 +114,19 @@
 			android:paddingLeft="3dip"
 			android:paddingRight="3dip"				
 			/>				
+		<TextView
+	  		android:id="@+id/epwatched2"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top|right"
+			android:textSize="16sp"
+			android:textColor="#FFFF00"
+			android:singleLine="true"
+			android:background="#40000000"
+			android:paddingLeft="3dip"
+			android:paddingRight="3dip"
+			android:text="Watched"			
+			/>				
 	</FrameLayout>
 	<FrameLayout
 	    android:id="@+id/ep3_box"
@@ -115,6 +154,19 @@
 			android:background="#40000000"
 			android:paddingLeft="3dip"
 			android:paddingRight="3dip"				
+			/>				
+		<TextView
+	  		android:id="@+id/epwatched3"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top|right"
+			android:textSize="16sp"
+			android:textColor="#FFFF00"
+			android:singleLine="true"
+			android:background="#40000000"
+			android:paddingLeft="3dip"
+			android:paddingRight="3dip"
+			android:text="Watched"			
 			/>				
 	</FrameLayout>		
 </LinearLayout>

@@ -269,4 +269,9 @@
 	<string name="social_feed"> 社群首頁</string>	
 	<string name="real_channel_source">劇集出自</string>	
 	<string name="log_in_sign_up">登入 / 註冊</string>
+	<string name="skip_all_watched_episodes"><b><u>Skip all watched episodes"</u></b></string>
+	<string name="playback_settings">Playback</string>
+	<string name="skip_watched_episodes">Skip Watched Episodes</string>
+	<string name="auto_play_next_program">Auto-Play Next Program</string>		
+	<string name="three_in_a_row">Turn &#8220;Skip Watched Episodes&#8221; on/off in <b><u>Settings</u></b></string>	
 </resources>
