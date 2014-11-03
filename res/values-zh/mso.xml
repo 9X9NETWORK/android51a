@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
+    <!-- 
    	<string name="app_name">9x9.tv</string> 
 	<drawable name="app_icon_ptr">@drawable/nine_launch_logo</drawable>    	  	
     <string name="white_label">portal</string>
@@ -14,7 +15,8 @@
     <string name="signin_bg">nine_bg_open</string>      
     <string name="set_banner">nine_banner</string>        
 	<string name="fb_app_id">1429057570658015</string>
-	 				  			
+	-->
+			 				  			
 	<!-- Joey Graceffa -->
     <!--  
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -341,7 +343,7 @@
     --> 
  	
     <!-- ddtv -->
-    <!--       
+    <!--        
     <string name="app_name">丁丁電視</string>
     <drawable name="app_icon_ptr">@drawable/ddtv_launch_logo</drawable>       	   
     <string name="white_label">ddtv</string>     
@@ -355,7 +357,7 @@
     <string name="signin_bg">ddtv_bg_open</string>
     <string name="set_banner">ddtv_banner01</string>
     <string name="fb_app_id">496791563769983</string>
-    --> 
+	-->  
     
     <!-- fcu -->
     <!--        
@@ -610,7 +612,7 @@
     <string name="set_banner">yourapp_banner</string>
     <string name="fb_app_id">361253423962738</string>
     -->
-     
+    
     <!-- Demo1 -->
     <!-- 
    	<string name="app_name">Demo1</string>
@@ -646,7 +648,7 @@
 	-->
 
     <!-- YourApp2 -->
-   	<!-- 
+    <!-- 
     <string name="app_name">Your FLIPr App2</string>
     <drawable name="app_icon_ptr">@drawable/yourapp_launch_logo</drawable>       	   
     <string name="white_label">yourapp2</string>
@@ -661,7 +663,7 @@
     <string name="set_banner">yourapp_banner</string>
     <string name="fb_app_id">361253423962738</string>
 	-->
-	
+    	
     <!-- YourApp3 -->
     <!-- 
     <string name="app_name">Your FLIPr App3</string>
@@ -782,7 +784,7 @@
     -->
     
     <!-- FLIPr CTV Bay Area -->
-    <!-- 
+    <!--       
     <string name="app_name">灣區華人電視 FLIPr</string>
    	<drawable name="app_icon_ptr">@drawable/fliprctvbayarea_launch_logo</drawable>       	
     <string name="white_label">fliprctvbayarea</string>
@@ -795,9 +797,9 @@
     <string name="signin_logo">fliprctvbayarea_logo_signin</string>
     <string name="signin_bg">fliprctvbayarea_bg_open</string>
     <string name="set_banner">fliprctvbayarea_banner</string>
-    <string name="fb_app_id">361253423962738</string>
+    <string name="fb_app_id">809612092424575</string>
     -->
-       
+    
     <!-- FLIPr.tv -->
     <!-- 
     <string name="app_name">FLIPr.tv</string>
@@ -812,8 +814,8 @@
     <string name="signin_logo">fliprtv_logo_signin</string>
     <string name="signin_bg">fliprtv_bg_open</string>
     <string name="set_banner">fliprtv_banner</string>
-    <string name="fb_app_id">361253423962738</string>
-    -->	
+    <string name="fb_app_id">1488085411472067</string>
+    -->
     
     <!-- TEST2 -->
     <!-- 
@@ -848,5 +850,37 @@
     <string name="set_banner">culturemachine_banner</string>
     <string name="fb_app_id">361253423962738</string>
     -->
-
+    
+    <!-- HKSTV -->
+    <!-- 
+    <string name="app_name">香港衛視</string>
+    <drawable name="app_icon_ptr">@drawable/hkstv_launch_logo</drawable>       	   
+    <string name="white_label">hkstv</string>     
+    <string name="mso">hkstv</string>
+    <string name="default_region">zh</string>               
+    <string name="logo">hkstv_logo</string>
+    <string name="splash_background">hkstv_bg_open</string>
+    <string name="splash_foreground">hkstv_open_logo</string>    
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">hkstv_logo_signin</string>        
+    <string name="signin_bg">hkstv_bg_open</string>
+    <string name="set_banner">hkstv_banner</string>
+    <string name="fb_app_id">1424661534476944</string>
+    -->
+    
+    <!-- LyChee TV -->
+    <string name="app_name">荔枝電視</string>
+   	<drawable name="app_icon_ptr">@drawable/fliprctvbayarea_launch_logo</drawable>       	
+    <string name="white_label">lycheetv</string>
+    <string name="mso">lycheetv</string>
+    <string name="default_region">en</string>
+    <string name="logo">fliprtv_logo</string>
+    <string name="splash_background">fliprctvbayarea_bg_open</string>
+    <string name="splash_foreground">fliprctvbayarea_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">fliprctvbayarea_logo_signin</string>
+    <string name="signin_bg">fliprctvbayarea_bg_open</string>
+    <string name="set_banner">fliprctvbayarea_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    
 </resources>
