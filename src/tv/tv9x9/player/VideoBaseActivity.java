@@ -3049,6 +3049,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 	    if (duration > 0 && program_line != null)
 	        {
+			if (!reconcile_program_line())
+				return;
+			
 	    	String episode_id = program_line [current_episode_index - 1];
 	    	
 	    	float pct = (float) offset / (float) duration;
