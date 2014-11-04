@@ -888,6 +888,17 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		builder.create().show();
 		}
 	
+	public void alert_with_image (int resource_id)
+		{
+		LayoutInflater inflater = getLayoutInflater();
+		View vLayout = inflater.inflate (R.layout.alert_image, null);
+		AlertDialog.Builder builder = new AlertDialog.Builder (this);
+		builder.setView (vLayout);
+		ImageView vImage = (ImageView) vLayout.findViewById (R.id.alert_image);
+		vImage.setImageResource (resource_id);
+		builder.show();
+		}
+	
 	public void toast (String text)
 		{
 		log ("TOAST: " + text);
@@ -1585,10 +1596,19 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public void countdown_to_live_broadcast (String url, String timestamp)
 		{
-		long start_time = Long.parseLong (timestamp);
+		video_message ("");
+		ugly_video_hack();		
+
+		long start_time = Long.parseLong (timestamp);		
 		
+		countdown_timer = new Timer();
+    	countdown_timer.scheduleAtFixedRate (new CountdownTask (start_time), 1000, 1000);
+		}
+	
+	public void video_message (String text)
+		{
 		TextView vMessage = (TextView) findViewById (R.id.titlecardtext);
-		vMessage.setText ("");
+		vMessage.setText (text);
 		vMessage.setTextColor (Color.rgb (0xFF, 0xFF, 0xFF));
 		
 		View vTitlecard = findViewById (R.id.titlecard);
@@ -1599,7 +1619,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		View vBacking = findViewById (R.id.backing_controls);
 		vBacking.setVisibility (View.GONE);
-		
+		}
+	
+	public void ugly_video_hack()
+		{
 		/* ugly hack */
 		if (!video_is_minimized() && videoFragment != null && videoFragment.video_width > 0)
 			{
@@ -1612,10 +1635,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			wrapper_layout.height = landscape ? 0 : videoFragment.video_height;
 			wrapper_layout.width = landscape ? MATCH_PARENT : videoFragment.video_width;
 			yt_wrapper.setLayoutParams (wrapper_layout);
-			}		
-		
-		countdown_timer = new Timer();
-    	countdown_timer.scheduleAtFixedRate (new CountdownTask (start_time), 1000, 1000);
+			}	
 		}
 	
 	class CountdownTask extends TimerTask
@@ -2287,7 +2307,6 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		/* override this */
 		log ("last episode!");
-		exit_stage_left();
 		}
 	
 	public void previous_episode()
@@ -3592,6 +3611,18 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			lang = "cn";
 		log ("get_language: " + lang);
 		return lang;
+		}
+	
+	public String get_language_en_or_zh()
+		{
+		String language = get_language();
+		
+		if (language == null)
+			language = "en";
+		if (language.equals ("tw") || language.equals ("cn"))
+			language = "zh";
+		
+		return language;
 		}
 	
 	public String device_type()

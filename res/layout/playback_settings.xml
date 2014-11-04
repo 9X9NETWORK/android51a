@@ -51,7 +51,7 @@
 				android:layout_height="wrap_content"	
 				android:layout_marginRight="8dip"
 				android:layout_gravity="left|center_vertical"
-				android:src="@drawable/icon_setting_notification"	
+				android:src="@drawable/skip_setting"	
 				android:focusable="true"						
 				/>			
 			<TextView    		     
@@ -108,7 +108,7 @@
 				android:layout_height="wrap_content"	
 				android:layout_marginRight="8dip"
 				android:layout_gravity="left|center_vertical"
-				android:src="@drawable/icon_setting_notification"	
+				android:src="@drawable/autoplay_setting"	
 				android:focusable="true"						
 				/>			
 			<TextView    		     

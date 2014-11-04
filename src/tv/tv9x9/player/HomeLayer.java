@@ -583,19 +583,24 @@ public class HomeLayer extends StandardFragment
 					}
 				position_set_slider();
 				}
-			
-			portal_stack_visited [position] = true;
-			
+						
 			if (portal_stack_visited.length > 1)
 				{
-				int still_to_visit = 0;
-				for (boolean b: portal_stack_visited)
+				if (position < portal_stack_visited.length)
 					{
-					if (!b)
-						still_to_visit++;
+					portal_stack_visited [position] = true;
+					
+					int still_to_visit = 0;
+					for (boolean b: portal_stack_visited)
+						{
+						if (!b)
+							still_to_visit++;
+						}
+					if (still_to_visit == 0)
+						display_hint_please_visit_store();
 					}
-				if (still_to_visit == 0)
-					display_hint_please_visit_store();
+				else
+					log ("ASSERT! position=" + position + ", but portal_stack_visited.length is " + portal_stack_visited.length);
 				}
 			}
 		

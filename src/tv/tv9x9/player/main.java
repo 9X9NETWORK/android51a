@@ -1594,8 +1594,6 @@ public class main extends VideoBaseActivity
 		public View getView (final int position, View convertView, ViewGroup parent)
 			{
 			LinearLayout rv = null;
-					
-			// log ("menu getView: " + position + " (of " + getCount() + ")"); // noisy
 			
 			if (convertView == null)
 				rv = (LinearLayout) View.inflate (main.this, R.layout.menu_item, null);				
@@ -1851,7 +1849,37 @@ public class main extends VideoBaseActivity
 	public void onLastEpisode()
 		{
 		log ("last episode!");
-		player_full_stop (true);
+		if (config.bear == Bears.GRIZZLY && config.autoplay_setting)
+			autoplay_next_channel();
+		else
+			player_full_stop (true);
+		}
+	
+	public void autoplay_next_channel()
+		{
+		log ("autoplay to next channel");
+		
+		video_message ("Next program coming up!");
+		ugly_video_hack();
+		
+		in_main_thread.postDelayed (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				if (current_layer == toplayer.PLAYBACK)
+					{
+					View vTitlecard = findViewById (R.id.titlecard);
+					if (vTitlecard.getVisibility() == View.VISIBLE)
+						{
+						log ("will now autoplay next channel");
+						next_channel();
+						return;
+						}
+					}
+				log ("we seem to have moved on, will not autoplay next channel");
+				}
+			}, 6000);
 		}
 	
 	@Override
@@ -2142,7 +2170,7 @@ public class main extends VideoBaseActivity
 	public void next_channel()
 		{
 		String next_id = next_channel_id();
-		log ("previous channel id: " + next_id);		
+		log ("next channel id: " + next_id);		
 		change_channel (next_id);	
 		}
 
@@ -3351,11 +3379,7 @@ public class main extends VideoBaseActivity
 			});
 		
 		String mso = config.mso == null ? "9x9" : config.mso;
-		String language = get_language();
-		if (language == null)
-			language = "en";
-		if (language.equals ("tw") || language.equals ("cn"))
-			language = "zh";
+		String language = get_language_en_or_zh();
 		
 		String url = "http://mobile.flipr.tv/android/" + mso + "/support/" + device_type() + "/" + language + "/";
 		if (action != null)
@@ -4322,7 +4346,7 @@ public class main extends VideoBaseActivity
 		program_line = config.program_line_by_id (channel_id);
 		if (program_line != null)
 			{
-			if (position < program_line.length)
+			if (position <= program_line.length)
 				{
 				String episode_id = program_line [position - 1];
 				
@@ -4767,6 +4791,31 @@ public class main extends VideoBaseActivity
 		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
 		if (landscape)
 			onVideoActivityLayout();
+		
+		/* there are two different hints */
+		if (!landscape)
+			{
+			String language = get_language_en_or_zh();
+			
+			String visits = get_preference ("visits-to-playback-page");
+			if (visits.equals (""))
+				visits = "0";
+			visits = Integer.toString (1 + Integer.parseInt (visits));
+			set_preference ("visits-to-playback-page", visits);
+			
+			if (!get_preference ("seen-playback-h-hint").equals ("yes"))
+				{
+				set_preference ("seen-playback-h-hint", "yes");
+				alert_with_image (language.equals ("zh") ? R.drawable.hint_playback_h_zh : R.drawable.hint_playback_h_en);
+				return;
+				}
+			
+			if (Integer.parseInt (visits) >= 2 && !get_preference ("seen-playback-v-hint").equals ("yes"))
+				{
+				set_preference ("seen-playback-v-hint", "yes");
+				alert_with_image (language.equals ("zh") ? R.drawable.hint_playback_v_zh : R.drawable.hint_playback_v_en);
+				}
+			}
 		}
 
 	public void playback_back()
@@ -6757,7 +6806,7 @@ public class main extends VideoBaseActivity
 	@Override
 	public boolean was_video_seen (String episode_id)
 		{        
-		log ("-------------------- >>> wasVideoSeen (" + episode_id + ") " + recMan + " <<< --------------------");
+		log ("-------------------- >>> wasVideoSeen? (" + episode_id + ") <<< --------------------");
 		if (episode_id != null && recMan != null)
 			{
 	        String recordName = "watched";
