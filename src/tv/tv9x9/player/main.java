@@ -103,6 +103,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.Transformation;
 import android.view.inputmethod.InputMethodManager;
+import android.view.ViewParent;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -117,6 +118,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.RelativeLayout;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -3844,10 +3846,17 @@ public class main extends VideoBaseActivity
 			save_hint_settings();
 			}
 		
-		if (us_market())
-			ordinary_playback_hint_animation();
-		else
-			bouncy_playback_hint_animation();
+		in_main_thread.post (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				if (us_market())
+					ordinary_playback_hint_animation();
+				else
+					bouncy_playback_hint_animation();
+				}
+			});
 		}
 	
 	public void ordinary_playback_hint_animation()
@@ -3858,11 +3867,47 @@ public class main extends VideoBaseActivity
 		
 		final int bottom_base = vHoriz.getVisibility() == View.VISIBLE ? vHoriz.getHeight() : 0;
 		
-		final FrameLayout.LayoutParams container_layout = (FrameLayout.LayoutParams) vHint.getLayoutParams();
-		container_layout.bottomMargin = bottom_base;
-		vHint.setLayoutParams (container_layout);
+		/* this error sometimes occurs. It is impossible! we have no RelativeLayout anywhere */
+		/* java.lang.ClassCastException: android.widget.RelativeLayout$LayoutParams cannot be cast to android.widget.FrameLayout$LayoutParams */
+		
+		/* tried to fix this, and this happened */
+		/* java.lang.ClassCastException: android.widget.FrameLayout$LayoutParams cannot be cast to android.widget.LinearLayout$LayoutParams */
+		
+		// final LayoutParams container_layout = (LayoutParams) vHint.getLayoutParams();
+		
+		ViewParent vParent = vHint.getParent();
+		
+		if (vParent instanceof FrameLayout)
+			{
+			log ("hint parent is FrameLayout");
+			final FrameLayout.LayoutParams container_layout = (FrameLayout.LayoutParams) vHint.getLayoutParams();
+			container_layout.bottomMargin = bottom_base;
+			vHint.setLayoutParams (container_layout);
+			}
+		else if (vParent instanceof RelativeLayout)
+			{
+			log ("hint parent is RelativeLayout");
+			final RelativeLayout.LayoutParams container_layout = (RelativeLayout.LayoutParams) vHint.getLayoutParams();
+			container_layout.bottomMargin = bottom_base;
+			vHint.setLayoutParams (container_layout);
+			}
+		else
+			{
+			log ("hint parent neither is FrameLayout nor RelativeLayout, giving up");
+			vHint.setVisibility (View.GONE);
+			return;
+			}
 		
 		vHint.setVisibility (View.VISIBLE);
+		
+		in_main_thread.postDelayed (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				vHint.setVisibility (View.GONE);
+				}
+			}, 6000);
 		}
 	
 	public void bouncy_playback_hint_animation()
