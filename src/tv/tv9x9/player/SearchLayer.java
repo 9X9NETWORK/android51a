@@ -56,7 +56,6 @@ public class SearchLayer extends StandardFragment implements StoreAdapter.mother
     	public void redraw_menu();
     	public void enable_home_layer();
         public void launch_player (String channel_id, String channels[]);
-        public void launch_player (String channel_id, String episode_id, String channels[]);
     	public Handler get_main_thread();
     	public int actual_pixels (int dp);
     	public void track_layer (toplayer layer);
@@ -67,7 +66,6 @@ public class SearchLayer extends StandardFragment implements StoreAdapter.mother
     	public void share_episode (String channel_id, String episode_id);
     	public void set_follow_icon_state (View v, String channel_id, int follow_resource_id, int unfollow_resource_id);
     	public void parse_special_tags (String type, String tags, String set_id);
-    	
     	public void enable_search_layer();
     	public StoreLayer store_class();
     	public void track_event (String category, String action, String label, long value);

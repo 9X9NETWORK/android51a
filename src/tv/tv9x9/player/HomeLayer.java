@@ -13,6 +13,7 @@ import java.util.Hashtable;
 import java.util.Stack;
 
 import tv.tv9x9.player.main.toplayer;
+import tv.tv9x9.player.metadata.Bears;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -92,6 +93,8 @@ public class HomeLayer extends StandardFragment
     	public void exit_stage_left();
     	public void parse_special_tags (String type, String tags, String set_id);
     	public void actual_alert (String text);
+    	public boolean us_market();
+    	public void enable_home_store_hint();
 		}    
     
     OnHomeListener mCallback; 
@@ -1299,7 +1302,7 @@ public class HomeLayer extends StandardFragment
 				{				
 				TextView vFirstEpisodeTitle = (TextView) row.findViewById (R.id.first_episode_title);
 				if (vFirstEpisodeTitle != null)
-					vFirstEpisodeTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 20);
+					vFirstEpisodeTitle.setTextSize (TypedValue.COMPLEX_UNIT_SP, 17);
 				
 				TextView vAgo = (TextView) row.findViewById (R.id.ago);
 				if (vAgo != null)
@@ -1459,86 +1462,116 @@ public class HomeLayer extends StandardFragment
 			}
 		}
 	
-	public void bouncy_home_hint_animation()
+	public void remove_home_hint()
+		{
+		ImageView vHint = (ImageView) getView().findViewById (R.id.home_swipe_hint);
+		vHint.setVisibility (View.GONE);
+		}
+	
+	public void home_hint_animation()
 		{
 		if (!mCallback.get_hint_setting ("seen-bouncy-home-hint"))
 			{
 			mCallback.set_hint_setting ("seen-bouncy-home-hint", true);
-			
-			final View vHint = getView().findViewById (R.id.home_swipe_hint);
-			
-			AnimatorSet as = new AnimatorSet();
-			
-			ValueAnimator animH1 = ValueAnimator.ofInt (mCallback.actual_pixels (100), mCallback.actual_pixels (150));
-			ValueAnimator animH2 = ValueAnimator.ofInt (mCallback.actual_pixels (150), mCallback.actual_pixels (120));		
-			ValueAnimator animH3 = ValueAnimator.ofInt (mCallback.actual_pixels (150), mCallback.actual_pixels (100));
-			
-			int dy = mCallback.is_phone() ? mCallback.actual_pixels (20) : mCallback.actual_pixels (30);
-			
-			ValueAnimator halfLEFT  = ValueAnimator.ofInt ( 0,  -dy);
-			ValueAnimator halfRIGHT = ValueAnimator.ofInt (-dy,  0 );
-			ValueAnimator fullLEFT  = ValueAnimator.ofInt (+dy, -dy);
-			ValueAnimator fullRIGHT = ValueAnimator.ofInt (-dy, +dy);
-			
-			ValueAnimator.AnimatorUpdateListener listenerH = new ValueAnimator.AnimatorUpdateListener()
-		    	{
-		        @Override
-		        public void onAnimationUpdate (ValueAnimator valueAnimator)
-		        	{
-		            int val = (Integer) valueAnimator.getAnimatedValue();
-		            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) vHint.getLayoutParams();
-		            layoutParams.height = val;
-		            log ("ANIM height: " + val);
-		            final FrameLayout.LayoutParams lp = layoutParams;
-		            vHint.setLayoutParams(lp);
-		        	}
-		    	};
-	
-			ValueAnimator.AnimatorUpdateListener listenerM = new ValueAnimator.AnimatorUpdateListener()
-		    	{
-		        @Override
-		        public void onAnimationUpdate (ValueAnimator valueAnimator)
-		        	{
-		            int val = (Integer) valueAnimator.getAnimatedValue();
-		            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) vHint.getLayoutParams();
-		            layoutParams.leftMargin = val;
-		            final FrameLayout.LayoutParams lp = layoutParams;
-		            vHint.setLayoutParams(lp);
-		        	}
-		    	};
-		    	
-		    animH1.addUpdateListener (listenerH);
-		    animH2.addUpdateListener (listenerH);
-		    animH3.addUpdateListener (listenerH);	
-		    
-		    halfLEFT.addUpdateListener (listenerM);
-		    halfRIGHT.addUpdateListener (listenerM);
-		    fullLEFT.addUpdateListener (listenerM);
-		    fullRIGHT.addUpdateListener (listenerM);
-		    
-			ObjectAnimator animFI = ObjectAnimator.ofFloat (vHint, "alpha", 0.0f, 1.0f);
-			ObjectAnimator animFO = ObjectAnimator.ofFloat (vHint, "alpha", 1.0f, 0.0f);			
-	
-			animFI.setDuration (300);
-			animH1.setDuration (1000);
-			animH2.setDuration (1000);
-			animH3.setDuration (400);		
-			animFO.setDuration (300);
-			halfLEFT.setDuration (300);
-			halfRIGHT.setDuration (300);
-			fullLEFT.setDuration (600);
-			fullRIGHT.setDuration (600);
-			
-		    as.play(animFI).with(animH1);
-		    as.play(animH3).after(animH1);
-		    as.play(halfLEFT).after(animH3);
-		    as.play(fullRIGHT).after(halfLEFT);
-		    as.play(fullLEFT).after(fullRIGHT);
-		    as.play(halfRIGHT).after(fullLEFT);	    
-		    as.play(animFO).after(halfRIGHT);
-		     
-			as.start();		
+			if (mCallback.us_market())
+				ordinary_home_hint_animation();
+			else
+				bouncy_home_hint_animation();
 			}
+		}
+	
+	public void ordinary_home_hint_animation()
+		{
+		ImageView vHint = (ImageView) getView().findViewById (R.id.home_swipe_hint);
+		
+		vHint.setImageResource (R.drawable.home_hint_ordinary);
+		vHint.setVisibility (View.VISIBLE);
+		
+		mCallback.get_main_thread().postDelayed (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				remove_home_hint();
+				}
+			}, 8000);
+		}
+	
+	public void bouncy_home_hint_animation()
+		{
+		final View vHint = getView().findViewById (R.id.home_swipe_hint);
+		
+		AnimatorSet as = new AnimatorSet();
+		
+		ValueAnimator animH1 = ValueAnimator.ofInt (mCallback.actual_pixels (100), mCallback.actual_pixels (150));
+		ValueAnimator animH2 = ValueAnimator.ofInt (mCallback.actual_pixels (150), mCallback.actual_pixels (120));		
+		ValueAnimator animH3 = ValueAnimator.ofInt (mCallback.actual_pixels (150), mCallback.actual_pixels (100));
+		
+		int dy = mCallback.is_phone() ? mCallback.actual_pixels (20) : mCallback.actual_pixels (30);
+		
+		ValueAnimator halfLEFT  = ValueAnimator.ofInt ( 0,  -dy);
+		ValueAnimator halfRIGHT = ValueAnimator.ofInt (-dy,  0 );
+		ValueAnimator fullLEFT  = ValueAnimator.ofInt (+dy, -dy);
+		ValueAnimator fullRIGHT = ValueAnimator.ofInt (-dy, +dy);
+		
+		ValueAnimator.AnimatorUpdateListener listenerH = new ValueAnimator.AnimatorUpdateListener()
+	    	{
+	        @Override
+	        public void onAnimationUpdate (ValueAnimator valueAnimator)
+	        	{
+	            int val = (Integer) valueAnimator.getAnimatedValue();
+	            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) vHint.getLayoutParams();
+	            layoutParams.height = val;
+	            log ("ANIM height: " + val);
+	            final FrameLayout.LayoutParams lp = layoutParams;
+	            vHint.setLayoutParams(lp);
+	        	}
+	    	};
+
+		ValueAnimator.AnimatorUpdateListener listenerM = new ValueAnimator.AnimatorUpdateListener()
+	    	{
+	        @Override
+	        public void onAnimationUpdate (ValueAnimator valueAnimator)
+	        	{
+	            int val = (Integer) valueAnimator.getAnimatedValue();
+	            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) vHint.getLayoutParams();
+	            layoutParams.leftMargin = val;
+	            final FrameLayout.LayoutParams lp = layoutParams;
+	            vHint.setLayoutParams(lp);
+	        	}
+	    	};
+	    	
+	    animH1.addUpdateListener (listenerH);
+	    animH2.addUpdateListener (listenerH);
+	    animH3.addUpdateListener (listenerH);	
+	    
+	    halfLEFT.addUpdateListener (listenerM);
+	    halfRIGHT.addUpdateListener (listenerM);
+	    fullLEFT.addUpdateListener (listenerM);
+	    fullRIGHT.addUpdateListener (listenerM);
+	    
+		ObjectAnimator animFI = ObjectAnimator.ofFloat (vHint, "alpha", 0.0f, 1.0f);
+		ObjectAnimator animFO = ObjectAnimator.ofFloat (vHint, "alpha", 1.0f, 0.0f);			
+
+		animFI.setDuration (300);
+		animH1.setDuration (1000);
+		animH2.setDuration (1000);
+		animH3.setDuration (400);		
+		animFO.setDuration (300);
+		halfLEFT.setDuration (300);
+		halfRIGHT.setDuration (300);
+		fullLEFT.setDuration (600);
+		fullRIGHT.setDuration (600);
+		
+	    as.play(animFI).with(animH1);
+	    as.play(animH3).after(animH1);
+	    as.play(halfLEFT).after(animH3);
+	    as.play(fullRIGHT).after(halfLEFT);
+	    as.play(fullLEFT).after(fullRIGHT);
+	    as.play(halfRIGHT).after(fullLEFT);	    
+	    as.play(animFO).after(halfRIGHT);
+	     
+		as.start();		
 		}
 	
 	public void display_hint_please_visit_store()
@@ -1546,7 +1579,8 @@ public class HomeLayer extends StandardFragment
 		if (mCallback.get_hint_setting ("seen-visit-store-hint") == false)
 			{
 			mCallback.set_hint_setting ("seen-visit-store-hint", true);
-			mCallback.actual_alert ("Find more content in our Store!");
+			// mCallback.actual_alert ("Find more content in our Store!");
+			mCallback.enable_home_store_hint();
 			}
 		}
 	}

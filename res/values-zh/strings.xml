@@ -274,4 +274,6 @@
 	<string name="skip_watched_episodes">Skip Watched Episodes</string>
 	<string name="auto_play_next_program">Auto-Play Next Program</string>		
 	<string name="three_in_a_row">Turn &#8220;Skip Watched Episodes&#8221; on/off in <b><u>Settings</u></b></string>	
+	<string name="home_store_hint">Tap to expand the Menu. Then visit the Store for more great content.</string>	
+	<string name="playback_subscribe_hint">Like this program? Tap to follow it!</string>	
 </resources>

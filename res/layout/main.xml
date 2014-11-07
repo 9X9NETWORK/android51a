@@ -220,6 +220,8 @@
 	    android:background="#000000"
 	    />
 		
+	<include layout="@layout/home_store_hint" />
+		
 	<include layout="@layout/video_layer_new" />
 					
 	<FrameLayout

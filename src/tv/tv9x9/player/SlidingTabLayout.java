@@ -230,8 +230,9 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
             mTabStrip.addView(tabView);
 
-            int divisor = adapter.getCount() >= 3 ? 3 : 2;
-                		
+            // int divisor = adapter.getCount() >= 3 ? 3 : 2;                	
+            float wfactor = adapter.getCount() >= 3 ? 0.40f : 0.5f;
+            
     		int orientation = getResources().getConfiguration().orientation;
     		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
     		
@@ -264,7 +265,8 @@ public class SlidingTabLayout extends HorizontalScrollView {
     		if (width > 0)
 	    		{
 	            SlidingTabStrip.LayoutParams layout = (SlidingTabStrip.LayoutParams) tabView.getLayoutParams();
-	            layout.width = width / divisor;
+	            // layout.width = width / divisor;
+	            layout.width = (int) (((float) width) * wfactor);
 	            tabView.setLayoutParams(layout);
 	    		}
         }

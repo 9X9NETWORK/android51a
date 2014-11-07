@@ -490,6 +490,14 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		in_main_thread.post (r);
 		}
 	
+	public boolean us_market()
+		{
+		if (config != null)
+			return (config.bear == Bears.GRIZZLY || config.bear == Bears.BLACK);
+		else
+			return false;
+		}
+	
 	public void flurry_log (String event, String k1, String v1)
 		{
 		if (event != null)
@@ -1617,8 +1625,27 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		vTitlecard.setVisibility (View.VISIBLE);	
 		set_video_visibility (View.GONE);
 		
+		ImageView vTitlecardBG = (ImageView) findViewById (R.id.titlecardbg);
+		vTitlecardBG.setVisibility (View.GONE);
+		
 		View vBacking = findViewById (R.id.backing_controls);
 		vBacking.setVisibility (View.GONE);
+		}
+	
+	public void video_message_with_image (int resource_id)
+		{
+		video_message ("");
+		ugly_titlecard_hack();
+		
+		ImageView vTitlecardBG = (ImageView) findViewById (R.id.titlecardbg);
+		
+		if (resource_id != 0)
+			{
+			vTitlecardBG.setImageResource (resource_id);
+			vTitlecardBG.setVisibility (View.VISIBLE);
+			}
+		else
+			vTitlecardBG.setVisibility (View.GONE);
 		}
 	
 	public void ugly_video_hack()
@@ -1627,14 +1654,44 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		if (!video_is_minimized() && videoFragment != null && videoFragment.video_width > 0)
 			{
 			/* set the height of the wrapper, otherwise collapsing the video will also collapse the wrapper */
+			
+			/* estimate the height if not already known */
+			int h = (videoFragment.video_width > 0) ? videoFragment.video_height : (int) (0.5625f * screen_width);
+			
 			int orientation = getRequestedOrientation();
 	    	boolean landscape = orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 			SpecialFrameLayout yt_wrapper = (SpecialFrameLayout) findViewById (R.id.ytwrapper2);
 			LinearLayout.LayoutParams wrapper_layout = (LinearLayout.LayoutParams) yt_wrapper.getLayoutParams();
 			wrapper_layout.weight = landscape ? 1.0f : 0f;
-			wrapper_layout.height = landscape ? 0 : videoFragment.video_height;
+			wrapper_layout.height = landscape ? 0 : h;
 			wrapper_layout.width = landscape ? MATCH_PARENT : videoFragment.video_width;
 			yt_wrapper.setLayoutParams (wrapper_layout);
+			}	
+		}
+
+	public void ugly_titlecard_hack()
+		{
+		/* ugly hack */
+		if (!video_is_minimized())
+			{
+			/* set the height of the wrapper, otherwise collapsing the video will also collapse the wrapper */
+			
+			/* estimate the height if not already known */
+			int h = (videoFragment.video_width > 0) ? videoFragment.video_height : (int) (0.5625f * screen_width);
+			int w = (videoFragment.video_width > 0) ? videoFragment.video_width : screen_width;
+			
+			/* override above */
+			h = (int) (0.5625f * screen_width);
+			w = screen_width;
+			
+			log ("******************************** H=" + h + "***************************************");
+			int orientation = getRequestedOrientation();
+	    	boolean landscape = orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			View vTitlecard = findViewById (R.id.titlecard);
+			SpecialFrameLayout.LayoutParams layout = (SpecialFrameLayout.LayoutParams) vTitlecard.getLayoutParams();
+			layout.height = h;
+			layout.width = MATCH_PARENT;
+			vTitlecard.setLayoutParams (layout);
 			}	
 		}
 	
@@ -2266,7 +2323,7 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 			if (current_episode_index + 1 <= program_line.length)
 				{
 				log ("next episode");
-				if (config.bear == Bears.GRIZZLY)
+				if (us_market())
 					{
 					if (config.skip_setting)
 						{

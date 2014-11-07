@@ -1058,6 +1058,8 @@
 			    android:adjustViewBounds="true"
 			    />
 		</FrameLayout>
+		<include layout="@layout/playback_subscribe_hint" />
+				
 	    </FrameLayout>	
 	   
 	</LinearLayout> 			

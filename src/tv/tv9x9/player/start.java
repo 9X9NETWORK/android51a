@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 
 import tv.tv9x9.player.main.toplayer;
+import tv.tv9x9.player.metadata.Bears;
 import tv.tv9x9.player.switchboard.LocalBinder;
 
 import android.app.Activity;
@@ -634,6 +635,13 @@ public class start extends Activity
 						config.store_on_off = value;
 					else if (key.equals ("search"))
 						config.search_on_off = value;
+					else if (key.equals ("bear"))
+						{
+						if (value.equals ("grizzly"))
+							config.bear = Bears.GRIZZLY;
+						else if (value.equals ("blackbear"))
+							config.bear = Bears.BLACK;						
+						}
 					else if (key.equals ("social-feeds-server"))
 						{
 						String subfields[] = value.split (" ");

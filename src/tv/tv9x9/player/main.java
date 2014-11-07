@@ -350,6 +350,14 @@ public class main extends VideoBaseActivity
 	    	
 	    	log ("key BACK (layer " + current_layer.toString() + ")");
 	    	
+	    	View vStoreHint = findViewById (R.id.home_store_hint);
+	    	if (vStoreHint.getVisibility() == View.VISIBLE)
+	    		{
+    			log ("removing store hint");
+	    		vStoreHint.setVisibility (View.GONE);
+	    		return true;
+	    		}
+	    	
 	    	if (is_tablet())
 	    		{
 				Fragment f = getSupportFragmentManager().findFragmentById (R.id.settings_fragment_container_tablet);		
@@ -392,7 +400,7 @@ public class main extends VideoBaseActivity
 	    			}
 	    		else
 	    			{
-	    			if (config.bear == Bears.GRIZZLY)
+	    			if (us_market())
 		    			{
 	    				log ("BACK in playback: minimize");
 	    				video_minimize (true);
@@ -857,9 +865,9 @@ public class main extends VideoBaseActivity
 		{
 		/* remove circle icons from USA layout, or square icons from Taiwan layout */
 		
-		int disappear_real_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.real_channel_icon_circle : R.id.real_channel_icon_square;
-		int disappear_portrait_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.playback_channel_icon_circle : R.id.playback_channel_icon_square;
-		int disappear_landscape_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.playback_channel_icon_landscape_circle : R.id.playback_channel_icon_landscape_square;
+		int disappear_real_icon_id = us_market() ? R.id.real_channel_icon_circle : R.id.real_channel_icon_square;
+		int disappear_portrait_icon_id = us_market() ? R.id.playback_channel_icon_circle : R.id.playback_channel_icon_square;
+		int disappear_landscape_icon_id = us_market() ? R.id.playback_channel_icon_landscape_circle : R.id.playback_channel_icon_landscape_square;
 
 		for (int icon: new Integer[] { disappear_real_icon_id, disappear_portrait_icon_id, disappear_landscape_icon_id })
 			{
@@ -1849,7 +1857,7 @@ public class main extends VideoBaseActivity
 	public void onLastEpisode()
 		{
 		log ("last episode!");
-		if (config.bear == Bears.GRIZZLY && config.autoplay_setting)
+		if (us_market() && config.autoplay_setting)
 			autoplay_next_channel();
 		else
 			player_full_stop (true);
@@ -1859,7 +1867,10 @@ public class main extends VideoBaseActivity
 		{
 		log ("autoplay to next channel");
 		
-		video_message ("Next program coming up!");
+		String next_id = next_channel_id();
+		String channel_name = config.pool_meta (next_id, "name");
+		
+		video_message ("Next program playing in 6 seconds\n\nNext Program:\n\n" + channel_name);
 		ugly_video_hack();
 		
 		in_main_thread.postDelayed (new Runnable()
@@ -2076,7 +2087,7 @@ public class main extends VideoBaseActivity
 			int orientation = getResources().getConfiguration().orientation;
 			boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
 			
-			if (landscape || config == null || config.bear != Bears.GRIZZLY)
+			if (landscape || config == null || !us_market())
 				{
 				vSkippistan.setVisibility (View.GONE);
 				return;
@@ -3008,6 +3019,9 @@ public class main extends VideoBaseActivity
 		{
 		log ("set layer: " + layer.toString());
 
+    	View vStoreHint = findViewById (R.id.home_store_hint);
+    	vStoreHint.setVisibility (View.GONE);
+    	
 		/* overlay! */
 		if (layer != toplayer.SIGNIN)
 			{
@@ -3091,7 +3105,13 @@ public class main extends VideoBaseActivity
 		        ft.commit();
 				}
 			
-			/* note! this is an overlay, return */
+			if (is_phone())
+				{
+				/* for phone version, if this isn't by default GONE, the settings layer flashes briefly on startup */
+				View vSettings = findViewById (R.id.settingslayer_phone);
+				vSettings.setVisibility (View.VISIBLE);
+				}
+			/* note! this is an overlay, return (for tablet at least) */
 			return;
 			}
 
@@ -3719,7 +3739,7 @@ public class main extends VideoBaseActivity
 		
 		track_layer (toplayer.HOME);
 		
-		home_class().bouncy_home_hint_animation();
+		home_class().home_hint_animation();
 		home_class().refresh();
 		}
 	
@@ -3776,9 +3796,42 @@ public class main extends VideoBaseActivity
 			}
 		}
 	
+	public void enable_home_store_hint()
+		{
+		final View vHint = findViewById (R.id.home_store_hint);
+		vHint.setVisibility (View.VISIBLE);
+		
+		final View vButton = findViewById (R.id.hint_menu_button);
+		vButton.setOnClickListener (new OnClickListener()
+			{
+	        @Override
+	        public void onClick (View v)
+	        	{
+	        	vHint.setVisibility (View.GONE);
+				toggle_menu (new Callback()
+			    	{
+			    	public void run()
+			    		{
+			    		enable_store_layer();
+			    		toggle_menu();
+			    		}
+			    	});
+	        	}
+			});
+		
+		vHint.setOnClickListener (new OnClickListener()
+			{
+	        @Override
+	        public void onClick (View v)
+	        	{
+	        	vHint.setVisibility (View.GONE);
+	        	}
+			});	
+		}
+	
 	/*** HINTS **************************************************************************************************/
 
-	public void bouncy_playback_hint_animation()
+	public void playback_hint_animation()
 		{
 		if (!seen_bouncy_playback_hint)
 			{
@@ -3789,115 +3842,138 @@ public class main extends VideoBaseActivity
 			
 			seen_bouncy_playback_hint = true;
 			save_hint_settings();
-			
-			final View vCircle = findViewById (R.id.follow_hint_circle);
-			
-			final View vHint = findViewById (R.id.playback_follow_hint);
-			final View vContainer = findViewById (R.id.playback_follow_hint_container);
-			
-			final View vHoriz = findViewById (R.id.playback_horiz);
-			
-			final int bottom_base = vHoriz.getVisibility() == View.VISIBLE ? vHoriz.getHeight() : 0;
-			
-			final FrameLayout.LayoutParams container_layout = (FrameLayout.LayoutParams) vContainer.getLayoutParams();
-			container_layout.bottomMargin = bottom_base;
-			vContainer.setLayoutParams (container_layout);
-			
-			vContainer.setVisibility (View.VISIBLE);
-			vCircle.setVisibility (View.VISIBLE);
-	        
-	        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) vHint.getLayoutParams();
-	        layoutParams.bottomMargin = -pixels_25;
-	        vHint.setLayoutParams (layoutParams);
-	        
-			AnimatorSet as = new AnimatorSet();
-			
-			int dy = pixels_5;
-			
-			ValueAnimator halfUP    = ValueAnimator.ofInt (  0, +dy);
-			ValueAnimator halfDOWN  = ValueAnimator.ofInt (+dy,   0);
-			ValueAnimator fullUP1   = ValueAnimator.ofInt (-dy, +dy);
-			ValueAnimator fullDOWN1 = ValueAnimator.ofInt (+dy, -dy);
-			
-			ValueAnimator fullUP2   = ValueAnimator.ofInt (-dy, +dy);
-			ValueAnimator fullDOWN2 = ValueAnimator.ofInt (+dy, -dy);
-			
-			ValueAnimator.AnimatorUpdateListener listenerH = new ValueAnimator.AnimatorUpdateListener()
-		    	{
-		        @Override
-		        public void onAnimationUpdate (ValueAnimator valueAnimator)
-		        	{
-		            int val = (Integer) valueAnimator.getAnimatedValue();
-		            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) vHint.getLayoutParams();
-		            layoutParams.height = val;
-		            layoutParams.width = val;
-		            vHint.setLayoutParams (layoutParams);
-		        	}
-		    	};
-		
-			ValueAnimator.AnimatorUpdateListener listenerM = new ValueAnimator.AnimatorUpdateListener()
-		    	{
-		        @Override
-		        public void onAnimationUpdate (ValueAnimator valueAnimator)
-		        	{
-		            int val = (Integer) valueAnimator.getAnimatedValue();
-		            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) vHint.getLayoutParams();
-		            layoutParams.bottomMargin = -pixels_25 + val;
-		            final FrameLayout.LayoutParams lp = layoutParams;
-		            vHint.setLayoutParams(lp);
-		        	}
-		    	};
-		    
-		    halfUP.addUpdateListener (listenerM);
-		    halfDOWN.addUpdateListener (listenerM);
-		    fullUP1.addUpdateListener (listenerM);
-		    fullDOWN1.addUpdateListener (listenerM);
-		    fullUP2.addUpdateListener (listenerM);
-		    fullDOWN2.addUpdateListener (listenerM);
-		    
-			ObjectAnimator animFI = ObjectAnimator.ofFloat (vHint, "alpha", 0.0f, 1.0f);
-			ObjectAnimator animFO = ObjectAnimator.ofFloat (vHint, "alpha", 1.0f, 0.0f);			
-		
-			animFI.setDuration (300);		
-			animFO.setDuration (300);
-			halfUP.setDuration (400);
-			halfDOWN.setDuration (400);
-			fullUP1.setDuration (800);
-			fullDOWN1.setDuration (800);
-			fullUP2.setDuration (800);
-			fullDOWN2.setDuration (800);
-			
-		    as.play (animFI);
-		    as.play (halfUP).after (animFI);
-		    as.play (fullDOWN1).after (halfUP);
-		    as.play (fullUP1).after (fullDOWN1);
-		    as.play (fullDOWN2).after (fullUP1);
-		    as.play (fullUP2).after (fullDOWN2);
-		    as.play (halfDOWN).after (fullUP2);	    
-		    as.play (animFO).after (halfDOWN);
-		     
-		    int total_duration = 300 + 400 + 800 + 800 + 800 + 800 + 400 + 300;
-		    
-			as.start();
-			
-			in_main_thread.postDelayed (new Runnable()
-				{
-				@Override
-				public void run()
-					{
-					vCircle.setVisibility (View.GONE);
-					}
-				}, total_duration);
-			
-			in_main_thread.postDelayed (new Runnable()
-				{
-				@Override
-				public void run()
-					{
-					vContainer.setVisibility (View.GONE);
-					}
-				}, total_duration + 300);
 			}
+		
+		if (us_market())
+			ordinary_playback_hint_animation();
+		else
+			bouncy_playback_hint_animation();
+		}
+	
+	public void ordinary_playback_hint_animation()
+		{
+		final View vHint = findViewById (R.id.playback_subscribe_hint);
+		
+		final View vHoriz = findViewById (R.id.playback_horiz);
+		
+		final int bottom_base = vHoriz.getVisibility() == View.VISIBLE ? vHoriz.getHeight() : 0;
+		
+		final FrameLayout.LayoutParams container_layout = (FrameLayout.LayoutParams) vHint.getLayoutParams();
+		container_layout.bottomMargin = bottom_base;
+		vHint.setLayoutParams (container_layout);
+		
+		vHint.setVisibility (View.VISIBLE);
+		}
+	
+	public void bouncy_playback_hint_animation()
+		{
+		final View vCircle = findViewById (R.id.follow_hint_circle);
+		
+		final View vHint = findViewById (R.id.playback_follow_hint);
+		final View vContainer = findViewById (R.id.playback_follow_hint_container);
+		
+		final View vHoriz = findViewById (R.id.playback_horiz);
+		
+		final int bottom_base = vHoriz.getVisibility() == View.VISIBLE ? vHoriz.getHeight() : 0;
+		
+		final FrameLayout.LayoutParams container_layout = (FrameLayout.LayoutParams) vContainer.getLayoutParams();
+		container_layout.bottomMargin = bottom_base;
+		vContainer.setLayoutParams (container_layout);
+		
+		vContainer.setVisibility (View.VISIBLE);
+		vCircle.setVisibility (View.VISIBLE);
+        
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) vHint.getLayoutParams();
+        layoutParams.bottomMargin = -pixels_25;
+        vHint.setLayoutParams (layoutParams);
+        
+		AnimatorSet as = new AnimatorSet();
+		
+		int dy = pixels_5;
+		
+		ValueAnimator halfUP    = ValueAnimator.ofInt (  0, +dy);
+		ValueAnimator halfDOWN  = ValueAnimator.ofInt (+dy,   0);
+		ValueAnimator fullUP1   = ValueAnimator.ofInt (-dy, +dy);
+		ValueAnimator fullDOWN1 = ValueAnimator.ofInt (+dy, -dy);
+		
+		ValueAnimator fullUP2   = ValueAnimator.ofInt (-dy, +dy);
+		ValueAnimator fullDOWN2 = ValueAnimator.ofInt (+dy, -dy);
+		
+		ValueAnimator.AnimatorUpdateListener listenerH = new ValueAnimator.AnimatorUpdateListener()
+	    	{
+	        @Override
+	        public void onAnimationUpdate (ValueAnimator valueAnimator)
+	        	{
+	            int val = (Integer) valueAnimator.getAnimatedValue();
+	            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) vHint.getLayoutParams();
+	            layoutParams.height = val;
+	            layoutParams.width = val;
+	            vHint.setLayoutParams (layoutParams);
+	        	}
+	    	};
+	
+		ValueAnimator.AnimatorUpdateListener listenerM = new ValueAnimator.AnimatorUpdateListener()
+	    	{
+	        @Override
+	        public void onAnimationUpdate (ValueAnimator valueAnimator)
+	        	{
+	            int val = (Integer) valueAnimator.getAnimatedValue();
+	            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) vHint.getLayoutParams();
+	            layoutParams.bottomMargin = -pixels_25 + val;
+	            final FrameLayout.LayoutParams lp = layoutParams;
+	            vHint.setLayoutParams(lp);
+	        	}
+	    	};
+	    
+	    halfUP.addUpdateListener (listenerM);
+	    halfDOWN.addUpdateListener (listenerM);
+	    fullUP1.addUpdateListener (listenerM);
+	    fullDOWN1.addUpdateListener (listenerM);
+	    fullUP2.addUpdateListener (listenerM);
+	    fullDOWN2.addUpdateListener (listenerM);
+	    
+		ObjectAnimator animFI = ObjectAnimator.ofFloat (vHint, "alpha", 0.0f, 1.0f);
+		ObjectAnimator animFO = ObjectAnimator.ofFloat (vHint, "alpha", 1.0f, 0.0f);			
+	
+		animFI.setDuration (300);		
+		animFO.setDuration (300);
+		halfUP.setDuration (400);
+		halfDOWN.setDuration (400);
+		fullUP1.setDuration (800);
+		fullDOWN1.setDuration (800);
+		fullUP2.setDuration (800);
+		fullDOWN2.setDuration (800);
+		
+	    as.play (animFI);
+	    as.play (halfUP).after (animFI);
+	    as.play (fullDOWN1).after (halfUP);
+	    as.play (fullUP1).after (fullDOWN1);
+	    as.play (fullDOWN2).after (fullUP1);
+	    as.play (fullUP2).after (fullDOWN2);
+	    as.play (halfDOWN).after (fullUP2);	    
+	    as.play (animFO).after (halfDOWN);
+	     
+	    int total_duration = 300 + 400 + 800 + 800 + 800 + 800 + 400 + 300;
+	    
+		as.start();
+		
+		in_main_thread.postDelayed (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				vCircle.setVisibility (View.GONE);
+				}
+			}, total_duration);
+		
+		in_main_thread.postDelayed (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				vContainer.setVisibility (View.GONE);
+				}
+			}, total_duration + 300);
 		}	
     
 	boolean loaded_hint_settings = false;
@@ -4310,54 +4386,58 @@ public class main extends VideoBaseActivity
 	PlaybackChannelAdapter playback_channel_adapter = null;
 	// PlaybackCommentsAdapter playback_comments_adapter = null;
 	
-	public void play_channel (String channel_id)
+	public void play_channel (final String channel_id)
 		{
-		if (current_layer != toplayer.PLAYBACK)
+		enable_player_layer (channel_id, new Runnable()
 			{
-			enable_player_layer();
-			in_main_thread.postDelayed (new Runnable()
+			@Override
+			public void run()
 				{
-				@Override
-				public void run()
+				in_main_thread.postDelayed (new Runnable()
 					{
-					bouncy_playback_hint_animation();
-					}
-				}, 3000);
-			setup_player_adapters (channel_id);
-			// setup_player_fragment (channel_id);
-			}
-		play_first (channel_id);
+					@Override
+					public void run()
+						{
+						playback_hint_animation();
+						}
+					}, 3000);
+				play_first (channel_id);
+				}
+			});
 		}
 	
-	public void play_episode_in_channel (String channel_id, String episode_id)
+	public void play_episode_in_channel (final String channel_id, final String episode_id)
 		{
-		if (current_layer != toplayer.PLAYBACK)
+		enable_player_layer (channel_id, new Runnable()
 			{
-			enable_player_layer();
-			setup_player_adapters (channel_id);
-			}
-		log ("Play episode: " + episode_id + " in channel " + channel_id);
-		play (channel_id, episode_id);
+			@Override
+			public void run()
+				{
+				log ("Play episode: " + episode_id + " in channel " + channel_id);
+				play (channel_id, episode_id);
+				}
+			});
 		}
 	
 	@Override
-	public void play_nth_episode_in_channel (String channel_id, int position)
+	public void play_nth_episode_in_channel (final String channel_id, final int position)
 		{
 		program_line = config.program_line_by_id (channel_id);
 		if (program_line != null)
 			{
 			if (position <= program_line.length)
 				{
-				String episode_id = program_line [position - 1];
+				final String episode_id = program_line [position - 1];
 				
-				if (current_layer != toplayer.PLAYBACK)
+				enable_player_layer (channel_id, new Runnable()
 					{
-					enable_player_layer();
-					setup_player_adapters (channel_id);
-					}
-				
-				redraw_playback (channel_id, episode_id);
-				play_nth (channel_id, position);
+					@Override
+					public void run()
+						{
+						redraw_playback (channel_id, episode_id);
+						play_nth (channel_id, position);
+						}
+					});
 				}
 			else
 				config.dump_episode_line (program_line);
@@ -4450,9 +4530,9 @@ public class main extends VideoBaseActivity
 	
 	public void update_channel_icon (final String channel_id)
 		{
-		int real_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.real_channel_icon_square : R.id.real_channel_icon_circle;
-		int portrait_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.playback_channel_icon_square : R.id.playback_channel_icon_circle;
-		int landscape_icon_id = (config.bear == Bears.GRIZZLY) ? R.id.playback_channel_icon_landscape_square : R.id.playback_channel_icon_landscape_circle;		
+		int real_icon_id = us_market() ? R.id.real_channel_icon_square : R.id.real_channel_icon_circle;
+		int portrait_icon_id = us_market() ? R.id.playback_channel_icon_square : R.id.playback_channel_icon_circle;
+		int landscape_icon_id = us_market() ? R.id.playback_channel_icon_landscape_square : R.id.playback_channel_icon_landscape_circle;		
 		ImageView vChannelIcon = (ImageView) findViewById (portrait_icon_id);
 		ImageView vChannelIconLandscape = (ImageView) findViewById (landscape_icon_id);
 		if (vChannelIcon != null || vChannelIconLandscape != null)
@@ -4772,7 +4852,81 @@ public class main extends VideoBaseActivity
 		return findViewById (R.id.video_layer_new);
 		}
 	
-	public void enable_player_layer()
+	/* Enable the player layer, activating any hints. Once the hints have displayed, continue
+	   flow by calling back the provided Runnable */
+
+	public void enable_player_layer (String channel_id, final Runnable callback)
+		{
+		if (current_layer == toplayer.PLAYBACK)
+			{
+			callback.run();
+			return;
+			}
+			
+		enable_player_layer (channel_id);
+		
+		int orientation = getResources().getConfiguration().orientation;
+		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
+		
+		/* there are two different hints */
+		if (!landscape)
+			{
+			String language = get_language_en_or_zh();
+			
+			String visits = get_preference ("visits-to-playback-page");
+			if (visits.equals (""))
+				visits = "0";
+			visits = Integer.toString (1 + Integer.parseInt (visits));
+			set_preference ("visits-to-playback-page", visits);
+			
+			if (!get_preference ("seen-playback-h-hint").equals ("yes"))
+				{
+				set_preference ("seen-playback-h-hint", "yes");
+				// alert_with_image (language.equals ("zh") ? R.drawable.hint_playback_h_zh : R.drawable.hint_playback_h_en);
+				video_message_with_image (language.equals ("zh") ? R.drawable.hint_playback_h_zh : R.drawable.hint_playback_h_en);
+				in_main_thread.postDelayed (new Runnable()
+					{
+					@Override
+					public void run()
+						{
+						if (current_layer == toplayer.PLAYBACK)
+							{
+							View vTitlecard = findViewById (R.id.titlecard);
+							vTitlecard.setVisibility (View.GONE);
+							callback.run();
+							}
+						}
+					}, 6000);
+				return;
+				}
+			
+			if (Integer.parseInt (visits) >= 2 && !get_preference ("seen-playback-v-hint").equals ("yes"))
+				{
+				set_preference ("seen-playback-v-hint", "yes");
+				// alert_with_image (language.equals ("zh") ? R.drawable.hint_playback_v_zh : R.drawable.hint_playback_v_en);
+				video_message_with_image (language.equals ("zh") ? R.drawable.hint_playback_v_zh : R.drawable.hint_playback_v_en);
+				in_main_thread.postDelayed (new Runnable()
+					{
+					@Override
+					public void run()
+						{
+						if (current_layer == toplayer.PLAYBACK)
+							{
+							View vTitlecard = findViewById (R.id.titlecard);
+							vTitlecard.setVisibility (View.GONE);
+							callback.run();
+							}
+						}
+					}, 6000);
+				return;
+				}
+			}
+		
+		if (callback != null)
+			in_main_thread.post (callback);
+		}
+	
+	public void enable_player_layer (String channel_id)
 		{		
 		video_normal();		
         
@@ -4791,31 +4945,8 @@ public class main extends VideoBaseActivity
 		boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
 		if (landscape)
 			onVideoActivityLayout();
-		
-		/* there are two different hints */
-		if (!landscape)
-			{
-			String language = get_language_en_or_zh();
-			
-			String visits = get_preference ("visits-to-playback-page");
-			if (visits.equals (""))
-				visits = "0";
-			visits = Integer.toString (1 + Integer.parseInt (visits));
-			set_preference ("visits-to-playback-page", visits);
-			
-			if (!get_preference ("seen-playback-h-hint").equals ("yes"))
-				{
-				set_preference ("seen-playback-h-hint", "yes");
-				alert_with_image (language.equals ("zh") ? R.drawable.hint_playback_h_zh : R.drawable.hint_playback_h_en);
-				return;
-				}
-			
-			if (Integer.parseInt (visits) >= 2 && !get_preference ("seen-playback-v-hint").equals ("yes"))
-				{
-				set_preference ("seen-playback-v-hint", "yes");
-				alert_with_image (language.equals ("zh") ? R.drawable.hint_playback_v_zh : R.drawable.hint_playback_v_en);
-				}
-			}
+				
+		setup_player_adapters (channel_id);
 		}
 
 	public void playback_back()
@@ -4835,7 +4966,7 @@ public class main extends VideoBaseActivity
 				log ("BACK in playback: return to remembered location");
 				restore_location();	    			
 				}
-    		else if (config.bear == Bears.GRIZZLY)
+    		else if (us_market())
     			{
 				log ("BACK in playback: minimize");
 				video_minimize (true);

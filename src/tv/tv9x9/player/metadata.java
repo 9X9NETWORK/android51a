@@ -60,9 +60,9 @@ public class metadata
 	/* transition between personalities -- tv, tablet, or portal */
 	public String future_action = null;
 	
-	/* distinguish features wanted by Taiwan/China ("panda") vs wanted by USA ("grizzly") */
+	/* distinguish features wanted by Taiwan/China ("panda") vs wanted by USA ("grizzly" or "black") */
 	enum Bears { PANDA, GRIZZLY, BLACK, TEDDY, CARE };
-	public Bears bear = Bears.GRIZZLY; 
+	public Bears bear = Bears.TEDDY; /* artificial, matches neither */ 
 	
 	public String renderer = null;
 	public String rendering_token = null;
@@ -639,10 +639,6 @@ public class metadata
 		
 		return result;
 		}
-	// print >>out, id + '\t' + ch ['youtube'] + '\t' + crawldate + '\t' + e_video_id + '\t' + e_name + '\t' + e_time 
-	// + '\t' + e_duration + '\t' + e_thumb + '\t' + e_desc
-	// 4027	instyleuk	1358530737	gnY-y1QQMT0	Eva Longoria-Parkers's InStyle Shoot	1216205564	92
-	// http://i.ytimg.com/vi/gnY-y1QQMT0/mqdefault.jpg	long-encoded-description
 	
 	public void forget_programs_in_channel (String real_channel)
 		{
@@ -697,7 +693,6 @@ public class metadata
 		{
 		String loaded = pool_meta (channel_id, "loaded");
 		return loaded != null && loaded.equals ("yes");
-		// return programs_in_real_channel (channel_id) > 0;
 		}
 	
 	public int programs_in_real_channel (String real_channel)
@@ -711,8 +706,7 @@ public class metadata
 				program_lock.lock();
 				for (Entry <String, Hashtable <String, String>> entry : programgrid.entrySet ())
 					{
-					// entry.getKey() and entry.getValue()
-					String this_channel = program_meta_nolock (entry.getKey (), "channel");
+					String this_channel = program_meta_nolock (entry.getKey(), "channel");
 					if (this_channel != null && real_channel.equals (this_channel))
 						count++;
 					}
@@ -753,8 +747,7 @@ public class metadata
 				program_lock.lock();
 				for (Entry <String, Hashtable <String, String>> entry : programgrid.entrySet ())
 					{
-					// entry.getKey() and entry.getValue()
-					String sort_string = program_meta_nolock (entry.getKey (), "sort");
+					String sort_string = program_meta_nolock (entry.getKey(), "sort");
 					int sort_int = Integer.parseInt (sort_string);
 					if (sort_int > highest)
 						highest = sort_int;
