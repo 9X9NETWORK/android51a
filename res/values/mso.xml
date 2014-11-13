@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 9x9 -->
+    <!-- 
    	<string name="app_name">9x9.tv</string>
 	<drawable name="app_icon_ptr">@drawable/nine_launch_logo</drawable>       	
     <string name="white_label">portal</string>
@@ -14,6 +15,7 @@
     <string name="signin_bg">nine_bg_open</string>      
     <string name="set_banner">nine_banner</string>     
 	<string name="fb_app_id">1429057570658015</string>
+    -->
 	 	  		
     <!-- Joey Graceffa -->
     <!-- 
@@ -815,7 +817,7 @@
     -->
     
     <!-- TEST2 -->
-    <!-- 
+    <!--  
     <string name="app_name">TEST2</string>
    	<drawable name="app_icon_ptr">@drawable/test2_launch_logo</drawable>       	
     <string name="white_label">test2</string>
@@ -867,19 +869,51 @@
     
     <!-- LyChee TV -->
     <!-- 
-    <string name="app_name">LyChee TV</string>
-   	<drawable name="app_icon_ptr">@drawable/fliprctvbayarea_launch_logo</drawable>       	
+    <string name="app_name">Lychee TV FLIPr</string>
+   	<drawable name="app_icon_ptr">@drawable/lycheetv_launch_logo</drawable>       	
     <string name="white_label">lycheetv</string>
     <string name="mso">lycheetv</string>
     <string name="default_region">en</string>
-    <string name="logo">fliprtv_logo</string>
-    <string name="splash_background">fliprctvbayarea_bg_open</string>
-    <string name="splash_foreground">fliprctvbayarea_open_logo</string>
+    <string name="logo">lycheetv_logo</string>
+    <string name="splash_background">lycheetv_bg_open</string>
+    <string name="splash_foreground">lycheetv_open_logo</string>
     <string name="splash_slogan"></string>
-    <string name="signin_logo">fliprctvbayarea_logo_signin</string>
-    <string name="signin_bg">fliprctvbayarea_bg_open</string>
-    <string name="set_banner">fliprctvbayarea_banner</string>
-    <string name="fb_app_id">361253423962738</string>
+    <string name="signin_logo">lycheetv_logo_signin</string>
+    <string name="signin_bg">lycheetv_bg_open</string>
+    <string name="set_banner">lycheetv_banner</string>
+    <string name="fb_app_id">809612092424575</string>
     -->
     
+    <!-- ITV Networks -->
+    <string name="app_name">ITV Networks</string>
+   	<drawable name="app_icon_ptr">@drawable/itvnetworks_launch_logo</drawable>       	
+    <string name="white_label">itvnetworks</string>
+    <string name="mso">itvnetworks</string>
+    <string name="default_region">en</string>
+    <string name="logo">itvnetworks_logo</string>
+    <string name="splash_background">itvnetworks_bg_open</string>
+    <string name="splash_foreground">itvnetworks_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">itvnetworks_logo_signin</string>
+    <string name="signin_bg">itvnetworks_bg_open</string>
+    <string name="set_banner">itvnetworks_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    
+    <!-- Ed TV -->
+    <!-- 
+    <string name="app_name">Ed TV</string>
+   	<drawable name="app_icon_ptr">@drawable/edtv_launch_logo</drawable>       	
+    <string name="white_label">edtv</string>
+    <string name="mso">edtv</string>
+    <string name="default_region">en</string>
+    <string name="logo">edtv_logo</string>
+    <string name="splash_background">edtv_bg_open</string>
+    <string name="splash_foreground">edtv_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">edtv_logo_signin</string>
+    <string name="signin_bg">edtv_bg_open</string>
+    <string name="set_banner">edtv_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+
 </resources>

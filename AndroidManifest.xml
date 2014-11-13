@@ -50,9 +50,16 @@
 <!-- package="tv.flipr.culturemachine" -->
 <!-- package="tv.flipr.hkstv" -->
 <!-- package="tv.flipr.lycheetv" -->
+<!-- package="tv.flipr.itvnetworks" -->
+<!-- package="tv.flipr.itvhealth" -->
+<!-- package="tv.flipr.itvnews" -->
+<!-- package="tv.flipr.itvnasheeds" -->
+<!-- package="tv.flipr.peac" -->
+<!-- package="tv.flipr.educativetv" -->
+<!-- package="tv.flipr.rubicontv" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.tv9x9.player"
+      package="tv.flipr.itvnetworks"
       android:versionCode="148"
       android:versionName="5.0.1.148">
           
@@ -574,7 +581,7 @@
     			<category android:name="android.intent.category.BROWSABLE" />  	
      			<data android:scheme="flipr-test2" />        	       		   					
  			</intent-filter>
-            -->
+            -->			
             
  			<!-- for Culture Machine -->
  			<!-- 
@@ -597,13 +604,33 @@
 			-->
 						
 			<!-- for LyChee TV -->
+			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-lycheetv" />        	       					   					
 			</intent-filter>
-									
+			-->						
+						
+			<!-- for ITV Networks -->
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-itvnetworks" />        	       					   					
+			</intent-filter>
+
+			<!-- for Educative TV -->
+			<!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-educativetv" />        	       					   					
+			</intent-filter>
+			-->						
+			
         </activity>
         
 <!-- entire Manifest file as provided from RC company:
