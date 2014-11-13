@@ -20,8 +20,6 @@
 		<FrameLayout
 	    	android:layout_width="fill_parent"
 	    	android:layout_height="fill_parent">
- 
-		   	<!-- include layout="@layout/home_layer" android:id="@+id/home_layer" / -->
 		   	
 		    <fragment
 			    class="tv.tv9x9.player.HomeLayer"
@@ -32,8 +30,6 @@
 			   	android:gravity="top|center_horizontal"
 			    android:background="#000000"
 			    />
-		    	    	        	    			
-			<!-- include layout="@layout/apps_layer" / -->
 			
 			<fragment
 			    class="tv.tv9x9.player.AppsLayer"
@@ -58,8 +54,6 @@
 			    />
 		   			
 		    <include layout="@layout/terms_layer_new" />
-		    	    
-		    <!-- include layout="@layout/guide_layer" / -->
 		    
 			<fragment
 			    class="tv.tv9x9.player.GuideLayer"
@@ -70,8 +64,6 @@
 			   	android:gravity="top|center_horizontal"
 			    android:background="#000000"
 			    />
-				
-			<!-- include layout="@layout/store_layer" / -->
 	
 			<fragment
 			    class="tv.tv9x9.player.StoreLayer"
@@ -92,10 +84,6 @@
 			   	android:gravity="top|center_horizontal"
 			    android:background="#000000"
 			    />
-						
-			<!-- include layout="@layout/search_layer" / -->
-	
-			<!-- include layout="@layout/message_layer" / -->
 					
 			<fragment
 			    class="tv.tv9x9.player.MessagesLayer"
@@ -134,8 +122,6 @@
 			   	android:gravity="top|center_horizontal"
 			    android:background="#000000"
 			    />				
-					
-			<!-- include layout="@layout/social_layer" / -->
 			
 			<fragment
 			    class="tv.tv9x9.player.SocialLayer"
@@ -146,8 +132,16 @@
 			   	android:gravity="top|center_horizontal"
 			    android:background="#000000"
 			    />
-						
-			<!-- include layout="@layout/feedback_layer" / -->
+			
+			<fragment
+			    class="tv.tv9x9.player.ChatLayer"
+			    android:id="@+id/chat_fragment_container"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			   	android:layout_gravity="center"
+			   	android:gravity="top|center_horizontal"
+			    android:background="#000000"
+			    />						
 			
 			<fragment
 			    class="tv.tv9x9.player.FeedbackLayer"
@@ -171,8 +165,6 @@
 	    		/>				    
     	</FrameLayout>	   	    	    	    		
 	</LinearLayout>
-		
-	<!-- include layout="@layout/nag_layer" / -->
 		
 	<fragment
 	    class="tv.tv9x9.player.NagLayer"

@@ -43,19 +43,29 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
     
     private String app_name = null;
     
+    // private String RECV_URL = "http://9x9ui.s3.amazonaws.com/recv1.html";
+    // private String TILDE_NAME = "~noop";
+    
+    private String RECV_URL = "http://dev6.9x9.tv/castm/";
+    private String TILDE_NAME = "~castm";
+    
 	WrapMatchstick()
 		{
+		Fling.FlingApi.setApplicationId (TILDE_NAME);
 		}			
 	
 	public void log (String text)
 		{
-		Log.i ("vtest", "[chromecast] " + text);
+		Log.i ("vtest", "[matchstick] " + text);
 		}
 	
 	public String categoryForCast (String app_name)
 		{
-		this.app_name = app_name;
-		return FlingMediaControlIntent.categoryForFling (app_name);
+		// this.app_name = app_name;
+		this.app_name = RECV_URL;
+		String cat = FlingMediaControlIntent.categoryForFling (TILDE_NAME);
+		log ("CCX categoryForCast: " + cat);
+		return cat;
 		}
 	
 	public void selectDevice (RouteInfo info)
@@ -132,10 +142,13 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
                             if (status.isSuccess())
                             	{
                                 ApplicationMetadata applicationMetadata = result.getApplicationMetadata();
-                                String sessionId = result.getSessionId();
+                                // String sessionId = result.getSessionId();
+                                String sessionId = "sessionId";
+                                // String applicationName = applicationMetadata.getName();
+                                String applicationName = "name";
                                 String applicationStatus = result.getApplicationStatus();
                                 boolean wasLaunched = result.getWasLaunched();
-                                log ("CCX application name: " + applicationMetadata.getName() + ", status: "
+                                log ("CCX application name: " + applicationName + ", status: "
                                                 + applicationStatus + ", sessionId: " + sessionId + ", wasLaunched: " + wasLaunched);
                                 gcast_application_started = true;
 

@@ -288,8 +288,9 @@
 			    android:layout_height="60dip"
 			    android:background="#1D1D1D"
 			    android:orientation="horizontal"
-			    android:visibility="visible">	
-		    	<TextView		        
+			    android:visibility="gone">	
+		    	<TextView		 
+			    	android:id="@+id/already_seen"		    	           
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
 					android:layout_marginLeft="20dip"
@@ -300,7 +301,8 @@
 					android:singleLine="true"	
 					android:text="Already seen!"
 			    	/>		
-		    	<TextView		        
+		    	<TextView		
+			    	android:id="@+id/skip_all"				    	            
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
 					android:layout_marginLeft="6dip"				

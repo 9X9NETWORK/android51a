@@ -28,6 +28,7 @@
 		android:layout_gravity="top|left"
 		android:gravity="top|left">
 	    <LinearLayout
+	        android:id="@+id/home_store_hint_box"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_marginTop="0dip"
@@ -65,7 +66,7 @@
 						android:layout_height="wrap_content"		
 				    	android:layout_gravity="center"
 				    	android:gravity="left|center_vertical"																					
-						android:textSize="16sp"
+						android:textSize="14sp"
 						android:textColor="#454545"
 						android:paddingLeft="20dip"
 						android:paddingRight="20dip"

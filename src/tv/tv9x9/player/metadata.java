@@ -50,6 +50,10 @@ public class metadata
 	
 	public String about_us_url = null;
 	
+	public String chat_server = "irc.flipr.tv";
+	public int chat_port = 6666;
+	public String chat_server_pw = "flipr9x9";
+	
 	/* advertising counters. start from 1, because it tends to be behind because of analytics delay */
 	public int total_play_count = 1;
 	public int last_played_advertisement_at = 0;

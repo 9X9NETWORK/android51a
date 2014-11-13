@@ -1466,6 +1466,9 @@ public class HomeLayer extends StandardFragment
 		{
 		ImageView vHint = (ImageView) getView().findViewById (R.id.home_swipe_hint);
 		vHint.setVisibility (View.GONE);
+		
+		ImageView vHintOrdinary = (ImageView) getView().findViewById (R.id.home_swipe_hint_ordinary);
+		vHintOrdinary.setVisibility (View.GONE);
 		}
 	
 	public void home_hint_animation()
@@ -1482,9 +1485,7 @@ public class HomeLayer extends StandardFragment
 	
 	public void ordinary_home_hint_animation()
 		{
-		ImageView vHint = (ImageView) getView().findViewById (R.id.home_swipe_hint);
-		
-		vHint.setImageResource (R.drawable.home_hint_ordinary);
+		ImageView vHint = (ImageView) getView().findViewById (R.id.home_swipe_hint_ordinary);
 		vHint.setVisibility (View.VISIBLE);
 		
 		mCallback.get_main_thread().postDelayed (new Runnable()

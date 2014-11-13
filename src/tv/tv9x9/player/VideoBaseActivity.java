@@ -1293,8 +1293,13 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		boolean channel_changed = player_real_channel != null && !player_real_channel.equals (cumulative_channel_id);
 		
-		if (program_line != null && program_line.length >= current_episode_index)
-			episode_id = program_line [current_episode_index - 1];
+		if (!reconcile_program_line())
+			{
+			log ("cannot reconcile program line, ignoring analytics");
+			return;
+			}
+		
+		episode_id = program_line [current_episode_index - 1];
 		
 		if (cumulative_episode_id != null)
 			{
@@ -3905,7 +3910,10 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		log ("CCX start");
 		if (gcast_media_route_selector != null && gcast_media_router_callback != null)
+			{
+			log ("CCX adding MediaRouteSelector callback");
 			gcast_media_router.addCallback (gcast_media_route_selector, gcast_media_router_callback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+			}
 		}
 	
 	public void google_cast_stop()

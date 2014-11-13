@@ -1,0 +1,215 @@
+# view res/layout/video_layer_new.xml #generated:1011
+-keep class android.support.v4.view.ViewPager { <init>(...); }
+
+# view res/layout/top_bar.xml #generated:103
+# view res/layout/video_layer_new.xml #generated:104
+-keep class android.support.v7.app.MediaRouteButton { <init>(...); }
+
+# view res/layout/abc_action_menu_item_layout.xml #generated:17
+-keep class android.support.v7.internal.view.menu.ActionMenuItemView { <init>(...); }
+
+# view res/layout/abc_expanded_menu_layout.xml #generated:17
+-keep class android.support.v7.internal.view.menu.ExpandedMenuView { <init>(...); }
+
+# view res/layout/abc_list_menu_item_layout.xml #generated:17
+# view res/layout/abc_popup_menu_item_layout.xml #generated:17
+-keep class android.support.v7.internal.view.menu.ListMenuItemView { <init>(...); }
+
+# view res/layout/abc_screen_toolbar.xml #generated:27
+-keep class android.support.v7.internal.widget.ActionBarContainer { <init>(...); }
+
+# view res/layout/abc_action_mode_bar.xml #generated:19
+# view res/layout/abc_screen_toolbar.xml #generated:43
+-keep class android.support.v7.internal.widget.ActionBarContextView { <init>(...); }
+
+# view res/layout/abc_screen_toolbar.xml #generated:17
+-keep class android.support.v7.internal.widget.ActionBarOverlayLayout { <init>(...); }
+
+# view res/layout/abc_screen_content_include.xml #generated:19
+-keep class android.support.v7.internal.widget.ContentFrameLayout { <init>(...); }
+
+# view res/layout/abc_screen_simple_overlay_action_mode.xml #generated:23
+-keep class android.support.v7.internal.widget.FitWindowsFrameLayout { <init>(...); }
+
+# view res/layout/abc_screen_simple.xml #generated:17
+-keep class android.support.v7.internal.widget.FitWindowsLinearLayout { <init>(...); }
+
+# view v11/res/layout-v11/abc_screen_content_include.xml #generated:19
+-keep class android.support.v7.internal.widget.NativeActionModeAwareLayout { <init>(...); }
+
+# view res/layout/abc_action_mode_close_item_material.xml #generated:17
+# view res/layout/abc_search_view.xml #generated:116
+# view res/layout/abc_search_view.xml #generated:128
+# view res/layout/abc_search_view.xml #generated:38
+# view res/layout/abc_search_view.xml #generated:60
+# view res/layout/abc_search_view.xml #generated:97
+-keep class android.support.v7.internal.widget.TintImageView { <init>(...); }
+
+# view res/layout/abc_screen_simple.xml #generated:25
+# view res/layout/abc_screen_simple_overlay_action_mode.xml #generated:32
+-keep class android.support.v7.internal.widget.ViewStubCompat { <init>(...); }
+
+# view res/layout/abc_action_menu_layout.xml #generated:17
+-keep class android.support.v7.widget.ActionMenuView { <init>(...); }
+
+# view res/layout/abc_activity_chooser_view.xml #generated:19
+-keep class android.support.v7.widget.LinearLayoutCompat { <init>(...); }
+
+# view res/layout/abc_search_view.xml #generated:78
+-keep class android.support.v7.widget.SearchView$SearchAutoComplete { <init>(...); }
+
+# view res/layout/abc_screen_toolbar.xml #generated:36
+-keep class android.support.v7.widget.Toolbar { <init>(...); }
+
+# view AndroidManifest.xml #generated:702
+-keep class com.facebook.LoginActivity { <init>(...); }
+
+# view res/layout/com_facebook_usersettingsfragment.xml #generated:48
+# view res/layout/nag2.xml #generated:72
+# view res/layout/nag3.xml #generated:113
+# view res/layout/sign_in_content.xml #generated:11
+# view res/layout/signin_phone.xml #generated:103
+# view res/layout/signin_tablet.xml #generated:63
+-keep class com.facebook.widget.LoginButton { <init>(...); }
+
+# view AndroidManifest.xml #generated:737
+-keep class com.google.analytics.tracking.android.CampaignTrackingReceiver { <init>(...); }
+
+# view AndroidManifest.xml #generated:736
+-keep class com.google.analytics.tracking.android.CampaignTrackingService { <init>(...); }
+
+# view AndroidManifest.xml #generated:725
+-keep class com.google.android.gms.ads.AdActivity { <init>(...); }
+
+# view v10/res/layout-v10/popup.xml #generated:65
+# view v10/res/layout-v10/simple.xml #generated:11
+-keep class com.google.android.youtube.player.YouTubePlayerView { <init>(...); }
+
+# view AndroidManifest.xml #generated:708
+-keep class io.vov.vitamio.activity.InitActivity { <init>(...); }
+
+# view res/layout/direct_ad_layer.xml #generated:14
+# view res/layout/player_fragment.xml #generated:2
+-keep class io.vov.vitamio.widget.CenterLayout { <init>(...); }
+
+# view AndroidManifest.xml #generated:745
+-keep class tv.matchstick.fling.service.FlingDeviceService { <init>(...); }
+
+# view AndroidManifest.xml #generated:752
+-keep class tv.matchstick.fling.service.FlingService { <init>(...); }
+
+# view res/layout/main.xml #generated:34
+-keep class tv.tv9x9.player.AppsLayer { <init>(...); }
+
+# view res/layout/main.xml #generated:136
+-keep class tv.tv9x9.player.ChatLayer { <init>(...); }
+
+# view res/layout/channel.xml #generated:102
+# view res/layout/channel_tablet.xml #generated:26
+# view res/layout/video_layer_new.xml #generated:381
+# view res/layout/video_layer_new.xml #generated:653
+# view res/layout/video_layer_new.xml #generated:885
+-keep class tv.tv9x9.player.CircleImageView { <init>(...); }
+
+# view AndroidManifest.xml #generated:646
+-keep class tv.tv9x9.player.DirectAdvert { <init>(...); }
+
+# view res/layout/main.xml #generated:146
+-keep class tv.tv9x9.player.FeedbackLayer { <init>(...); }
+
+# view AndroidManifest.xml #generated:621
+-keep class tv.tv9x9.player.GcmBroadcastReceiver { <init>(...); }
+
+# view AndroidManifest.xml #generated:629
+-keep class tv.tv9x9.player.GcmIntentService { <init>(...); }
+
+# view res/layout/main.xml #generated:58
+-keep class tv.tv9x9.player.GuideLayer { <init>(...); }
+
+# view res/layout/main.xml #generated:24
+-keep class tv.tv9x9.player.HomeLayer { <init>(...); }
+
+# view AndroidManifest.xml #generated:631
+-keep class tv.tv9x9.player.Message9x9Manager { <init>(...); }
+
+# view res/layout/main.xml #generated:88
+-keep class tv.tv9x9.player.MessagesLayer { <init>(...); }
+
+# view res/layout/main.xml #generated:169
+-keep class tv.tv9x9.player.NagLayer { <init>(...); }
+
+# view res/layout/main.xml #generated:116
+# view res/layout/main.xml #generated:193
+-keep class tv.tv9x9.player.PasswordLayer { <init>(...); }
+
+# view res/layout/video_layer_new.xml #generated:259
+-keep class tv.tv9x9.player.PlayerFragment { <init>(...); }
+
+# view res/layout/main.xml #generated:78
+-keep class tv.tv9x9.player.SearchLayer { <init>(...); }
+
+# view res/layout/main.xml #generated:104
+# view res/layout/main.xml #generated:181
+-keep class tv.tv9x9.player.SettingsLayer { <init>(...); }
+
+# view res/layout/main.xml #generated:205
+# view res/layout/main.xml #generated:46
+-keep class tv.tv9x9.player.SigninLayer { <init>(...); }
+
+# view res/layout/home_layer.xml #generated:53
+# view res/layout/signin_main.xml #generated:12
+# view res/layout/social_layer.xml #generated:50
+-keep class tv.tv9x9.player.SlidingTabLayout { <init>(...); }
+
+# view res/layout/main.xml #generated:126
+-keep class tv.tv9x9.player.SocialLayer { <init>(...); }
+
+# view res/layout/video_layer_new.xml #generated:128
+# view v10/res/layout-v10/popup.xml #generated:31
+# view v10/res/layout-v10/simple.xml #generated:7
+-keep class tv.tv9x9.player.SpecialFrameLayout { <init>(...); }
+
+# view res/layout/home_page.xml #generated:106
+-keep class tv.tv9x9.player.StoppableListView { <init>(...); }
+
+# view res/layout/guide_layer.xml #generated:32
+# view res/layout/home_layer.xml #generated:67
+# view res/layout/home_tablet.xml #generated:20
+# view res/layout/nag_layer.xml #generated:11
+# view res/layout/signin_main.xml #generated:22
+# view res/layout/social_layer.xml #generated:59
+-keep class tv.tv9x9.player.StoppableViewPager { <init>(...); }
+
+# view res/layout/main.xml #generated:68
+-keep class tv.tv9x9.player.StoreLayer { <init>(...); }
+
+# view v10/res/layout-v10/shear.xml #generated:7
+-keep class tv.tv9x9.player.TrapezoidView { <init>(...); }
+
+# view res/layout/video_layer_new.xml #generated:268
+-keep class tv.tv9x9.player.VideoFragment { <init>(...); }
+
+# view AndroidManifest.xml #generated:639
+-keep class tv.tv9x9.player.main { <init>(...); }
+
+# view AndroidManifest.xml #generated:663
+-keep class tv.tv9x9.player.popup { <init>(...); }
+
+# view AndroidManifest.xml #generated:671
+-keep class tv.tv9x9.player.popupalert { <init>(...); }
+
+# view AndroidManifest.xml #generated:687
+-keep class tv.tv9x9.player.rctest { <init>(...); }
+
+# view AndroidManifest.xml #generated:695
+-keep class tv.tv9x9.player.shear { <init>(...); }
+
+# view AndroidManifest.xml #generated:93
+-keep class tv.tv9x9.player.start { <init>(...); }
+
+# view AndroidManifest.xml #generated:716
+-keep class tv.tv9x9.player.switchboard { <init>(...); }
+
+# view AndroidManifest.xml #generated:679
+-keep class tv.tv9x9.player.upgrade { <init>(...); }
+

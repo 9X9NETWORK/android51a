@@ -28,7 +28,6 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
-import tv.tv9x9.player.HorizontalListView.OnScrollListener;
 import tv.tv9x9.player.MessagesLayer.OnMessagesListener;
 import tv.tv9x9.player.SocialLayer.OnSocialListener;
 import tv.tv9x9.player.StoreLayer.OnStoreListener;
@@ -41,6 +40,8 @@ import tv.tv9x9.player.PasswordLayer.OnPasswordListener;
 import tv.tv9x9.player.HomeLayer.OnHomeListener;
 import tv.tv9x9.player.NagLayer.OnNagListener;
 import tv.tv9x9.player.SigninLayer.OnSigninListener;
+import tv.tv9x9.player.ChatLayer.OnChatListener;
+
 import tv.tv9x9.player.metadata.Bears;
 
 import tv.tv9x9.player.AppsLayer.app;
@@ -149,7 +150,7 @@ import com.google.android.gms.ads.*;
 import com.android.vending.billing.IInAppBillingService; 
 
 public class main extends VideoBaseActivity 
-		implements OnMessagesListener, OnSocialListener, OnStoreListener, OnSearchListener, OnNagListener, OnSigninListener,
+		implements OnMessagesListener, OnSocialListener, OnStoreListener, OnSearchListener, OnNagListener, OnSigninListener, OnChatListener,
 						OnSettingsListener, OnGuideListener, OnAppsListener, OnFeedbackListener, OnPasswordListener, OnHomeListener
 	{
 	boolean single_channel = false;
@@ -161,7 +162,7 @@ public class main extends VideoBaseActivity
 		}
 	
 	/* note, SIGNOUT, HELP, CATEGORY_ITEM and APP_ITEM are not real layers, but menu items */
-	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, 
+	enum toplayer { HOME, PLAYBACK, SIGNIN, GUIDE, STORE, SEARCH, SETTINGS, TERMS, APPS, SIGNOUT, CHAT,
 					HELP, CATEGORY_ITEM, APP_ITEM, SHAKE, ABOUT, MESSAGES, NAG, TEST, PASSWORD, ADVERT, SOCIAL, FEEDBACK };
 	
 	toplayer current_layer = toplayer.HOME;
@@ -1393,6 +1394,11 @@ public class main extends VideoBaseActivity
 		if (config.social_server != null)
 			items.push (new menuitem (toplayer.SOCIAL, R.string.social, R.drawable.icon_social, R.drawable.icon_social_gray));
 
+		/*
+		if (config.chat_server != null)
+			items.push (new menuitem (toplayer.CHAT, R.string.chat, R.drawable.icon_chat, R.drawable.icon_chat));
+		*/
+		
 		items.push (new menuitem (toplayer.FEEDBACK, R.string.feedback, R.drawable.icon_nav_feedback, R.drawable.icon_nav_feedback));
 		
 		/* no help screen has been provided yet */
@@ -1540,7 +1546,13 @@ public class main extends VideoBaseActivity
 				log ("click on: menu social");
 				enable_social_layer();
 				break;
-				
+			    
+			case CHAT:
+	        	close_menu();				
+				log ("click on: menu chat");
+				enable_chat_layer();
+				break;
+						
 			case FEEDBACK:
 				close_menu();
 				log ("click on: menu feedback");
@@ -2104,6 +2116,17 @@ public class main extends VideoBaseActivity
 			String episode_id = program_line [current_episode_index - 1];
 			boolean seen = was_video_seen (episode_id);
 			vSkippistan.setVisibility (seen ? View.VISIBLE : View.GONE);
+			
+			if (is_phone())
+				{
+				/* not enough space with both displayed */
+				View vAlreadySeen = findViewById (R.id.already_seen);
+				vAlreadySeen.setVisibility (View.GONE);
+				View vSkipAll = findViewById (R.id.skip_all);
+				LinearLayout.LayoutParams skipLayout = (LinearLayout.LayoutParams) vSkipAll.getLayoutParams();
+				skipLayout.leftMargin = pixels_20;
+				vSkipAll.setLayoutParams (skipLayout);
+				}
 			
 			if (seen)
 				{
@@ -3147,6 +3170,9 @@ public class main extends VideoBaseActivity
 		f = getSupportFragmentManager().findFragmentById (R.id.nag_fragment_container);
 		if (layer == toplayer.NAG) ft.show (f); else ft.hide (f);
 		
+		f = getSupportFragmentManager().findFragmentById (R.id.chat_fragment_container);
+		if (layer == toplayer.CHAT) ft.show (f); else ft.hide (f);
+		
 		ft.commit();
 		
 		
@@ -3802,6 +3828,14 @@ public class main extends VideoBaseActivity
 		{
 		final View vHint = findViewById (R.id.home_store_hint);
 		vHint.setVisibility (View.VISIBLE);
+				
+		if (is_phone())
+			{
+			View vBox = findViewById (R.id.home_store_hint_box);
+			FrameLayout.LayoutParams skipLayout = (FrameLayout.LayoutParams) vBox.getLayoutParams();
+			skipLayout.rightMargin = 0;
+			vBox.setLayoutParams (skipLayout);
+			}
 		
 		final View vButton = findViewById (R.id.hint_menu_button);
 		vButton.setOnClickListener (new OnClickListener()
@@ -3833,7 +3867,7 @@ public class main extends VideoBaseActivity
 	
 	/*** HINTS **************************************************************************************************/
 
-	public void playback_hint_animation()
+	public void playback_hint()
 		{
 		if (!seen_bouncy_playback_hint)
 			{
@@ -3844,22 +3878,22 @@ public class main extends VideoBaseActivity
 			
 			seen_bouncy_playback_hint = true;
 			save_hint_settings();
-			}
-		
-		in_main_thread.post (new Runnable()
-			{
-			@Override
-			public void run()
+
+			in_main_thread.post (new Runnable()
 				{
-				if (us_market())
-					ordinary_playback_hint_animation();
-				else
-					bouncy_playback_hint_animation();
-				}
-			});
+				@Override
+				public void run()
+					{
+					if (us_market())
+						ordinary_playback_hint();
+					else
+						bouncy_playback_hint_animation();
+					}
+				});
+			}
 		}
 	
-	public void ordinary_playback_hint_animation()
+	public void ordinary_playback_hint()
 		{
 		final View vHint = findViewById (R.id.playback_subscribe_hint);
 		
@@ -4443,7 +4477,7 @@ public class main extends VideoBaseActivity
 					@Override
 					public void run()
 						{
-						playback_hint_animation();
+						playback_hint();
 						}
 					}, 3000);
 				play_first (channel_id);
@@ -6232,7 +6266,23 @@ public class main extends VideoBaseActivity
 	    Fragment f = fm.findFragmentById (R.id.social_fragment_container);
 	    return (tv.tv9x9.player.SocialLayer) f;
 		}
+    
+	/*** CHAT **************************************************************************************************/
+    
+    public void enable_chat_layer()
+		{
+		disable_video_layer();
+		set_layer (toplayer.CHAT);		
+		chat_class().start_social (config);
+		}
 
+    public ChatLayer chat_class()
+		{    	
+	    FragmentManager fm = getSupportFragmentManager();
+	    Fragment f = fm.findFragmentById (R.id.chat_fragment_container);
+	    return (tv.tv9x9.player.ChatLayer) f;
+		}
+    
 	/*** ADVERTISING **************************************************************************************************/
     
     @Override

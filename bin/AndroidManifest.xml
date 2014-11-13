@@ -48,11 +48,13 @@
 <!-- package="tv.flipr.fliprtv" -->
 <!-- package="tv.flipr.test2" -->
 <!-- package="tv.flipr.culturemachine" -->
+<!-- package="tv.flipr.hkstv" -->
+<!-- package="tv.flipr.lycheetv" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="tv.tv9x9.player"
-      android:versionCode="143"
-      android:versionName="5.0.1.143">
+      android:versionCode="148"
+      android:versionName="5.0.1.148">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -96,6 +98,7 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
+			<!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -111,6 +114,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-9x9" />        	       					   					
 			</intent-filter>
+			-->
 						   		
 			<!-- for Joey Graceffa -->
 			<!--		
@@ -283,7 +287,7 @@
 			-->	
 
 			<!-- for DDTV -->
-			<!-- 
+			<!--   
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -433,7 +437,7 @@
 			-->	
                                                                                                                                                                   
             <!-- for YourApp -->
-            <!--  
+			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -470,7 +474,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
      			<data android:scheme="flipr-yourapp2" />        	       		   					
   			</intent-filter>
-  			-->	       
+  			-->	                                                                                                                                                                  
  
             <!-- for YourApp3 -->
             <!--  
@@ -553,7 +557,7 @@
             -->			
             
  			<!-- for FLIPr.tv -->
- 			<!-- 
+            <!--  
  			<intent-filter>
  				<action android:name="android.intent.action.VIEW" />
      			<category android:name="android.intent.category.DEFAULT" />
@@ -581,7 +585,25 @@
      			<data android:scheme="flipr-culturemachine" />        	       		   					
  			</intent-filter>
 			-->
- 						
+			
+			<!-- for HKSTV -->
+ 			<!-- 
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-hkstv" />        	       					   					
+			</intent-filter>
+			-->
+						
+			<!-- for LyChee TV -->
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+    			<category android:name="android.intent.category.DEFAULT" />
+   				<category android:name="android.intent.category.BROWSABLE" />  	
+    			<data android:scheme="flipr-lycheetv" />        	       					   					
+			</intent-filter>
+									
         </activity>
         
 <!-- entire Manifest file as provided from RC company:
@@ -720,23 +742,19 @@
 		
     
 		<!-- Matchstick -->
-		<!-- 
-		<service android:name="tv.tv9x9.player.AppCastDeviceService" android:exported="false">
+		<service android:name="tv.matchstick.fling.service.FlingDeviceService" android:exported="false">
     		<intent-filter>
         		<action android:name="android.media.MediaRouteProviderService" />
     		</intent-filter>
 		</service>
-		-->
 		
 		<!-- Matchstick -->
-		<!-- 
-		<service android:name="tv.tv9x9.player.AppCastService" android:exported="false">
+		<service android:name="tv.matchstick.fling.service.FlingService" android:exported="false">
     		<intent-filter>
         		<action android:name="tv.matchstick.fling.service.FLING" />
         		<category android:name="android.intent.category.DEFAULT" />
     		</intent-filter> 
 		</service>	
-		-->
 		
     </application>
 

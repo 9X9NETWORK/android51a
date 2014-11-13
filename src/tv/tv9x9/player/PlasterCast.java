@@ -12,10 +12,10 @@ import java.io.IOException;
 
 public class PlasterCast
 	{
-	boolean uses_matchstick = false;
-	boolean uses_chromecast = true;
+	boolean uses_matchstick = true;
+	boolean uses_chromecast = false;
 	
-	// WrapMatchstick matchstick = null;
+	WrapMatchstick matchstick = null;
 	WrapChromecast chromecast = null;
 	
 	PlasterListener listener = null;
@@ -51,8 +51,7 @@ public class PlasterCast
 		this.listener = listener;
 		if (uses_matchstick)
 			{
-			// plaster = new WrapMatchstick();
-			plaster = null;
+			plaster = new WrapMatchstick();
 			}
 		else if (uses_chromecast)
 			plaster = new WrapChromecast();

@@ -59,9 +59,9 @@
 <!-- package="tv.flipr.rubicontv" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.flipr.itvnetworks"
-      android:versionCode="148"
-      android:versionName="5.0.1.148">
+      package="tv.tv9x9.player"
+      android:versionCode="149"
+      android:versionName="5.0.1.149">
           
     <!-- Instructions
     	The build for CTS version is very fragile:
@@ -768,24 +768,21 @@
 		</receiver>
 		
     
+    
 		<!-- Matchstick -->
-		<!-- 
-		<service android:name="tv.tv9x9.player.AppCastDeviceService" android:exported="false">
+		<service android:name="tv.matchstick.fling.service.FlingDeviceService" android:exported="false">
     		<intent-filter>
         		<action android:name="android.media.MediaRouteProviderService" />
     		</intent-filter>
 		</service>
-		-->
 		
 		<!-- Matchstick -->
-		<!-- 
-		<service android:name="tv.tv9x9.player.AppCastService" android:exported="false">
+		<service android:name="tv.matchstick.fling.service.FlingService" android:exported="false">
     		<intent-filter>
         		<action android:name="tv.matchstick.fling.service.FLING" />
         		<category android:name="android.intent.category.DEFAULT" />
     		</intent-filter> 
 		</service>	
-		-->
 		
     </application>
 
