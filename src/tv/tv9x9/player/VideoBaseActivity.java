@@ -2854,6 +2854,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		{
 		if (program_line == null || current_episode_index > program_line.length)
 			{
+			if (player_real_channel == null)
+				{
+				log ("episode line is out of date, and player real channel is null");
+				return false;
+				}				
 			log ("episode line is out of date (channel=" + player_real_channel + "), resetting");
 			program_line = config.program_line_by_id (player_real_channel);
 			if (program_line == null)

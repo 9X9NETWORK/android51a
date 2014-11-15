@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 9x9 -->
-    <!-- 
+    <!-- 9x9 --> 
    	<string name="app_name">9x9.tv</string>
 	<drawable name="app_icon_ptr">@drawable/nine_launch_logo</drawable>       	
     <string name="white_label">portal</string>
@@ -15,7 +14,6 @@
     <string name="signin_bg">nine_bg_open</string>      
     <string name="set_banner">nine_banner</string>     
 	<string name="fb_app_id">1429057570658015</string>
-    -->
 	 	  		
     <!-- Joey Graceffa -->
     <!-- 
@@ -885,6 +883,7 @@
     -->
     
     <!-- ITV Networks -->
+    <!-- 
     <string name="app_name">ITV Networks</string>
    	<drawable name="app_icon_ptr">@drawable/itvnetworks_launch_logo</drawable>       	
     <string name="white_label">itvnetworks</string>
@@ -898,6 +897,7 @@
     <string name="signin_bg">itvnetworks_bg_open</string>
     <string name="set_banner">itvnetworks_banner</string>
     <string name="fb_app_id">361253423962738</string>
+    -->
     
     <!-- Ed TV -->
     <!-- 

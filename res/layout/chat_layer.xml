@@ -36,5 +36,58 @@
 		android:background="#000000"
 		android:orientation="horizontal"
 		/>	
+	
+   	<ListView
+		android:id="@+id/chat_list"
+		android:layout_weight="1"
+		android:layout_width="fill_parent" 
+		android:layout_height="0dip"
+		android:layout_gravity="top|center_horizontal"
+		android:gravity="top|center_horizontal"				
+		android:drawSelectorOnTop="false"
+		android:cacheColorHint="@android:color/transparent"
+		android:dividerHeight="0dp"
+		android:divider="@null"
+		android:descendantFocusability="blocksDescendants"
+		android:background="#D9D9D9"
+		/>
+   		 	 					  			
+    <LinearLayout           
+		android:layout_width="fill_parent" 
+		android:layout_height="60dip"
+		android:layout_gravity="bottom"
+		android:gravity="center"				
+		android:background="#FFFFFF"
+		android:orientation="horizontal">
 		
+	   	<TextView
+	        android:layout_width="wrap_content" 
+	        android:layout_height="wrap_content"  
+	        android:layout_gravity="center"	                    
+	        android:layout_marginLeft="10dip"
+	        android:layout_marginRight="10dip"
+	        android:gravity="center"		        
+	        android:textSize="24sp"
+	        android:textColor="#000000"
+			android:text="Say: "	        
+	        />
+   	        
+       	<EditText
+		    android:id="@+id/say"       
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginRight="10dip"
+			android:layout_gravity="left|center_vertical"			
+			android:gravity="left|center_vertical"
+			android:textSize="18sp"
+			android:textColor="#242424"					
+			android:textColorHint="#242424"														
+			android:paddingLeft="3sp"			
+			android:singleLine="true"
+			android:cursorVisible="true"
+			android:textCursorDrawable="@null"								
+			android:background="@drawable/textfield_tray"							
+			/>	
+	</LinearLayout>
+				
 </LinearLayout>

@@ -10,44 +10,38 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import tv.tv9x9.player.SocialLayer.SocialAdapter;
+import tv.tv9x9.player.SocialLayer.social;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
-
-import com.ircclouds.irc.api.*;
-import com.ircclouds.irc.api.domain.*;
-import com.ircclouds.irc.api.state.*;
-import com.ircclouds.irc.api.Callback;
-import com.ircclouds.irc.api.domain.messages.*;
-import com.ircclouds.irc.api.listeners.*;
-import com.ircclouds.irc.api.*;
-import com.ircclouds.irc.api.domain.messages.interfaces.*;
-
-/*
-import org.pircbotx.Configuration;
-import org.pircbotx.PircBotX;
-import org.pircbotx.hooks.ListenerAdapter;
-import org.pircbotx.hooks.types.GenericMessageEvent;
-*/
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -59,12 +53,19 @@ public class ChatLayer extends StandardFragment
     	{	
     	String username;
     	String message;
+    	chatmessage (String username, String message)
+    		{
+    		this.username = username;
+    		this.message = message;
+    		}
     	}
-       
-    Social soc = null;
+
+    List <chatmessage> chatlog = new ArrayList <chatmessage> ();
     
     boolean soc_shim_added = false;
 	
+    ChatAdapter chat_adapter = null;
+    
     public interface OnChatListener
 		{
     	public boolean is_tablet();
@@ -80,6 +81,8 @@ public class ChatLayer extends StandardFragment
 		}    
     
     OnChatListener mCallback; 
+
+    IrcRobot irc = null;
     
     @Override
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -123,28 +126,6 @@ public class ChatLayer extends StandardFragment
 	    this.config = config;
 	    
 	    log ("start chat");
-
-	    /*
-        Configuration configuration = new Configuration.Builder()
-	        .setName ("PircBotXUser")
-	        .setServer (config.chat_server, config.chat_port)
-	        .setSocketFactory (SSLSocketFactory.getDefault())
-	        .addAutoJoinChannel ("#" + config.mso)
-	        .addListener (new MyListener())
-	        .buildConfiguration();
-        
-        PircBotX bot = new PircBotX (configuration);
-        
-        try
-        	{
-            bot.startBot();
-            log ("irc connected");
-        	}
-        catch (Exception ex)
-        	{
-        	ex.printStackTrace();
-        	}
-        */
 	    
 	    Thread t = new Thread()
 	    	{
@@ -156,108 +137,211 @@ public class ChatLayer extends StandardFragment
 	    	};
 	    	
 	    t.start();
+	    
+		chat_adapter = new ChatAdapter (getActivity(), chatlog);
+		
+		ListView vChat = (ListView) getView().findViewById (R.id.chat_list);
+		
+		vChat.setAdapter (chat_adapter);
+		LayoutInflater inflater = getActivity().getLayoutInflater();
+		View shim = inflater.inflate (R.layout.footer_shim_d9, null);
+		vChat.addFooterView (shim);
+		
+		final EditText vSay = (EditText) getView().findViewById (R.id.say);
+	    vSay.setOnKeyListener (new OnKeyListener()
+		    {
+			@Override
+			public boolean onKey (View v, int keyCode, KeyEvent event)
+				{
+				if (event.getAction() == KeyEvent.ACTION_UP)
+					{					
+					if (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
+						{
+						String message = vSay.getText().toString();
+						vSay.clearFocus();						
+						InputMethodManager imm = (InputMethodManager) getActivity().getSystemService (Context.INPUT_METHOD_SERVICE);
+						imm.hideSoftInputFromWindow (vSay.getWindowToken(), 0);
+						if (irc != null)
+							irc.say ("#" + config.mso, message);
+						return true;
+						}
+					}
+				return false;
+				}						
+		    });
 		}
     
     public void open_irc()
     	{
-        final IRCApi _api = new IRCApiImpl(true);
-        _api.connect (getServerParams ("nick", Arrays.asList ("altNick1", "altNick2"), "IRC Api", "ident", config.chat_server, true), new Callback <IIRCState>()
-        		{
-                @Override
-                public void onSuccess(final IIRCState aIRCState)
-                	{
-                    log ("connected");
-    	    		_api.addListener (message_listener);
-                	}
+    	irc = new IrcRobot()
+    		{
+    		@Override
+    		public void onLog (String text)
+    			{	
+    			ChatLayer.this.log (text);
+    			}
+    		
+    		@Override
+    		public void onConnected()
+    			{    
+    			log ("irc: connected");
+    			register();
+    			post ("JOIN #" + config.mso);
+    			}
+    		
+    		@Override
+    		public void onDisconnected()
+    			{    
+    			log ("irc: disconnected");
+    			}
+    		
+    		@Override
+    		public void onError (String what, String details)
+    			{    		
+    			log ("irc: error " + what + ": " + details);
+    			}
 
-                @Override
-                public void onFailure(Exception aErrorMessage)
-                	{
-                    log ("failure: " + aErrorMessage);
-                	}
-        		});
+    		@Override
+    		public void onMessage (String from, String message)
+    			{
+    			log ("irc: from(" + from + ") " + message);    			
+    			if (from.contains ("!"))
+    				{
+    				String fields[] = from.split ("!");
+    				from = fields [0];
+    				from = from.replaceAll (":", "");
+    				}
+    			
+    			message = message.replaceAll ("^:", "");
+    
+    			add_chat_message (from, message);
+    			}
+    		
+    		@Override
+    		public void say (String to, String message)
+    			{
+    			super.say (to, message);
+    			add_chat_message ("#u_" + config.userid, message);
+    			clear_new_message();
+    			}
+    		};
+    		
+    	irc.open (config.chat_server, 6667, "52e49a7fc64b774a", "u_" + config.userid);
+    	}
+    
+    public void add_chat_message (String from, String message)
+    	{
+		chatmessage cm = new chatmessage (from, message);
+		chatlog.add (cm);
+		
+		mCallback.get_main_thread().post (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				if (chat_adapter != null)
+					{
+					chat_adapter.notifyDataSetChanged();
+					ListView vChat = (ListView) getView().findViewById (R.id.chat_list);
+					vChat.setSelection (chat_adapter.getCount() - 1);
+					}
+				}
+			});
+    	}
+    
+    public void clear_new_message()
+    	{
+		final EditText vSay = (EditText) getView().findViewById (R.id.say);
+		vSay.setText ("");
+		vSay.clearFocus();						
+		InputMethodManager imm = (InputMethodManager) getActivity().getSystemService (Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow (vSay.getWindowToken(), 0);
     	}
     
     public void close()
 	    {
 	    }
     
-    IMessageListener message_listener = new IMessageListener()
-    	{
-    	public void onMessage (IMessage aMessage)
-    		{
-    		log ("message: " + aMessage);
-    		}
-    	};
-    
-    // public IRCServer(String aHostname, int aPort, String aPassword, Boolean aIsSSL)
-    
-    private IServerParameters getServerParams
-    	(final String aNickname, final List <String> aAlternativeNicks, final String aRealname,
-    						final String aIdent, final String aServerName, final Boolean aIsSSLServer)
-    	{
-    	return new IServerParameters()
-		    {
-            @Override
-            public IRCServer getServer()
-            	{
-                // return new IRCServer (aServerName, aIsSSLServer);            	
-            	return new IRCServer (config.chat_server, config.chat_port + 1, config.chat_server_pw, false);
-            	}
+	public class ChatAdapter extends BaseAdapter
+		{
+		List <chatmessage> chatlog = null;
+		
+		public ChatAdapter (Context context, List <chatmessage> chatlog)
+			{
+			this.chatlog = chatlog;
+			}
+	
+		@Override
+		public int getCount()
+			{			
+			log ("getcount: " + chatlog.size());
+			return chatlog == null ? 0 : chatlog.size();
+			}
+		
+		@Override
+		public Object getItem (int position)
+			{
+			return position;
+			}
+	
+		@Override
+		public long getItemId (int position)
+			{
+			return position;
+			}
+		
+		@Override
+		public View getView (final int position, View convertView, ViewGroup parent)
+			{
+			LinearLayout rv = null;
+					
+			log ("social getView: " + position + " (of " + getCount() + ")");
+			
+			if (convertView == null)
+				rv = (LinearLayout) View.inflate (getActivity(), R.layout.chat_item, null);				
+			else
+				rv = (LinearLayout) convertView;
+						
+			if (rv == null)
+				{
+				log ("getView: [position " + position + "] rv is null!");
+				return null;
+				}
+			
+			if (position > chatlog.size())
+				{
+				log ("getView: position is " + position + " but only have " + chatlog.size() + " items!");
+				return null;
+				}
+			
+			chatmessage chat = chatlog.get (position);
+			
+			TextView vTitle = (TextView) rv.findViewById (R.id.title);
+			if (vTitle != null)
+				vTitle.setText (chat.username);
 
-            @Override
-            public String getRealname()
-            	{
-                return aRealname;
-            	}
+			TextView vText = (TextView) rv.findViewById (R.id.text);
+			if (vText != null)
+				vText.setText (chat.message);
+			
+			TextView vCounter = (TextView) rv.findViewById (R.id.soc_counter);
+			if (vCounter != null)
+				vCounter.setText ("#" + Integer.toString (chatlog.size() - position));
+			
+			TextView vSource = (TextView) rv.findViewById (R.id.message_source);
+			if (vSource != null)
+				vSource.setText (" on IRC");
+			
+			TextView vAgo = (TextView) rv.findViewById (R.id.message_ago);
+			if (vAgo != null)
+				{
+				String ago = "";
+				//if (soc.date.length() == "1409103232".length())
+				//	ago = util.ageof (getActivity(), Long.parseLong (soc.date));
+				vAgo.setText (ago);
+				}
 
-            @Override
-            public String getNickname()
-            	{
-                return aNickname;
-            	}
-
-            @Override
-            public String getIdent()
-            	{
-                return aIdent;
-            	}
-
-            @Override
-            public List <String> getAlternativeNicknames()
-            	{
-                return aAlternativeNicks;
-            	}
-		    };
-    	}
-		    /*
-    public class MyListener extends ListenerAdapter
-    	{
-        @Override
-        public void onGenericMessage (GenericMessageEvent event)
-        	{
-            if (event.getMessage().startsWith ("?helloworld"))
-                    event.respond ("Hello world!");
-        	}
-        }
-    */
-    
-    /*
-    public class ChannelJoinListener extends VariousMessageListenerAdapter
-    	{
-            @Override
-            public void onChannelJoin(ChanJoinMessage aMsg)
-            	{
-                log ("User " + aMsg.getSource().getNick() + " joined channel" + aMsg.getChannelName()); 
-            	}
-            
-            @Override
-            public void onChannelMessage (ChannelPrivMsg aMsg)
-            	{
-            	log ("ChannelPrivMsg #" + aMsg.asRaw());
-            	}
-    	}
-    */
-    
-    
+			return rv;
+			}	   
+		}
 	}
