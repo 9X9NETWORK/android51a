@@ -105,7 +105,6 @@
             </intent-filter>
 		
 			<!-- for 9x9 -->
-			<!--  
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
@@ -121,8 +120,7 @@
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-9x9" />        	       					   					
 			</intent-filter>
-			-->
-						   		
+									   		
 			<!-- for Joey Graceffa -->
 			<!--		
 			<intent-filter>
@@ -130,7 +128,7 @@
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-joeygraceffa" />        	       					   					
-			</intent-filter>	
+			</intent-filter>
 			-->
 
 			<!-- for Jenna Marbles -->
@@ -544,7 +542,7 @@
             -->			
             
  			<!-- for Portico -->
-           	<!--
+ 			<!-- 
  			<intent-filter>
  				<action android:name="android.intent.action.VIEW" />
      			<category android:name="android.intent.category.DEFAULT" />
@@ -604,32 +602,84 @@
 			-->
 						
 			<!-- for LyChee TV -->
-			<!-- 
+ 			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-lycheetv" />        	       					   					
 			</intent-filter>
-			-->						
+			-->
 						
 			<!-- for ITV Networks -->
+			<!-- 
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
    				<category android:name="android.intent.category.BROWSABLE" />  	
     			<data android:scheme="flipr-itvnetworks" />        	       					   					
 			</intent-filter>
+			 -->
+ 
+           	<!-- for ITV Health -->
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flipr-itvhealth" />                                                    
+            </intent-filter>
+            -->
 
-			<!-- for Educative TV -->
-			<!-- 
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-    			<category android:name="android.intent.category.DEFAULT" />
-   				<category android:name="android.intent.category.BROWSABLE" />  	
-    			<data android:scheme="flipr-educativetv" />        	       					   					
-			</intent-filter>
-			-->						
+            <!-- for ITV News -->
+            <!--
+            <intent-filter>
+                 <action android:name="android.intent.action.VIEW" />
+                 <category android:name="android.intent.category.DEFAULT" />
+                 <category android:name="android.intent.category.BROWSABLE" />
+                 <data android:scheme="flipr-itvnews" />                                                      
+            </intent-filter>
+            -->
+
+            <!-- for ITV Nasheeds -->
+            <!--
+            <intent-filter>
+                 <action android:name="android.intent.action.VIEW" />
+                 <category android:name="android.intent.category.DEFAULT" />
+                 <category android:name="android.intent.category.BROWSABLE" />
+                 <data android:scheme="flipr-itvnasheeds" />                                                  
+            </intent-filter>
+            -->
+
+            <!-- for PEAC -->
+            <!--
+            <intent-filter>
+                 <action android:name="android.intent.action.VIEW" />
+                 <category android:name="android.intent.category.DEFAULT" />
+                 <category android:name="android.intent.category.BROWSABLE" />
+                 <data android:scheme="flipr-peac" />                                                         
+            </intent-filter>
+            -->
+
+            <!-- for Educative TV -->
+            <!--
+            <intent-filter>
+                 <action android:name="android.intent.action.VIEW" />
+                 <category android:name="android.intent.category.DEFAULT" />
+                 <category android:name="android.intent.category.BROWSABLE" />
+                 <data android:scheme="flipr-educativetv" />                                                  
+            </intent-filter>
+            -->
+                 
+            <!-- for Rubicon TV -->
+            <!--
+            <intent-filter>
+                 <action android:name="android.intent.action.VIEW" />
+                 <category android:name="android.intent.category.DEFAULT" />
+                 <category android:name="android.intent.category.BROWSABLE" />
+                 <data android:scheme="flipr-rubicontv" />                                                    
+            </intent-filter>
+            -->
 			
         </activity>
         

@@ -14,7 +14,7 @@
     <string name="signin_bg">nine_bg_open</string>      
     <string name="set_banner">nine_banner</string>        
 	<string name="fb_app_id">1429057570658015</string>
-			 				  			
+				 				  			
 	<!-- Joey Graceffa -->
     <!--  
     <string name="app_name">JoeyGraceffa on Flipr Unofficial</string>
@@ -765,7 +765,7 @@
     -->
     
     <!-- Portico -->
-    <!--
+    <!--       
     <string name="app_name">杰德影音</string>
 	<drawable name="app_icon_ptr">@drawable/portico_launch_logo</drawable>       	
     <string name="white_label">portico</string>
@@ -885,7 +885,7 @@
     -->
     
     <!-- ITV Networks -->
-    <!--
+    <!-- 
     <string name="app_name">ITV Networks</string>
    	<drawable name="app_icon_ptr">@drawable/itvnetworks_launch_logo</drawable>       	
     <string name="white_label">itvnetworks</string>
@@ -899,22 +899,107 @@
     <string name="signin_bg">itvnetworks_bg_open</string>
     <string name="set_banner">itvnetworks_banner</string>
     <string name="fb_app_id">361253423962738</string>
-    -->
-    
-    <!-- Ed TV -->
-    <!-- 
-    <string name="app_name">Ed TV</string>
-   	<drawable name="app_icon_ptr">@drawable/edtv_launch_logo</drawable>       	
-    <string name="white_label">edtv</string>
-    <string name="mso">edtv</string>
+     -->
+     
+    <!-- ITV Health -->
+    <!--
+    <string name="app_name">ITV Health</string>
+    <drawable name="app_icon_ptr">@drawable/itvhealth_launch_logo</drawable>
+    <string name="white_label">itvhealth</string>
+    <string name="mso">itvhealth</string>
     <string name="default_region">en</string>
-    <string name="logo">edtv_logo</string>
-    <string name="splash_background">edtv_bg_open</string>
-    <string name="splash_foreground">edtv_open_logo</string>
+    <string name="logo">itvHealth_logo</string>
+    <string name="splash_background">itvhealth_bg_open</string>
+    <string name="splash_foreground">itvhealth_open_logo</string>
     <string name="splash_slogan"></string>
-    <string name="signin_logo">edtv_logo_signin</string>
-    <string name="signin_bg">edtv_bg_open</string>
-    <string name="set_banner">edtv_banner</string>
+    <string name="signin_logo">itvhealth_logo_signin</string>
+    <string name="signin_bg">itvhealth_bg_open</string>
+    <string name="set_banner">itvhealth_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+
+    <!-- ITV News -->
+    <!--
+    <string name="app_name">ITV News</string>
+    <drawable name="app_icon_ptr">@drawable/itvnews_launch_logo</drawable>
+    <string name="white_label">itvnews</string>
+    <string name="mso">itvnews</string>
+    <string name="default_region">en</string>
+    <string name="logo">itvnews_logo</string>
+    <string name="splash_background">itvnews_bg_open</string>
+    <string name="splash_foreground">itvnews_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">itvnews_logo_signin</string>
+    <string name="signin_bg">itvnews_bg_open</string>
+    <string name="set_banner">itvnews_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+
+    <!-- ITV Nasheeds -->
+    <!--
+    <string name="app_name">ITV Nasheeds</string>
+    <drawable name="app_icon_ptr">@drawable/itvnasheeds_launch_logo</drawable>
+    <string name="white_label">itvnasheeds</string>
+    <string name="mso">itvnasheeds</string>
+    <string name="default_region">en</string>
+    <string name="logo">itvnasheeds_logo</string>
+    <string name="splash_background">itvnasheeds_bg_open</string>
+    <string name="splash_foreground">itvnasheeds_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">itvnasheeds_logo_signin</string>
+    <string name="signin_bg">itvnasheeds_bg_open</string>
+    <string name="set_banner">itvnasheeds_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+
+    <!-- PEAC -->
+    <!--
+    <string name="app_name">PEAC</string>
+    <drawable name="app_icon_ptr">@drawable/peac_launch_logo</drawable>
+    <string name="white_label">peac</string>
+    <string name="mso">peac</string>
+    <string name="default_region">en</string>
+    <string name="logo">peac_logo</string>
+    <string name="splash_background">peac_bg_open</string>
+    <string name="splash_foreground">peac_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">peac_logo_signin</string>
+    <string name="signin_bg">peac_bg_open</string>
+    <string name="set_banner">peac_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+   
+    <!-- Educative TV -->
+    <!--
+    <string name="app_name">Educative TV</string>
+    <drawable name="app_icon_ptr">@drawable/educativetv_launch_logo</drawable>
+    <string name="white_label">educativetv</string>
+    <string name="mso">educativetv</string>
+    <string name="default_region">en</string>
+    <string name="logo">educativetv_logo</string>
+    <string name="splash_background">educativetv_bg_open</string>
+    <string name="splash_foreground">educativetv_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">educativetv_logo_signin</string>
+    <string name="signin_bg">educativetv_bg_open</string>
+    <string name="set_banner">educativetv_banner</string>
+    <string name="fb_app_id">361253423962738</string>
+    -->
+   
+    <!-- Rubicon TV -->
+    <!--
+    <string name="app_name">Rubicon TV</string>
+    <drawable name="app_icon_ptr">@drawable/rubicontv_launch_logo</drawable>
+    <string name="white_label">rubicontv</string>
+    <string name="mso">rubicontv</string>
+    <string name="default_region">en</string>
+    <string name="logo">rubicontv_logo</string>
+    <string name="splash_background">rubicontv_bg_open</string>
+    <string name="splash_foreground">rubicontv_open_logo</string>
+    <string name="splash_slogan"></string>
+    <string name="signin_logo">rubicontv_logo_signin</string>
+    <string name="signin_bg">rubicontv_bg_open</string>
+    <string name="set_banner">rubicontv_banner</string>
     <string name="fb_app_id">361253423962738</string>
     -->
 
