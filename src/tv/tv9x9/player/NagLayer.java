@@ -1,5 +1,7 @@
 package tv.tv9x9.player;
 
+import tv.tv9x9.player.SigninLayer.OnSigninListener;
+
 import com.facebook.widget.LoginButton;
 
 import android.app.Activity;
@@ -33,6 +35,7 @@ public class NagLayer extends StandardFragment
     	public void enable_signin_layer (Runnable callback);
     	public boolean has_facebook();
     	public void fezbuk2 (View parent);
+    	public void onFacebookLayout (View parent);
 		}    
     
     OnNagListener mCallback; 
@@ -41,7 +44,13 @@ public class NagLayer extends StandardFragment
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     	{
     	log ("onCreateView");
-        return inflater.inflate (R.layout.nag_layer, container, false);
+    	View vLayout = inflater.inflate (R.layout.nag_layer, container, false);
+    	
+    	OnNagListener a = (OnNagListener) this.getActivity();
+        a.onFacebookLayout (vLayout);
+        
+        return vLayout;
+        // return inflater.inflate (R.layout.nag_layer, container, false);
     	}  
     
     @Override

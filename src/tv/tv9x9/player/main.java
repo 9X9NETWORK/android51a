@@ -207,6 +207,11 @@ public class main extends VideoBaseActivity
 		billing_create();
 		}
 
+	public void forcibly_remove_fb_buttons()
+		{
+		
+		}
+	
 	@Override
 	public void onStart()
 		{
@@ -459,7 +464,8 @@ public class main extends VideoBaseActivity
 	    				|| current_layer == toplayer.SETTINGS || current_layer == toplayer.APPS
 	    				|| current_layer == toplayer.SHAKE || current_layer == toplayer.ABOUT
 	    				|| current_layer == toplayer.MESSAGES || current_layer == toplayer.TEST
-	    				|| current_layer == toplayer.FEEDBACK || current_layer == toplayer.SOCIAL)
+	    				|| current_layer == toplayer.FEEDBACK || current_layer == toplayer.SOCIAL
+	    				|| current_layer == toplayer.CHAT)
 	    		toggle_menu();
 	    	return true;
 	    	}
@@ -782,8 +788,11 @@ public class main extends VideoBaseActivity
 		home_class().setup_home_buttons();
 		populate_home();
 		
-		fezbuk1 (fezbuk_bundle);
-		fezbuk_bundle = null;
+		if (has_facebook())
+			{
+			fezbuk1 (fezbuk_bundle);
+			fezbuk_bundle = null;
+			}
 		
 		try
 			{
@@ -3142,7 +3151,11 @@ public class main extends VideoBaseActivity
 			{
 			social_class().close();
 			}
-		
+	
+		if (layer != toplayer.CHAT)
+			{
+			chat_class().close();
+			}
 		
 		Fragment f;
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction(); 
@@ -3210,6 +3223,9 @@ public class main extends VideoBaseActivity
 		
 		View feedback_layer = findViewById (R.id.feedbacklayer);
 		feedback_layer.setVisibility (layer == toplayer.FEEDBACK ? View.VISIBLE : View.GONE);		
+		
+		View chat_layer = findViewById (R.id.chatlayer);
+		chat_layer.setVisibility (layer == toplayer.CHAT ? View.VISIBLE : View.GONE);
 		
 		current_layer = layer;
 		
@@ -3470,32 +3486,36 @@ public class main extends VideoBaseActivity
         return (list.size() > 0);
 		}
 	
-    private Session.StatusCallback fb_callback = new Session.StatusCallback()
+	private Session.StatusCallback fb_callback = null;
+	
+	public void init_fb_callbacks()
 		{
-	    @Override
-	    public void call (Session session, SessionState state, Exception exception)
-	    	{
-	    	main.this.session = session;
-	    	log ("FB SESSION STATE CHANGE (STATUS CALLBACK): " + state.toString());
-	        onSessionStateChange (session, state, exception);
-	        if (state != SessionState.CLOSED)
-		        {
-		        if (access_token == null || access_token.equals (""))
-		        	{
-		        	access_token = session.getAccessToken();
-		        	}
-		    	if (access_token != null && !access_token.equals (""))
-		    		{
-		    		// alert ("GOT ACCESS TOKEN: " + access_token);
-		    		log ("got Facebook access token: " + access_token);
-		    		facebook_get_userinfo();
-		    		}
-		        }
-	        else if (config.usertoken != null)
-	        	signout();
-	    	}
-		};
-
+		fb_callback = new Session.StatusCallback()
+			{
+		    @Override
+		    public void call (Session session, SessionState state, Exception exception)
+		    	{
+		    	main.this.session = session;
+		    	log ("FB SESSION STATE CHANGE (STATUS CALLBACK): " + state.toString());
+		        onSessionStateChange (session, state, exception);
+		        if (state != SessionState.CLOSED)
+			        {
+			        if (access_token == null || access_token.equals (""))
+			        	{
+			        	access_token = session.getAccessToken();
+			        	}
+			    	if (access_token != null && !access_token.equals (""))
+			    		{
+			    		// alert ("GOT ACCESS TOKEN: " + access_token);
+			    		log ("got Facebook access token: " + access_token);
+			    		facebook_get_userinfo();
+			    		}
+			        }
+		        else if (config.usertoken != null)
+		        	signout();
+		    	}
+			};
+		}
 	private void onSessionStateChange (Session session, SessionState state, Exception exception)
 		{
 		if (exception instanceof FacebookOperationCanceledException)
@@ -3504,10 +3524,24 @@ public class main extends VideoBaseActivity
 			log ("FB: FacebookAuthorizationException");
 	    }
     
+	public void onFacebookLayout (View parent)
+		{
+		if (!has_facebook())
+			{
+			for (final int button: new int[] { R.id.fblogin, R.id.nag2_fblogin, R.id.nag3_fblogin })
+				{
+				View v = parent.findViewById (button);
+				if (v != null)
+					((ViewManager) v.getParent()).removeView (v);
+				}
+			}
+		}
+	
 	public void fezbuk1 (Bundle savedInstanceState)
 		{
-		if (config.facebook_app_id != null)
+		if (has_facebook() && config.facebook_app_id != null)
 			{
+			init_fb_callbacks();
 			session = new Session.Builder (this).setApplicationId (config.facebook_app_id).build();
 	        uiHelper = new UiLifecycleHelper (this, fb_callback);
 	        if (uiHelper != null)
@@ -3517,28 +3551,31 @@ public class main extends VideoBaseActivity
 	
 	public void fezbuk2 (View parent)
 		{
-		for (final int button: new int[] { R.id.fblogin, R.id.nag2_fblogin, R.id.nag3_fblogin })
+		if (has_facebook())
 			{
-			LoginButton vButton = (LoginButton) parent.findViewById (button);
-		    if (vButton != null)
-			    {
-		    	log ("enabling facebook login ui button: " + button);
-		    	vButton.setReadPermissions (Arrays.asList ("email", "user_location", "user_birthday"));
-		    	vButton.setUserInfoChangedCallback (new LoginButton.UserInfoChangedCallback()
-			    	{
-			        @Override
-			        public void onUserInfoFetched (final GraphUser user)
-			        	{
-			        	log ("FACEBOOK LOGIN BUTTON CALLBACK!");
-			        	if (button == R.id.nag2_fblogin || button == R.id.nag3_fblogin)
-			        		{
-			        		/* this only tracks if login is successful, which isn't 100% what PM requests, but is the best we can do */
-			        		track_event ("signIn", "signInWithFB-enforce", "signInWithFB-enforce", 0);
-			        		}
-			        	process_fb_user (user);
-			        	}
-			    	});
-			    }
+			for (final int button: new int[] { R.id.fblogin, R.id.nag2_fblogin, R.id.nag3_fblogin })
+				{
+				LoginButton vButton = (LoginButton) parent.findViewById (button);
+			    if (vButton != null)
+				    {
+			    	log ("enabling facebook login ui button: " + button);
+			    	vButton.setReadPermissions (Arrays.asList ("email", "user_location", "user_birthday"));
+			    	vButton.setUserInfoChangedCallback (new LoginButton.UserInfoChangedCallback()
+				    	{
+				        @Override
+				        public void onUserInfoFetched (final GraphUser user)
+				        	{
+				        	log ("FACEBOOK LOGIN BUTTON CALLBACK!");
+				        	if (button == R.id.nag2_fblogin || button == R.id.nag3_fblogin)
+				        		{
+				        		/* this only tracks if login is successful, which isn't 100% what PM requests, but is the best we can do */
+				        		track_event ("signIn", "signInWithFB-enforce", "signInWithFB-enforce", 0);
+				        		}
+				        	process_fb_user (user);
+				        	}
+				    	});
+				    }
+				}
 			}
 		}
 
@@ -6271,7 +6308,7 @@ public class main extends VideoBaseActivity
 		{
 		disable_video_layer();
 		set_layer (toplayer.CHAT);		
-		chat_class().start_social (config);
+		chat_class().start_chat (config);
 		}
 
     public ChatLayer chat_class()
@@ -7236,7 +7273,7 @@ public class main extends VideoBaseActivity
 		{
 		try
 			{
-			Bundle buyIntentBundle = billing_service.getBuyIntent (3, getPackageName(), sku, "inapp", "wombat");
+			Bundle buyIntentBundle = billing_service.getBuyIntent (3, getPackageName(), sku, "subs", "wombat");
 			PendingIntent pi = buyIntentBundle.getParcelable ("BUY_INTENT");
 			startIntentSenderForResult (pi.getIntentSender(), 1911, new Intent(), Integer.valueOf (0), Integer.valueOf (0), Integer.valueOf (0));
 			}
@@ -7261,17 +7298,17 @@ public class main extends VideoBaseActivity
 					JSONObject jo = new JSONObject (purchaseData);
 					String sku = jo.getString ("productId");
 					String purchaseToken = jo.getString ("purchaseToken");
-					log ("sku \"" + sku + "\" purchase successful, token is: " + purchaseToken);
 					String channel_id = config.get_pay_info (sku, "channel");
+					log ("sku \"" + sku + "\" purchase successful, channel: " + channel_id + ", token is: " + purchaseToken);
 					if (channel_id != null && !channel_id.equals (""))
 						{
-						/* launch this channel without an arena */
-						launch_player (channel_id, new String[] { channel_id });
+						purchase_activity_result_ii (channel_id, sku, purchaseToken);
 						}
 					else
 						{
 						/* this might be a test purchase, do nothing */
 						}
+
 					}
 				catch (JSONException e)
 					{
@@ -7279,9 +7316,44 @@ public class main extends VideoBaseActivity
 					e.printStackTrace();
 					}
 				}
+			else
+				alert ("Error making in-app purchase.");
 			}
 		}
 	
+	public void purchase_activity_result_ii (final String channel_id, final String sku, final String purchaseToken)
+		{
+		Thread t = new Thread()
+			{
+			@Override
+			public void run()
+				{
+	    		new playerAPI (in_main_thread, config, "addPurchase?user=" + config.usertoken + "&productId=" + sku + "&purchaseToken=" + purchaseToken)
+					{
+					public void success (String[] lines)
+						{
+						process_purchase_result (lines);
+						force_load_of_channel (channel_id, new Runnable()
+							{
+							@Override
+							public void run()
+								{
+								log ("launching pay channel: " + channel_id);
+								launch_player (channel_id, new String[] { channel_id });
+								}
+							});
+						}
+					public void failure (int code, String errtext)
+						{
+						toast ("Error " + code + " making in-app purchase: " + errtext);
+						}
+					};
+				}
+			};
+		
+		t.start();
+		}
+		
 	public void get_pay_channel_info()
 		{
 		if (config.usertoken == null)
@@ -7299,16 +7371,7 @@ public class main extends VideoBaseActivity
 					{
 					public void success (String[] lines)
 						{
-						for (String line: lines)
-							{
-							log ("pay channel I: " + line);
-							String fields[] = line.split ("\t");
-							if (fields.length > 2)
-								{
-								config.set_pay_info (fields[0], "sku", fields[1]);
-								config.set_pay_info (fields[0], "paid", "true");
-								}
-							}
+						process_purchase_result (lines);
 						get_pay_channel_info_ii();
 						}
 					public void failure (int code, String errtext)
@@ -7319,6 +7382,20 @@ public class main extends VideoBaseActivity
 			};
 		
 		t.start();
+		}
+	
+	public void process_purchase_result (String[] lines)
+		{
+		for (String line: lines)
+			{
+			log ("pay channel I: " + line);
+			String fields[] = line.split ("\t");
+			if (fields.length > 2)
+				{
+				config.set_pay_info (fields[0], "sku", fields[1]);
+				config.set_pay_info (fields[0], "paid", "true");
+				}
+			}
 		}
 	
 	public void get_pay_channel_info_ii()
@@ -7369,12 +7446,17 @@ public class main extends VideoBaseActivity
 	@Override
 	public void onNoPayAccess (final String channel_id)
 		{
-		alert ("You don't have access to this pay channel!");
-		log ("onNoPayAccess: no access to this pay channel: " + channel_id);
-		String sku = config.get_pay_info (channel_id, "sku");
-		if (sku != null)
-			test_purchase (sku);
+		if (user != null)
+			{
+			alert ("You don't have access to this pay channel!");
+			log ("onNoPayAccess: no access to this pay channel: " + channel_id);
+			String sku = config.get_pay_info (channel_id, "sku");
+			if (sku != null)
+				test_purchase (sku);
+			else
+				alert ("This channel does not have an SKU!");
+			}
 		else
-			alert ("This channel does not have an SKU!");
+			actual_alert ("Please sign in to purchase this pay channel");
 		}
-	}
+	}	

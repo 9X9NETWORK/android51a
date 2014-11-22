@@ -55,6 +55,7 @@ public class SigninLayer extends StandardFragment
     	public void activate_layer (toplayer layer);
         public boolean signed_in_with_facebook();
         public void set_signed_in_with_facebook (boolean value);
+    	public void onFacebookLayout (View parent);
 		}    
     
     OnSigninListener mCallback; 
@@ -70,7 +71,9 @@ public class SigninLayer extends StandardFragment
         
     	log ("onCreateView -- tablet? " + is_tablet);
     	
-        return inflater.inflate (is_tablet ? R.layout.signin_tablet_new : R.layout.signin_phone_new, container, false);
+    	View vLayout = inflater.inflate (is_tablet ? R.layout.signin_tablet_new : R.layout.signin_phone_new, container, false);
+    	a.onFacebookLayout (vLayout);
+        return vLayout;
     	}  
     
     @Override

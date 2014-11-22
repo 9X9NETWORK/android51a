@@ -367,7 +367,7 @@ public class StoreLayer extends StandardFragment implements StoreAdapter.mothers
 					vSpinner.setVisibility (View.GONE);
 					store_spinner (false);
 					ex.printStackTrace();
-					getActivity().finish();
+					mCallback.alert ("Oops! An error has occurred in the store.");
 					}
 				}
 	
@@ -479,6 +479,12 @@ public class StoreLayer extends StandardFragment implements StoreAdapter.mothers
 		
 		View vSpinner = getView().findViewById (R.id.store_progress);
 		vSpinner.setVisibility (View.GONE);
+		
+		if (starting == 0)
+			{
+			/* position to top, but only if not in "forever-scroll" situation */
+			vStore.setSelection (0);
+			}
 		}
 	
 	final Runnable store_channel_thumb_updated = new Runnable()
@@ -503,6 +509,7 @@ public class StoreLayer extends StandardFragment implements StoreAdapter.mothers
 				vCategoryName.setTextSize (TypedValue.COMPLEX_UNIT_SP, 18);
 			}
 		}
+	
 	public void redraw_store_list()
 		{	
 		}

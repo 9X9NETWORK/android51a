@@ -1410,6 +1410,15 @@ public class HomeLayer extends StandardFragment
 					if (vFirstTitle != null)
 						{
 						String e1 = config.pool_meta (channel_id, "episode_title_1");
+						if (e1.contains ("|"))
+							{
+							/* why is this necessary? */
+							String fields[] = e1.split ("\\|");
+							if (fields.length > 1 && !fields[1].equals (""))
+								e1 = fields[1];
+							else
+								e1 = fields[0];
+							}
 						vFirstTitle.setText (e1 != null && !e1.equals ("") ? e1 : "");
 						}
 					}

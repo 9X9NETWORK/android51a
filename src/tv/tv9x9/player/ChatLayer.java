@@ -61,10 +61,10 @@ public class ChatLayer extends StandardFragment
     	}
 
     List <chatmessage> chatlog = new ArrayList <chatmessage> ();
-    
-    boolean soc_shim_added = false;
 	
     ChatAdapter chat_adapter = null;
+    
+    Thread chat_thread = null;
     
     public interface OnChatListener
 		{
@@ -121,22 +121,23 @@ public class ChatLayer extends StandardFragment
     	log ("onResume");
     	}
     
-    public void start_social (final metadata config)
+    public void start_chat (final metadata config)
 	    {
 	    this.config = config;
-	    
+	  
 	    log ("start chat");
 	    
-	    Thread t = new Thread()
+	    chat_thread = new Thread()
 	    	{
 	    	@Override
 	    	public void run()
 	    		{
+	    	    close();
 	    		open_irc();
 	    		}
 	    	};
 	    	
-	    t.start();
+	    chat_thread.start();
 	    
 		chat_adapter = new ChatAdapter (getActivity(), chatlog);
 		
@@ -260,6 +261,11 @@ public class ChatLayer extends StandardFragment
     
     public void close()
 	    {
+		if (irc != null)
+			{
+			irc.close();
+			irc = null;
+			}
 	    }
     
 	public class ChatAdapter extends BaseAdapter

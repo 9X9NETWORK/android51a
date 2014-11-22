@@ -57,6 +57,7 @@ import android.support.v7.media.MediaRouter;
 import android.support.v7.media.MediaRouter.RouteInfo;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -248,12 +249,16 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
 
-		setContentView (R.layout.main);
-		
-		plasterCast = new PlasterCast (plasterListener);
-		
 		/* save this, to avoid passing context many layers deep */
 		inflater = getLayoutInflater();
+		
+		View vMainLayout = inflater.inflate (R.layout.main, null);			
+		onFacebookLayout (vMainLayout);
+
+		setContentView (vMainLayout);
+		 add_mr_buttons();
+		 
+		plasterCast = new PlasterCast (plasterListener);
 		
 		FrameLayout vMain = (FrameLayout) findViewById (R.id.main);
 		
@@ -477,6 +482,11 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         	layout.height = (int) (screen_width / 1.77);
         	vPlayerFragment.setLayoutParams (layout);	
 	        }
+		}
+	
+	public void onFacebookLayout (View parent)
+		{
+		/* override this. It should remove Facebook widgets if no Facebook is installed on device */
 		}
 	
 	public void flurry_log (String event)
@@ -1177,6 +1187,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 				log ("ERROR! " + errtext);
 				}
 			};
+		}
+	
+	/* this is used to force loading of a pay channel */
+	public void force_load_of_channel (String channel_id, Runnable r)
+		{
+		ytchannel.fetch_and_parse_by_id_in_thread (VideoBaseActivity.this, config, channel_id, false, in_main_thread, r);		
 		}
 	
 	public void play_specified_episode (String episode_id)
@@ -2852,6 +2868,9 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
 	public boolean reconcile_program_line()
 		{
+		if (current_episode_index <= 0)
+			return false;
+		
 		if (program_line == null || current_episode_index > program_line.length)
 			{
 			if (player_real_channel == null)
@@ -3869,8 +3888,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         
         gcast_media_router = MediaRouter.getInstance (getApplicationContext());
         
-        MediaRouteButton gcast_media_route_button = (MediaRouteButton) findViewById (R.id.media_route_button);  
-        MediaRouteButton gcast_media_route_button_main = (MediaRouteButton) findViewById (R.id.media_route_button_main);   
+        // MediaRouteButton gcast_media_route_button = (MediaRouteButton) findViewById (R.id.media_route_button);  
+        // MediaRouteButton gcast_media_route_button_main = (MediaRouteButton) findViewById (R.id.media_route_button_main);   
+        View v1 = findViewById (R.id.media_route_experiment_in_player);
+        MediaRouteButton gcast_media_route_button = (MediaRouteButton) v1.findViewWithTag (707);  
+        View v2 = findViewById (R.id.media_route_experiment_in_main);
+        MediaRouteButton gcast_media_route_button_main = (MediaRouteButton) v2.findViewWithTag (708); 
         
         try
         	{
@@ -3950,6 +3973,8 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
 	
     private class MyMediaRouterCallback extends MediaRouter.Callback
     	{
+    	private int count = 0;
+    	
         @Override
         public void onRouteSelected (MediaRouter router, RouteInfo info)
         	{
@@ -3966,8 +3991,56 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
             teardown();
             plasterCast.selectDevice (null, null);
         	}
+        
+        @Override
+        public void onRouteAdded (MediaRouter router, MediaRouter.RouteInfo info)
+        	{
+        	// I/vtest   (32376): [main] --------------> route added: MatchStick
+        	count++;
+        	log ("--------------> route added: " + info.getDescription());
+        	in_main_thread.post (update_count);
+        	}
+        
+        @Override
+        public void onRouteRemoved (MediaRouter router, MediaRouter.RouteInfo info)
+        	{
+        	count--;
+        	log ("--------------> route removed: " + info.getDescription());
+        	in_main_thread.post (update_count);
+        	}
+        
+        private Runnable update_count = new Runnable()
+        	{
+        	@Override
+        	public void run()
+        		{
+        		TextView vCounter1 = (TextView) findViewById (R.id.media_route_indicator_in_player);
+        		vCounter1.setText (Integer.toString (count));
+        		
+        		TextView vCounter2 = (TextView) findViewById (R.id.media_route_indicator_in_main);
+        		vCounter2.setText (Integer.toString (count));
+        		}
+        	};
     	}
 
+    public void add_mr_buttons()
+    	{
+    	
+    	// R.style.Theme_AppCompat_Light R.style.Theme_AppCompat
+    	
+    	FrameLayout vMRplayer = (FrameLayout) findViewById (R.id.media_route_experiment_in_player);
+    	ContextThemeWrapper wrap1 = new ContextThemeWrapper (VideoBaseActivity.this, R.style.Theme_AppCompat);        	
+    	MediaRouteButton playerMR = new MediaRouteButton (wrap1);
+    	playerMR.setTag (707);
+    	vMRplayer.addView (playerMR);	
+    	
+    	FrameLayout vMRmain = (FrameLayout) findViewById (R.id.media_route_experiment_in_main);
+    	ContextThemeWrapper wrap2 = new ContextThemeWrapper (VideoBaseActivity.this, R.style.Theme_AppCompat_Light);        	
+    	MediaRouteButton mainMR = new MediaRouteButton (wrap2);
+    	mainMR.setTag (708);
+    	vMRmain.addView (mainMR);
+    	}
+    
     /* P L A S T E R C A S T */
     PlasterCast.PlasterListener plasterListener = new PlasterCast.PlasterListener()
 		{
@@ -4453,8 +4526,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
                 	position = position.replaceAll ("\\.\\d+$", "");
                 	String duration = data.getString ("duration");
                 	duration = duration.replaceAll ("\\.\\d+$", "");
-                	int position_int = position.equals ("null") ? 0 : Integer.parseInt (position);
-                	int duration_int = duration.equals ("null") ? 0 : Integer.parseInt (duration);
+                	int position_int = 0;
+                	try { position_int = position.equals ("null") ? 0 : Integer.parseInt (position); } catch (Exception ex) {};
+                	int duration_int = 0;
+                	try { duration_int = duration.equals ("null") ? 0 : Integer.parseInt (duration); } catch (Exception ex) {};
+                	if (duration_int < 1)
+                		log ("*HEY* duration is weird: " + duration);
                 	String episode = data.getString ("episode");
                 	String channel = data.getString ("channel");
                 	onChromecastPosition (channel, episode, position_int, duration_int);
