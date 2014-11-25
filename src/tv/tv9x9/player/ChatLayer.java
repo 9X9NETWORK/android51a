@@ -62,6 +62,8 @@ public class ChatLayer extends StandardFragment
 
     List <chatmessage> chatlog = new ArrayList <chatmessage> ();
 	
+	Hashtable <String, String> user_id_mappings = new Hashtable <String, String> ();
+	
     ChatAdapter chat_adapter = null;
     
     Thread chat_thread = null;
@@ -222,7 +224,7 @@ public class ChatLayer extends StandardFragment
     		public void say (String to, String message)
     			{
     			super.say (to, message);
-    			add_chat_message ("#u_" + config.userid, message);
+    			add_chat_message ("u_" + config.userid, message);
     			clear_new_message();
     			}
     		};
@@ -230,7 +232,7 @@ public class ChatLayer extends StandardFragment
     	irc.open (config.chat_server, 6667, "52e49a7fc64b774a", "u_" + config.userid);
     	}
     
-    public void add_chat_message (String from, String message)
+    public void add_chat_message (final String from, final String message)
     	{
 		chatmessage cm = new chatmessage (from, message);
 		chatlog.add (cm);
@@ -248,6 +250,26 @@ public class ChatLayer extends StandardFragment
 					}
 				}
 			});
+		
+		if (user_id_mappings.get (from) == null)
+			{
+			String id = from;
+			if (id.startsWith ("u_"))
+				id = id.replace ("u_", "");
+			
+    		new playerAPI (mCallback.get_main_thread(), config, "getUserNames?id=" + from)
+    			{
+				public void success (String[] lines)
+					{
+					String fields[] = lines[0].split ("\t");
+					user_id_mappings.put (from, fields[1]);
+					chat_adapter.notifyDataSetChanged();
+					}
+				public void failure (int code, String errtext)
+					{
+					}
+				};
+			}
     	}
     
     public void clear_new_message()
@@ -322,9 +344,11 @@ public class ChatLayer extends StandardFragment
 			
 			chatmessage chat = chatlog.get (position);
 			
+			String mapped_from = user_id_mappings.get (chat.username);
+			
 			TextView vTitle = (TextView) rv.findViewById (R.id.title);
 			if (vTitle != null)
-				vTitle.setText (chat.username);
+				vTitle.setText (mapped_from != null ? mapped_from : chat.username);
 
 			TextView vText = (TextView) rv.findViewById (R.id.text);
 			if (vText != null)

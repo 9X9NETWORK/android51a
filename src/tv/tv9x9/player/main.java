@@ -4681,6 +4681,9 @@ public class main extends VideoBaseActivity
 				return;
 				}
 			
+			if (!reconcile_program_line())
+				return;
+			
 			String episode_id = program_line [current_episode_index - 1];
 			final String real_channel = config.program_meta (episode_id, "real_channel");		
 			
@@ -7446,7 +7449,7 @@ public class main extends VideoBaseActivity
 	@Override
 	public void onNoPayAccess (final String channel_id)
 		{
-		if (user != null)
+		if (config.usertoken != null)
 			{
 			alert ("You don't have access to this pay channel!");
 			log ("onNoPayAccess: no access to this pay channel: " + channel_id);

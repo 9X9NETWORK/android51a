@@ -88,7 +88,8 @@
 			android:singleLine="true"
 			android:cursorVisible="true"
 			android:textCursorDrawable="@null"								
-			android:background="@drawable/textfield_tray"							
+			android:background="@drawable/textfield_tray"	
+			android:maxLength="256"						
 			/>	
 	</LinearLayout>
 				
