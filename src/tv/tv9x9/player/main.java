@@ -817,7 +817,7 @@ public class main extends VideoBaseActivity
 				{
 				get_pay_channel_info();
 				}
-			}, 15000);
+			}, 4000);
 		
 		in_main_thread.postDelayed (new Runnable()
 			{
@@ -7272,10 +7272,14 @@ public class main extends VideoBaseActivity
 			}
 		}
 	
+	/* store this as a global for now. This is bad */
+	String sku_purchase_in_progress = null;
+	
 	public void test_purchase (String sku)
 		{
 		try
 			{
+			sku_purchase_in_progress = sku;
 			Bundle buyIntentBundle = billing_service.getBuyIntent (3, getPackageName(), sku, "subs", "wombat");
 			PendingIntent pi = buyIntentBundle.getParcelable ("BUY_INTENT");
 			startIntentSenderForResult (pi.getIntentSender(), 1911, new Intent(), Integer.valueOf (0), Integer.valueOf (0), Integer.valueOf (0));
@@ -7286,41 +7290,74 @@ public class main extends VideoBaseActivity
 			}
 		}
 	
+	/*
+	 * I can't figure out where these are defined
+	 * BILLING_RESPONSE_RESULT_OK = 0;
+	 * BILLING_RESPONSE_RESULT_USER_CANCELED = 1;
+	 * ...2 is service unavailable...
+	 * BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE = 3;
+	 * BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE = 4;
+	 * BILLING_RESPONSE_RESULT_DEVELOPER_ERROR = 5;
+	 * BILLING_RESPONSE_RESULT_ERROR = 6;
+	 * BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED = 7;
+	 * BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED = 8;
+	 */
+	
+	static int BILLING_RESPONSE_RESULT_OK = 0;
+	static int BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED = 7;
+	
 	void purchase_activity_result (int requestCode, int resultCode, Intent data)
 		{ 
+		log ("purchase_activity_result :: requestCode=" + requestCode + " resultCode=" + resultCode);
+		
 		if (requestCode == 1911)
 			{           
 			int responseCode = data.getIntExtra ("RESPONSE_CODE", 0);
 			String purchaseData = data.getStringExtra ("INAPP_PURCHASE_DATA");
 			String dataSignature = data.getStringExtra ("INAPP_DATA_SIGNATURE");
 	        
-			if (resultCode == RESULT_OK)
+			log ("responseCode=" + responseCode);
+			
+			// purchase_activity_result :: requestCode=1911 resultCode=0
+			if (responseCode == BILLING_RESPONSE_RESULT_OK)
 				{
-				try
+				if (purchaseData != null)
 					{
-					JSONObject jo = new JSONObject (purchaseData);
-					String sku = jo.getString ("productId");
-					String purchaseToken = jo.getString ("purchaseToken");
-					String channel_id = config.get_pay_info (sku, "channel");
-					log ("sku \"" + sku + "\" purchase successful, channel: " + channel_id + ", token is: " + purchaseToken);
-					if (channel_id != null && !channel_id.equals (""))
+					try
 						{
-						purchase_activity_result_ii (channel_id, sku, purchaseToken);
+						JSONObject jo = new JSONObject (purchaseData);
+						String sku = jo.getString ("productId");
+						String purchaseToken = jo.getString ("purchaseToken");
+						String channel_id = config.get_pay_info (sku, "channel");
+						log ("sku \"" + sku + "\" purchase successful, channel: " + channel_id + ", token is: " + purchaseToken);
+						if (channel_id != null && !channel_id.equals (""))
+							{
+							purchase_activity_result_ii (channel_id, sku, purchaseToken);
+							}
+						else
+							{
+							/* this might be a test purchase, do nothing */
+							}
+	
 						}
-					else
+					catch (JSONException ex)
 						{
-						/* this might be a test purchase, do nothing */
+						alert ("in-app-purchase failure:");
+						ex.printStackTrace();
 						}
-
-					}
-				catch (JSONException e)
-					{
-					alert ("in-app-purchase failure:");
-					e.printStackTrace();
 					}
 				}
+			else if (responseCode == BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED)
+				{
+				log ("billing response: ALREADY PURCHASED (" + purchaseData + ")");
+				config.set_pay_info_by_sku (sku_purchase_in_progress, "paid", "true");
+				String channel_id = config.get_pay_info_by_sku (sku_purchase_in_progress, "channel");
+				launch_player (channel_id, new String[] { channel_id });
+				}
 			else
-				alert ("Error making in-app purchase.");
+				{
+				alert ("Error " + responseCode + " making in-app purchase.");
+				}
 			}
 		}
 	
@@ -7357,6 +7394,67 @@ public class main extends VideoBaseActivity
 		t.start();
 		}
 		
+	
+	public void verify_purchases_directly()
+		{
+		Thread t = new Thread()
+			{
+			@Override
+			public void run()
+				{
+				verify_purchases_directly_inner();
+				}
+			};
+		t.start();
+		}
+	
+	public void verify_purchases_directly_inner()
+		{
+		try
+			{
+			Bundle ownedItems = billing_service.getPurchases (3, getPackageName(), "subs", null);
+			int response = ownedItems.getInt ("RESPONSE_CODE");
+			
+			if (response == 0)
+				{
+				ArrayList <String> ownedSkus = ownedItems.getStringArrayList ("INAPP_PURCHASE_ITEM_LIST");
+				ArrayList <String> purchaseDataList = ownedItems.getStringArrayList ("INAPP_PURCHASE_DATA_LIST");
+				
+				for (int i = 0; i < purchaseDataList.size(); ++i)
+					{
+				    String purchaseData = purchaseDataList.get (i);
+				    String sku = ownedSkus.get (i);
+				    if (purchaseData != null)
+				    	{
+						JSONObject jo = new JSONObject (purchaseData);
+						String purchaseToken = jo.getString ("purchaseToken");
+						String channel_id = config.get_pay_info (sku, "channel");
+						String paid_str = config.get_pay_info (sku, "paid");
+						boolean paid = paid_str != null && paid_str.equals ("true");
+						
+						if (!paid)
+							{
+				    		new playerAPI (in_main_thread, config, "addPurchase?user=" + config.usertoken + "&productId=" + sku + "&purchaseToken=" + purchaseToken)
+								{
+								public void success (String[] lines)
+									{
+									process_purchase_result (lines);
+									}
+								public void failure (int code, String errtext)
+									{
+									}
+								};
+							}
+				    	}
+					}
+				}
+			}
+		catch (Exception ex)
+			{
+			ex.printStackTrace();
+			}
+		}
+	
 	public void get_pay_channel_info()
 		{
 		if (config.usertoken == null)
@@ -7435,6 +7533,8 @@ public class main extends VideoBaseActivity
 							/* information returned by playerAPI is inadequate. Ask Google for the rest */
 							query_sku (skuList);
 							}
+												
+						verify_purchases_directly();
 						}
 					public void failure (int code, String errtext)
 						{

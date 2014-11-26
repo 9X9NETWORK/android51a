@@ -27,6 +27,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,10 +54,15 @@ public class ChatLayer extends StandardFragment
     	{	
     	String username;
     	String message;
-    	chatmessage (String username, String message)
+    	long timestamp;
+    	chatmessage (String username, String message, long timestamp)
     		{
     		this.username = username;
     		this.message = message;
+    		if (timestamp == 0)
+    			this.timestamp = System.currentTimeMillis() / 1000L;    		
+    		else
+        		this.timestamp = timestamp;
     		}
     	}
 
@@ -190,6 +196,9 @@ public class ChatLayer extends StandardFragment
     			log ("irc: connected");
     			register();
     			post ("JOIN #" + config.mso);
+    			String botname = "FLIPrBot";
+    			// botname = "soylent";    					
+				irc.say (botname, "!getLastMsgs #" + config.mso);
     			}
     		
     		@Override
@@ -217,14 +226,20 @@ public class ChatLayer extends StandardFragment
     			
     			message = message.replaceAll ("^:", "");
     
-    			add_chat_message (from, message);
+    			if (from.contains ("FLIPrBot"))
+    				add_bot_message (message);
+    			else
+	    			add_chat_message (from, message, 0);
     			}
     		
     		@Override
     		public void say (String to, String message)
     			{
     			super.say (to, message);
-    			add_chat_message ("u_" + config.userid, message);
+    			if (to.startsWith ("#"))
+    				add_chat_message ("u_" + config.userid, message, 0);
+    			else
+    				add_chat_message ("u_" + config.userid, "-> *" + to + "* " + message, 0);
     			clear_new_message();
     			}
     		};
@@ -232,9 +247,9 @@ public class ChatLayer extends StandardFragment
     	irc.open (config.chat_server, 6667, "52e49a7fc64b774a", "u_" + config.userid);
     	}
     
-    public void add_chat_message (final String from, final String message)
+    public void add_chat_message (final String from, final String message, long timestamp)
     	{
-		chatmessage cm = new chatmessage (from, message);
+		chatmessage cm = new chatmessage (from, message, timestamp);
 		chatlog.add (cm);
 		
 		mCallback.get_main_thread().post (new Runnable()
@@ -255,24 +270,106 @@ public class ChatLayer extends StandardFragment
 			{
 			String id = from;
 			if (id.startsWith ("u_"))
-				id = id.replace ("u_", "");
+				{
+				id = id.replaceAll ("^u_", "");
 			
-    		new playerAPI (mCallback.get_main_thread(), config, "getUserNames?id=" + from)
-    			{
-				public void success (String[] lines)
-					{
-					String fields[] = lines[0].split ("\t");
-					user_id_mappings.put (from, fields[1]);
-					chat_adapter.notifyDataSetChanged();
-					}
-				public void failure (int code, String errtext)
-					{
-					}
-				};
+	    		new playerAPI (mCallback.get_main_thread(), config, "getUserNames?id=" + id)
+	    			{
+					public void success (String[] lines)
+						{
+						if (lines.length > 0)
+							{
+							String fields[] = lines[0].split ("\t");
+							if (fields.length > 1)
+								{
+								user_id_mappings.put (from, fields[1]);
+								chat_adapter.notifyDataSetChanged();
+								}
+							}
+						}
+					public void failure (int code, String errtext)
+						{
+						}
+					};
+				}
 			}
     	}
     
+    public void add_bot_message (String text)
+    	{
+    	if (!text.startsWith ("{"))
+    		{
+    		log ("not a JSON message: " + text);
+    		return;
+    		}
+    	
+    	JSONObject json;		
+		try {
+			json = new JSONObject (text);
+			}
+		catch (JSONException e)
+			{
+			e.printStackTrace();
+			return;
+			}
+		
+		String j_nick = null;
+		try
+			{
+			j_nick = json.getString ("nick");
+			}
+		catch (Exception ex)
+			{
+			log ("JSON: no \"nick\"");
+			return;
+			}
+		
+		String j_text = null;
+		try
+			{
+			j_text = json.getString ("text");
+			}
+		catch (Exception ex)
+			{
+			log ("JSON: no \"text\"");
+			return;
+			}		
+
+		String j_timestamp = null;
+		try
+			{
+			j_timestamp = json.getString ("timestamp");
+			}
+		catch (Exception ex)
+			{
+			log ("JSON: no \"timestamp\"");
+			return;
+			}
+		
+		log ("ts: " + j_timestamp);
+		long ts = Long.parseLong (j_timestamp);
+		
+		add_chat_message (j_nick, j_text, ts);
+    	}
+    
     public void clear_new_message()
+    	{
+    	if (Looper.myLooper() != Looper.getMainLooper())
+    		{
+    		mCallback.get_main_thread().post (new Runnable()
+    			{
+    			@Override
+    			public void run()
+    				{
+    				clear_new_message_inner();
+    				}
+    			});
+    		}
+    	else
+    		clear_new_message_inner();
+    	}
+    
+    public void clear_new_message_inner()
     	{
 		final EditText vSay = (EditText) getView().findViewById (R.id.say);
 		vSay.setText ("");

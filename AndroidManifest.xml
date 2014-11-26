@@ -59,9 +59,9 @@
 <!-- package="tv.flipr.rubicontv" -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="tv.tv9x9.player"
-      android:versionCode="152"
-      android:versionName="5.0.1.152">
+      package="tv.flipr.yourapp"
+      android:versionCode="153"
+      android:versionName="5.0.1.153">
           
     <!-- Instructions
     	The build for CTS version is very fragile:

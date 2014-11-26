@@ -12,8 +12,8 @@ import java.io.IOException;
 
 public class PlasterCast
 	{
-	boolean uses_matchstick = true;
-	boolean uses_chromecast = false;
+	boolean uses_matchstick = false;
+	boolean uses_chromecast = true;
 	
 	WrapMatchstick matchstick = null;
 	WrapChromecast chromecast = null;
