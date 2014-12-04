@@ -6,6 +6,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Arrays;
@@ -46,6 +48,8 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import javax.net.ssl.SSLSocketFactory;
 
+import android.view.WindowManager;
+
 public class ChatLayer extends StandardFragment
 	{
 	metadata config = null;
@@ -73,6 +77,9 @@ public class ChatLayer extends StandardFragment
     ChatAdapter chat_adapter = null;
     
     Thread chat_thread = null;
+    
+    Timer update_timer = null;
+    UpdateTask update_task = null;
     
     public interface OnChatListener
 		{
@@ -135,6 +142,8 @@ public class ChatLayer extends StandardFragment
 	  
 	    log ("start chat");
 	    
+	    getActivity().getWindow().addFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		
 	    chat_thread = new Thread()
 	    	{
 	    	@Override
@@ -178,6 +187,25 @@ public class ChatLayer extends StandardFragment
 				return false;
 				}						
 		    });
+	    
+	    View vLayer = getView();
+		vLayer.setOnClickListener (new OnClickListener()
+			{
+	        @Override
+	        public void onClick (View v)
+	        	{		        	
+	        	/* eat this */
+	        	}
+			});
+		
+		if (update_timer != null)
+			{
+			update_timer.cancel();
+			update_timer = null;
+			}
+		
+		update_timer = new Timer();
+		update_timer.scheduleAtFixedRate (new UpdateTask(), 10000, 10000);
 		}
     
     public void open_irc()
@@ -249,6 +277,12 @@ public class ChatLayer extends StandardFragment
     
     public void add_chat_message (final String from, final String message, long timestamp)
     	{
+    	if (timestamp == 0)
+    		{
+    		/* default to now */
+    		timestamp = System.currentTimeMillis();
+    		}
+    	
 		chatmessage cm = new chatmessage (from, message, timestamp);
 		chatlog.add (cm);
 		
@@ -385,6 +419,14 @@ public class ChatLayer extends StandardFragment
 			irc.close();
 			irc = null;
 			}
+		
+		if (update_timer != null)
+			{
+			update_timer.cancel();
+			update_timer = null;
+			}
+		
+	    getActivity().getWindow().clearFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	    }
     
 	public class ChatAdapter extends BaseAdapter
@@ -455,10 +497,13 @@ public class ChatLayer extends StandardFragment
 			if (vCounter != null)
 				vCounter.setText ("#" + Integer.toString (chatlog.size() - position));
 			
+			String ago = util.ageof (getActivity(), chat.timestamp / 1000);
+			
 			TextView vSource = (TextView) rv.findViewById (R.id.message_source);
 			if (vSource != null)
-				vSource.setText (" on IRC");
+				vSource.setText (ago);
 			
+			/*
 			TextView vAgo = (TextView) rv.findViewById (R.id.message_ago);
 			if (vAgo != null)
 				{
@@ -467,8 +512,25 @@ public class ChatLayer extends StandardFragment
 				//	ago = util.ageof (getActivity(), Long.parseLong (soc.date));
 				vAgo.setText (ago);
 				}
-
+			*/
+			
 			return rv;
 			}	   
+		}
+	
+	class UpdateTask extends TimerTask
+		{  
+		public void run()
+	       	{
+			mCallback.get_main_thread().post (new Runnable()
+				{
+				@Override
+				public void run()
+					{
+					if (chat_adapter != null)
+						chat_adapter.notifyDataSetChanged();
+					}
+				});
+	       	}	       	
 		}
 	}

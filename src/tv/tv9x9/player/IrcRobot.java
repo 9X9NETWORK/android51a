@@ -139,6 +139,23 @@ abstract public class IrcRobot
 						{
 						onMessage (fields[0], fields[3]);
 						}
+					else if (fields[0].equals ("PING"))
+						{
+						String response = "";
+						for (int i = 1; i < fields.length; i++)
+							response += " " + fields[i];	
+						log ("responding to ping: " + response);
+						post ("PONG" + response);
+						}
+					else if (fields[0].equals ("ERROR"))
+						{
+						String rest = "";
+						for (int i = 1; i < fields.length; i++)
+							rest += " " + fields[i];	
+						onMessage ("IRC Server", rest);
+						}
+					else
+						log ("unknown IRC message: " + line);
 					}
 				}
 			if (!awaiting_close)
@@ -224,7 +241,7 @@ abstract public class IrcRobot
 		try
 			{
 			fd.setSoTimeout (3000);
-			log ("post: " + text);
+			log ("** post: " + text);
 			byte[] b = (text + '\n' + '\r').getBytes ("UTF-8");
 			out.write (b);
 			}

@@ -3079,8 +3079,9 @@ public class main extends VideoBaseActivity
 		        ft.commit();
 				}
 			
-			/* note! this is an overlay, return */
-			return;
+			/* note! for tablet this is an overlay, return */
+			if (is_tablet())
+				return;
 			}
 		
 		/* overlay! */
@@ -7165,7 +7166,7 @@ public class main extends VideoBaseActivity
 	
 	public void test_in_app_purchase()
 		{
-		log ("testing in-app-purchase");
+		log ("[IAP] testing in-app-purchase");
 		
 		ArrayList <String> skuList = new ArrayList <String> ();
 		
@@ -7183,7 +7184,7 @@ public class main extends VideoBaseActivity
 			@Override
 			public void run()
 				{
-				log ("testing in-app-purchase");
+				log ("[IAP] querying in-app-purchase in thread");
 				query_sku (skuList);
 				}
 			};
@@ -7199,13 +7200,13 @@ public class main extends VideoBaseActivity
 		Bundle skuDetails = null;
 		try
 			{
-			log ("Google Play: calling getSkuDetails");
+			log ("[IAP] Google Play: calling getSkuDetails");
 			String purchase_type = "subs"; // might be "inapp", but Lili says we will only be using subscriptions
 			skuDetails = billing_service.getSkuDetails (3, getPackageName(), purchase_type, querySkus);
 			}
 		catch (RemoteException ex)
 			{
-			log ("error obtaining SKU details from Google Play:");
+			log ("[IAP] error obtaining SKU details from Google Play:");
 			ex.printStackTrace();
 			return;
 			}
@@ -7215,7 +7216,7 @@ public class main extends VideoBaseActivity
 			{
 			ArrayList <String> responseList = skuDetails.getStringArrayList ("DETAILS_LIST");
 		   
-			log ("Google Play: getSkuDetails number of items returned: " + responseList.size());
+			log ("[IAP] Google Play: getSkuDetails number of items returned: " + responseList.size());
 			
 		    for (String thisResponse: responseList)
 		   		{
@@ -7224,17 +7225,21 @@ public class main extends VideoBaseActivity
 		    		JSONObject object = new JSONObject (thisResponse);
 			    	final String sku = object.getString ("productId");
 			    	final String price = object.getString ("price");
-			    	log ("productId: " + sku + " price: " + price);
+			    	log ("[IAP] productId: " + sku + " price: " + price);
+			    	config.set_pay_info_by_sku (sku, "productId", price);
+			    	config.set_pay_info_by_sku (sku, "price", price);
+			    	/*
+			    	 * enable test purchase UI
+			    	 * 
 			    	in_main_thread.post (new Runnable()
 			    		{
 			    		@Override
 			    		public void run()
 			    			{
 					    	enable_sku (sku, price);
-					    	config.set_pay_info_by_sku (sku, "productId", price);
-					    	config.set_pay_info_by_sku (sku, "price", price);
 			    			}
 			    		});
+			    	*/
 		    		}
 		    	catch (JSONException ex)
 		    		{
@@ -7243,7 +7248,7 @@ public class main extends VideoBaseActivity
 		   		}
 			}
 		else
-			log ("Google Play: getSkuDetails response code is: " + response);
+			log ("[IAP] Google Play: getSkuDetails response code is: " + response);
 		}
 	 
 	public void enable_sku (final String sku, final String price)
@@ -7279,6 +7284,7 @@ public class main extends VideoBaseActivity
 		{
 		try
 			{
+			log ("[IAP] buyIntent for " + sku + ", startIntentSenderForResult");
 			sku_purchase_in_progress = sku;
 			Bundle buyIntentBundle = billing_service.getBuyIntent (3, getPackageName(), sku, "subs", "wombat");
 			PendingIntent pi = buyIntentBundle.getParcelable ("BUY_INTENT");
@@ -7308,7 +7314,7 @@ public class main extends VideoBaseActivity
 	
 	void purchase_activity_result (int requestCode, int resultCode, Intent data)
 		{ 
-		log ("purchase_activity_result :: requestCode=" + requestCode + " resultCode=" + resultCode);
+		log ("[IAP] purchase_activity_result :: requestCode=" + requestCode + " resultCode=" + resultCode);
 		
 		if (requestCode == 1911)
 			{           
@@ -7316,7 +7322,7 @@ public class main extends VideoBaseActivity
 			String purchaseData = data.getStringExtra ("INAPP_PURCHASE_DATA");
 			String dataSignature = data.getStringExtra ("INAPP_DATA_SIGNATURE");
 	        
-			log ("responseCode=" + responseCode);
+			log ("[IAP] responseCode=" + responseCode);
 			
 			// purchase_activity_result :: requestCode=1911 resultCode=0
 			if (responseCode == BILLING_RESPONSE_RESULT_OK)
@@ -7329,7 +7335,7 @@ public class main extends VideoBaseActivity
 						String sku = jo.getString ("productId");
 						String purchaseToken = jo.getString ("purchaseToken");
 						String channel_id = config.get_pay_info (sku, "channel");
-						log ("sku \"" + sku + "\" purchase successful, channel: " + channel_id + ", token is: " + purchaseToken);
+						log ("[IAP] sku \"" + sku + "\" purchase successful, channel: " + channel_id + ", token is: " + purchaseToken);
 						if (channel_id != null && !channel_id.equals (""))
 							{
 							purchase_activity_result_ii (channel_id, sku, purchaseToken);
@@ -7337,25 +7343,29 @@ public class main extends VideoBaseActivity
 						else
 							{
 							/* this might be a test purchase, do nothing */
+							log ("[IAP] channel null or blank, can't correlate purchase");
+							config.dump_pay_info();
 							}
 	
 						}
 					catch (JSONException ex)
 						{
-						alert ("in-app-purchase failure:");
+						alert ("in-app-purchase failure");
+						log ("[IAP] in-app-purchase failure");
 						ex.printStackTrace();
 						}
 					}
 				}
 			else if (responseCode == BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED)
 				{
-				log ("billing response: ALREADY PURCHASED (" + purchaseData + ")");
+				log ("[IAP] billing response: ALREADY PURCHASED (" + purchaseData + ")");
 				config.set_pay_info_by_sku (sku_purchase_in_progress, "paid", "true");
 				String channel_id = config.get_pay_info_by_sku (sku_purchase_in_progress, "channel");
 				launch_player (channel_id, new String[] { channel_id });
 				}
 			else
 				{
+				log ("[IAP] purchase activity result failure: " + responseCode);
 				alert ("Error " + responseCode + " making in-app purchase.");
 				}
 			}
@@ -7378,13 +7388,14 @@ public class main extends VideoBaseActivity
 							@Override
 							public void run()
 								{
-								log ("launching pay channel: " + channel_id);
+								log ("[IAP] launching pay channel: " + channel_id);
 								launch_player (channel_id, new String[] { channel_id });
 								}
 							});
 						}
 					public void failure (int code, String errtext)
 						{
+						log ("[IAP] addPurchase failure " + code + ": " + errtext);
 						toast ("Error " + code + " making in-app purchase: " + errtext);
 						}
 					};
@@ -7420,7 +7431,7 @@ public class main extends VideoBaseActivity
 				ArrayList <String> ownedSkus = ownedItems.getStringArrayList ("INAPP_PURCHASE_ITEM_LIST");
 				ArrayList <String> purchaseDataList = ownedItems.getStringArrayList ("INAPP_PURCHASE_DATA_LIST");
 				
-				for (int i = 0; i < purchaseDataList.size(); ++i)
+				for (int i = 0; i < purchaseDataList.size(); i++)
 					{
 				    String purchaseData = purchaseDataList.get (i);
 				    String sku = ownedSkus.get (i);
@@ -7442,6 +7453,7 @@ public class main extends VideoBaseActivity
 									}
 								public void failure (int code, String errtext)
 									{
+									log ("[IAP] addPurchase (during sync) failure " + code + ": " + errtext);
 									}
 								};
 							}
@@ -7477,6 +7489,7 @@ public class main extends VideoBaseActivity
 						}
 					public void failure (int code, String errtext)
 						{
+						log ("[IAP] getPurchases failure " + code + ": " + errtext);
 						}
 					};
 				}
@@ -7489,7 +7502,7 @@ public class main extends VideoBaseActivity
 		{
 		for (String line: lines)
 			{
-			log ("pay channel I: " + line);
+			log ("[IAP] pay channel I: " + line);
 			String fields[] = line.split ("\t");
 			if (fields.length > 2)
 				{
@@ -7514,7 +7527,7 @@ public class main extends VideoBaseActivity
 						
 						for (String line: lines)
 							{
-							log ("pay channel II: " + line);
+							log ("[IAP] pay channel II: " + line);
 							String fields[] = line.split ("\t");
 							if (fields.length > 2)
 								{
@@ -7527,7 +7540,7 @@ public class main extends VideoBaseActivity
 								}							
 							}
 						
-						log ("known sku's for this domain: " + skuList.size());
+						log ("[IAP] known sku's for this domain: " + skuList.size());
 						if (skuList.size() > 0)
 							{
 							/* information returned by playerAPI is inadequate. Ask Google for the rest */
@@ -7538,6 +7551,7 @@ public class main extends VideoBaseActivity
 						}
 					public void failure (int code, String errtext)
 						{
+						log ("[IAP] getItems failure " + code + ": " + errtext);
 						}
 					};
 				}
@@ -7552,7 +7566,7 @@ public class main extends VideoBaseActivity
 		if (config.usertoken != null)
 			{
 			alert ("You don't have access to this pay channel!");
-			log ("onNoPayAccess: no access to this pay channel: " + channel_id);
+			log ("[IAP] onNoPayAccess: no access to this pay channel: " + channel_id);
 			String sku = config.get_pay_info (channel_id, "sku");
 			if (sku != null)
 				test_purchase (sku);

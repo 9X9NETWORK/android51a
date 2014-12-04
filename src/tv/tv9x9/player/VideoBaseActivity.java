@@ -3897,8 +3897,12 @@ public class VideoBaseActivity extends FragmentActivity implements YouTubePlayer
         
         try
         	{
-        	gcast_media_route_selector = new MediaRouteSelector.Builder().addControlCategory
-        			(plasterCast.categoryForCast (config.chromecast_app_name)).build();
+        	/* adds categories for both Chromecast and Matchstick, as appropriate */        	
+        	gcast_media_route_selector = plasterCast.makeSelector (config.chromecast_app_name);
+        	
+        	// old way. This assumes either Chromecast or Matchstick, but not both
+        	// gcast_media_route_selector = new MediaRouteSelector.Builder().addControlCategory
+        	// 		(plasterCast.categoryForCast (config.chromecast_app_name)).build();
         	}
         catch (Exception ex)
         	{

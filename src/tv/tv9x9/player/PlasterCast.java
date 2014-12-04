@@ -1,18 +1,16 @@
 package tv.tv9x9.player;
 
-/* This is its own class instead of using WrapChromecast and WrapMatchstick alone because I
-   intend to have logic in here to select one or the other based on which receiver is selected */
-
 import android.content.Context;
 
 import android.os.Bundle;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.media.MediaRouter.RouteInfo;
-import java.io.IOException;
+import android.support.v7.media.MediaRouteSelector;
+import android.util.Log;
 
 public class PlasterCast
 	{
-	boolean uses_matchstick = false;
+	boolean uses_matchstick = true;
 	boolean uses_chromecast = true;
 	
 	WrapMatchstick matchstick = null;
@@ -50,25 +48,59 @@ public class PlasterCast
 		{
 		this.listener = listener;
 		if (uses_matchstick)
-			{
-			plaster = new WrapMatchstick();
-			}
-		else if (uses_chromecast)
-			plaster = new WrapChromecast();
+			matchstick = new WrapMatchstick();
+		if (uses_chromecast)
+			chromecast = new WrapChromecast();		
 		}
 	
-	public String categoryForCast (String app_name)
+	public void log (String text)
 		{
-		if (plaster != null)
-			return plaster.categoryForCast (app_name);
+		Log.i ("vtest", "[plasterCast] " + text);
+		}
+	
+	public MediaRouteSelector makeSelector (String app_name)
+		{
+		MediaRouteSelector.Builder selectorBuilder = new MediaRouteSelector.Builder();
+		addCategoriesForCast (selectorBuilder, app_name);
+		return selectorBuilder.build();
+		}
+	
+	public void addCategoriesForCast (MediaRouteSelector.Builder selectorBuilder, String app_name)
+		{
+		if (selectorBuilder != null)
+			{
+			if (uses_matchstick && matchstick != null)
+				{
+				log ("adding category for MatchStick");
+				selectorBuilder.addControlCategory (matchstick.categoryForCast (app_name));
+				}
+			if (uses_chromecast && chromecast != null)
+				{
+				if (app_name != null)
+					{
+					log ("adding category for Chromecast");
+					selectorBuilder.addControlCategory (chromecast.categoryForCast (app_name));
+					}
+				else
+					log ("won't add category for Chromecast, since app_name is null");
+				}
+			}
 		else
-			return null;
+			log ("** selectorBuilder is null!");
 		}
 	
 	public void selectDevice (MediaRouter router, RouteInfo info)
 		{
-		if (plaster != null)
-			plaster.selectDevice (info);
+		if (info != null)
+			{
+			String devinfo = info.getDescription();
+			if (devinfo != null && devinfo.contains ("MatchStick"))
+				plaster = matchstick;
+			else
+				plaster = chromecast;
+			if (plaster != null)
+				plaster.selectDevice (info);
+			}
 		}
 	
 	public void stopApplication()
@@ -82,6 +114,7 @@ public class PlasterCast
 		if (plaster != null)
 			plaster.teardown();
 		listener.onTeardown();
+		plaster = null;
 		}
 	
 	public void createClient (Context ctx, PlasterListener listener)

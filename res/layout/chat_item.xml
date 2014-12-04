@@ -99,6 +99,7 @@
 			        android:layout_height="wrap_content"
 			        android:layout_marginTop="8dip"
 			        android:layout_marginBottom="8dip"
+			        android:layout_marginLeft="6dip"
 			        android:textSize="14sp"
 				    android:textColor="#777777"       
 			        />  		

@@ -2544,4 +2544,21 @@ public class metadata
 		
 		return info.get (k);
 		}
+	
+	public void dump_pay_info()
+		{
+		for (Entry <String, Hashtable <String, String>> entry : pay_info_by_channel.entrySet())
+			{
+			String channel = entry.getKey();
+			Hashtable <String, String> info = entry.getValue();
+			Log.i ("vtest", "pay info dump for channel: " + channel);
+			for (Entry <String, String> infoentry : info.entrySet())
+				{
+				String k = infoentry.getKey();
+				String v = infoentry.getValue();
+				Log.i ("vtest", "channel: " + channel + " k: " + k + " v: " + v);
+				}
+			//" + episode_id + " :: " + key + "=" + value);
+			}
+		}
 	}
