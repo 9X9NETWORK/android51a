@@ -381,7 +381,7 @@ public class ChatLayer extends StandardFragment
 			}
 		
 		log ("ts: " + j_timestamp);
-		long ts = Long.parseLong (j_timestamp);
+		long ts = Long.parseLong (j_timestamp) * 1000;
 		
 		add_chat_message (j_nick, j_text, ts);
     	}
