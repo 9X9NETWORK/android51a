@@ -1403,7 +1403,7 @@ public class main extends VideoBaseActivity
 		if (config.social_server != null)
 			items.push (new menuitem (toplayer.SOCIAL, R.string.social, R.drawable.icon_social, R.drawable.icon_social_gray));
 
-		if (config.chat_server != null && config.userid != null)
+		if (config.chat_server != null)
 			items.push (new menuitem (toplayer.CHAT, R.string.chat, R.drawable.icon_chat, R.drawable.icon_chat));
 		
 		items.push (new menuitem (toplayer.FEEDBACK, R.string.feedback, R.drawable.icon_nav_feedback, R.drawable.icon_nav_feedback));

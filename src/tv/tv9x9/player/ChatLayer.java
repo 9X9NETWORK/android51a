@@ -93,6 +93,7 @@ public class ChatLayer extends StandardFragment
     	public int actual_pixels (int dp);
     	public int screen_width();
     	public void remember_location();
+    	public void enable_signin_layer (Runnable callback);
 		}    
     
     OnChatListener mCallback; 
@@ -180,7 +181,31 @@ public class ChatLayer extends StandardFragment
 						InputMethodManager imm = (InputMethodManager) getActivity().getSystemService (Context.INPUT_METHOD_SERVICE);
 						imm.hideSoftInputFromWindow (vSay.getWindowToken(), 0);
 						if (irc != null)
-							irc.say ("#" + config.mso, message);
+							{
+							if (config.userid == null || config.usertoken == null)								
+								{
+								final EditText vSay = (EditText) getView().findViewById (R.id.say);
+								final String what_im_sayin = vSay.getText().toString();
+								mCallback.enable_signin_layer (new Runnable()
+									{
+									@Override
+									public void run()
+										{
+										if (irc.is_connected())
+											{
+											/* on tablet, signin is an overlay. We might possibly keep the connection */
+											change_nick();
+											}
+										else
+											start_chat (config);										
+										vSay.setText (what_im_sayin);
+										}
+									});
+								}
+							else
+								irc.say ("#" + config.mso, message);
+							}	
+
 						return true;
 						}
 					}
@@ -265,14 +290,31 @@ public class ChatLayer extends StandardFragment
     			{
     			super.say (to, message);
     			if (to.startsWith ("#"))
-    				add_chat_message ("u_" + config.userid, message, 0);
+    				add_chat_message (generate_nickname(), message, 0);
     			else
-    				add_chat_message ("u_" + config.userid, "-> *" + to + "* " + message, 0);
+    				add_chat_message (generate_nickname(), "-> *" + to + "* " + message, 0);
     			clear_new_message();
     			}
     		};
-    		
-    	irc.open (config.chat_server, 6667, "52e49a7fc64b774a", "u_" + config.userid);
+    	
+    	irc.open (config.chat_server, 6667, "52e49a7fc64b774a", generate_nickname());
+    	}
+    
+    public void change_nick()
+    	{
+    	if (irc != null)
+    		irc.post ("NICK " + generate_nickname());
+    	}
+    
+    public String generate_nickname()
+    	{
+    	if (config.userid == null || config.usertoken == null)
+	    	{
+			long now = System.currentTimeMillis();
+			return "a_" + (now % 1000000);
+	    	}
+    	else
+    		return "u_" + config.userid;
     	}
     
     public void add_chat_message (final String from, final String message, long timestamp)
