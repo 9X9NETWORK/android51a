@@ -397,6 +397,18 @@ public class main extends VideoBaseActivity
 					}    		
 	    		}
 	    	
+	    	if (is_tablet())
+	    		{
+				Fragment f = getSupportFragmentManager().findFragmentById (R.id.signin_fragment_container_tablet);		
+				if (!f.isHidden())
+					{
+					log ("hide signin fragment");
+					disable_signin_layer_for_tablet();
+					current_layer = signin_class().get_layer_before_signin();
+					return true;
+					}    
+	    		}
+	    	
 	    	if (current_layer == toplayer.PLAYBACK)
 	    		{
 	    		track_event ("navigation", "back", "back", 0);
@@ -1788,6 +1800,9 @@ public class main extends VideoBaseActivity
 		
 		/* the settings view might be in the slider */
 		settings_class().redraw_settings();
+		
+		/* chat nickname varies based on whether we are signed in */
+		chat_class().change_nick();
 		}
 	
 	@Override
@@ -3252,6 +3267,18 @@ public class main extends VideoBaseActivity
 		track_layer (toplayer.SIGNIN);
 		}
 
+	public void disable_signin_layer_for_tablet()
+		{
+		Fragment f = getSupportFragmentManager().findFragmentById (R.id.signin_fragment_container_tablet);		
+		if (!f.isHidden())
+			{
+			log ("hide Signin fragment");
+		    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();  
+		    ft.hide (f);  
+		    ft.commit();
+			}	
+		}
+	
     public SigninLayer signin_class()
 		{    	
 	    FragmentManager fm = getSupportFragmentManager();

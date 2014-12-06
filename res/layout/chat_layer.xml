@@ -55,13 +55,14 @@
 		/>
    		 	 					  			
     <LinearLayout           
+        android:id="@+id/saybox"
 		android:layout_width="fill_parent" 
 		android:layout_height="60dip"
 		android:layout_gravity="bottom"
 		android:gravity="center"				
 		android:background="#FFFFFF"
-		android:orientation="horizontal">
-		
+		android:orientation="horizontal"
+		android:visibility="gone">		
 	   	<TextView
 	        android:layout_width="wrap_content" 
 	        android:layout_height="wrap_content"  
@@ -73,7 +74,6 @@
 	        android:textColor="#000000"
 			android:text="Say: "	        
 	        />
-   	        
        	<EditText
 		    android:id="@+id/say"       
 			android:layout_width="fill_parent"
@@ -91,6 +91,41 @@
 			android:background="@drawable/textfield_tray"	
 			android:maxLength="256"						
 			/>	
+	</LinearLayout>
+	
+    <LinearLayout           
+        android:id="@+id/loginbox"
+		android:layout_width="fill_parent" 
+		android:layout_height="60dip"
+		android:layout_gravity="bottom"
+		android:gravity="center"				
+		android:background="#D9D9D9"
+		android:orientation="horizontal"
+		android:visibility="visible">		
+	   	<TextView
+	        android:layout_width="wrap_content" 
+	        android:layout_height="wrap_content"  
+	        android:layout_gravity="center"	                    
+	        android:layout_marginLeft="10dip"
+	        android:layout_marginRight="10dip"
+	        android:gravity="center"		        
+	        android:textSize="24sp"
+	        android:textColor="#000000"
+			android:text="@string/to_join_this_chat"	        
+	        />   
+	   	<TextView
+	        android:layout_width="wrap_content" 
+	        android:layout_height="wrap_content"  
+	        android:layout_gravity="center"	                    
+	        android:layout_marginLeft="10dip"
+	        android:layout_marginRight="10dip"
+	        android:padding="5dip"
+	        android:gravity="center"		        
+	        android:textSize="24sp"
+	        android:textColor="#000000"
+			android:text="@string/si_sign_in_button"	 
+			android:background="#FFAA00"       
+	        /> 	        	        
 	</LinearLayout>
 				
 </LinearLayout>

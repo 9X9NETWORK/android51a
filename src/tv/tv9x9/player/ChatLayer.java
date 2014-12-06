@@ -222,6 +222,8 @@ public class ChatLayer extends StandardFragment
 	        	/* eat this */
 	        	}
 			});
+
+		update_saybox();
 		
 		if (update_timer != null)
 			{
@@ -232,6 +234,46 @@ public class ChatLayer extends StandardFragment
 		update_timer = new Timer();
 		update_timer.scheduleAtFixedRate (new UpdateTask(), 10000, 10000);
 		}
+
+    public void update_saybox()
+    	{		
+		boolean not_logged_in = config.usertoken == null || config.userid == null;
+		
+		View vSayBox = getView().findViewById (R.id.saybox);
+		vSayBox.setVisibility (not_logged_in ? View.GONE : View.VISIBLE);
+		
+		View vLoginBox = getView().findViewById (R.id.loginbox);
+		vLoginBox.setVisibility (not_logged_in ? View.VISIBLE : View.GONE);	
+		
+		vLoginBox.setOnClickListener (new OnClickListener()
+			{
+	        @Override
+	        public void onClick (View v)
+	        	{		    
+	        	if (config.usertoken != null && config.userid != null)
+	        		{
+	        		/* out of sync! should never happen. change_nick will resync nick and update saybox */
+	        		change_nick();
+	        		return;
+	        		}
+	        		
+				mCallback.enable_signin_layer (new Runnable()
+					{
+					@Override
+					public void run()
+						{
+						if (irc.is_connected())
+							{
+							/* on tablet, signin is an overlay. We might possibly keep the connection */
+							change_nick();
+							}
+						else
+							start_chat (config);										
+						}
+					});
+	        	}
+			});
+    	}
     
     public void open_irc()
     	{
@@ -292,7 +334,9 @@ public class ChatLayer extends StandardFragment
     			if (to.startsWith ("#"))
     				add_chat_message (generate_nickname(), message, 0);
     			else
-    				add_chat_message (generate_nickname(), "-> *" + to + "* " + message, 0);
+    				{
+    				// add_chat_message (generate_nickname(), "-> *" + to + "* " + message, 0);
+    				}
     			clear_new_message();
     			}
     		};
@@ -304,6 +348,15 @@ public class ChatLayer extends StandardFragment
     	{
     	if (irc != null)
     		irc.post ("NICK " + generate_nickname());
+    	
+    	mCallback.get_main_thread().post (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+		    	update_saybox();	
+				}
+			});
     	}
     
     public String generate_nickname()
@@ -468,7 +521,14 @@ public class ChatLayer extends StandardFragment
 			update_timer = null;
 			}
 		
-	    getActivity().getWindow().clearFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		mCallback.get_main_thread().post (new Runnable()
+			{
+			@Override
+			public void run()
+				{
+			    getActivity().getWindow().clearFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+				}
+			});
 	    }
     
 	public class ChatAdapter extends BaseAdapter

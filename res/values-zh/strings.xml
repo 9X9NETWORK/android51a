@@ -276,5 +276,6 @@
 	<string name="three_in_a_row">Turn &#8220;Skip Watched Episodes&#8221; on/off in <b><u>Settings</u></b></string>	
 	<string name="home_store_hint">Tap to expand the Menu. Then visit the Store for more great content.</string>	
 	<string name="playback_subscribe_hint">Like this program? Tap to follow it!</string>	
-	<string name="chat">Chat</string>	
+	<string name="chat">聊聊天</string>	
+ 	<string name="to_join_this_chat">加入討論前請先</string>	
 </resources>
