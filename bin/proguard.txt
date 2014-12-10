@@ -1,8 +1,8 @@
-# view res/layout/video_layer_new.xml #generated:1011
+# view res/layout/video_layer_new.xml #generated:1028
 -keep class android.support.v4.view.ViewPager { <init>(...); }
 
-# view res/layout/top_bar.xml #generated:103
-# view res/layout/video_layer_new.xml #generated:104
+# view res/layout/top_bar.xml #generated:120
+# view res/layout/video_layer_new.xml #generated:121
 -keep class android.support.v7.app.MediaRouteButton { <init>(...); }
 
 # view res/layout/abc_action_menu_item_layout.xml #generated:17
@@ -38,6 +38,9 @@
 -keep class android.support.v7.internal.widget.NativeActionModeAwareLayout { <init>(...); }
 
 # view res/layout/abc_action_mode_close_item_material.xml #generated:17
+# view res/layout/abc_search_dropdown_item_icons_2line.xml #generated:27
+# view res/layout/abc_search_dropdown_item_icons_2line.xml #generated:37
+# view res/layout/abc_search_dropdown_item_icons_2line.xml #generated:48
 # view res/layout/abc_search_view.xml #generated:116
 # view res/layout/abc_search_view.xml #generated:128
 # view res/layout/abc_search_view.xml #generated:38
@@ -61,7 +64,7 @@
 # view res/layout/abc_screen_toolbar.xml #generated:36
 -keep class android.support.v7.widget.Toolbar { <init>(...); }
 
-# view AndroidManifest.xml #generated:702
+# view AndroidManifest.xml #generated:779
 -keep class com.facebook.LoginActivity { <init>(...); }
 
 # view res/layout/com_facebook_usersettingsfragment.xml #generated:48
@@ -72,30 +75,30 @@
 # view res/layout/signin_tablet.xml #generated:63
 -keep class com.facebook.widget.LoginButton { <init>(...); }
 
-# view AndroidManifest.xml #generated:737
+# view AndroidManifest.xml #generated:814
 -keep class com.google.analytics.tracking.android.CampaignTrackingReceiver { <init>(...); }
 
-# view AndroidManifest.xml #generated:736
+# view AndroidManifest.xml #generated:813
 -keep class com.google.analytics.tracking.android.CampaignTrackingService { <init>(...); }
 
-# view AndroidManifest.xml #generated:725
+# view AndroidManifest.xml #generated:802
 -keep class com.google.android.gms.ads.AdActivity { <init>(...); }
 
 # view v10/res/layout-v10/popup.xml #generated:65
 # view v10/res/layout-v10/simple.xml #generated:11
 -keep class com.google.android.youtube.player.YouTubePlayerView { <init>(...); }
 
-# view AndroidManifest.xml #generated:708
+# view AndroidManifest.xml #generated:785
 -keep class io.vov.vitamio.activity.InitActivity { <init>(...); }
 
 # view res/layout/direct_ad_layer.xml #generated:14
 # view res/layout/player_fragment.xml #generated:2
 -keep class io.vov.vitamio.widget.CenterLayout { <init>(...); }
 
-# view AndroidManifest.xml #generated:745
+# view AndroidManifest.xml #generated:823
 -keep class tv.matchstick.fling.service.FlingDeviceService { <init>(...); }
 
-# view AndroidManifest.xml #generated:752
+# view AndroidManifest.xml #generated:830
 -keep class tv.matchstick.fling.service.FlingService { <init>(...); }
 
 # view res/layout/main.xml #generated:34
@@ -106,21 +109,21 @@
 
 # view res/layout/channel.xml #generated:102
 # view res/layout/channel_tablet.xml #generated:26
-# view res/layout/video_layer_new.xml #generated:381
-# view res/layout/video_layer_new.xml #generated:653
-# view res/layout/video_layer_new.xml #generated:885
+# view res/layout/video_layer_new.xml #generated:398
+# view res/layout/video_layer_new.xml #generated:670
+# view res/layout/video_layer_new.xml #generated:902
 -keep class tv.tv9x9.player.CircleImageView { <init>(...); }
 
-# view AndroidManifest.xml #generated:646
+# view AndroidManifest.xml #generated:723
 -keep class tv.tv9x9.player.DirectAdvert { <init>(...); }
 
 # view res/layout/main.xml #generated:146
 -keep class tv.tv9x9.player.FeedbackLayer { <init>(...); }
 
-# view AndroidManifest.xml #generated:621
+# view AndroidManifest.xml #generated:698
 -keep class tv.tv9x9.player.GcmBroadcastReceiver { <init>(...); }
 
-# view AndroidManifest.xml #generated:629
+# view AndroidManifest.xml #generated:706
 -keep class tv.tv9x9.player.GcmIntentService { <init>(...); }
 
 # view res/layout/main.xml #generated:58
@@ -129,7 +132,7 @@
 # view res/layout/main.xml #generated:24
 -keep class tv.tv9x9.player.HomeLayer { <init>(...); }
 
-# view AndroidManifest.xml #generated:631
+# view AndroidManifest.xml #generated:708
 -keep class tv.tv9x9.player.Message9x9Manager { <init>(...); }
 
 # view res/layout/main.xml #generated:88
@@ -142,7 +145,7 @@
 # view res/layout/main.xml #generated:193
 -keep class tv.tv9x9.player.PasswordLayer { <init>(...); }
 
-# view res/layout/video_layer_new.xml #generated:259
+# view res/layout/video_layer_new.xml #generated:276
 -keep class tv.tv9x9.player.PlayerFragment { <init>(...); }
 
 # view res/layout/main.xml #generated:78
@@ -164,7 +167,7 @@
 # view res/layout/main.xml #generated:126
 -keep class tv.tv9x9.player.SocialLayer { <init>(...); }
 
-# view res/layout/video_layer_new.xml #generated:128
+# view res/layout/video_layer_new.xml #generated:145
 # view v10/res/layout-v10/popup.xml #generated:31
 # view v10/res/layout-v10/simple.xml #generated:7
 -keep class tv.tv9x9.player.SpecialFrameLayout { <init>(...); }
@@ -186,30 +189,30 @@
 # view v10/res/layout-v10/shear.xml #generated:7
 -keep class tv.tv9x9.player.TrapezoidView { <init>(...); }
 
-# view res/layout/video_layer_new.xml #generated:268
+# view res/layout/video_layer_new.xml #generated:285
 -keep class tv.tv9x9.player.VideoFragment { <init>(...); }
 
-# view AndroidManifest.xml #generated:639
+# view AndroidManifest.xml #generated:716
 -keep class tv.tv9x9.player.main { <init>(...); }
 
-# view AndroidManifest.xml #generated:663
+# view AndroidManifest.xml #generated:740
 -keep class tv.tv9x9.player.popup { <init>(...); }
 
-# view AndroidManifest.xml #generated:671
+# view AndroidManifest.xml #generated:748
 -keep class tv.tv9x9.player.popupalert { <init>(...); }
 
-# view AndroidManifest.xml #generated:687
+# view AndroidManifest.xml #generated:764
 -keep class tv.tv9x9.player.rctest { <init>(...); }
 
-# view AndroidManifest.xml #generated:695
+# view AndroidManifest.xml #generated:772
 -keep class tv.tv9x9.player.shear { <init>(...); }
 
-# view AndroidManifest.xml #generated:93
+# view AndroidManifest.xml #generated:100
 -keep class tv.tv9x9.player.start { <init>(...); }
 
-# view AndroidManifest.xml #generated:716
+# view AndroidManifest.xml #generated:793
 -keep class tv.tv9x9.player.switchboard { <init>(...); }
 
-# view AndroidManifest.xml #generated:679
+# view AndroidManifest.xml #generated:756
 -keep class tv.tv9x9.player.upgrade { <init>(...); }
 

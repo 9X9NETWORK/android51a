@@ -8,35 +8,34 @@ import java.io.IOException;
 
 import android.content.Context;
 
-import tv.matchstick.fling.ApplicationMetadata;
-import tv.matchstick.fling.ConnectionResult;
-import tv.matchstick.fling.Fling;
-import tv.matchstick.fling.FlingDevice;
-import tv.matchstick.fling.FlingManager;
-import tv.matchstick.fling.FlingMediaControlIntent;
-import tv.matchstick.fling.FlingStatusCodes;
-import tv.matchstick.fling.MediaInfo;
-import tv.matchstick.fling.MediaMetadata;
-import tv.matchstick.fling.MediaStatus;
-import tv.matchstick.fling.RemoteMediaPlayer;
-import tv.matchstick.fling.ResultCallback;
-import tv.matchstick.fling.Status;
+import tv.matchstick.flint.ApplicationMetadata;
+import tv.matchstick.flint.ConnectionResult;
+import tv.matchstick.flint.Flint;
+import tv.matchstick.flint.FlintDevice;
+import tv.matchstick.flint.FlintManager;
+import tv.matchstick.flint.FlintMediaControlIntent;
+import tv.matchstick.flint.FlintStatusCodes;
+import tv.matchstick.flint.MediaInfo;
+import tv.matchstick.flint.MediaMetadata;
+import tv.matchstick.flint.MediaStatus;
+import tv.matchstick.flint.RemoteMediaPlayer;
+import tv.matchstick.flint.ResultCallback;
+import tv.matchstick.flint.Status;
 
-import tv.matchstick.fling.Fling.ApplicationConnectionResult;
-import tv.matchstick.fling.RemoteMediaPlayer.MediaChannelResult;
-import tv.matchstick.fling.images.WebImage;
+import tv.matchstick.flint.Flint.ApplicationConnectionResult;
+import tv.matchstick.flint.RemoteMediaPlayer.MediaChannelResult;
+import tv.matchstick.flint.images.WebImage;
 
 class WrapMatchstick implements PlasterCast.PlasterInterface
 	{
 	private PlasterCast.PlasterListener plasterListener = null;
 	
-    private FlingDevice gcast_selected_device = null;
-    private Fling.Listener gcast_listener;
-    private FlingManager gcast_api_client;
-    private FlingManager.ConnectionCallbacks gcast_connection_callbacks;
+    private FlintDevice gcast_selected_device = null;
+    private Flint.Listener gcast_listener;
+    private FlintManager gcast_api_client;
+    private FlintManager.ConnectionCallbacks gcast_connection_callbacks;
     
     private WrapChannel gcast_channel = null;
-    private WrapConnectionFailedListener gcast_connection_failed_listener;
         
     private boolean gcast_application_started = false;
     private boolean gcast_waiting_for_reconnect = false;
@@ -51,7 +50,7 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
     
 	WrapMatchstick()
 		{
-		Fling.FlingApi.setApplicationId (TILDE_NAME);
+		Flint.FlintApi.setApplicationId (TILDE_NAME);
 		}			
 	
 	public void log (String text)
@@ -63,7 +62,7 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
 		{
 		// this.app_name = app_name;
 		this.app_name = RECV_URL;
-		String cat = FlingMediaControlIntent.categoryForFling (TILDE_NAME);
+		String cat = FlintMediaControlIntent.categoryForFlint (TILDE_NAME);
 		log ("CCX categoryForCast: " + cat);
 		return cat;
 		}
@@ -71,21 +70,21 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
 	public void selectDevice (RouteInfo info)
 		{
 		if (info != null)
-			gcast_selected_device = FlingDevice.getFromBundle (info.getExtras());
+			gcast_selected_device = FlintDevice.getFromBundle (info.getExtras());
 		else
 			gcast_selected_device = null;
 		}
 	
 	public void stopApplication()
 		{
-		Fling.FlingApi.stopApplication (gcast_api_client);
+		Flint.FlintApi.stopApplication (gcast_api_client);
 		}
 	
 	public void removeMessageCallbacks()
 		{
 		try
 			{
-			Fling.FlingApi.removeMessageReceivedCallbacks (gcast_api_client, gcast_channel.getNamespace());
+			Flint.FlintApi.removeMessageReceivedCallbacks (gcast_api_client, gcast_channel.getNamespace());
 			}
 		catch (IOException ex)
 			{
@@ -93,7 +92,7 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
 			}
 		}
 	
-	private class WrapConnectionCallbacks implements FlingManager.ConnectionCallbacks
+	private class WrapConnectionCallbacks implements FlintManager.ConnectionCallbacks
 		{
 		@Override
     	public void onConnected (final Bundle connectionHint)
@@ -114,7 +113,7 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
 	        	{
 	        	gcast_waiting_for_reconnect = false;
 	
-	            if ((connectionHint != null) && connectionHint.getBoolean (Fling.EXTRA_APP_NO_LONGER_RUNNING))
+	            if ((connectionHint != null) && connectionHint.getBoolean (Flint.EXTRA_APP_NO_LONGER_RUNNING))
 	            	{
 	            	log ("receiver app is no longer running");
 	                teardown();
@@ -130,9 +129,9 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
     		try
 				{
 		        /* launch receiver app */
-		        Fling.FlingApi.launchApplication (gcast_api_client, app_name, false).setResultCallback
+		        Flint.FlintApi.launchApplication (gcast_api_client, app_name, false).setResultCallback
 		        	(
-		            new ResultCallback <Fling.ApplicationConnectionResult> ()
+		            new ResultCallback <Flint.ApplicationConnectionResult> ()
 		            	{	                    		
                         @Override
                         public void onResult (ApplicationConnectionResult result)
@@ -186,19 +185,16 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
 			if (plasterListener != null)
 				plasterListener.onConnectionSuspended (cause);
 			}
-		}
-	
-	private class WrapConnectionFailedListener implements FlingManager.OnConnectionFailedListener
-		{
-        @Override
+		
+		@Override
         public void onConnectionFailed (ConnectionResult result)
-        	{
-        	if (plasterListener != null)
-        		plasterListener.onConnectionFailed();
-        	}
+	    	{
+	    	if (plasterListener != null)
+	    		plasterListener.onConnectionFailed();
+	    	}
 		}
 
-    class WrapChannel implements Fling.MessageReceivedCallback
+    class WrapChannel implements Flint.MessageReceivedCallback
     	{
         public String getNamespace()
         	{
@@ -208,7 +204,7 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
         	}
 
         @Override
-        public void onMessageReceived (FlingDevice castDevice, String namespace, String message)
+        public void onMessageReceived (FlintDevice castDevice, String namespace, String message)
         	{
         	if (plasterListener != null)
         		plasterListener.onMessageReceived (namespace, message);
@@ -218,14 +214,11 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
 	public void createClient (Context ctx, PlasterCast.PlasterListener listener)
 		{
 		plasterListener = listener;
-		
-		if (gcast_connection_failed_listener == null)
-			gcast_connection_failed_listener = new WrapConnectionFailedListener();
 
 		if (gcast_connection_callbacks == null)
 			gcast_connection_callbacks = new WrapConnectionCallbacks();
 		
-        gcast_listener = new Fling.Listener()
+        gcast_listener = new Flint.Listener()
     		{
             @Override
             public void onApplicationDisconnected (int errorCode)
@@ -240,13 +233,12 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
             	}
         	};
         	
-		Fling.FlingOptions.Builder api_options_builder = Fling.FlingOptions.builder (gcast_selected_device, gcast_listener);
+		Flint.FlintOptions.Builder api_options_builder = Flint.FlintOptions.builder (gcast_selected_device, gcast_listener);
 		
-        gcast_api_client = new FlingManager
+        gcast_api_client = new FlintManager
         		.Builder (ctx)
-        		.addApi (Fling.API, api_options_builder.build())
+        		.addApi (Flint.API, api_options_builder.build())
                 .addConnectionCallbacks (gcast_connection_callbacks)
-                .addOnConnectionFailedListener (gcast_connection_failed_listener)
                 .build();
         
         gcast_api_client.connect();
@@ -257,7 +249,7 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
 		gcast_channel = new WrapChannel();
 		try
 			{
-			Fling.FlingApi.setMessageReceivedCallbacks (gcast_api_client, gcast_channel.getNamespace(), gcast_channel);
+			Flint.FlintApi.setMessageReceivedCallbacks (gcast_api_client, gcast_channel.getNamespace(), gcast_channel);
 			return true;
 			}
 		catch (IOException ex)
@@ -273,7 +265,7 @@ class WrapMatchstick implements PlasterCast.PlasterInterface
 	    	{
 	        try
 	        	{
-	            Fling.FlingApi.sendMessage (gcast_api_client, gcast_channel.getNamespace(), message)
+	            Flint.FlintApi.sendMessage (gcast_api_client, gcast_channel.getNamespace(), message)
 	                    .setResultCallback (new ResultCallback <Status> ()
 	                    		{
 	                        	@Override
